@@ -2230,7 +2230,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCac
 void MainThread::HandleForegroundApplication()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGI(AAFwkTag::APPKIT, "called.");
     if ((application_ == nullptr) || (appMgr_ == nullptr)) {
         TAG_LOGE(AAFwkTag::APPKIT, "MainThread::handleForegroundApplication error!");
         return;
@@ -3252,19 +3252,19 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
 
 void MainThread::AttachAppDebug()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ATTACH_DEBUG_MODE, true);
 }
 
 void MainThread::DetachAppDebug()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ATTACH_DEBUG_MODE, false);
 }
 
 bool MainThread::NotifyDeviceDisConnect()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     bool isLastProcess = appMgr_->IsFinalAppProcess();
     ScheduleTerminateApplication(isLastProcess);
     return true;
@@ -3272,7 +3272,7 @@ bool MainThread::NotifyDeviceDisConnect()
 
 void MainThread::AssertFaultPauseMainThreadDetection()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, true);
     if (appMgr_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "appMgr is nullptr.");
@@ -3283,7 +3283,7 @@ void MainThread::AssertFaultPauseMainThreadDetection()
 
 void MainThread::AssertFaultResumeMainThreadDetection()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, false);
     if (appMgr_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "appMgr is nullptr.");
@@ -3317,7 +3317,7 @@ void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
 
 void MainThread::SetAppDebug(uint32_t modeFlag, bool isDebug)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto state = DelayedSingleton<AbilityRuntime::AppFreezeState>::GetInstance();
     if (state == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Get app freeze state instance is nullptr.");

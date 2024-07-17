@@ -24,7 +24,7 @@ PhotoEditorExtensionModuleLoader::~PhotoEditorExtensionModuleLoader() = default;
 
 Extension *PhotoEditorExtensionModuleLoader::Create(const std::unique_ptr<Runtime> &runtime) const
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     return PhotoEditorExtension::Create(runtime);
 }
 

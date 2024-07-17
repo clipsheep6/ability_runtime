@@ -34,6 +34,7 @@ ohos_static_library("appexecfwk_appmgr_mock") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    blocklist = "../../../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   configs = [ ":appexecfwk_core_mock_config" ]
@@ -64,6 +65,7 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    blocklist = "../../../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   sources = [

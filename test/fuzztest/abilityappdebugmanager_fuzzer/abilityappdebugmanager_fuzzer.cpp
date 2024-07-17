@@ -19,7 +19,6 @@
 #include "app_debug_listener_proxy.h"
 #undef private
 
-#include "common_fuzzer.h"
 #include<iostream>
 #include "securec.h"
 #include "configuration.h"

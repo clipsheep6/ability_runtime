@@ -68,7 +68,7 @@ bool IsNormalObject(napi_env env, napi_value value)
 
 napi_value CreateJsAutoStartupInfoArray(napi_env env, const std::vector<AutoStartupInfo> &infoList)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     napi_value arrayObj = nullptr;
     napi_create_array(env, &arrayObj);
     for (size_t i = 0; i < infoList.size(); ++i) {
@@ -89,7 +89,7 @@ napi_value CreateJsAutoStartupInfoArray(napi_env env, const std::vector<AutoStar
 
 napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     napi_value object = AppExecFwk::CreateJSObject(env);
     if (object == nullptr) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "object is nullptr.");

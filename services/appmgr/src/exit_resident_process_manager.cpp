@@ -52,12 +52,11 @@ bool ExitResidentProcessManager::RecordExitResidentBundleName(const std::string 
     return true;
 }
 
-bool ExitResidentProcessManager::RecordExitResidentBundleDependedOnWeb(const std::string &bundleName)
+void ExitResidentProcessManager::RecordExitResidentBundleDependedOnWeb(const std::string &bundleName)
 {
     std::lock_guard<ffrt::mutex> lock(webMutexLock_);
     TAG_LOGE(AAFwkTag::APPMGR, "call");
     exitResidentBundlesDependedOnWeb_.emplace_back(bundleName);
-    return true;
 }
 
 int32_t ExitResidentProcessManager::HandleMemorySizeInSufficent()
@@ -118,6 +117,24 @@ void ExitResidentProcessManager::QueryExitBundleInfos(const std::vector<std::str
         }
         exitBundleInfos.emplace_back(bundleInfo);
     }
+}
+
+bool ExitResidentProcessManager::IsKilledForUpgradeWeb(const std::string &bundleName) const
+{
+    TAG_LOGE(AAFwkTag::APPMGR, "call");
+    std::vector<std::string> bundleNames;
+    {
+        std::lock_guard<ffrt::mutex> lock(webMutexLock_);
+        bundleNames = exitResidentBundlesDependedOnWeb_;
+    }
+    for (const auto &innerBundleName : bundleNames) {
+        if (innerBundleName == bundleName) {
+            TAG_LOGD(AAFwkTag::APPMGR, "Is killed for upgrade web.");
+            return true;
+        }
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "Not killed for upgrade web.");
+    return false;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

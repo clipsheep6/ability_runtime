@@ -249,7 +249,7 @@ AppExecFwk::AbilityType ServiceExtensionContext::GetAbilityInfoType() const
 ErrCode ServiceExtensionContext::PreStartMission(const std::string& bundleName, const std::string& moduleName,
     const std::string& abilityName, const std::string& startTime)
 {
-    TAG_LOGI(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGI(AAFwkTag::APPKIT, "called");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->PreStartMission(
         bundleName, moduleName, abilityName, startTime);
     if (err != ERR_OK) {

@@ -793,7 +793,7 @@ void AbilityContextImpl::InsertResultCallbackTask(int requestCode, RuntimeTask &
 
 void AbilityContextImpl::RemoveResultCallbackTask(int requestCode)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "Called.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     resultCallbacks_.erase(requestCode);
 }
 
@@ -1041,7 +1041,7 @@ bool AbilityContextImpl::GetRestoreEnabled()
 
 ErrCode AbilityContextImpl::OpenLink(const AAFwk::Want& want, int requestCode)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "Called.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
 } // namespace AbilityRuntime

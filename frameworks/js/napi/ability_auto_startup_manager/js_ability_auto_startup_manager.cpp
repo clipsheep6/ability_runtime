@@ -41,7 +41,7 @@ constexpr const char *ON_OFF_TYPE_SYSTEM = "systemAutoStartup";
 
 void JsAbilityAutoStartupManager::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     std::unique_ptr<JsAbilityAutoStartupManager>(static_cast<JsAbilityAutoStartupManager *>(data));
 }
 
@@ -82,7 +82,7 @@ bool JsAbilityAutoStartupManager::CheckCallerIsSystemApp()
 
 napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     if (info.argc < ARGC_TWO) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
         ThrowTooFewParametersError(env);
@@ -130,7 +130,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
 
 napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "OnUnregisterAutoStartupCallback Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The argument is invalid.");
         ThrowTooFewParametersError(env);
@@ -175,7 +175,7 @@ napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env
 
 napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "OnSetApplicationAutoStartup Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The argument is invalid.");
         ThrowTooFewParametersError(env);
@@ -225,7 +225,7 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
 
 napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "OnCancelApplicationAutoStartup Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
         ThrowTooFewParametersError(env);
@@ -276,7 +276,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
 
 napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_env env, const NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     if (!CheckCallerIsSystemApp()) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
@@ -316,7 +316,7 @@ napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_e
 
 napi_value JsAbilityAutoStartupManagerInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Env or exportObj nullptr.");
         return nullptr;

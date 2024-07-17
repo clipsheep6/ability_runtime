@@ -1658,7 +1658,7 @@ ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type
 
 ErrCode AbilityManagerClient::RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterStatusBarDelegate(delegate);
@@ -1666,7 +1666,7 @@ ErrCode AbilityManagerClient::RegisterStatusBarDelegate(sptr<AbilityRuntime::ISt
 
 ErrCode AbilityManagerClient::KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->KillProcessWithPrepareTerminate(pids);
@@ -1674,7 +1674,7 @@ ErrCode AbilityManagerClient::KillProcessWithPrepareTerminate(const std::vector<
 
 ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterAutoStartupSystemCallback(callback);
@@ -1682,7 +1682,7 @@ ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObje
 
 ErrCode AbilityManagerClient::UnregisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnregisterAutoStartupSystemCallback(callback);
@@ -1690,7 +1690,7 @@ ErrCode AbilityManagerClient::UnregisterAutoStartupSystemCallback(sptr<IRemoteOb
 
 ErrCode AbilityManagerClient::SetApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetApplicationAutoStartup(info);
@@ -1698,7 +1698,7 @@ ErrCode AbilityManagerClient::SetApplicationAutoStartup(const AutoStartupInfo &i
 
 ErrCode AbilityManagerClient::CancelApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->CancelApplicationAutoStartup(info);
@@ -1706,7 +1706,7 @@ ErrCode AbilityManagerClient::CancelApplicationAutoStartup(const AutoStartupInfo
 
 ErrCode AbilityManagerClient::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->QueryAllAutoStartupApplications(infoList);
@@ -1731,7 +1731,7 @@ ErrCode AbilityManagerClient::RegisterSessionHandler(sptr<IRemoteObject> object)
 
 ErrCode AbilityManagerClient::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterAppDebugListener(listener);
@@ -1739,7 +1739,7 @@ ErrCode AbilityManagerClient::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebu
 
 ErrCode AbilityManagerClient::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnregisterAppDebugListener(listener);
@@ -1747,7 +1747,7 @@ ErrCode AbilityManagerClient::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDe
 
 ErrCode AbilityManagerClient::AttachAppDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->AttachAppDebug(bundleName);
@@ -1755,7 +1755,7 @@ ErrCode AbilityManagerClient::AttachAppDebug(const std::string &bundleName)
 
 ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DetachAppDebug(bundleName);
@@ -1764,7 +1764,7 @@ ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
 ErrCode AbilityManagerClient::ExecuteIntent(uint64_t key, sptr<IRemoteObject> callerToken,
     const InsightIntentExecuteParam &param)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteIntent(key, callerToken, param);
@@ -1784,7 +1784,7 @@ bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
 ErrCode AbilityManagerClient::ExecuteInsightIntentDone(sptr<IRemoteObject> token, uint64_t intentId,
     const InsightIntentExecuteResult &result)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteInsightIntentDone(token, intentId, result);
@@ -1792,7 +1792,7 @@ ErrCode AbilityManagerClient::ExecuteInsightIntentDone(sptr<IRemoteObject> token
 
 int32_t AbilityManagerClient::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->GetForegroundUIAbilities(list);
@@ -1829,7 +1829,7 @@ int32_t AbilityManagerClient::NotifyDebugAssertResult(uint64_t assertFaultSessio
 int32_t AbilityManagerClient::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
     std::vector<int32_t> &sessionIds)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
@@ -1856,7 +1856,7 @@ ErrCode AbilityManagerClient::GetUIExtensionSessionInfo(const sptr<IRemoteObject
 int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->RestartApp(want);
@@ -1865,7 +1865,7 @@ int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
 int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &options,
     sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->OpenAtomicService(want, options, callerToken, requestCode, userId);
@@ -1873,7 +1873,7 @@ int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &
 
 int32_t AbilityManagerClient::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->SetResidentProcessEnabled(bundleName, enable);

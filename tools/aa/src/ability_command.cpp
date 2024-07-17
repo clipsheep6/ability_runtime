@@ -721,7 +721,7 @@ pid_t AbilityManagerShellCommand::ConvertPid(std::string& inputPid)
 
 ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
 {
-    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "called");
     std::string bundleName = "";
     ParseBundleName(bundleName);
     if (bundleName.empty()) {
@@ -742,7 +742,7 @@ ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
 
 ErrCode AbilityManagerShellCommand::RunAsDetachDebugCommand()
 {
-    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "called");
     std::string bundleName = "";
     ParseBundleName(bundleName);
     if (bundleName.empty()) {
@@ -846,7 +846,7 @@ bool AbilityManagerShellCommand::ParseAppDebugParameter(
 
 ErrCode AbilityManagerShellCommand::RunAsAppDebugDebugCommand()
 {
-    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "called");
     std::string bundleName;
     bool isPersist = false;
     bool isCancel = false;

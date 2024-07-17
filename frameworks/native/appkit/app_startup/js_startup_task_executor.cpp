@@ -49,7 +49,7 @@ int32_t JsStartupTaskExecutor::RunOnTaskPool(
     const std::unique_ptr<NativeReference> &asyncTaskCallback,
     const std::string &startupName)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     HandleScope handleScope(jsRuntime);
     auto env = jsRuntime.GetNapiEnv();
 

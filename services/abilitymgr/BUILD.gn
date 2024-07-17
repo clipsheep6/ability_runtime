@@ -106,7 +106,10 @@ ohos_shared_library("abilityms") {
     ":abilityms_config",
     ":abilityms_exception_config",
   ]
-  include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
+  include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection",
+  ]
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",

@@ -166,7 +166,7 @@ public:
     */
     void SetSCBCallStatus(const std::string& bundleName, const std::string& abilityName,
         const std::string& startTime, bool scbCallStatus);
-    
+
     /**
      * Set the isPreStartMissionCalled flag of the given free install task.
      *
@@ -221,7 +221,7 @@ private:
 
     void RemoveFreeInstallInfo(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime);
-    
+
     void PostUpgradeAtomicServiceTask(int resultCode, const Want &want, int32_t userId);
 
     void RemoveTimeoutTask(const std::string &bundleName, const std::string &abilityName, const std::string &startTime);
@@ -239,6 +239,8 @@ private:
     void StartAbilityByOriginalWant(FreeInstallInfo &info, const std::string &startTime);
     bool VerifyStartFreeInstallPermission(const sptr<IRemoteObject> &callerToken);
     int32_t GetRecordIdByToken(const sptr<IRemoteObject> &callerToken);
+    void NotifyInsightIntentFreeInstallResult(const Want &want, int resultCode);
+    void NotifyInsightIntentExecuteDone(const Want &want, int resultCode);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

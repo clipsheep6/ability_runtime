@@ -50,7 +50,6 @@ struct CJEnvMethods {
     void* (*loadCJLibrary)(const char* dllName) = nullptr;
     bool (*startDebugger)() = nullptr;
     void (*registerCJUncaughtExceptionHandler)(const CJUncaughtExceptionInfo& uncaughtExceptionInfo) = nullptr;
-    bool (*isCJAbility)(const std::string& info) = nullptr;
     void (*setSanitizerKindRuntimeVersion)(SanitizerKind kind) = nullptr;
 };
 

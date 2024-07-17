@@ -18,7 +18,13 @@ module_output_path = "ability_runtime/abilitymgr"
 
 ohos_unittest("ability_manager_service_second_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/",
     "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",

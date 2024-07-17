@@ -676,7 +676,6 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
     BundleInfo info;
     std::string processName = "test_processName";
     auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
-    record->SetUpdateStateFromService(true);
     recordId_ += 1;
 
     appMgrServiceInner->ApplicationForegrounded(recordId_);
@@ -699,7 +698,6 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
     std::string processName = "test_processName";
     auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
-    record->SetUpdateStateFromService(true);
     auto record2 = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
     std::shared_ptr<PriorityObject> priorityObject = std::make_shared<PriorityObject>();
@@ -3339,7 +3337,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     int32_t ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     BundleInfo bundleInfo;
     std::string processName = "test_processName";
@@ -3773,7 +3771,6 @@ HWTEST_F(AppMgrServiceInnerTest, MakeAppDebugInfo_001, TestSize.Level0)
     auto appDebugInfo = appMgrServiceInner->MakeAppDebugInfo(appRecord, isDebugStart);
     EXPECT_EQ(appDebugInfo.bundleName, "");
     EXPECT_EQ(appDebugInfo.pid, APP_DEBUG_INFO_PID);
-    EXPECT_EQ(appDebugInfo.uid, APP_DEBUG_INFO_UID);
     EXPECT_EQ(appDebugInfo.isDebugStart, true);
 }
 

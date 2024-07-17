@@ -73,6 +73,18 @@ public:
         const std::string &processName, const int uid, const BundleInfo &bundleInfo,
         const std::string &specifiedProcessFlag = "");
 
+#ifdef APP_NO_RESPONSE_DIALOG
+    /**
+     * CheckAppRunningRecordIsExist, Check whether the process of the app exists by bundle name and process Name.
+     *
+     * @param bundleName, Indicates the bundle name of the bundle..
+     * @param ablityName, ablity name.
+     *
+     * @return true if exist.
+     */
+    bool CheckAppRunningRecordIsExist(const std::string &bundleName, const std::string &ablityName);
+#endif
+
     /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
      *
@@ -81,6 +93,14 @@ public:
      * @return, Return true if exist.
      */
     bool CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName);
+
+    /**
+     * CheckAppRunningRecordIsExistByUid, check app exist when concurrent.
+     *
+     * @param uid, the process uid.
+     * @return, Return true if exist.
+     */
+    bool CheckAppRunningRecordIsExistByUid(int32_t uid);
 
     /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
@@ -247,7 +267,6 @@ public:
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByRenderPid(const pid_t pid);
-    bool CheckCallerIsRenderHost(pid_t callingPid, pid_t renderPid);
     std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
     bool ProcessExitByPid(pid_t pid);
     bool GetAppRunningStateByBundleName(const std::string &bundleName);

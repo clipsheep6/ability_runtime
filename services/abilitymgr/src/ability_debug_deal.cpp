@@ -36,7 +36,7 @@ void AbilityDebugDeal::RegisterAbilityDebugResponse()
 
 void AbilityDebugDeal::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
@@ -49,7 +49,7 @@ void AbilityDebugDeal::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObje
 
 void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {

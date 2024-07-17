@@ -75,8 +75,6 @@ ohos_shared_library("napi_common") {
     public_external_deps += [
       "form_fwk:form_manager",
       "window_manager:libdm",
-      "window_manager:libdm_lite",
-      "window_manager:libwm_lite",
     ]
   }
 

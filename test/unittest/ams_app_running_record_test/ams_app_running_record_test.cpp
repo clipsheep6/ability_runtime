@@ -145,13 +145,11 @@ void AmsAppRunningRecordTest::MockBundleInstallerAndSA() const
             return saMgr->GetSystemAbility(systemAbilityId);
         }
     };
-    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
 }
 
 void AmsAppRunningRecordTest::MockBundleInstaller() const
 {
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
-    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
 }
 
 sptr<IAppScheduler> AmsAppRunningRecordTest::GetMockedAppSchedulerClient() const
@@ -767,11 +765,6 @@ HWTEST_F(AmsAppRunningRecordTest, DeleteAppRunningRecord_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_001 start");
-    MockBundleInstallerAndSA();
-    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
-        .WillOnce(testing::Return(true))
-        .WillRepeatedly(testing::Return(true));
-
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -798,7 +791,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_002, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_002 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -826,7 +818,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_002, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_003, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_003 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -854,7 +845,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_003, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_004, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_004 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -882,7 +872,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_004, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_005, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_005 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -911,7 +900,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_005, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_006, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_006 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -1609,7 +1597,6 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
     moduleRecord0 = std::make_shared<ModuleRunningRecord>(appInfo, nullptr);
     HapModuleInfo hapModuleInfo0;
     hapModuleInfo0.moduleName = "module0";
-    moduleRecord0->Init(hapModuleInfo0);
     record->RemoveModuleRecord(moduleRecord0);
     moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 2);

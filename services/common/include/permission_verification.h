@@ -75,7 +75,7 @@ struct VerificationInfo {
 
     int CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const;
 
-    int CheckCallAbilityPermission(const VerificationInfo &verificationInfo) const;
+    int CheckCallAbilityPermission(const VerificationInfo &verificationInfo, bool isCallByShortcut = false) const;
 
     /**
      * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage)
@@ -101,6 +101,8 @@ struct VerificationInfo {
 
     bool VerifyPreStartAtomicServicePermission() const;
 
+    bool VerifyKillProcessDependedOnWebPermission() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 
@@ -115,7 +117,7 @@ private:
 
     bool JudgeAssociatedWakeUp(const uint32_t accessTokenId, const bool associatedWakeUp) const;
 
-    int JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const;
+    int JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo, bool isCallByShortcut = false) const;
 
     inline bool IsCallFromSameAccessToken(const uint32_t accessTokenId) const
     {

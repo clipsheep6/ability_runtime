@@ -407,18 +407,20 @@ ohos_unittest("ability_start_setting_test") {
 
 ohos_unittest("ability_stage_test") {
   module_out_path = module_output_path
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+
   sources = [
-    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
-    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "ability_stage_test.cpp",
     "application_data_manager_test.cpp",
-    "application_test.cpp",
-    "context_impl_test.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -513,20 +515,20 @@ ohos_unittest("form_extension_context_test") {
 
 ohos_unittest("bms_context_impl_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_services_path}/common/include",
     "${resource_management_path}/frameworks/resmgr/include",
     "${ability_runtime_test_path}/mock/common/include",
   ]
 
-  sources = [
-    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
-    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "bms_context_impl_test.cpp",
-  ]
+  sources = [ "bms_context_impl_test.cpp" ]
 
   configs = [ ":module_private_config" ]
 

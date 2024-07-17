@@ -775,6 +775,15 @@ public:
      * @param pids the pids of the processes that should be blocked.
      */
     virtual AppMgrResultCode BlockProcessCacheByPids(const std::vector<int32_t> &pids);
+
+    /**
+     * whether killed for upgrade web.
+     *
+     * @param bundleName the bundle name is killed for upgrade web.
+     * @return Returns true is killed for upgrade web, others return false.
+     */
+    bool IsKilledForUpgradeWeb(const std::string &bundleName);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

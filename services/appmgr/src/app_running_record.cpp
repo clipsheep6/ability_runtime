@@ -1692,6 +1692,10 @@ void AppRunningRecord::AddRenderRecord(const std::shared_ptr<RenderRecord> &reco
         TAG_LOGD(AAFwkTag::APPMGR, "AddRenderRecord: record is null");
         return;
     }
+    {
+        std::lock_guard renderPidSetLock(renderPidSetLock_);
+        renderPidSet_.insert(record->GetPid());
+    }
     std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     renderRecordMap_.emplace(record->GetUid(), record);
 }
@@ -1704,6 +1708,18 @@ void AppRunningRecord::RemoveRenderRecord(const std::shared_ptr<RenderRecord> &r
     }
     std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     renderRecordMap_.erase(record->GetUid());
+}
+
+void AppRunningRecord::RemoveRenderPid(pid_t renderPid)
+{
+    std::lock_guard renderPidSetLock(renderPidSetLock_);
+    renderPidSet_.erase(renderPid);
+}
+
+bool AppRunningRecord::ConstainsRenderPid(pid_t renderPid)
+{
+    std::lock_guard renderPidSetLock(renderPidSetLock_);
+    return renderPidSet_.find(renderPid) != renderPidSet_.end();
 }
 
 std::shared_ptr<RenderRecord> AppRunningRecord::GetRenderRecordByPid(const pid_t pid)
@@ -1901,7 +1917,8 @@ bool AppRunningRecord::IsAbilitytiesBackground()
 void AppRunningRecord::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     if (windowVisibilityInfos.empty()) {
         TAG_LOGW(AAFwkTag::APPMGR, "Window visibility info is empty.");
         return;
@@ -1927,24 +1944,24 @@ void AppRunningRecord::OnWindowVisibilityChanged(
         }
     }
 
-    bool isScheduleForeground = (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) ||
-        (!windowIds_.empty() && curState_ == ApplicationState::APP_STATE_FOREGROUND &&
-        pendingState_ == ApplicationPendingState::BACKGROUNDING);
-    if (isScheduleForeground) {
-        SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
-        SetUpdateStateFromService(true);
-        ScheduleForegroundRunning();
-        return;
-    }
-
-    bool isScheduleBackground = (windowIds_.empty() && IsAbilitytiesBackground() &&
-        curState_ == ApplicationState::APP_STATE_FOREGROUND) ||
-        (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_BACKGROUND &&
-        pendingState_ == ApplicationPendingState::FOREGROUNDING);
-    if (isScheduleBackground) {
-        SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
-        SetUpdateStateFromService(true);
-        ScheduleBackgroundRunning();
+    if (pendingState_ == ApplicationPendingState::READY) {
+        TAG_LOGD(AAFwkTag::APPMGR, "pending state is READY.");
+        if (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) {
+            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+            ScheduleForegroundRunning();
+        }
+        if (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+            SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
+            ScheduleBackgroundRunning();
+        }
+    } else {
+        TAG_LOGI(AAFwkTag::APPMGR, "pending state is not READY.");
+        if (!windowIds_.empty()) {
+            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+        }
+        if (windowIds_.empty() && IsAbilitytiesBackground()) {
+            SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
+        }
     }
 }
 #endif //SUPPORT_SCREEN
@@ -1987,16 +2004,6 @@ void AppRunningRecord::SetProcessChangeReason(ProcessChangeReason reason)
 ProcessChangeReason AppRunningRecord::GetProcessChangeReason() const
 {
     return processChangeReason_;
-}
-
-bool AppRunningRecord::IsUpdateStateFromService()
-{
-    return isUpdateStateFromService_;
-}
-
-void AppRunningRecord::SetUpdateStateFromService(bool isUpdateStateFromService)
-{
-    isUpdateStateFromService_ = isUpdateStateFromService;
 }
 
 ExtensionAbilityType AppRunningRecord::GetExtensionType() const
@@ -2051,7 +2058,7 @@ int32_t AppRunningRecord::ChangeAppGcState(const int32_t state)
 
 void AppRunningRecord::SetAttachDebug(const bool &isAttachDebug)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     isAttachDebug_ = isAttachDebug;
 
     if (appLifeCycleDeal_ == nullptr) {
@@ -2214,7 +2221,7 @@ std::string AppRunningRecord::GetExitMsg() const
 
 int AppRunningRecord::DumpIpcStart(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
             .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
@@ -2227,7 +2234,7 @@ int AppRunningRecord::DumpIpcStart(std::string& result)
 
 int AppRunningRecord::DumpIpcStop(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
             .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
@@ -2240,7 +2247,7 @@ int AppRunningRecord::DumpIpcStop(std::string& result)
 
 int AppRunningRecord::DumpIpcStat(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
             .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
@@ -2253,7 +2260,7 @@ int AppRunningRecord::DumpIpcStat(std::string& result)
 
 int AppRunningRecord::DumpFfrt(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
             .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));

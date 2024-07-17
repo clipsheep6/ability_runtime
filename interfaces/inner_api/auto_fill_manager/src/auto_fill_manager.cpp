@@ -54,13 +54,13 @@ AutoFillManager::AutoFillManager()
 
 AutoFillManager::~AutoFillManager()
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
 }
 
 int32_t AutoFillManager::RequestAutoFill(Ace::UIContent *uiContent, const AutoFill::AutoFillRequest &request,
     const std::shared_ptr<IFillRequestCallback> &fillCallback, AutoFill::AutoFillResult &result)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (uiContent == nullptr || fillCallback == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or fillCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
@@ -76,7 +76,7 @@ int32_t AutoFillManager::RequestAutoFill(Ace::UIContent *uiContent, const AutoFi
 int32_t AutoFillManager::RequestAutoSave(Ace::UIContent *uiContent, const AutoFill::AutoFillRequest &request,
     const std::shared_ptr<ISaveRequestCallback> &saveCallback, AutoFill::AutoFillResult &result)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (uiContent == nullptr || saveCallback == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or save callback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
@@ -139,7 +139,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(Ace::UIContent *uiContent, co
 
 void AutoFillManager::UpdateCustomPopupUIExtension(uint32_t autoFillSessionId, const AbilityBase::ViewData &viewData)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     auto extensionCallback = GetAutoFillExtensionCallback(autoFillSessionId);
     if (extensionCallback == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
@@ -150,7 +150,7 @@ void AutoFillManager::UpdateCustomPopupUIExtension(uint32_t autoFillSessionId, c
 
 void AutoFillManager::CloseUIExtension(uint32_t autoFillSessionId)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     auto extensionCallback = GetAutoFillExtensionCallback(autoFillSessionId);
     if (extensionCallback == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
@@ -162,7 +162,7 @@ void AutoFillManager::CloseUIExtension(uint32_t autoFillSessionId)
 void AutoFillManager::BindModalUIExtensionCallback(
     const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     callback.onResult = [extensionCallback](int32_t errCode, const AAFwk::Want& want) {
         extensionCallback->OnResult(errCode, want);
     };
@@ -271,7 +271,7 @@ bool AutoFillManager::ConvertAutoFillWindowType(const AutoFill::AutoFillRequest 
 
 void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (eventHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Eventhandler is nullptr.");
         return;
@@ -281,7 +281,7 @@ void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 
 void AutoFillManager::RemoveEvent(uint32_t eventId)
 {
-    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "called");
     if (eventHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Eventhandler is nullptr.");
         return;
@@ -291,13 +291,28 @@ void AutoFillManager::RemoveEvent(uint32_t eventId)
 
 void AutoFillManager::HandleTimeOut(uint32_t eventId)
 {
-    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "called");
     auto extensionCallback = GetAutoFillExtensionCallback(eventId);
     if (extensionCallback == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
         return;
     }
     extensionCallback->HandleTimeOut();
+}
+
+bool AutoFillManager::IsNeedToCreatePopupWindow(const AbilityBase::AutoFillType &autoFillType)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
+    if (autoFillType == AbilityBase::AutoFillType::PASSWORD ||
+        autoFillType == AbilityBase::AutoFillType::USER_NAME ||
+        autoFillType == AbilityBase::AutoFillType::NEW_PASSWORD) {
+        if (system::GetBoolParameter(AUTO_FILL_START_POPUP_WINDOW, false)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::shared_ptr<AutoFillExtensionCallback> AutoFillManager::GetAutoFillExtensionCallback(uint32_t callbackId)

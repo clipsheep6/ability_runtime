@@ -48,6 +48,7 @@
 #include "hilog_tag_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "ui_service_extension_connection_constants.h"
 #include "res_sched_util.h"
 #include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
@@ -432,10 +433,6 @@ bool AbilityRecord::CanRestartResident()
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (GetAbilityVisibilityState() == AbilityVisibilityState::FOREGROUND_HIDE) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability visibility state is FOREGROUND_HIDE, should not do foreground again.");
-        return;
-    }
     isWindowStarted_ = true;
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ForegroundLifecycle: name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
@@ -1677,14 +1674,46 @@ void AbilityRecord::ConnectAbility()
     isConnected = true;
 }
 
+void AbilityRecord::ConnectUIServiceExtAbility(const Want &want)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Connect ability.");
+    CHECK_POINTER(lifecycleDeal_);
+    if (isConnected) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "connect state error.");
+    }
+#ifdef SUPPORT_SCREEN
+    GrantUriPermissionForServiceExtension();
+#endif // SUPPORT_SCREEN
+    lifecycleDeal_->ConnectAbility(want);
+    isConnected = true;
+}
+
 void AbilityRecord::DisconnectAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->DisconnectAbility(GetWant());
-    isConnected = false;
+    if (GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        if (GetInProgressRecordCount() == 0) {
+            isConnected = false;
+        }
+    } else {
+        isConnected = false;
+    }
 }
+
+void AbilityRecord::DisconnectUIServiceExtAbility(const Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
+    CHECK_POINTER(lifecycleDeal_);
+    lifecycleDeal_->DisconnectAbility(want);
+    if (GetInProgressRecordCount() == 0) {
+        isConnected = false;
+    }
+}
+
 #ifdef SUPPORT_SCREEN
 bool AbilityRecord::GrantUriPermissionForServiceExtension()
 {
@@ -1971,6 +2000,9 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
     CHECK_POINTER(connRecord);
     std::lock_guard guard(connRecordListMutex_);
     connRecordList_.remove(connRecord);
+    if (connRecordList_.empty()) {
+        isConnected = false;
+    }
 }
 
 void AbilityRecord::RemoveSpecifiedWantParam(const std::string &key)
@@ -2115,6 +2147,19 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityRecord::GetConnectingRecordL
         }
     }
     return connectingList;
+}
+
+uint32_t AbilityRecord::GetInProgressRecordCount()
+{
+    std::lock_guard guard(connRecordListMutex_);
+    uint32_t count = 0;
+    for (auto record : connRecordList_) {
+        if (record && (record->GetConnectState() == ConnectionState::CONNECTING ||
+            record->GetConnectState() == ConnectionState::CONNECTED)) {
+            count ++;
+        }
+    }
+    return count;
 }
 
 std::shared_ptr<ConnectionRecord> AbilityRecord::GetDisconnectingRecord() const
@@ -2593,6 +2638,9 @@ void AbilityRecord::SetWant(const Want &want)
     }
     if (errorInfoEnhance) {
         want_.SetParam(ERROR_INFO_ENHANCE, true);
+    }
+    if (want_.HasParameter(UISERVICEHOSTPROXY_KEY)) {
+        want_.RemoveParam(UISERVICEHOSTPROXY_KEY);
     }
 }
 
@@ -3109,7 +3157,7 @@ void AbilityRecord::PublishFileOpenEvent(const Want &want)
         EventFwk::CommonEventPublishInfo commonEventPublishInfo;
         std::vector<std::string> subscriberPermissions = {"ohos.permission.MANAGE_LOCAL_ACCOUNTS"};
         commonEventPublishInfo.SetSubscriberPermissions(subscriberPermissions);
-        EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo);
+        IN_PROCESS_CALL(EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo));
     }
 }
 

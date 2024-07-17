@@ -79,7 +79,7 @@ std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDe
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal = nullptr;
     if (application == nullptr || abilityRecord == nullptr || abilityObject == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Application or abilityRecord or abilityObject is nullptr.");
@@ -507,7 +507,7 @@ std::shared_ptr<AbilityContext> UIAbilityThread::BuildAbilityContext(
 
 void UIAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (token_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "token_ is nullptr.");
         return;
@@ -562,7 +562,7 @@ void UIAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &param
 #else
 void UIAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (currentAbility_ != nullptr) {
         currentAbility_->Dump(params, info);
     }

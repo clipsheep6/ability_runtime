@@ -290,7 +290,7 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
  */
 int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "OpenFile Called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int fd = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {

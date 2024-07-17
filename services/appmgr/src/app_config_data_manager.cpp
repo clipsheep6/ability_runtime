@@ -112,7 +112,7 @@ int32_t AppConfigDataManager::SetAppWaitingDebugInfo(const std::string &bundleNa
 
 int32_t AppConfigDataManager::ClearAppWaitingDebugInfo()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -137,7 +137,7 @@ int32_t AppConfigDataManager::ClearAppWaitingDebugInfo()
 
 int32_t AppConfigDataManager::GetAppWaitingDebugList(std::vector<std::string> &bundleNameList)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {

@@ -33,6 +33,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 
+constexpr const char* APP_NO_RESPONSE_BUNDLENAME = "com.ohos.taskmanager";
+constexpr const char* APP_NO_RESPONSE_ABILITY = "AppAbnormalAbility";
+
 class ModalSystemAppFreezeUIExtension {
 public:
     static ModalSystemAppFreezeUIExtension &GetInstance();
@@ -40,8 +43,7 @@ public:
     virtual ~ModalSystemAppFreezeUIExtension();
 
     void ProcessAppFreeze(bool focusFlag, const FaultData &faultData, std::string pid, std::string bundleName,
-        std::function<void()> callback);
-    void TryReduceReqeustCount();
+        std::function<void()> callback, bool isDialogExist);
 
 private:
     bool CreateModalUIExtension(std::string pid, std::string bundleName);
@@ -67,7 +69,7 @@ private:
 
     std::mutex appFreezeResultMutex_;
     std::mutex dialogConnectionMutex_;
-    int32_t reqeustCount_ = 0;
+    std::string lastFreezePid;
     sptr<AppFreezeDialogConnection> dialogConnectionCallback_;
 };
 } // namespace AppExecFwk

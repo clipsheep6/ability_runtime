@@ -123,7 +123,7 @@ bool ExtensionRecordManager::IsBelongToManager(const AppExecFwk::AbilityInfo &ab
 
 int32_t ExtensionRecordManager::GetActiveUIExtensionList(const int32_t pid, std::vector<std::string> &extensionList)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &it : extensionRecords_) {
         if (it.second == nullptr || it.second->abilityRecord_ == nullptr ||
@@ -140,7 +140,7 @@ int32_t ExtensionRecordManager::GetActiveUIExtensionList(const int32_t pid, std:
 int32_t ExtensionRecordManager::GetActiveUIExtensionList(
     const std::string &bundleName, std::vector<std::string> &extensionList)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &it : extensionRecords_) {
         if (it.second == nullptr || it.second->abilityRecord_ == nullptr ||
@@ -640,7 +640,7 @@ std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(
 
 void ExtensionRecordManager::LoadTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
@@ -652,7 +652,7 @@ void ExtensionRecordManager::LoadTimeout(int32_t extensionRecordId)
 
 void ExtensionRecordManager::ForegroundTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
@@ -664,7 +664,7 @@ void ExtensionRecordManager::ForegroundTimeout(int32_t extensionRecordId)
 
 void ExtensionRecordManager::BackgroundTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
@@ -676,7 +676,7 @@ void ExtensionRecordManager::BackgroundTimeout(int32_t extensionRecordId)
 
 void ExtensionRecordManager::TerminateTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");

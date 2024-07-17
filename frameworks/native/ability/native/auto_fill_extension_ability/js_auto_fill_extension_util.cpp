@@ -59,7 +59,7 @@ constexpr uint32_t PAGE_NODE_COUNT_MAX = 100;
 
 napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const AbilityBase::ViewData &viewData)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -103,7 +103,7 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
 
 napi_value JsAutoFillExtensionUtil::WrapCustomData(const napi_env env, const AAFwk::WantParams &param)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -114,7 +114,7 @@ napi_value JsAutoFillExtensionUtil::WrapCustomData(const napi_env env, const AAF
 
 napi_value JsAutoFillExtensionUtil::WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -153,7 +153,7 @@ napi_value JsAutoFillExtensionUtil::WrapPageNodeInfo(const napi_env env, const A
 
 napi_value JsAutoFillExtensionUtil::WrapRectData(const napi_env env, const AbilityBase::Rect &rect)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -175,7 +175,7 @@ napi_value JsAutoFillExtensionUtil::WrapRectData(const napi_env env, const Abili
 void JsAutoFillExtensionUtil::UnwrapViewData(
     const napi_env env, const napi_value value, AbilityBase::ViewData &viewData)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsViewData = GetPropertyValueByPropertyName(env, value, VIEW_DATA_VIEW_DATA, napi_object);
     if (jsViewData == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Get ViewData from JS failed");
@@ -216,7 +216,7 @@ void JsAutoFillExtensionUtil::UnwrapViewData(
 void JsAutoFillExtensionUtil::UnwrapPageNodeInfo(
     const napi_env env, const napi_value jsNode, AbilityBase::PageNodeInfo &node)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     UnwrapInt32ByPropertyName(env, jsNode, PAGE_INFO_ID, node.id);
     UnwrapInt32ByPropertyName(env, jsNode, PAGE_INFO_DEPTH, node.depth);
     int32_t type;
@@ -235,7 +235,7 @@ void JsAutoFillExtensionUtil::UnwrapPageNodeInfo(
 void JsAutoFillExtensionUtil::UnwrapRectData(
     const napi_env env, const napi_value value, AbilityBase::Rect &rect)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     int32_t position;
     UnwrapInt32ByPropertyName(env, value, RECT_POSITION_LEFT, position);
     rect.left = position;
@@ -252,7 +252,7 @@ void JsAutoFillExtensionUtil::UnwrapRectData(
 
 napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, const napi_env env)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     if (jsObject == nullptr) {
@@ -308,7 +308,7 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
 
 napi_value JsAutoFillExtensionUtil::WrapUpdateRequest(const AAFwk::WantParams &wantParams, const napi_env env)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     if (jsObject == nullptr) {
@@ -331,7 +331,7 @@ napi_value JsAutoFillExtensionUtil::WrapUpdateRequest(const AAFwk::WantParams &w
 
 void JsAutoFillExtensionUtil::UnwrapFillResponse(const napi_env env, const napi_value value, FillResponse &response)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     UnwrapViewData(env, value, response.viewData);
 }
 

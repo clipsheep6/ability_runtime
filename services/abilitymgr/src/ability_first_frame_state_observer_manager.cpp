@@ -51,7 +51,7 @@ int32_t AbilityFirstFrameStateObserverSet::AddAbilityFirstFrameStateObserver(
 
 void AbilityFirstFrameStateObserverSet::AddObserverDeathRecipient(const sptr<IRemoteBroker> &observer)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (observer == nullptr || observer->AsObject() == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The param observer or observer->AsObject is nullptr.");
         return;
@@ -157,7 +157,7 @@ void AbilityFirstFrameStateObserverManager::Init()
 int32_t AbilityFirstFrameStateObserverManager::RegisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (!PermissionVerification::GetInstance()->IsSystemAppCall()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "verify system app failed");
         return ERR_NOT_SYSTEM_APP;
@@ -177,7 +177,7 @@ int32_t AbilityFirstFrameStateObserverManager::RegisterAbilityFirstFrameStateObs
 int32_t AbilityFirstFrameStateObserverManager::UnregisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (!PermissionVerification::GetInstance()->IsSystemAppCall()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "verify system app failed");
         return ERR_NOT_SYSTEM_APP;

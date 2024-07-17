@@ -995,7 +995,8 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         uint32_t callerTokenId = 0,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isCallByShortcut = false);
 
     int StartAbilityForOptionInner(
         const Want &want,
@@ -1005,7 +1006,8 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         uint32_t specifyTokenId = 0,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isCallByShortcut = false);
 
     int ImplicitStartAbility(
         const Want &want,
@@ -1757,31 +1759,6 @@ public:
     static constexpr uint32_t MAX_WAIT_SYSTEM_UI_NUM = 600;
     static constexpr uint32_t MAX_WAIT_SETTINGS_DATA_NUM = 300;
 
-    enum DumpKey {
-        KEY_DUMP_ALL = 0,
-        KEY_DUMP_STACK_LIST,
-        KEY_DUMP_STACK,
-        KEY_DUMP_MISSION,
-        KEY_DUMP_TOP_ABILITY,
-        KEY_DUMP_WAIT_QUEUE,
-        KEY_DUMP_SERVICE,
-        KEY_DUMP_DATA,
-        KEY_DUMP_FOCUS_ABILITY,
-        KEY_DUMP_WINDOW_MODE,
-        KEY_DUMP_MISSION_LIST,
-        KEY_DUMP_MISSION_INFOS,
-    };
-
-    enum DumpsysKey {
-        KEY_DUMPSYS_ALL = 0,
-        KEY_DUMPSYS_MISSION_LIST,
-        KEY_DUMPSYS_ABILITY,
-        KEY_DUMPSYS_SERVICE,
-        KEY_DUMPSYS_PENDING,
-        KEY_DUMPSYS_PROCESS,
-        KEY_DUMPSYS_DATA,
-    };
-
     enum {
         ABILITY_MOVE_TO_FOREGROUND_CODE = 0,
         ABILITY_MOVE_TO_BACKGROUND_CODE,
@@ -1985,6 +1962,8 @@ private:
     int CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest, bool isStartAsCaller,
         uint32_t callerTokenId, bool isData = false, bool isSaCall = false, bool isImplicit = false);
 
+    int CheckPermissionForUIService(const Want &want, const AbilityRequest &abilityRequest);
+
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
@@ -2065,7 +2044,8 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start Ability.
      */
-    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId = 0);
+    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId = 0,
+        bool isCallByShortcut = false);
 
     /**
      * Check if Caller is allowed to start Ability(Stage) by call.
@@ -2204,7 +2184,8 @@ private:
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
-        int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false);
+        int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false,
+        bool isCallByShortcut = false);
 
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;
@@ -2246,8 +2227,6 @@ private:
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_;
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr_ { nullptr };
-    const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
-    const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 

@@ -32,6 +32,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
 class JsEmbeddableUIAbilityContext;
+class JSUIServiceExtAbilityConnection;
 class JsAbilityContext final {
 public:
     explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
@@ -69,6 +70,8 @@ public:
     static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
     static napi_value SetRestoreEnabled(napi_env env, napi_callback_info info);
     static napi_value StartUIServiceExtension(napi_env env, napi_callback_info info);
+    static napi_value ConnectUIServiceExtension(napi_env env, napi_callback_info info);
+    static napi_value DisconnectUIServiceExtension(napi_env env, napi_callback_info info);
     static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
@@ -128,6 +131,13 @@ private:
         int &requestCode);
     napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info);
     void RemoveOpenLinkTask(int requestCode);
+    bool UnwrapConnectUIServiceExtensionParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want);
+    bool CheckConnectAlreadyExist(napi_env env, AAFwk::Want& want, napi_value callback, napi_value& result);
+    napi_value OnConnectUIServiceExtension(napi_env env, NapiCallbackInfo& info);
+    static void DoConnectUIServiceExtension(napi_env env,
+        std::weak_ptr<AbilityContext> weakContext, sptr<JSUIServiceExtAbilityConnection> connection,
+        std::shared_ptr<NapiAsyncTask> uasyncTaskShared, const AAFwk::Want& want);
+    napi_value OnDisconnectUIServiceExtension(napi_env env, NapiCallbackInfo& info);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
     static napi_value WrapWant(napi_env env, const AAFwk::Want& want);
@@ -156,21 +166,26 @@ class JSAbilityConnection : public AbilityConnectCallback {
 public:
     explicit JSAbilityConnection(napi_env env);
     ~JSAbilityConnection();
+    void ReleaseNativeReference(NativeReference* ref);
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void HandleOnAbilityConnectDone(
+    virtual void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
-    void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
+    virtual void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
     void SetJsConnectionObject(napi_value jsConnectionObject);
+    std::unique_ptr<NativeReference>& GetJsConnectionObject() { return jsConnectionObject_; }
     void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
+    napi_value CallObjectMethod(const char* name, napi_value const *argv, size_t argc);
     void SetConnectionId(int64_t id);
+    int64_t GetConnectionId() { return connectionId_; }
+protected:
+    napi_env env_;
+    int64_t connectionId_ = -1;
+    std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
 private:
     napi_value ConvertElement(const AppExecFwk::ElementName &element);
-    napi_env env_;
-    std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
-    int64_t connectionId_ = -1;
 };
 
 struct ConnectionKey {

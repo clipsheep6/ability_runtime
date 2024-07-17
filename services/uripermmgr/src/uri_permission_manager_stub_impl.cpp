@@ -195,7 +195,7 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
 int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     flag &= FLAG_READ_WRITE_URI;
     uint32_t targetTokenId = 0;
     auto ret = UPMSUtils::GetTokenIdByBundleName(targetBundleName, appIndex, targetTokenId);

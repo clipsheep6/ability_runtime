@@ -95,8 +95,6 @@ private:
 
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
-    bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
-
     void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
 
     void OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityInfo> &abilityInfos,

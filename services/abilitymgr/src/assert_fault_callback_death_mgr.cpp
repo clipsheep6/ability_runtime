@@ -36,7 +36,7 @@ AssertFaultCallbackDeathMgr::~AssertFaultCallbackDeathMgr()
 
 void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &remote, CallbackTask callback)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Params remote is nullptr.");
@@ -68,7 +68,7 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
 
 void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote, bool isCallbackDeath)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto callback = remote.promote();
     if (callback == nullptr) {
@@ -98,7 +98,7 @@ void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteOb
 
 void AssertFaultCallbackDeathMgr::CallAssertFaultCallback(uint64_t assertFaultSessionId, AAFwk::UserStatus status)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     DeathItem item;
     {

@@ -277,6 +277,13 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
         std::lock_guard<ffrt::mutex> guard(sessionLock_);
         auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
+        if (abilityRecord->IsTerminating()) {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "ability is on terminating");
+            auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+            CHECK_POINTER(handler);
+            handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+            return;
+        }
         std::string element = abilityRecord->GetElementName().GetURI();
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability is %{public}s, start to foreground.", element.c_str());
         abilityRecord->ForegroundAbility();
@@ -935,11 +942,12 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
 {
     CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "windowLeft=%{public}d,windowTop=%{public}d,"
-        "windowHeight=%{public}d,windowWidth=%{public}d",
+        "windowHeight=%{public}d,windowWidth=%{public}d,windowMode=%{public}d",
         (sessionInfo->want).GetIntParam(Want::PARAM_RESV_WINDOW_LEFT, 0),
         (sessionInfo->want).GetIntParam(Want::PARAM_RESV_WINDOW_TOP, 0),
         (sessionInfo->want).GetIntParam(Want::PARAM_RESV_WINDOW_HEIGHT, 0),
-        (sessionInfo->want).GetIntParam(Want::PARAM_RESV_WINDOW_WIDTH, 0));
+        (sessionInfo->want).GetIntParam(Want::PARAM_RESV_WINDOW_WIDTH, 0),
+        (sessionInfo->want).GetIntParam(Want::PARAM_RESV_WINDOW_MODE, 0));
     auto abilityRecord = GetAbilityRecordByToken(abilityRequest.callerToken);
     if (abilityRecord != nullptr && !abilityRecord->GetRestartAppFlag()) {
         auto callerSessionInfo = abilityRecord->GetSessionInfo();

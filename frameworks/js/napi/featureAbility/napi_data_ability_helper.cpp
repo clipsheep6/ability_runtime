@@ -308,7 +308,6 @@ void SetValuesBucketObject(
         TAG_LOGE(AAFwkTag::FA, "valuesBucket error");
     }
 }
-
 /**
  * @brief Parse the ValuesBucket parameters.
  *
