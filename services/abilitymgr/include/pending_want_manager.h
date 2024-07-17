@@ -173,6 +173,8 @@ private:
     static int32_t PendingRecordIdCreate();
     void ClearPendingWantRecordTask(const std::string &bundleName, int32_t uid);
 
+    bool CheckCallerPermission();
+
 private:
     std::map<std::shared_ptr<PendingWantKey>, sptr<PendingWantRecord>> wantRecords_;
     ffrt::mutex mutex_;
