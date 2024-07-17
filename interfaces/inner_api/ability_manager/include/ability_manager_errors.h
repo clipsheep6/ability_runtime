@@ -462,7 +462,7 @@ enum {
      * Native error(2097240) for memory size state unchanged.
      */
     ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
-    
+
     /**
      * Native error(2097241) for target bundle not exist.
      */
@@ -539,7 +539,7 @@ enum {
      * Result(2097256) for non-app-provision mode
      */
     ERR_NOT_IN_APP_PROVISION_MODE = 2097256,
-    
+
     /*
      * Result(2097257) for share file uri non-implicitly
      */

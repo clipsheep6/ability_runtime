@@ -95,7 +95,6 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0300, TestSize.L
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
         EXPECT_EQ(ret, ERR_OK);
-
         UIExtensionHostInfo hostInfo;
         ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
         // cause top ability isn't a uiextension ability.

@@ -85,5 +85,4 @@ void StartupUtil::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo 
         abilityInfo.hapPath = extensionInfo.hapPath;
     }
 }
-
 }  // namespace OHOS::AbilityRuntime
