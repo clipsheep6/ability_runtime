@@ -56,7 +56,7 @@ ohos_shared_library("appmanager_napi") {
   }
   if (!is_mingw && !is_mac && !is_linux && is_standard_system &&
       !is_cross_platform_version) {
-    external_deps += [ "napi:ace_container_scope" ]
+    external_deps += [ "ace_engine:ace_container_scope" ]
     defines += [ "SUPPORT_CONTAINER_SCOPE" ]
   }
 
