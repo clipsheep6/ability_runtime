@@ -163,7 +163,7 @@ HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_009, TestSize.Le
 HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_010, TestSize.Level1)
 {
     auto client = std::make_shared<ExtensionManagerClient>();
-    
+
     Want want;
     sptr<IRemoteObject> connect;
     sptr<IRemoteObject> callerToken;
