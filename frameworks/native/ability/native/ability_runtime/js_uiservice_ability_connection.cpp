@@ -175,7 +175,6 @@ void JSUIServiceExtAbilityConnection::AddDuplicatedPendingTask(std::unique_ptr<N
 
 void JSUIServiceExtAbilityConnection::ResolveDuplicatedPendingTask(napi_env env, napi_value proxy)
 {
-    TAG_LOGI(AAFwkTag::UISERVC_EXT, "called, size %{public}d", duplicatedPendingTaskList_.size());
     for (auto &task : duplicatedPendingTaskList_) {
         if (task != nullptr) {
             task->ResolveWithNoError(env, proxy);
@@ -186,7 +185,6 @@ void JSUIServiceExtAbilityConnection::ResolveDuplicatedPendingTask(napi_env env,
 
 void JSUIServiceExtAbilityConnection::RejectDuplicatedPendingTask(napi_env env, napi_value error)
 {
-    TAG_LOGI(AAFwkTag::UISERVC_EXT, "called, size %{public}d", duplicatedPendingTaskList_.size());
     for (auto &task : duplicatedPendingTaskList_) {
         if (task != nullptr) {
             task->Reject(env, error);
