@@ -495,12 +495,13 @@ void MainThread::ScheduleForegroundApplication()
     if (!mainHandler_->PostTask(task, "MainThread:ForegroundApplication")) {
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
     }
-
-    if (watchdog_ == nullptr) {
+    auto tmpWatchdog = watchdog_;
+    if (tmpWatchdog == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Watch dog is nullptr.");
         return;
     }
-    watchdog_->SetBackgroundStatus(false);
+    tmpWatchdog->SetBackgroundStatus(false);
+    tmpWatchdog = nullptr;
 }
 
 /**
@@ -525,11 +526,13 @@ void MainThread::ScheduleBackgroundApplication()
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
     }
 
-    if (watchdog_ == nullptr) {
+    auto tmpWatchdog = watchdog_;
+    if (tmpWatchdog == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Watch dog is nullptr.");
         return;
     }
-    watchdog_->SetBackgroundStatus(true);
+    tmpWatchdog->SetBackgroundStatus(true);
+    tmpWatchdog = nullptr;
 }
 
 /**
@@ -789,8 +792,10 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
     abilityRecord->SetAbilityRecordId(abilityRecordId);
-    if (watchdog_ != nullptr) {
-        watchdog_->SetBgWorkingThreadStatus(IsBgWorkingThread(info));
+    auto tmpWatchdog = watchdog_;
+    if (tmpWatchdog != nullptr) {
+        tmpWatchdog->SetBgWorkingThreadStatus(IsBgWorkingThread(info));
+        tmpWatchdog = nullptr;
     }
     FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
@@ -1369,7 +1374,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     auto bundleName = appInfo.bundleName;
-    watchdog_->SetBundleInfo(bundleName, appInfo.versionName);
+    auto tmpWatchdog = watchdog_;
+    if (tmpWatchdog != nullptr) {
+        tmpWatchdog->SetBundleInfo(bundleName, appInfo.versionName);
+        tmpWatchdog = nullptr;
+    }
     BundleInfo bundleInfo;
     if (!GetBundleForLaunchApplication(bundleMgrHelper, bundleName, appLaunchData.GetAppIndex(), bundleInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get bundle info.");
@@ -2926,13 +2935,15 @@ void MainThread::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::s
 
 void MainThread::CheckMainThreadIsAlive()
 {
-    if (watchdog_ == nullptr) {
+    auto tmpWatchdog = watchdog_;
+    if (tmpWatchdog == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Watch dog is nullptr.");
         return;
     }
 
-    watchdog_->SetAppMainThreadState(true);
-    watchdog_->AllowReportEvent();
+    tmpWatchdog->SetAppMainThreadState(true);
+    tmpWatchdog->AllowReportEvent();
+    tmpWatchdog = nullptr;
 }
 #endif  // ABILITY_LIBRARY_LOADER
 
