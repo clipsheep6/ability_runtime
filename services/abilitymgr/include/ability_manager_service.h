@@ -940,6 +940,9 @@ public:
 
     std::list<std::shared_ptr<ConnectionRecord>> GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
 
+    std::shared_ptr<AbilityRequest> GetAbilityRequest() const;
+    void SetAbilityRequest(const AbilityRequest &abilityRequest);
+
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
     void HandleLoadTimeOut(int64_t abilityRecordId, bool isHalf = false);
@@ -2231,6 +2234,9 @@ private:
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 
     std::shared_ptr<SubManagersHelper> subManagersHelper_;
+
+    std::shared_ptr<AbilityRequest> abilityRequest_;
+    ffrt::mutex abilityRequestMutex_;
 
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;

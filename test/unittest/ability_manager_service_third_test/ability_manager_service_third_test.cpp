@@ -2608,5 +2608,20 @@ HWTEST_F(AbilityManagerServiceThirdTest, SignRestartAppFlag_001, TestSize.Level1
 
     abilityMs_->SignRestartAppFlag(USER_ID_U100, "com.ix.hiservcie");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GetAbilityRequest
+ * FunctionPoints: AbilityManagerService GetAbilityRequest
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityRequest_001, TestSize.Level1)
+{
+    auto abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->uid = 5;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    abilityMs->SetAbilityRequest(*abilityRequest);
+    auto ret = abilityMs->GetAbilityRequest();
+    EXPECT_EQ(ret->uid, abilityRequest->uid);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

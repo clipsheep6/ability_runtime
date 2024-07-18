@@ -15,13 +15,16 @@
 
 #include "interceptor/disposed_rule_interceptor.h"
 
+#include "ability_manager_service.h"
 #include "ability_record.h"
 #include "ability_util.h"
+#include "dialog_session_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "modal_system_ui_extension.h"
+#include "startup_util.h"
 #include "task_utils_wrap.h"
 #include "ui_extension_utils.h"
 
@@ -67,7 +70,15 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
                 return ret;
             }
         }
-        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION &&
+            disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
+            int ret = HandleBlockApplicationWithResult(param, disposedRule);
+            if (ret != ERR_OK) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension.");
+                return ret;
+            }
+            return ERR_APPLOCK_START_SUCCESS;
+        } else if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
@@ -104,8 +115,13 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
     std::vector<AppExecFwk::DisposedRule> disposedRuleList;
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetAbilityRunningControlRule");
-        auto ret = IN_PROCESS_CALL(appControlMgr->GetAbilityRunningControlRule(bundleName,
-            userId, disposedRuleList));
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "the appendix is invalid");
+            return false;
+        }
+        auto ret = IN_PROCESS_CALL(appControlMgr->GetAbilityRunningControlRule(
+            bundleName, userId, disposedRuleList, appIndex));
         if (ret != ERR_OK || disposedRuleList.empty()) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Get No DisposedRule");
             return false;
@@ -136,8 +152,16 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     if (disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
         return false;
     }
+    bool isVerified = want.GetBoolParam("verified", false);
+    bool isAsCallerImpicitStart = want.GetBoolParam("ascallerimplicitstart", false);
+    if (isVerified && !isAsCallerImpicitStart &&
+        disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "the app lock is unlocked");
+        return false;
+    }
     bool isAllowed = disposedRule.controlType == AppExecFwk::ControlType::ALLOWED_LIST;
-    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION) {
+    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION ||
+        disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
         return !isAllowed;
     }
 
@@ -268,6 +292,24 @@ void DisposedRuleInterceptor::SetInterceptInfo(const Want &want, AppExecFwk::Dis
         disposedRule.want->SetParam(INTERCEPT_ABILITY_NAME, want.GetElement().GetAbilityName());
         disposedRule.want->SetParam(INTERCEPT_MODULE_NAME, want.GetElement().GetModuleName());
     }
+}
+
+ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
+    const AbilityInterceptorParam &param, AppExecFwk::DisposedRule &disposedRule)
+{
+    auto abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
+    std::string dialogSessionId;
+    std::vector<DialogAppInfo> dialogAppInfos(1);
+    if (!DialogSessionManager::GetInstance().GetGenerateDialogSessionRecord(*abilityRequest,
+        param.userId, dialogSessionId, dialogAppInfos, false)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "generate dialogSessionId failed");
+        return ERR_INVALID_VALUE;
+    }
+    if (dialogSessionId == "") {
+        return ERR_INVALID_VALUE;
+    }
+    disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
+    return CreateModalUIExtension(*disposedRule.want, param.callerToken);
 }
 } // namespace AAFwk
 } // namespace OHOS

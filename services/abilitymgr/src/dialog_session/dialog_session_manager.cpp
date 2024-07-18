@@ -179,6 +179,7 @@ int DialogSessionManager::SendDialogResult(const Want &want, const std::string &
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
+    targetWant.SetParam("verified", true);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityMgr) {
@@ -264,6 +265,15 @@ int DialogSessionManager::CreateModalDialogCommon(const Want &replaceWant, sptr<
     (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
     (const_cast<Want &>(replaceWant)).SetParam(SUPPORT_CLOSE_ON_BLUR, true);
     return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
+}
+
+bool DialogSessionManager::GetGenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
+{
+    if (GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, isSelector)) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
