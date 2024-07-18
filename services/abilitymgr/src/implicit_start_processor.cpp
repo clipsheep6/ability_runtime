@@ -187,7 +187,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     //There is a default opening method add Only one application supports
     bool defaultPicker = false;
     defaultPicker = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, defaultPicker);
-    if (dialogAppInfos.size() == 1 && (!defaultPicker || AppUtils::GetInstance().IsSelectorDialogDefaultPossion())) {
+    if (dialogAppInfos.size() == 1 && !defaultPicker) {
         auto info = dialogAppInfos.front();
         // Compatible with the action's sunset scene
         if (!IsActionImplicitStart(request.want, findDefaultApp)) {

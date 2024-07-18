@@ -605,7 +605,8 @@ int FreeInstallManager::AddFreeInstallObserver(const sptr<IRemoteObject> &caller
     if (abilityRecord != nullptr) {
         return DelayedSingleton<FreeInstallObserverManager>::GetInstance()->AddObserver(abilityRecord->GetRecordId(),
             observer);
-    } else if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+    }
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
         return DelayedSingleton<FreeInstallObserverManager>::GetInstance()->AddObserver(-1, observer);
     }
     return CHECK_PERMISSION_FAILED;

@@ -822,7 +822,6 @@ void JsUIExtensionContext::AddFreeInstallObserver(napi_env env, const AAFwk::Wan
 
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::UI_EXT, "AddFreeInstallObserver error.");
-        return;
     }
     std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
     if (!isOpenLink) {
