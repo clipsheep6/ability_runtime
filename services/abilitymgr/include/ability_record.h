@@ -21,6 +21,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <utility>
 #include "cpp/mutex.h"
 #include "cpp/condition_variable.h"
 
@@ -249,13 +250,16 @@ struct AbilityRequest {
     sptr<SessionInfo> sessionInfo;
     uint32_t specifyTokenId = 0;
 
-    bool IsContinuation() const
+    std::pair<bool, LaunchReason> IsContinuation() const
     {
         auto flags = want.GetFlags();
         if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
-            return true;
+            return {true, LaunchReason::LAUNCHREASON_CONTINUATION};
         }
-        return false;
+        if ((flags & Want::FLAG_ABILITY_PREPARE_CONTINUATION) == Want::FLAG_ABILITY_PREPARE_CONTINUATION) {
+            return {true, LaunchReason::LAUNCHREASON_PREPARE_CONTINUATION};
+        }
+        return {false, LaunchReason::LAUNCHREASON_UNKNOWN};
     }
 
     bool IsAcquireShareData() const
