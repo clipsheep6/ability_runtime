@@ -20,7 +20,6 @@
 
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "insight_intent_execute_callback_interface.h"
 #include "insight_intent_utils.h"
 #include "permission_verification.h"

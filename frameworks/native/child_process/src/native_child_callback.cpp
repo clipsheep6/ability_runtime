@@ -15,7 +15,6 @@
 
 #include "native_child_callback.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_inner_object.h"
 #include "child_process_manager_error_utils.h"
 

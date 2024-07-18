@@ -20,7 +20,6 @@
 #include "child_process_manager.h"
 #include "child_process_manager_error_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "napi_common_child_process_param.h"

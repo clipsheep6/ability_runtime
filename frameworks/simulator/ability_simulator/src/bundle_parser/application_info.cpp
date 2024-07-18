@@ -23,7 +23,6 @@
 
 #include "bundle_constants.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "json_serializer.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"

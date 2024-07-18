@@ -16,7 +16,6 @@
 #include "app_debug_listener_proxy.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {

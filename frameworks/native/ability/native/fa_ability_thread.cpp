@@ -33,7 +33,6 @@
 #endif // WITH_DLP
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #ifdef SUPPORT_GRAPHICS

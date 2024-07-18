@@ -26,7 +26,6 @@
 #include "bundle_constants.h"
 #include "bundle_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"

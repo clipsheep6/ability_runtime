@@ -15,7 +15,6 @@
 #include "ability_manager_client.h"
 #include "assert_fault_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "scene_board_judgement.h"
 #include "task_handler_wrap.h"
 

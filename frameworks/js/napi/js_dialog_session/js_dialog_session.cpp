@@ -17,7 +17,6 @@
 
 #include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "napi/native_api.h"
 #include "napi_common_ability.h"

@@ -21,7 +21,6 @@
 #include "appexecfwk_errors.h"
 #include "bundle_constants.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "json_serializer.h"
 
 namespace OHOS {

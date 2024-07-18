@@ -19,7 +19,6 @@
 #include "auto_fill_manager_util.h"
 #include "extension_ability_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "parameters.h"
 
 namespace OHOS {

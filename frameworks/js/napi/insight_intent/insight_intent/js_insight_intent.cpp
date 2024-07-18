@@ -16,7 +16,6 @@
 #include "js_insight_intent.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "native_engine/native_value.h"

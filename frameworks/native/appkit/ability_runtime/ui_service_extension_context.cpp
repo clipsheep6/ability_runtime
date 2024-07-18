@@ -22,7 +22,6 @@
 #include <native_engine/native_engine.h>
 #include "ui_content.h"
 #include "connection_manager.h"
-#include "hilog_wrapper.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 

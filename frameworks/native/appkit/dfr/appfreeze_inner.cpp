@@ -24,7 +24,6 @@
 #include "ffrt.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "hisysevent.h"
 #include "parameter.h"

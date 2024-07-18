@@ -17,7 +17,6 @@
 
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_startup_config.h"
 #include "js_startup_task_result.h"
 #include "napi/native_api.h"

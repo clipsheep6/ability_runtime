@@ -28,7 +28,6 @@
 #include "ability_util.h"
 #include "global_constant.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "parameters.h"

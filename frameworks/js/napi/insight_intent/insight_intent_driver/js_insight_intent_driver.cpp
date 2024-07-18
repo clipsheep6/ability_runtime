@@ -20,7 +20,6 @@
 #include "event_handler.h"
 #include "event_runner.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "insight_intent_callback_interface.h"
 #include "insight_intent_host_client.h"
 #include "insight_intent_execute_result.h"

@@ -17,7 +17,6 @@
 
 #include "ability_window_configuration.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_error_utils.h"
 #include "napi_common_want.h"

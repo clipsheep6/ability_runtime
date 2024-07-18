@@ -22,7 +22,6 @@
 #include "ability_record.h"
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "int_wrapper.h"
 #include "modal_system_ui_extension.h"

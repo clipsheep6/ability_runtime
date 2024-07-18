@@ -18,7 +18,6 @@
 #include "ability_business_error.h"
 #include "auto_fill_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
 

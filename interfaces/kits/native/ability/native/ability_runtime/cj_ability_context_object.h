@@ -18,7 +18,6 @@
 
 #include "cj_want_ffi.h"
 #include "cj_ability_context_broker.h"
-#include "hilog_wrapper.h"
 
 
 extern "C" {

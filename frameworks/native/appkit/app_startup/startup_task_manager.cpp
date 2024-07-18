@@ -16,7 +16,6 @@
 #include "startup_task_manager.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "startup_manager.h"
 #include "startup_topologysort.h"
 

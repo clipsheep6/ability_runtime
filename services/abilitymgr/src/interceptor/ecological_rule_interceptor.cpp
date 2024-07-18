@@ -19,7 +19,6 @@
 #include "ability_util.h"
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"

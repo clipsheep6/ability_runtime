@@ -24,7 +24,6 @@
 #include "context.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "js_auto_fill_extension_util.h"
 #include "js_auto_fill_extension_context.h"

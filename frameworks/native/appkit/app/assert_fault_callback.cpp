@@ -16,7 +16,6 @@
 #include "assert_fault_callback.h"
 #include "assert_fault_task_thread.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

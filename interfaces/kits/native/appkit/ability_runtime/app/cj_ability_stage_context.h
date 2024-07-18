@@ -19,7 +19,6 @@
 #include <cstdint>
 
 #include "cj_common_ffi.h"
-#include "hilog_wrapper.h"
 #include "ffi_remote_data.h"
 #include "hap_module_info.h"
 

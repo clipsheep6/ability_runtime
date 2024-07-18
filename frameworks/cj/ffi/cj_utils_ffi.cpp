@@ -18,7 +18,6 @@
 
 #include "securec.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 char* CreateCStringFromString(const std::string& source)
 {

@@ -20,7 +20,6 @@
 #include "ability_loader.h"
 #include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ui_extension_utils.h"
 

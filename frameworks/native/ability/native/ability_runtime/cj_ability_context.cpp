@@ -17,7 +17,6 @@
 
 #include "cj_common_ffi.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "cj_ability_connect_callback_object.h"
 
 namespace OHOS {

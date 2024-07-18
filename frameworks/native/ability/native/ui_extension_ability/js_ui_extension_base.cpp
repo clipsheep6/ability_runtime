@@ -22,7 +22,6 @@
 #include "ability_manager_client.h"
 #include "configuration_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"

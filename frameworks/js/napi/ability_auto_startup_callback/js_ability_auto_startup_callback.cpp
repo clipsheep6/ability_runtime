@@ -16,7 +16,6 @@
 #include "js_ability_auto_startup_callback.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_ability_auto_startup_manager_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"

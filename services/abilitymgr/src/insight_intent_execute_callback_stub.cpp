@@ -16,7 +16,6 @@
 #include "insight_intent_execute_callback_stub.h"
 #include "insight_intent_host_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

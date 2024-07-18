@@ -16,7 +16,6 @@
 #include "js_auto_save_request_callback.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_auto_fill_manager.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"

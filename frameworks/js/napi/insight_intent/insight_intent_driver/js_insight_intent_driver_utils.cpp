@@ -18,7 +18,6 @@
 #include <cstdint>
 
 #include "ability_state.h"
-#include "hilog_wrapper.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "js_runtime.h"

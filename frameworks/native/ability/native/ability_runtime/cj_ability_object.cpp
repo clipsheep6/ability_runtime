@@ -16,7 +16,6 @@
 #include "ability_runtime/cj_ability_object.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;

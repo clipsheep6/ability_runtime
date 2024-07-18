@@ -16,7 +16,6 @@
 #include "render_state_data.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "parcel_macro_base.h"
 
 namespace OHOS {

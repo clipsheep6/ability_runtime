@@ -18,7 +18,6 @@
 #include "ability_util.h"
 #include "app_running_control_rule_result.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "want_params_wrapper.h"

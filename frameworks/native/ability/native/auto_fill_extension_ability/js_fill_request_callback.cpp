@@ -18,7 +18,6 @@
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_auto_fill_extension_util.h"

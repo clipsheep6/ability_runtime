@@ -38,7 +38,6 @@
 #include "errors.h"
 #include "hap_module_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "parameters.h"
 #include "runtime.h"
 #include "sys_mgr_client.h"

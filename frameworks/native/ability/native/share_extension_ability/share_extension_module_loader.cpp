@@ -16,7 +16,6 @@
 #include "share_extension_module_loader.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "share_extension.h"
 
 namespace OHOS {

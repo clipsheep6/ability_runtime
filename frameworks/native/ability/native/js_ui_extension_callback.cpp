@@ -15,7 +15,6 @@
 #include "js_ui_extension_callback.h"
 #include "ability_business_error.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi_common_util.h"

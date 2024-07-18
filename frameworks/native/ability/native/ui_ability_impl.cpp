@@ -20,7 +20,6 @@
 #include "context/application_context.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #include "ohos_application.h"

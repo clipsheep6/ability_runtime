@@ -17,7 +17,6 @@
 
 #include "ability_business_error.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_converter.h"
 #include "js_resource_manager_utils.h"

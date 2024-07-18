@@ -18,7 +18,6 @@
 #include <string>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
 namespace OHOS {

@@ -16,7 +16,6 @@
 #include "action_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_action_extension.h"
 #include "runtime.h"
 #include "ui_extension_context.h"

@@ -23,7 +23,6 @@
 #include "want.h"
 #include "want_params_wrapper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using OHOS::AAFwk::Want;
 using OHOS::AppExecFwk::ElementName;

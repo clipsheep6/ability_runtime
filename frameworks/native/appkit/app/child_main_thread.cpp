@@ -19,7 +19,6 @@
 #include "child_process_manager.h"
 #include "constants.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"

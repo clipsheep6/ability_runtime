@@ -15,7 +15,6 @@
 
 #include "native_child_notify_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {

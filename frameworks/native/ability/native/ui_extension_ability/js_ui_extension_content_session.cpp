@@ -19,7 +19,6 @@
 #include "accesstoken_kit.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"

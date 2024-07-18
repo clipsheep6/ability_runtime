@@ -16,7 +16,6 @@
 #include "extension_record.h"
 #include "preload_uiext_state_observer.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 
 namespace OHOS {

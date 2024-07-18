@@ -15,7 +15,6 @@
 
 #include "js_dialog_session_utils.h"
 
-#include "hilog_wrapper.h"
 #include "json/json.h"
 #include "napi_common_ability.h"
 #include "napi_common_want.h"

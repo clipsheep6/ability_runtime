@@ -15,7 +15,6 @@
 
 #include "cj_ability_stage_object.h"
 
-#include "hilog_wrapper.h"
 #include "hilog_tag_wrapper.h"
 
 using namespace OHOS::AbilityRuntime;

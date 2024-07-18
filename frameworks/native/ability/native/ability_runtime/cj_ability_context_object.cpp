@@ -21,7 +21,6 @@
 #include "cj_common_ffi.h"
 #include "ffi_remote_data.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "pixel_map.h"

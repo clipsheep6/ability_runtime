@@ -15,7 +15,6 @@
 
 #include "session_handler_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "message_parcel.h"
 
 namespace OHOS {

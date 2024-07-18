@@ -19,7 +19,6 @@
 #include "ability_manager_interface.h"
 #include "auto_startup_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_ability_auto_startup_manager_utils.h"
 #include "js_error_utils.h"

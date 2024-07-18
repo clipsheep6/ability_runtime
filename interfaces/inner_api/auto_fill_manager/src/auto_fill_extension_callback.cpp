@@ -18,7 +18,6 @@
 #include "auto_fill_manager.h"
 #include "auto_fill_manager_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "string_wrapper.h"
 #include "view_data.h"

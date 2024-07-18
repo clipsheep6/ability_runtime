@@ -24,7 +24,6 @@
 #include "errors.h"
 #include "exit_reason.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
 #include "in_process_call_wrapper.h"
