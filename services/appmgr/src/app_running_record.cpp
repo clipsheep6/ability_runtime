@@ -970,9 +970,10 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
     }
     if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND
         || curState_ == ApplicationState::APP_STATE_FOREGROUND) {
-        if (foregroundingAbilityTokens_.empty() || pendingState_ == ApplicationPendingState::BACKGROUNDING) {
-            TAG_LOGD(AAFwkTag::APPMGR, "application foregrounding.");
-            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+        TAG_LOGD(AAFwkTag::APPMGR, "application foregrounding.");
+        auto pendingState = pendingState_;
+        SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+        if (pendingState == ApplicationPendingState::READY) {
             ScheduleForegroundRunning();
         }
         foregroundingAbilityTokens_.insert(ability->GetToken());
@@ -1024,8 +1025,11 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
         // Then schedule application background when all ability is not foreground.
         if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME && windowIds_.empty()) {
+            auto pendingState = pendingState_;
             SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
-            ScheduleBackgroundRunning();
+            if (pendingState == ApplicationPendingState::READY) {
+                ScheduleBackgroundRunning();
+            }
         }
     } else {
         TAG_LOGW(AAFwkTag::APPMGR, "wrong application state");
