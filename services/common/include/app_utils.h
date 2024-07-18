@@ -55,9 +55,11 @@ public:
     int32_t GetLimitMaximumExtensionsPerProc();
     int32_t GetLimitMaximumExtensionsPerDevice();
     std::string GetCacheExtensionTypeList();
+    bool IsAllowStartAbilityWithoutCallerToken(const std::string& bundleName, const std::string& abilityName);
 
 private:
     void LoadResidentProcessInExtremeMemory();
+    void LoadStartAbilityWithoutCallerToken();
     AppUtils();
     volatile bool isSceneBoard_ = false;
     volatile DeviceConfiguration<bool> isInheritWindowSplitScreenMode_ = {false, true};
@@ -78,6 +80,8 @@ private:
         residentProcessInExtremeMemory_ = {false, {}};
     volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerProc_ = {false, DEFAULT_MAX_EXT_PER_PROC};
     volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerDevice_ = {false, DEFAULT_MAX_EXT_PER_DEV};
+    DeviceConfiguration<std::vector<std::pair<std::string, std::string>>>
+        startAbilityWithoutCallerToken_ = {false, {}};
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk

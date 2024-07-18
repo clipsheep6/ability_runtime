@@ -981,8 +981,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (callerToken == nullptr && !IsCallerSceneBoard() && !isDelegatorCall && !isForegroundToRestartApp &&
         !PermissionVerification::GetInstance()->IsSACall() && !PermissionVerification::GetInstance()->IsShellCall() &&
         !InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
-        return ERR_INVALID_CALLER;
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        if (!AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
+            return ERR_INVALID_CALLER;
+        }
     }
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "CHECK_DLP");

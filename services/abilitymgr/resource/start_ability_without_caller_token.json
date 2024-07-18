@@ -1,0 +1,8 @@
+{
+    "startAbilityWithoutCallerToken": [
+        {
+            "bundleName": "com.ohos.contacts",
+            "abilityName": "com.ohos.contacts.MainAbility"
+        }
+    ]
+}
