@@ -43,7 +43,7 @@ public:
      *
      * @param options The simulator options.
      */
-    static std::unique_ptr<Simulator> Create(const Options &options);
+    static std::shared_ptr<Simulator> Create(const Options &options);
 
     virtual ~Simulator() = default;
 

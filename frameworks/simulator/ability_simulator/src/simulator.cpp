@@ -123,6 +123,8 @@ private:
     static napi_value RequireNapi(napi_env env, napi_callback_info info);
     inline void SetHostResolveBufferTracker();
     void LoadJsMock(const std::string &fileName);
+    void ReportJsError(napi_value obj);
+    std::string GetNativeStrFromJsTaggedObj(napi_value obj, const char* key);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -705,6 +707,7 @@ bool SimulatorImpl::OnInit()
             TAG_LOGE(AAFwkTag::ABILITY_SIM, "SimulatorImpl is nullptr.");
             return;
         }
+        self->ReportJsError(value);
         if (self->terminateCallback_ == nullptr) {
             TAG_LOGE(AAFwkTag::ABILITY_SIM, "terminateCallback is nullptr.");
             return;
@@ -835,9 +838,9 @@ void SimulatorImpl::Run()
 }
 }
 
-std::unique_ptr<Simulator> Simulator::Create(const Options &options)
+std::shared_ptr<Simulator> Simulator::Create(const Options &options)
 {
-    auto simulator = std::make_unique<SimulatorImpl>();
+    auto simulator = std::make_shared<SimulatorImpl>();
     if (simulator->Initialize(options)) {
         return simulator;
     }
@@ -933,6 +936,54 @@ void SimulatorImpl::GetPkgContextInfoListInner(nlohmann::json &itemObject, std::
             pkgAliasMap[pkgAlias] = pkgName;
         }
     }
+}
+
+std::string SimulatorImpl::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
+{
+    if (obj == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get value from key.");
+        return "";
+    }
+
+    napi_value valueStr = nullptr;
+    napi_get_named_property(nativeEngine_, obj, key, &valueStr);
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(nativeEngine_, valueStr, &valueType);
+    if (valueType != napi_string) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to convert value from key.");
+        return "";
+    }
+
+    size_t valueStrBufLength = 0;
+    napi_get_value_string_utf8(nativeEngine_, valueStr, nullptr, 0, &valueStrBufLength);
+    auto valueCStr = std::make_unique<char[]>(valueStrBufLength + 1);
+    size_t valueStrLength = 0;
+    napi_get_value_string_utf8(nativeEngine_, valueStr, valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
+    std::string ret(valueCStr.get(), valueStrLength);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "GetNativeStrFromJsTaggedObj Success.");
+    return ret;
+}
+
+void SimulatorImpl::ReportJsError(napi_value obj)
+{
+    std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
+    std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
+    std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
+    std::string topStack = GetNativeStrFromJsTaggedObj(obj, "topstack");
+    std::string summary = "Simulator error name:" + errorName + "\n";
+    summary += "Simulator error message:" + errorMsg + "\n";
+    bool hasProperty = false;
+    napi_has_named_property(nativeEngine_, obj, "code", &hasProperty);
+    if (hasProperty) {
+        std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
+        summary += "Simulator error code:" + errorCode + "\n";
+    }
+    if (errorStack.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "errorStack is empty");
+        return;
+    }
+    summary += "Stacktrace:\n" + errorStack;
+    TAG_LOGE(AAFwkTag::ABILITY_SIM, "summary: \n%{public}s", summary.c_str());
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
