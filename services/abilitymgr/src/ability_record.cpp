@@ -15,8 +15,12 @@
 
 #include "ability_record.h"
 
+#include <chrono>
+#include <ctime>
 #include <filesystem>
 #include <singleton.h>
+#include <iostream>
+#include <iomanip>
 #include <vector>
 #include <unordered_map>
 
@@ -112,6 +116,7 @@ const int HALF_TIMEOUT = 2;
 const int MAX_URI_COUNT = 500;
 const int32_t BROKER_UID = 5557;
 const int RESTART_SCENEBOARD_DELAY = 500;
+const int MAX_ABILITY_STATE_LIST = 32;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
 const int LOAD_TIMEOUT_MULTIPLE = 15000;
@@ -1366,6 +1371,21 @@ void AbilityRecord::UpdateAbilityVisibilityState()
 void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
+    {
+        auto abilityStateStr = AbilityRecord::ConvertAbilityState(state);
+        // get current time
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+        std::tm local_tm = *std::localtime(&now_time);
+        std::stringstream ss;
+        ss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+        std::string current_time_str = ss.str();
+        std::lock_guard guard(abilityStateLock_);
+        abilityStateList_.push_back("time: " + current_time_str + " AbiliyState: " + abilityStateStr);
+        if (abilityStateList_.size() > MAX_ABILITY_STATE_LIST) {
+            abilityStateList_.pop_front();
+        }
+    }
     if (currentState_ == AbilityState::BACKGROUND) {
         isAbilityForegrounding_ = false;
     }
@@ -2413,6 +2433,17 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     DumpClientInfo(info, params, isClient);
     DumpUIExtensionRootHostInfo(info);
     DumpUIExtensionPid(info, isUIExtension);
+    decltype(abilityStateList_) abilityStateListCpy;
+    {
+        std::lock_guard guard(connRecordListMutex_);
+        abilityStateListCpy = abilityStateList_;
+    }
+    info.emplace_back("      History ability state: " + std::to_string(abilityStateListCpy.size()));
+    for (auto &&abilityState : abilityStateListCpy) {
+        if (!abilityState.empty()) {
+            info.emplace_back("      > ability state: " + abilityState);
+        }
+    }
 }
 
 void AbilityRecord::DumpUIExtensionPid(std::vector<std::string> &info, bool isUIExtension) const
