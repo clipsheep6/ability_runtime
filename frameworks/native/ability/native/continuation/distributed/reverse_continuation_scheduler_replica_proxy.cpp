@@ -32,13 +32,12 @@ sptr<IRemoteObject> ReverseContinuationSchedulerReplicaProxy::AsObject()
 
 void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObject> &primary)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerReplicaProxy::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::PassPrimary write interface token failed");
+            "write interface token failed");
         return;
     }
     if (primary) {
@@ -58,20 +57,18 @@ void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObj
         static_cast<uint32_t>(IReverseContinuationSchedulerReplica::Message::PASS_PRIMARY), data, reply, option);
     if (ret != NO_ERROR) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::PassPrimary SendRequest return false");
+            "SendRequest failed");
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplicaProxy::ReverseContinuation()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerReplicaProxy::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::ReverseContinuation write interface token failed");
+            "write interface token failed");
         return false;
     }
 
@@ -81,27 +78,25 @@ bool ReverseContinuationSchedulerReplicaProxy::ReverseContinuation()
         reply,
         option) != NO_ERROR) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::ReverseContinuation SendRequest return false");
+            "SendRequest failed");
         return false;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return true;
 }
 
 void ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult(int reverseResult)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerReplicaProxy::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write interface token failed");
+            "write interface token failed");
         return;
     }
     if (!data.WriteInt32(reverseResult)) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write parcel flags failed");
+            "write parcel flags failed");
         return;
     }
     if (SendTransactCmd(
@@ -110,9 +105,8 @@ void ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult(int reverseRe
         reply,
         option) != NO_ERROR) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult SendRequest return false");
+            "SendRequest failed");
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 int32_t ReverseContinuationSchedulerReplicaProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
@@ -120,7 +114,7 @@ int32_t ReverseContinuationSchedulerReplicaProxy::SendTransactCmd(uint32_t code,
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Remote is nullptr");
         return ERR_NULL_OBJECT;
     }
 

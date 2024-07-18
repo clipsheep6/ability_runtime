@@ -88,7 +88,7 @@ private:
             napi_typeof(env, argv[i], &paramType);
             if (paramType != napi_number) {
                 TAG_LOGE(
-                    AAFwkTag::RECOVERY, "AppRecoveryApi argv[%{public}s] type isn't number", std::to_string(i).c_str());
+                    AAFwkTag::RECOVERY, "argv[%{public}s] type isn't number", std::to_string(i).c_str());
                 return result;
             }
             int32_t tmp = 0;
@@ -112,19 +112,19 @@ private:
         constexpr uint16_t restartMaxVal = 0x0003;
         if ((restartFlag < 0 || restartFlag > restartMaxVal) && (restartFlag != RestartFlag::NO_RESTART)) {
             TAG_LOGE(
-                AAFwkTag::RECOVERY, "AppRecoveryApi CheckParamsValid restartFlag: %{public}d is Invalid", restartFlag);
+                AAFwkTag::RECOVERY, "restartFlag: %{public}d is Invalid", restartFlag);
             return false;
         }
         uint16_t saveFlag = params[1];
         constexpr uint16_t saveMaxVal = 0x0003;
         if (saveFlag < SaveOccasionFlag::SAVE_WHEN_ERROR || saveFlag > saveMaxVal) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryApi CheckParamsValid SaveOccasionFlag: %{public}d is Invalid",
+            TAG_LOGE(AAFwkTag::RECOVERY, "SaveOccasionFlag: %{public}d is Invalid",
                 saveFlag);
             return false;
         }
         uint16_t saveModeFlag = params[2];
         if (saveModeFlag < SaveModeFlag::SAVE_WITH_FILE || saveModeFlag > SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryApi CheckParamsValid saveModeFlag: %{public}d is Invalid",
+            TAG_LOGE(AAFwkTag::RECOVERY, "saveModeFlag: %{public}d is Invalid",
                 saveModeFlag);
             return false;
         }
@@ -134,14 +134,14 @@ private:
     napi_value OnSaveAppState(napi_env env, const size_t argc, napi_value* argv)
     {
         if (argc > 1) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryApi SaveAppState Incorrect number of parameters");
+            TAG_LOGE(AAFwkTag::RECOVERY, "Incorrect number of parameters");
             return CreateJsValue(env, false);
         }
         uintptr_t ability = 0;
         if (argc == 1) {
             napi_value value = argv[0];
             if (value == nullptr) {
-                TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryApi Invalid abilityContext.");
+                TAG_LOGE(AAFwkTag::RECOVERY, "Invalid abilityContext");
                 return CreateJsValue(env, false);
             }
             void* result = nullptr;
@@ -157,7 +157,7 @@ private:
     napi_value OnRestartApp(napi_env env, const size_t argc, napi_value* argv)
     {
         if (argc != 0) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryApi OnRestartApp Incorrect number of parameters");
+            TAG_LOGE(AAFwkTag::RECOVERY, "Incorrect number of parameters");
             return CreateJsUndefined(env);
         }
 
@@ -168,7 +168,7 @@ private:
     napi_value OnSetRestartWant(napi_env env, const size_t argc, napi_value* argv)
     {
         if (argc != 1) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryApi OnSetRestartWant Incorrect number of parameters");
+            TAG_LOGE(AAFwkTag::RECOVERY, "Incorrect number of parameters");
             return CreateJsUndefined(env);
         }
         std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
@@ -182,7 +182,7 @@ private:
 napi_value AppRecoveryRestartFlagInit(napi_env env)
 {
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryRestartFlagInit Invalid input parameters");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Invalid input parameters");
         return nullptr;
     }
 
@@ -190,7 +190,7 @@ napi_value AppRecoveryRestartFlagInit(napi_env env)
     napi_create_object(env, &objValue);
 
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryRestartFlagInit Failed to get object");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to get object");
         return nullptr;
     }
 
@@ -206,7 +206,7 @@ napi_value AppRecoveryRestartFlagInit(napi_env env)
 napi_value AppRecoveryStateSaveFlagInit(napi_env env)
 {
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryStateSaveFlagInit Invalid input parameters");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Invalid input parameters");
         return nullptr;
     }
 
@@ -214,7 +214,7 @@ napi_value AppRecoveryStateSaveFlagInit(napi_env env)
     napi_create_object(env, &objValue);
 
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoveryStateSaveFlagInit Failed to get object");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to get object");
         return nullptr;
     }
 
@@ -229,7 +229,7 @@ napi_value AppRecoveryStateSaveFlagInit(napi_env env)
 napi_value AppRecoverySaveModeFlagInit(napi_env env)
 {
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoverySaveModeFlagInit Invalid input parameters");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Invalid input parameters");
         return nullptr;
     }
 
@@ -237,7 +237,7 @@ napi_value AppRecoverySaveModeFlagInit(napi_env env)
     napi_create_object(env, &objValue);
 
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecoverySaveModeFlagInit Failed to get object");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to get object");
         return nullptr;
     }
     napi_set_named_property(env, objValue, "SAVE_WITH_FILE",
@@ -250,7 +250,7 @@ napi_value AppRecoverySaveModeFlagInit(napi_env env)
 napi_value InitAppRecoveryApiModule(napi_env env, napi_value exportObj)
 {
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery API Invalid input parameters");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Invalid input parameters");
         return nullptr;
     }
 

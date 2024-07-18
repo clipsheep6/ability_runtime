@@ -28,15 +28,13 @@ namespace AppExecFwk {
  */
 void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceType)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId) ||
         !data.WriteString(deviceType)) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s params is wrong", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "params is wrong");
         return;
     }
     RemoteRequest(data, COMMAND_CONNECT);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 /**
  * @brief Remote device sends disconnection request.
@@ -45,27 +43,23 @@ void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceT
  */
 void ConnectCallbackProxy::Disconnect(const string &deviceId)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId)) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s params is wrong", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "params is wrong");
         return;
     }
     RemoteRequest(data, COMMAND_DISCONNECT);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 void ConnectCallbackProxy::RemoteRequest(MessageParcel &data, int commandDisconnect)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel reply;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "object is nullptr");
         return;
     }
     remote->SendRequest(commandDisconnect, data, reply, option);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
