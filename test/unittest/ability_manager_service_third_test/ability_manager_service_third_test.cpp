@@ -2608,5 +2608,137 @@ HWTEST_F(AbilityManagerServiceThirdTest, SignRestartAppFlag_001, TestSize.Level1
 
     abilityMs_->SignRestartAppFlag(USER_ID_U100, "com.ix.hiservcie");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIAbilityByPreInstall
+ * FunctionPoints: AbilityManagerService StartUIAbilityByPreInstall free install not finished
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_StartUIAbilityByPreInstall_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    FreeInstallInfo taskInfo = {
+        .isFreeInstallFinished = false,
+    };
+    int32_t res = abilityMs->StartUIAbilityByPreInstall(taskInfo);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIAbilityByPreInstall
+ * FunctionPoints: AbilityManagerService StartUIAbilityByPreInstall free install failed
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_StartUIAbilityByPreInstall_002, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    FreeInstallInfo taskInfo = {
+        .isInstalled = false,
+    };
+    int32_t res = abilityMs->StartUIAbilityByPreInstall(taskInfo);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIAbilityByPreInstall
+ * FunctionPoints: AbilityManagerService StartUIAbilityByPreInstall StartUIAbilityBySCB not called
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_StartUIAbilityByPreInstall_003, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    FreeInstallInfo taskInfo = {
+        .isStartUIAbilityBySCBCalled = false,
+    };
+    int32_t res = abilityMs->StartUIAbilityByPreInstall(taskInfo);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIAbilityByPreInstall
+ * FunctionPoints: AbilityManagerService StartUIAbilityByPreInstall empty sessionId
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_StartUIAbilityByPreInstall_004, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    FreeInstallInfo taskInfo = {
+        .isFreeInstallFinished = true,
+        .isInstalled = true,
+        .isStartUIAbilityBySCBCalled = true,
+    };
+    int32_t res = abilityMs->StartUIAbilityByPreInstall(taskInfo);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIAbilityByPreInstall
+ * FunctionPoints: AbilityManagerService StartUIAbilityByPreInstall session not found
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_StartUIAbilityByPreInstall_005, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    Want want;
+    std::string sessionId = "1234567890";
+    want.SetParam(KEY_SESSION_ID, sessionId);
+    FreeInstallInfo taskInfo = {
+        .want = want,
+        .isFreeInstallFinished = true,
+        .isInstalled = true,
+        .isStartUIAbilityBySCBCalled = true,
+    };
+    int32_t res = abilityMs->StartUIAbilityByPreInstall(taskInfo);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RemovePreStartSession
+ * FunctionPoints: AbilityManagerService RemovePreStartSession
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_RemovePreStartSession_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    std::string sessionId = "123456";
+    (abilityMs->preStartSessionMap_).insert(std::make_pair(sessionId, sessionInfo));
+    abilityMs->RemovePreStartSession(sessionId);
+    EXPECT_EQ((abilityMs->preStartSessionMap_).find(sessionId), (abilityMs->preStartSessionMap_).end());
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: PreStartMission
+ * FunctionPoints: AbilityManagerService PreStartMission permission denied
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_PreStartMission_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    int res = abilityMs->PreStartMission("bundle", "module", "ability", "startTime");
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OpenLink
+ * FunctionPoints: AbilityManagerService OpenLink
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AbilityManagerServiceTest_OpenLink_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int res = abilityMs->OpenLink(want, callerToken, 0, -1);
+    EXPECT_NE(res, ERR_OK);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
