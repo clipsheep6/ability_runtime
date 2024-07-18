@@ -617,6 +617,14 @@ private:
 
     bool IsBgWorkingThread(const AbilityInfo &info);
 
+    /**
+     * @brief parse app configuration params
+     *
+     * @param configuration input configuration
+     * @config the config of application
+     */
+    void ParseAppConfigurationParams(const std::string configuration, Configuration &config);
+
     class MainHandler : public EventHandler {
     public:
         MainHandler(const std::shared_ptr<EventRunner> &runner, const sptr<MainThread> &thread);

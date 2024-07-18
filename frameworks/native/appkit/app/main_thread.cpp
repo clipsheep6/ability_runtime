@@ -74,6 +74,7 @@
 #ifdef CJ_FRONTEND
 #include "cj_runtime.h"
 #endif
+#include "nlohmann/json.hpp"
 #include "ohos_application.h"
 #include "overlay_module_info.h"
 #include "parameters.h"
@@ -156,7 +157,9 @@ const std::string SIGNAL_HANDLER = "OS_SignalHandler";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
-
+const std::string JSON_KEY_APP_FONT_SIZE_SCALE = "fontSizeScale";
+const std::string JSON_KEY_APP_FONT_MAX_SCALE = "fontSizeMaxScale";
+const std::string JSON_KEY_APP_CONFIGURATION = "configuration";
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
 
@@ -1747,8 +1750,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
+    Configuration appConfig = config;
+    ParseAppConfigurationParams(bundleInfo.applicationInfo.configuration, appConfig);
+
     if (!InitResourceManager(resourceManager, entryHapModuleInfo, bundleInfo.name,
-        bundleInfo.applicationInfo.multiProjects, config)) {
+        bundleInfo.applicationInfo.multiProjects, appConfig)) {
         TAG_LOGE(AAFwkTag::APPKIT, "InitResourceManager failed");
         return;
     }
@@ -1759,7 +1765,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextDeal->SetApplicationContext(application_);
     application_->AttachBaseContext(contextDeal);
     application_->SetAbilityRecordMgr(abilityRecordMgr_);
-    application_->SetConfiguration(config);
+    application_->SetConfiguration(appConfig);
     contextImpl->SetConfiguration(application_->GetConfiguration());
 
     applicationImpl_->SetRecordId(appLaunchData.GetRecordId());
@@ -3406,6 +3412,43 @@ void MainThread::ScheduleCacheProcess()
     if (!mainHandler_->PostTask(task, "MainThread:ScheduleCacheProcess")) {
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
     }
+}
+
+void MainThread::ParseAppConfigurationParams(const std::string configuration, Configuration &appConfig)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "start");
+    if (configuration.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the configuration is empty");
+        return;
+    }
+    nlohmann::json configurationJson = nlohmann::json::parse(configuration, nullptr, false);
+    if (configurationJson.is_discarded()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "json discarded error");
+        return;
+    }
+    if (!configurationJson.contains(JSON_KEY_APP_CONFIGURATION)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "app configuration is not exist");
+        return;
+    }
+    nlohmann::json jsonObject = configurationJson.at(JSON_KEY_APP_CONFIGURATION).get<nlohmann::json>();
+    if (jsonObject.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "app configuration is null");
+        return;
+    }
+    if (jsonObject.contains(JSON_KEY_APP_FONT_SIZE_SCALE)
+        && jsonObject[JSON_KEY_APP_FONT_SIZE_SCALE].is_string()) {
+        appConfig.AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE,
+            jsonObject.at(JSON_KEY_APP_FONT_SIZE_SCALE).get<std::string>());
+    }
+    if (jsonObject.contains(JSON_KEY_APP_FONT_MAX_SCALE)
+        && jsonObject[JSON_KEY_APP_FONT_MAX_SCALE].is_string()) {
+        std::string appFontMaxScale = jsonObject.at(JSON_KEY_APP_FONT_MAX_SCALE).get<std::string>();
+        const std::regex INTEGER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
+        if (std::regex_match(appFontMaxScale, INTEGER_REGEX)) {
+            appConfig.AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_MAX_SCALE, appFontMaxScale);
+        }
+    }
+    TAG_LOGD(AAFwkTag::APPKIT, "configuration_: %{public}s", appConfig.GetName().c_str());
 }
 
 /**

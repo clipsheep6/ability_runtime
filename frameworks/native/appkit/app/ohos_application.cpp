@@ -445,6 +445,8 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     }
     std::string language = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     std::string colorMode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    std::string fontSizeScal = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE);
+    std::string fontWeightScale = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
     std::string languageIsSetByApp =
         config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
     std::string colorModeIsSetByApp =
@@ -462,6 +464,8 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     std::string globalColorModeIsSetBySa =
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
+    std::string globalFontFollowSysteme =
+        configuration_->GetItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && globalColorModeIsSetBySa.empty()) {
         TAG_LOGD(AAFwkTag::APPKIT, "colorMode is auto");
         constexpr int buffSize = 64;
@@ -477,6 +481,13 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         if ((!globalColorModeIsSetByApp.empty() && globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) ||
             !globalColorModeIsSetBySa.empty()) {
             TAG_LOGD(AAFwkTag::APPKIT, "colormode has been set by app or sa");
+            return;
+        }
+    }
+    if (!fontSizeScal.empty() || !fontWeightScale.empty()) {
+        if (!globalFontFollowSysteme.empty()
+            && globalFontFollowSysteme.compare(ConfigurationInner::IS_APP_FONT_FOLLOW_SYSTEM) != 0) {
+            TAG_LOGW(AAFwkTag::APPKIT, "the font configured for the app does not take effect with the system");
             return;
         }
     }
