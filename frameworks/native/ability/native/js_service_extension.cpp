@@ -44,6 +44,25 @@ constexpr size_t ARGC_TWO = 2;
 }
 
 namespace {
+sptr<IRemoteObject> GetNativeRemoteObject(napi_env env, napi_value obj)
+{
+    if (env == nullptr || obj == nullptr) {
+        HILOG_ERROR("obj is null.");
+        return nullptr;
+    }
+    napi_valuetype type;
+    napi_typeof(env, obj, &type);
+    if (type == napi_undefined || type == napi_null) {
+        HILOG_ERROR("obj is invalid type.");
+        return nullptr;
+    }
+    if (type != napi_object) {
+        HILOG_ERROR("obj is not an object.");
+        return nullptr;
+    }
+    return NAPI_ohos_rpc_getNativeRemoteObject(env, obj);
+}
+
 NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
 {
     if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
@@ -68,7 +87,7 @@ NativeValue *OnConnectPromiseCallback(NativeEngine *engine, NativeCallbackInfo *
     auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *>(data);
     sptr<IRemoteObject> service = nullptr;
     if (info->argc > 0) {
-        service = NAPI_ohos_rpc_getNativeRemoteObject(reinterpret_cast<napi_env>(engine),
+        service = GetNativeRemoteObject(reinterpret_cast<napi_env>(engine),
             reinterpret_cast<napi_value>(info->argv[0]));
     }
     callbackInfo->Call(service);
@@ -282,7 +301,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
     HandleScope handleScope(jsRuntime_);
     NativeValue *result = CallOnConnect(want);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
+    auto remoteObj = GetNativeRemoteObject(
         reinterpret_cast<napi_env>(nativeEngine), reinterpret_cast<napi_value>(result));
     if (remoteObj == nullptr) {
         HILOG_ERROR("remoteObj nullptr.");
@@ -299,7 +318,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
         isAsyncCallback = false;
-        sptr<IRemoteObject> remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(reinterpret_cast<napi_env>(nativeEngine),
+        sptr<IRemoteObject> remoteObj = GetNativeRemoteObject(reinterpret_cast<napi_env>(nativeEngine),
             reinterpret_cast<napi_value>(result));
         if (remoteObj == nullptr) {
             HILOG_ERROR("remoteObj nullptr.");

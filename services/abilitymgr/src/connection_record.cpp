@@ -135,9 +135,25 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
     auto remoteObject = targetService_->GetConnRemoteObject();
-    if (connCallback_) {
-        HILOG_DEBUG("OnAbilityConnectDone");
-        connCallback_->OnAbilityConnectDone(element, remoteObject, resultCode);
+    auto callback = connCallback_;
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (remoteObject == nullptr) {
+        HILOG_WARN("extension returned null object: %{public}s", element.GetURI().c_str());
+        if (handler) {
+            SetConnectState(ConnectionState::DISCONNECTING);
+            handler->SubmitTask([service = targetService_]() {
+                DelayedSingleton<AbilityManagerService>::GetInstance()->ScheduleDisconnectAbilityDone(
+                    service->GetToken());
+                });
+        }
+        return;
+    }
+
+    if (callback && handler) {
+        handler->SubmitTask([callback, element, remoteObject, resultCode] {
+            HILOG_DEBUG("OnAbilityConnectDone");
+            callback->OnAbilityConnectDone(element, remoteObject, resultCode);
+            });
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddConnection(shared_from_this());
     HILOG_INFO("result: %{public}d. connectState:%{public}d.", resultCode, state_);
