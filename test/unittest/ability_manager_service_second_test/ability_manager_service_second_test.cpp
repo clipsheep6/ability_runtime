@@ -42,6 +42,7 @@ namespace AAFwk {
 namespace {
 const int32_t USER_ID_U100 = 100;
 const int32_t APP_MEMORY_SIZE = 512;
+const int32_t SYNC_EVENT_SLEEP_TIME = 500;
 }  // namespace
 class AbilityManagerServiceSecondTest : public testing::Test {
 public:
@@ -836,6 +837,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartSyncRemoteMissions_001, TestSize.
     std::string devId = "test";
     EXPECT_EQ(abilityMs_->StartSyncRemoteMissions(devId, true, 1), CHECK_PERMISSION_FAILED);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest StartSyncRemoteMissions_001 end");
+    std::this_thread::sleep_for(std::chrono::milliseconds(SYNC_EVENT_SLEEP_TIME));
 }
 
 /*

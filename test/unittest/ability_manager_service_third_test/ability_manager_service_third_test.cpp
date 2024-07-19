@@ -48,6 +48,7 @@ namespace AAFwk {
 namespace {
 const int32_t USER_ID_U100 = 100;
 const int32_t APP_MEMORY_SIZE = 512;
+const int32_t SYNC_EVENT_SLEEP_TIME = 500;
 const uint32_t TOKENID = 211;
 const std::string EMPTY_DEVICE_ID = "";
 const std::string  SESSIONID = "sessionId";
@@ -404,6 +405,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, ReleaseCall_001, TestSize.Level1)
     AppExecFwk::ElementName element;
     EXPECT_EQ(abilityMs_->ReleaseCall(nullptr, element), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest ReleaseCall_001 end");
+    std::this_thread::sleep_for(std::chrono::milliseconds(SYNC_EVENT_SLEEP_TIME));
 }
 
 /*
