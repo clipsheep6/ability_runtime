@@ -38,37 +38,61 @@ struct DialogCallerInfo {
     bool isSelector = false;
 };
 
+enum class SelectorType {
+    IMPLICIT_START_SELECTOR = 0,
+    APP_CLONR_SELECTOR = 1
+};
+
 class DialogSessionManager {
 public:
     static DialogSessionManager &GetInstance();
     ~DialogSessionManager() = default;
 
-    sptr<DialogSessionInfo> GetDialogSessionInfo(const std::string dialogSessionId) const;
+    sptr<DialogSessionInfo> GetDialogSessionInfo(const std::string &dialogSessionId) const;
 
-    std::shared_ptr<DialogCallerInfo> GetDialogCallerInfo(const std::string dialogSessionId) const;
+    std::shared_ptr<DialogCallerInfo> GetDialogCallerInfo(const std::string &dialogSessionId) const;
 
     int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed);
 
     int CreateJumpModalDialog(AbilityRequest &abilityRequest, int32_t userId, const Want &replaceWant);
 
-    int CreateSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+    int CreateImplicitSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
         std::vector<DialogAppInfo> &dialogAppInfos);
+
+    int CreateCloneSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+        std::vector<DialogAppInfo> &dialogAppInfos, const std::string &replaceWant);
+
+    int HandleErmsResult(AbilityRequest &abilityRequest, int32_t userId, const Want &replaceWant);
+
+    bool IsCreateCloneSelectorDialog(const std::string &bundleName, int32_t userId);
 
 private:
     DialogSessionManager() = default;
     std::string GenerateDialogSessionId();
 
-    void SetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &dilogSessionInfo,
+    void SetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &dilogSessionInfo,
         std::shared_ptr<DialogCallerInfo> &dialogCallerInfo);
 
-    void ClearDialogContext(const std::string dialogSessionId);
+    void ClearDialogContext(const std::string &dialogSessionId);
 
     void ClearAllDialogContexts();
 
-    bool GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
+    std::string GenerateDialogSessionRecordCommon(AbilityRequest &abilityRequest, int32_t userId,
+        const AAFwk::WantParams &parameters, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
 
-    int CreateModalDialogCommon(const Want &replaceWant, sptr<IRemoteObject> callerToken, std::string dialogSessionId);
+    void GenerateCallerAbilityInfo(AbilityRequest &abilityRequest, DialogAbilityInfo &callerAbilityInfo);
+
+    void GenerateSelectorTargetAbilityInfos(std::vector<DialogAppInfo> &dialogAppInfos,
+        std::vector<DialogAbilityInfo> &targetAbilityInfos);
+    
+    void GenerateJumpTargetAbilityInfos(AbilityRequest &abilityRequest,
+        std::vector<DialogAbilityInfo> &targetAbilityInfos);
+
+    void GenerateDialogCallerInfo(AbilityRequest &abilityRequest, int32_t userId,
+        std::shared_ptr<DialogCallerInfo> dialogCallerInfo, bool isSelector);
+
+    int CreateModalDialogCommon(const Want &replaceWant, sptr<IRemoteObject> callerToken,
+        const std::string &dialogSessionId);
 
     mutable ffrt::mutex dialogSessionRecordLock_;
     std::unordered_map<std::string, sptr<DialogSessionInfo>> dialogSessionInfoMap_;

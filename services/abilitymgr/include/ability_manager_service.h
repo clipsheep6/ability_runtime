@@ -1136,10 +1136,12 @@ public:
 
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
-    virtual int GetDialogSessionInfo(const std::string dialogSessionId,
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId,
         sptr<DialogSessionInfo> &dialogSessionInfo) override;
 
     virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed) override;
+
+    int CreateCloneSelectorDialog(AbilityRequest &request, int32_t userId, const std::string &replaceWantString = "");
 
     virtual int RegisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
         const std::string &bundleName) override;

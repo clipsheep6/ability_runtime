@@ -17,6 +17,7 @@
 
 #include <functional>
 
+#include "application_info.h"
 #include "bundle_mgr_interface.h"
 #include "singleton.h"
 
@@ -59,6 +60,8 @@ struct DialogAppInfo {
     std::string abilityName = {};
     std::string moduleName = {};
     bool visible = true;
+    int32_t appIndex = 0;
+    AppExecFwk::MultiAppModeData multiAppMode;
 };
 /**
  * @class SystemDialogScheduler

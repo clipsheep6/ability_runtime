@@ -67,6 +67,10 @@ napi_value WrapDialogAbilityInfo(napi_env env, const AAFwk::DialogAbilityInfo &d
     SetPropertyValueByPropertyName(env, jsObject, "abilityLabelId", jsValue);
     jsValue = WrapBoolToJS(env, dialogAbilityInfo.visible);
     SetPropertyValueByPropertyName(env, jsObject, "visible", jsValue);
+    jsValue = WrapInt32ToJS(env, dialogAbilityInfo.appIndex);
+    SetPropertyValueByPropertyName(env, jsObject, "appIndex", jsValue);
+    jsValue = WrapMultiAppModeData(env, dialogAbilityInfo.multiAppMode);
+    SetPropertyValueByPropertyName(env, jsObject, "multiAppMode", jsValue);
 
     return jsObject;
 }
@@ -86,6 +90,21 @@ napi_value WrapDialogSessionInfo(napi_env env, const AAFwk::DialogSessionInfo &d
     jsValue = nullptr;
     jsValue = AppExecFwk::WrapWantParams(env, dialogSessionInfo.parameters);
     SetPropertyValueByPropertyName(env, jsObject, "parameters", jsValue);
+
+    return jsObject;
+}
+
+napi_value WrapMultiAppModeData(napi_env env, const AppExecFwk::MultiAppModeData &multiAppMode)
+{
+    napi_value jsObject = nullptr;
+    napi_value jsValue = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &jsObject));
+
+    jsValue = WrapInt32ToJS(env, static_cast<int32_t>(multiAppMode.multiAppModeType));
+    SetPropertyValueByPropertyName(env, jsObject, "multiAppModeType", jsValue);
+
+    jsValue = WrapInt32ToJS(env, static_cast<int32_t>(multiAppMode.maxCount));
+    SetPropertyValueByPropertyName(env, jsObject, "maxCount", jsValue);
 
     return jsObject;
 }

@@ -3056,7 +3056,7 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info)
+int AbilityManagerProxy::GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &info)
 {
     MessageParcel data;
     MessageParcel reply;

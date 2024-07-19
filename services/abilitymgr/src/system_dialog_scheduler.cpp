@@ -351,6 +351,9 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
         aObj["bundle"] = aInfo.bundleName;
         aObj["ability"] = aInfo.abilityName;
         aObj["module"] = aInfo.moduleName;
+        aObj["appIndex"] = std::to_string(aInfo.appIndex);
+        aObj["bundleLabel"] = std::to_string(aInfo.bundleLabelId);
+        aObj["bundleIcon"] = std::to_string(aInfo.bundleIconId);
         hapListObj.emplace_back(aObj);
     }
     jsonObject["hapList"] = hapListObj;
@@ -401,6 +404,9 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
         aObj["module"] = info.moduleName;
         aObj["type"] = type;
         aObj["userId"] = std::to_string(userId);
+        aObj["appIndex"] = std::to_string(info.appIndex);
+        aObj["bundleLabel"] = std::to_string(info.bundleLabelId);
+        aObj["bundleIcon"] = std::to_string(info.bundleIconId);
         hapListObj.emplace_back(aObj);
     }
     jsonObject["hapList"] = hapListObj;

@@ -31,6 +31,7 @@ namespace {
 constexpr const char* ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE =
     "persist.sys.abilityms.support.ecologicalrulemgrservice";
 constexpr const char* BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+constexpr int32_t ERMS_ISALLOW_RESULTCODE = 10;
 }
 ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {
@@ -63,7 +64,8 @@ ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
     TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "check ecological rule success");
-    if (rule.isAllow) {
+    StartAbilityUtils::ermsResultCode = rule.resultCode;
+    if (rule.resultCode == ERMS_ISALLOW_RESULTCODE) {
         TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "ecological rule is allow, keep going.");
         return ERR_OK;
     }
@@ -125,7 +127,7 @@ bool EcologicalRuleInterceptor::DoProcess(Want &want, int32_t userId)
         TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "check ecological rule failed, keep going.");
         return true;
     }
-    return rule.isAllow;
+    return rule.resultCode == ERMS_ISALLOW_RESULTCODE;
 }
 
 void EcologicalRuleInterceptor::GetEcologicalTargetInfo(const Want &want,

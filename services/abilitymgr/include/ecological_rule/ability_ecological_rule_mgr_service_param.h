@@ -28,7 +28,7 @@ namespace EcologicalRuleMgrService {
 using Want = OHOS::AAFwk::Want;
 
 struct AbilityExperienceRule : public Parcelable {
-    bool isAllow = true;
+    int32_t resultCode = 10;
     std::string sceneCode = "";
     sptr<Want> replaceWant = nullptr;
 

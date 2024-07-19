@@ -728,7 +728,7 @@ public:
     virtual int PrepareTerminateAbility(
         const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback) override;
 
-    virtual int GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info) override;
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &info) override;
 
     virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow) override;
 

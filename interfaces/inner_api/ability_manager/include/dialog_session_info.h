@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "application_info.h"
 #include "json_serializer.h"
 #include "parcel.h"
 #include "refbase.h"
@@ -35,6 +36,8 @@ struct DialogAbilityInfo {
     int32_t abilityIconId = 0;
     int32_t abilityLabelId = 0;
     bool visible = true;
+    int32_t appIndex = 0;
+    AppExecFwk::MultiAppModeData multiAppMode;
 
     std::string GetURI() const;
     bool ParseURI(const std::string &uri);

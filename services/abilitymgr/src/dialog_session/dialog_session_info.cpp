@@ -24,14 +24,16 @@
 namespace OHOS {
 namespace AAFwk {
 constexpr int32_t CYCLE_LIMIT = 1000;
-constexpr size_t MEMBER_NUM = 8;
+constexpr size_t MEMBER_NUM = 11;
 
 std::string DialogAbilityInfo::GetURI() const
 {
     return bundleName + "/" + moduleName + "/" + abilityName + "/" +
         std::to_string(bundleIconId) + "/" + std::to_string(bundleLabelId) + "/" +
         std::to_string(abilityIconId) + "/" + std::to_string(abilityLabelId) + "/" +
-        std::to_string(visible);
+        std::to_string(visible) + "/" + std::to_string(appIndex) + "/" +
+        std::to_string(static_cast<int32_t>(multiAppMode.multiAppModeType)) + "/" +
+        std::to_string(multiAppMode.maxCount);
 }
 
 bool DialogAbilityInfo::ParseURI(const std::string &uri)
@@ -54,6 +56,9 @@ bool DialogAbilityInfo::ParseURI(const std::string &uri)
     abilityIconId = static_cast<int32_t>(std::stoi(uriVec[index++]));
     abilityLabelId = static_cast<int32_t>(std::stoi(uriVec[index++]));
     visible = std::stoi(uriVec[index++]);
+    appIndex = static_cast<int32_t>(std::stoi(uriVec[index++]));
+    multiAppMode.multiAppModeType = static_cast<AppExecFwk::MultiAppModeType>(std::stoi(uriVec[index++]));
+    multiAppMode.maxCount = static_cast<int32_t>(std::stoi(uriVec[index++]));
     return true;
 }
 

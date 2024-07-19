@@ -1152,7 +1152,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 #ifdef SUPPORT_SCREEN
     if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult &&
         callerBundleName != BUNDLE_NAME_DIALOG) {
-        return DialogSessionManager::GetInstance().CreateJumpModalDialog(abilityRequest, GetUserId(), newWant);
+        return DialogSessionManager::GetInstance().HandleErmsResult(abilityRequest, GetUserId(), newWant);
+    }
+    if (result == ERR_OK &&
+        DialogSessionManager::GetInstance().IsCreateCloneSelectorDialog(abilityInfo.bundleName, GetUserId())) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "create clone selector dialog");
+        return CreateCloneSelectorDialog(abilityRequest, GetUserId());
     }
 #endif // SUPPORT_SCREEN
 
@@ -1757,7 +1762,12 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 #ifdef SUPPORT_SCREEN
     if (result != ERR_OK && isReplaceWantExist) {
-        return DialogSessionManager::GetInstance().CreateJumpModalDialog(abilityRequest, GetUserId(), newWant);
+        return DialogSessionManager::GetInstance().HandleErmsResult(abilityRequest, GetUserId(), newWant);
+    }
+    if (result == ERR_OK &&
+        DialogSessionManager::GetInstance().IsCreateCloneSelectorDialog(abilityInfo.bundleName, GetUserId())) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "create clone selector dialog");
+        return CreateCloneSelectorDialog(abilityRequest, GetUserId());
     }
 #endif // SUPPORT_GRAPHICS
     abilityRequest.want.RemoveParam(SPECIFY_TOKEN_ID);
@@ -6914,6 +6924,10 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityRequest.abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToRSS(abilityRequest.abilityInfo, callerToken);
         abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
@@ -6928,11 +6942,6 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return ERR_INVALID_VALUE;
     }
     ReportEventToRSS(abilityRequest.abilityInfo, callerToken);
-
-    if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "afterCheckExecuter_ is nullptr or DoProcess return error.");
-        return result;
-    }
 
     return missionListMgr->ResolveLocked(abilityRequest);
 }
@@ -10263,7 +10272,7 @@ int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
     return collaborator->OpenFile(uri, flag);
 }
 #ifdef SUPPORT_SCREEN
-int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionId,
+int AbilityManagerService::GetDialogSessionInfo(const std::string &dialogSessionId,
     sptr<DialogSessionInfo> &dialogSessionInfo)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
@@ -10280,6 +10289,13 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
 {
     CHECK_CALLER_IS_SYSTEM_APP;
     return DialogSessionManager::GetInstance().SendDialogResult(want, dialogSessionId, isAllowed);
+}
+
+int AbilityManagerService::CreateCloneSelectorDialog(AbilityRequest &request, int32_t userId,
+    const std::string &replaceWantString)
+{
+    CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+    return implicitStartProcessor_->ImplicitStartAbility(request, userId, 0, replaceWantString, true);
 }
 #endif // SUPPORT_SCREEN
 void AbilityManagerService::RemoveLauncherDeathRecipient(int32_t userId)
@@ -11238,9 +11254,13 @@ int AbilityManagerService::StartUIAbilityByPreInstallInner(sptr<SessionInfo> ses
         return result;
     }
 #ifdef SUPPORT_SCREEN
-    if (result != ERR_OK && isReplaceWantExist &&
-        callerBundleName != BUNDLE_NAME_DIALOG) {
-        return DialogSessionManager::GetInstance().CreateJumpModalDialog(abilityRequest, GetUserId(), newWant);
+    if (result != ERR_OK && isReplaceWantExist && callerBundleName != BUNDLE_NAME_DIALOG) {
+        return DialogSessionManager::GetInstance().HandleErmsResult(abilityRequest, GetUserId(), newWant);
+    }
+    if (result == ERR_OK &&
+        DialogSessionManager::GetInstance().IsCreateCloneSelectorDialog(abilityInfo.bundleName, GetUserId())) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "create clone selector dialog");
+        return CreateCloneSelectorDialog(abilityRequest, GetUserId());
     }
 #endif // SUPPORT_SCREEN
 

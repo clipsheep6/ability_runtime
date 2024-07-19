@@ -26,7 +26,9 @@
 #include "int_wrapper.h"
 #include "modal_system_ui_extension.h"
 #include "parameters.h"
+#include "start_ability_utils.h"
 #include "string_wrapper.h"
+#include "want.h"
 #include "want_params_wrapper.h"
 
 namespace OHOS {
@@ -34,6 +36,7 @@ namespace AAFwk {
 using OHOS::AppExecFwk::BundleInfo;
 namespace {
 constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr int32_t ERMS_ISALLOW_RESULTCODE = 10;
 constexpr const char* SUPPORT_CLOSE_ON_BLUR = "supportCloseOnBlur";
 }
 
@@ -63,7 +66,7 @@ std::string DialogSessionManager::GenerateDialogSessionId()
     return dialogSessionId;
 }
 
-void DialogSessionManager::SetDialogSessionInfo(const std::string dialogSessionId,
+void DialogSessionManager::SetDialogSessionInfo(const std::string &dialogSessionId,
     sptr<DialogSessionInfo> &dilogSessionInfo, std::shared_ptr<DialogCallerInfo> &dialogCallerInfo)
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
@@ -71,7 +74,7 @@ void DialogSessionManager::SetDialogSessionInfo(const std::string dialogSessionI
     dialogCallerInfoMap_[dialogSessionId] = dialogCallerInfo;
 }
 
-sptr<DialogSessionInfo> DialogSessionManager::GetDialogSessionInfo(const std::string dialogSessionId) const
+sptr<DialogSessionInfo> DialogSessionManager::GetDialogSessionInfo(const std::string &dialogSessionId) const
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
@@ -82,7 +85,7 @@ sptr<DialogSessionInfo> DialogSessionManager::GetDialogSessionInfo(const std::st
     return nullptr;
 }
 
-std::shared_ptr<DialogCallerInfo> DialogSessionManager::GetDialogCallerInfo(const std::string dialogSessionId) const
+std::shared_ptr<DialogCallerInfo> DialogSessionManager::GetDialogCallerInfo(const std::string &dialogSessionId) const
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogCallerInfoMap_.find(dialogSessionId);
@@ -93,7 +96,7 @@ std::shared_ptr<DialogCallerInfo> DialogSessionManager::GetDialogCallerInfo(cons
     return nullptr;
 }
 
-void DialogSessionManager::ClearDialogContext(const std::string dialogSessionId)
+void DialogSessionManager::ClearDialogContext(const std::string &dialogSessionId)
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
@@ -114,26 +117,29 @@ void DialogSessionManager::ClearAllDialogContexts()
     dialogCallerInfoMap_.clear();
 }
 
-bool DialogSessionManager::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
+void DialogSessionManager::GenerateCallerAbilityInfo(AbilityRequest &abilityRequest,
+    DialogAbilityInfo &callerAbilityInfo)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto dialogSessionInfo = sptr<DialogSessionInfo>::MakeSptr();
-    CHECK_POINTER_AND_RETURN(dialogSessionInfo, ERR_INVALID_VALUE);
     sptr<IRemoteObject> callerToken = abilityRequest.callerToken;
     if (callerToken != nullptr) {
         auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
-        CHECK_POINTER_AND_RETURN(callerRecord, ERR_INVALID_VALUE);
-        dialogSessionInfo->callerAbilityInfo.bundleName = callerRecord->GetAbilityInfo().bundleName;
-        dialogSessionInfo->callerAbilityInfo.moduleName = callerRecord->GetAbilityInfo().moduleName;
-        dialogSessionInfo->callerAbilityInfo.abilityName = callerRecord->GetAbilityInfo().name;
-        dialogSessionInfo->callerAbilityInfo.abilityIconId = callerRecord->GetAbilityInfo().iconId;
-        dialogSessionInfo->callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
-        dialogSessionInfo->callerAbilityInfo.bundleIconId = callerRecord->GetApplicationInfo().iconId;
-        dialogSessionInfo->callerAbilityInfo.bundleLabelId = callerRecord->GetApplicationInfo().labelId;
+        CHECK_POINTER(callerRecord);
+        callerAbilityInfo.bundleName = callerRecord->GetAbilityInfo().bundleName;
+        callerAbilityInfo.moduleName = callerRecord->GetAbilityInfo().moduleName;
+        callerAbilityInfo.abilityName = callerRecord->GetAbilityInfo().name;
+        callerAbilityInfo.abilityIconId = callerRecord->GetAbilityInfo().iconId;
+        callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
+        callerAbilityInfo.bundleIconId = callerRecord->GetApplicationInfo().iconId;
+        callerAbilityInfo.bundleLabelId = callerRecord->GetApplicationInfo().labelId;
+        callerAbilityInfo.visible = callerRecord->GetAbilityInfo().visible;
+        callerAbilityInfo.appIndex = callerRecord->GetApplicationInfo().appIndex;
+        callerAbilityInfo.multiAppMode = callerRecord->GetApplicationInfo().multiAppMode;
     }
-    dialogSessionInfo->parameters.SetParam("deviceType", AAFwk::String::Box(OHOS::system::GetDeviceType()));
-    dialogSessionInfo->parameters.SetParam("userId", AAFwk::Integer::Box(userId));
+}
+
+void DialogSessionManager::GenerateSelectorTargetAbilityInfos(std::vector<DialogAppInfo> &dialogAppInfos,
+    std::vector<DialogAbilityInfo> &targetAbilityInfos)
+{
     for (auto &dialogAppInfo : dialogAppInfos) {
         DialogAbilityInfo targetDialogAbilityInfo;
         targetDialogAbilityInfo.bundleName = dialogAppInfo.bundleName;
@@ -144,22 +150,39 @@ bool DialogSessionManager::GenerateDialogSessionRecord(AbilityRequest &abilityRe
         targetDialogAbilityInfo.bundleIconId = dialogAppInfo.bundleIconId;
         targetDialogAbilityInfo.bundleLabelId = dialogAppInfo.bundleLabelId;
         targetDialogAbilityInfo.visible = dialogAppInfo.visible;
-        dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
+        targetDialogAbilityInfo.appIndex = dialogAppInfo.appIndex;
+        targetDialogAbilityInfo.multiAppMode = dialogAppInfo.multiAppMode;
+        targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
     }
-    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
-    if (isSelector) {
-        dialogSessionInfo->parameters.SetParam("action", AAFwk::String::Box(abilityRequest.want.GetAction()));
-        dialogSessionInfo->parameters.SetParam("wantType", AAFwk::String::Box(abilityRequest.want.GetType()));
-        dialogSessionInfo->parameters.SetParam("uri", AAFwk::String::Box(abilityRequest.want.GetUriString()));
-        dialogCallerInfo->isSelector = true;
-    }
-    dialogCallerInfo->callerToken = callerToken;
+}
+
+void DialogSessionManager::GenerateJumpTargetAbilityInfos(AbilityRequest &abilityRequest,
+    std::vector<DialogAbilityInfo> &targetAbilityInfos)
+{
+    DialogAbilityInfo targetDialogAbilityInfo;
+    targetDialogAbilityInfo.bundleName = abilityRequest.abilityInfo.bundleName;
+    targetDialogAbilityInfo.moduleName = abilityRequest.abilityInfo.moduleName;
+    targetDialogAbilityInfo.abilityName = abilityRequest.abilityInfo.name;
+    targetDialogAbilityInfo.abilityIconId = abilityRequest.abilityInfo.iconId;
+    targetDialogAbilityInfo.abilityLabelId = abilityRequest.abilityInfo.labelId;
+    targetDialogAbilityInfo.bundleIconId = abilityRequest.abilityInfo.applicationInfo.iconId;
+    targetDialogAbilityInfo.bundleLabelId = abilityRequest.abilityInfo.applicationInfo.labelId;
+    targetDialogAbilityInfo.visible = abilityRequest.abilityInfo.visible;
+    targetDialogAbilityInfo.appIndex = abilityRequest.abilityInfo.applicationInfo.appIndex;
+    targetDialogAbilityInfo.multiAppMode = abilityRequest.abilityInfo.applicationInfo.multiAppMode;
+    targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
+}
+
+void DialogSessionManager::GenerateDialogCallerInfo(AbilityRequest &abilityRequest, int32_t userId,
+    std::shared_ptr<DialogCallerInfo> dialogCallerInfo, bool isSelector)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_POINTER(dialogCallerInfo);
+    dialogCallerInfo->isSelector = isSelector;
+    dialogCallerInfo->callerToken = abilityRequest.callerToken;
     dialogCallerInfo->requestCode = abilityRequest.requestCode;
     dialogCallerInfo->targetWant = abilityRequest.want;
     dialogCallerInfo->userId = userId;
-    dialogSessionId = GenerateDialogSessionId();
-    SetDialogSessionInfo(dialogSessionId, dialogSessionInfo, dialogCallerInfo);
-    return true;
 }
 
 int DialogSessionManager::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed)
@@ -179,6 +202,10 @@ int DialogSessionManager::SendDialogResult(const Want &want, const std::string &
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
+    if (want.HasParameter(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY)) {
+        int32_t appIndex = want.GetIntParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, 0);
+        targetWant.SetParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, appIndex);
+    }
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityMgr) {
@@ -193,39 +220,105 @@ int DialogSessionManager::SendDialogResult(const Want &want, const std::string &
     return ret;
 }
 
+std::string DialogSessionManager::GenerateDialogSessionRecordCommon(AbilityRequest &abilityRequest, int32_t userId,
+    const AAFwk::WantParams &parameters, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
+{
+    auto dialogSessionInfo = sptr<DialogSessionInfo>::MakeSptr();
+    CHECK_POINTER_AND_RETURN(dialogSessionInfo, "");
+
+    GenerateCallerAbilityInfo(abilityRequest, dialogSessionInfo->callerAbilityInfo);
+
+    if (isSelector) {
+        GenerateSelectorTargetAbilityInfos(dialogAppInfos, dialogSessionInfo->targetAbilityInfos);
+    } else {
+        GenerateJumpTargetAbilityInfos(abilityRequest, dialogSessionInfo->targetAbilityInfos);
+    }
+
+    dialogSessionInfo->parameters = parameters;
+
+    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
+    GenerateDialogCallerInfo(abilityRequest, userId, dialogCallerInfo, isSelector);
+
+    std::string dialogSessionId = GenerateDialogSessionId();
+    SetDialogSessionInfo(dialogSessionId, dialogSessionInfo, dialogCallerInfo);
+
+    return dialogSessionId;
+}
+
 int DialogSessionManager::CreateJumpModalDialog(AbilityRequest &abilityRequest, int32_t userId,
     const Want &replaceWant)
 {
-    std::string dialogSessionId;
-    std::vector<DialogAppInfo> dialogAppInfos(1);
-    dialogAppInfos.front().bundleName = abilityRequest.abilityInfo.bundleName;
-    dialogAppInfos.front().moduleName = abilityRequest.abilityInfo.moduleName;
-    dialogAppInfos.front().abilityName = abilityRequest.abilityInfo.name;
-    dialogAppInfos.front().abilityIconId = abilityRequest.abilityInfo.iconId;
-    dialogAppInfos.front().abilityLabelId = abilityRequest.abilityInfo.labelId;
-    dialogAppInfos.front().bundleIconId = abilityRequest.abilityInfo.applicationInfo.iconId;
-    dialogAppInfos.front().bundleLabelId = abilityRequest.abilityInfo.applicationInfo.labelId;
-    if (!GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, false)) {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+
+    AAFwk::WantParams parameters;
+
+    parameters.SetParam("deviceType", AAFwk::String::Box(OHOS::system::GetDeviceType()));
+    parameters.SetParam("userId", AAFwk::Integer::Box(userId));
+
+    std::vector<DialogAppInfo> dialogAppInfos;
+    std::string dialogSessionId = GenerateDialogSessionRecordCommon(abilityRequest, userId, parameters,
+        dialogAppInfos, false);
+    if (dialogSessionId == "") {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "generate dialog session record failed");
-        return INNER_ERR;
+        return ERR_INVALID_VALUE;
     }
+
     return CreateModalDialogCommon(replaceWant, abilityRequest.callerToken, dialogSessionId);
 }
 
-int DialogSessionManager::CreateSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
-    std::vector<DialogAppInfo> &dialogAppInfos)
+int DialogSessionManager::CreateImplicitSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want,
+    int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::string dialogSessionId;
-    if (!GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
+
+    AAFwk::Want sessionWant;
+
+    sessionWant.SetParam("deviceType", OHOS::system::GetDeviceType());
+    sessionWant.SetParam("userId", userId);
+    sessionWant.SetParam("action", abilityRequest.want.GetAction());
+    sessionWant.SetParam("wantType", abilityRequest.want.GetType());
+    sessionWant.SetParam("uri", abilityRequest.want.GetUriString());
+    sessionWant.SetParam("entities", abilityRequest.want.GetEntities());
+    sessionWant.SetParam("appselector.selectorType", static_cast<int>(SelectorType::IMPLICIT_START_SELECTOR));
+    bool showCaller = abilityRequest.want.GetBoolParam("showcaller", false);
+    sessionWant.SetParam("showCaller", showCaller);
+
+    std::string dialogSessionId = GenerateDialogSessionRecordCommon(abilityRequest, userId, sessionWant.GetParams(),
+        dialogAppInfos, true);
+    if (dialogSessionId == "") {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "generate dialog session record failed");
-        return INNER_ERR;
+        return ERR_INVALID_VALUE;
     }
+
+    return CreateModalDialogCommon(want, abilityRequest.callerToken, dialogSessionId);
+}
+
+int DialogSessionManager::CreateCloneSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want,
+    int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos, const std::string &replaceWant)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    AAFwk::WantParams parameters;
+
+    parameters.SetParam("deviceType", AAFwk::String::Box(OHOS::system::GetDeviceType()));
+    parameters.SetParam("userId", AAFwk::Integer::Box(userId));
+    parameters.SetParam("appselector.selectorType",
+        AAFwk::Integer::Box(static_cast<int>(SelectorType::APP_CLONR_SELECTOR)));
+    if (replaceWant !=  "") {
+        parameters.SetParam("replaceWant", AAFwk::String::Box(replaceWant));
+    }
+
+    std::string dialogSessionId = GenerateDialogSessionRecordCommon(abilityRequest, userId, parameters,
+        dialogAppInfos, true);
+    if (dialogSessionId == "") {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "generate dialog session record failed");
+        return ERR_INVALID_VALUE;
+    }
+
     return CreateModalDialogCommon(want, abilityRequest.callerToken, dialogSessionId);
 }
 
 int DialogSessionManager::CreateModalDialogCommon(const Want &replaceWant, sptr<IRemoteObject> callerToken,
-    std::string dialogSessionId)
+    const std::string &dialogSessionId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
@@ -264,6 +357,37 @@ int DialogSessionManager::CreateModalDialogCommon(const Want &replaceWant, sptr<
     (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
     (const_cast<Want &>(replaceWant)).SetParam(SUPPORT_CLOSE_ON_BLUR, true);
     return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
+}
+
+int DialogSessionManager::HandleErmsResult(AbilityRequest &abilityRequest, int32_t userId,
+    const Want &replaceWant)
+{
+    std::string bundleName = abilityRequest.abilityInfo.bundleName;
+    if (StartAbilityUtils::ermsResultCode < ERMS_ISALLOW_RESULTCODE ||
+        !IsCreateCloneSelectorDialog(bundleName, userId)) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "create jump modal dialog");
+        return CreateJumpModalDialog(abilityRequest, userId, replaceWant);
+    }
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityMgr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
+        return INNER_ERR;
+    }
+    return abilityMgr->CreateCloneSelectorDialog(abilityRequest, userId, replaceWant.ToString());
+}
+
+bool DialogSessionManager::IsCreateCloneSelectorDialog(const std::string &bundleName, int32_t userId)
+{
+    if (StartAbilityUtils::isWantWithAppCloneIndex) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "want with app clone index.");
+        return false;
+    }
+    auto appIndexes = StartAbilityUtils::GetCloneAppIndexes(bundleName, userId);
+    if (appIndexes.empty()) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The application do not create clone index.");
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

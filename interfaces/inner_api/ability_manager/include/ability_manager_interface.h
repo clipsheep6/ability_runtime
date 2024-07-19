@@ -936,7 +936,7 @@ public:
         return 0;
     }
 
-    virtual int GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &dialogSessionInfo)
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &dialogSessionInfo)
     {
         return 0;
     }

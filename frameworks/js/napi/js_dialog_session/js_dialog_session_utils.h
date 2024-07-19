@@ -30,6 +30,7 @@ namespace AppExecFwk {
 napi_value WrapArrayDialogAbilityInfoToJS(napi_env env, const std::vector<DialogAbilityInfo> &value);
 napi_value WrapDialogSessionInfo(napi_env env, const AAFwk::DialogSessionInfo &dialogSessionInfo);
 napi_value WrapDialogAbilityInfo(napi_env env, const AAFwk::DialogAbilityInfo &dialogAbilityInfo);
+napi_value WrapMultiAppModeData(napi_env env, const AppExecFwk::MultiAppModeData &multiAppMode);
 } // namespace AppExecFwk
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_DIALOG_SESSION_UTILS_H

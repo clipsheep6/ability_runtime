@@ -99,6 +99,7 @@ public:
         BundleInfo &bundleInfo, int32_t userId);
     ErrCode QueryCloneExtensionAbilityInfoWithAppIndex(const ElementName &element, int32_t flags, int32_t appCloneIndex,
         ExtensionAbilityInfo &extensionInfo, int32_t userId);
+    ErrCode GetCloneAppIndexes(const std::string &bundleName, std::vector<int32_t> &appIndexes, int32_t userId);
 
 private:
     sptr<IBundleMgr> Connect();
