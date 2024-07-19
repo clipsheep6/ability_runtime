@@ -1303,8 +1303,8 @@ CJUncaughtExceptionInfo MainThread::CreateCjExceptionInfo(const std::string &bun
             time_t timet;
             time(&timet);
             std::string errName = errorObj.name ? errorObj.name : "[none]";
-            std::string errMsg = errorObj.name ? errorObj.message : "[none]";
-            std::string errStack = errorObj.name ? errorObj.stack : "[none]";
+            std::string errMsg = errorObj.message ? errorObj.message : "[none]";
+            std::string errStack = errorObj.stack ? errorObj.stack : "[none]";
             HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "CJ_ERROR",
                 OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
                 EVENT_KEY_PACKAGE_NAME, bundleName,
