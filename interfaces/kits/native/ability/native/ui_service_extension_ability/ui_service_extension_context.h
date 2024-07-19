@@ -25,6 +25,10 @@
 #include "iability_callback.h"
 #include "want.h"
 #include "window.h"
+#ifdef SUPPORT_SCREEN
+#include "scene_board_judgement.h"
+#include "ui_content.h"
+#endif // SUPPORT_SCREEN
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -56,6 +60,8 @@ public:
      */
     ErrCode TerminateSelf();
 
+    void SetWindow(sptr<Rosen::Window> window);
+
     sptr<Rosen::Window> GetWindow();
 
     /**
@@ -80,8 +86,6 @@ protected:
     }
 
 private:
-    void SetModalUIExtensionCallbackFunc(Ace::ModalUIExtensionCallbacks &callback,
-        const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks);
     static int ILLEGAL_REQUEST_CODE;
     sptr<Rosen::Window> window_ = nullptr;
 };

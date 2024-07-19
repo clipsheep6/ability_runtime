@@ -247,6 +247,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
 
     targetService->DoBackgroundAbilityWindowDelayed(false);
 
+    targetService->SetSessionInfo(abilityRequest.sessionInfo);
+
     if (IsUIExtensionAbility(targetService) && abilityRequest.sessionInfo && abilityRequest.sessionInfo->sessionToken) {
         auto &remoteObj = abilityRequest.sessionInfo->sessionToken;
         {

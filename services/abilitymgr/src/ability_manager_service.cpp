@@ -2730,6 +2730,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     }
     UpdateCallerInfo(abilityRequest.want, callerToken);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
+    SetAbilityRequestSessionInfo(abilityRequest, extensionType);
     eventInfo.errCode = connectManager->StartAbility(abilityRequest);
     if (eventInfo.errCode != ERR_OK) {
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -11389,6 +11390,27 @@ ErrCode AbilityManagerService::ConvertToExplicitWant(Want& want)
     TAG_LOGI(AAFwkTag::ABILITYMGR, "finish wait for condition.");
 #endif
     return retCode;
+}
+
+void AbilityManagerService::SetAbilityRequestSessionInfo(AbilityRequest &abilityRequest, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    if (extensionType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        return;
+    }
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    sessionInfo->callerToken = abilityRequest.callerToken;
+    auto callerAbilityRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if(callerAbilityRecord != nullptr) {
+        sptr<SessionInfo> callerSessionInfo = callerAbilityRecord->GetSessionInfo();
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateSessionInfo %{public}d.", callerSessionInfo->persistentId);
+        sessionInfo->hostWindowId = callerSessionInfo->persistentId;
+    } else {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerAbilityRecord is nullptr");
+    }
+    sessionInfo->want = abilityRequest.want;
+    sessionInfo->callingTokenId = static_cast<uint32_t>(abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
+    IPCSkeleton::GetCallingTokenID()));
+    abilityRequest.sessionInfo = sessionInfo;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
