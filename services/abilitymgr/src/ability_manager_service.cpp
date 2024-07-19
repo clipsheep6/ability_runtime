@@ -1078,10 +1078,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     bool isStartFreeInstallByWant = AbilityUtil::IsStartFreeInstall(want);
     if (isStartFreeInstallByWant || selfFreeInstallEnable) {
         Want localWant;
-        result = PreStartFreeInstall(want, callerToken, specifyTokenId, isStartAsCaller, localWant);
-        if (result != ERR_OK) {
+        auto freeInstallResult = PreStartFreeInstall(want, callerToken, specifyTokenId, isStartAsCaller, localWant);
+        if (freeInstallResult != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "PreStartFreeInstall failed.");
-            return result;
+            return freeInstallResult;
         }
 
         if (isStartFreeInstallByWant) {
