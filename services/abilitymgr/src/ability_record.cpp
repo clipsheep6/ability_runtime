@@ -3163,6 +3163,11 @@ void AbilityRecord::PublishFileOpenEvent(const Want &want)
 
 void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId)
 {
+    if (specifyTokenId_ > 0) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "specifyTokenId is %{public}u, cleaned.", specifyTokenId_);
+        tokenId = specifyTokenId_;
+        specifyTokenId_ = 0;
+    }
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
@@ -3208,10 +3213,13 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
     const std::string &targetBundleName, uint32_t tokenId)
 {
-    auto callerTokenId = specifyTokenId_ > 0 ? specifyTokenId_ :
-        static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u, specifyTokenId=%{public}u",
-        callerTokenId, tokenId, specifyTokenId_);
+    auto callerTokenId = tokenId > 0 ? tokenId :
+        static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0));
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u", callerTokenId, tokenId);
+    if (callerTokenId == 0) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerTokenId is invalid.");
+        return;
+    }
     uint32_t flag = want.GetFlags();
     std::vector<Uri> validUriList = {};
     for (auto &&uriStr : uriVec) {
