@@ -805,6 +805,15 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
 
                 TAG_LOGD(AAFwkTag::APPKIT, "loadPath: %{public}s", loadPath.c_str());
                 GetOverlayPath(resourceManager, bundleInfo.name, hapModuleInfo.moduleName, loadPath, currentBundle);
+                std::string hqfPath = hapModuleInfo.hqfInfo.hqfFilePath;
+                if (!hqfPath.empty() && bundleInfo.applicationInfo.debug) {
+                    hqfPath = std::regex_replace(hqfPath, inner_pattern, LOCAL_CODE_PATH);
+                    TAG_LOGI(AAFwkTag::APPKIT, "AddPatchResource hapPath:%{public}s, patchPath:%{public}s",
+                        loadPath.c_str(), hqfPath.c_str());
+                    if (!resourceManager->AddPatchResource(loadPath.c_str(), hqfPath.c_str())) {
+                        TAG_LOGE(AAFwkTag::APPKIT, "AddPatchResource failed");
+                    }
+                }
             }
         }
     }

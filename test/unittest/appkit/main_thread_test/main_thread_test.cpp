@@ -513,12 +513,14 @@ HWTEST_F(MainThreadTest, InitResourceManager_0100, TestSize.Level1)
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     EXPECT_TRUE(resourceManager != nullptr);
     HapModuleInfo info;
+    ApplicationInfo appInfo;
     Configuration config;
-    bool multiProjects = true;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    appInfo.multiProjects = true;
+    appInfo.debug = false;
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
-    multiProjects = false;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    appInfo.multiProjects = false;
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.name = "com.ohos.contactsdataability";
@@ -527,25 +529,25 @@ HWTEST_F(MainThreadTest, InitResourceManager_0100, TestSize.Level1)
     info.iconPath = "$media:icon";
     info.deviceTypes = { "smartVision" };
     info.bundleName = "com.ohos.contactsdataability";
-    multiProjects = true;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    appInfo.multiProjects = true;
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 
-    multiProjects = false;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    appInfo.multiProjects = false;
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.resourcePath = "/data/app/el1/budle/public/com.ohos.contactsdataability"\
         "/com.ohos.contactsdataability/assets/entry/resources.index";
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.hapPath = "/system/app/com.ohos.contactsdataability/Contacts_DataAbility.hap";
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.resourcePath = "";
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 }
 
@@ -1645,11 +1647,13 @@ HWTEST_F(MainThreadTest, InitResourceManager_0200, TestSize.Level1)
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     EXPECT_TRUE(resourceManager != nullptr);
     Configuration config;
+    ApplicationInfo appInfo;
     HapModuleInfo hapModuleInfo = {};
     hapModuleInfo.isStageBasedModel = true;
     const std::string bundleName = "bundleName";
-    bool multiProjects = true;
-    mainThread_->InitResourceManager(resourceManager, hapModuleInfo, bundleName, multiProjects, config);
+    appInfo.multiProjects = true;
+    appInfo.debug = false;
+    mainThread_->InitResourceManager(resourceManager, hapModuleInfo, bundleName, config, appInfo);
     EXPECT_TRUE(resourceManager != nullptr);
 }
 
