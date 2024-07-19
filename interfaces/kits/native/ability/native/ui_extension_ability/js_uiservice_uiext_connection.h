@@ -12,33 +12,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef OHOS_ABILITY_RUNTIME_UISERVICE_UIEXT_CONNECTION_H
+#define OHOS_ABILITY_RUNTIME_UISERVICE_UIEXT_CONNECTION_H
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_UISERVICE_ABILITY_CONNECTION_H
-#define OHOS_ABILITY_RUNTIME_JS_UISERVICE_ABILITY_CONNECTION_H
+#include "js_ui_extension_context.h"
 
-#include "js_ability_context.h"
+#include "ui_service_host_stub.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-
 namespace UIServiceConnection {
-void RemoveUIServiceAbilityConnection(int64_t connectId);
-int64_t InsertUIServiceAbilityConnection(sptr<JSUIServiceExtAbilityConnection> connection, const AAFwk::Want &want);
-void FindUIServiceAbilityConnection(const int64_t& connectId, AAFwk::Want& want,
-    sptr<JSUIServiceExtAbilityConnection>& connection);
-void FindUIServiceAbilityConnection(napi_env env, AAFwk::Want& want, napi_value callback,
-    sptr<JSUIServiceExtAbilityConnection>& connection);
+void AddUIServiceExtensionConnection(AAFwk::Want& want, sptr<JSUIServiceUIExtConnection>& connection);
+void RemoveUIServiceExtensionConnection(const int64_t& connectId);
+void FindUIServiceExtensionConnection(const int64_t& connectId, AAFwk::Want& want,
+    sptr<JSUIServiceUIExtConnection>& connection);
+void FindUIServiceExtensionConnection(napi_env env, AAFwk::Want& want, napi_value callback,
+    sptr<JSUIServiceUIExtConnection>& connection);
 }
 
-class UIAbilityServiceHostStubImpl;
-class JSUIServiceExtAbilityConnection : public JSAbilityConnection {
+class UIExtensionServiceHostStubImpl;
+class JSUIServiceUIExtConnection : public JSUIExtensionConnection {
 public:
-    JSUIServiceExtAbilityConnection(napi_env env);
-    ~JSUIServiceExtAbilityConnection();
+    JSUIServiceUIExtConnection(napi_env env);
+    ~JSUIServiceUIExtConnection();
     virtual void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     virtual void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    sptr<UIAbilityServiceHostStubImpl> GetServiceHostStub() { return serviceHostStub_; }
+    sptr<UIExtensionServiceHostStubImpl> GetServiceHostStub() { return serviceHostStub_; }
     void SetProxyObject(napi_value proxy);
     napi_value GetProxyObject();
     void SetNapiAsyncTask(std::shared_ptr<NapiAsyncTask>& task);
@@ -51,13 +51,12 @@ public:
     static bool IsJsCallbackObjectEquals(napi_env env, std::unique_ptr<NativeReference>& callback, napi_value value);
 
 private:
-    sptr<UIAbilityServiceHostStubImpl> serviceHostStub_;
-    std::shared_ptr<NapiAsyncTask> napiAsyncTask_;
+    sptr<UIExtensionServiceHostStubImpl> serviceHostStub_;
     std::unique_ptr<NativeReference> serviceProxyObject_;
+    std::shared_ptr<NapiAsyncTask> napiAsyncTask_;
     std::vector<std::unique_ptr<NapiAsyncTask>> duplicatedPendingTaskList_;
 };
 
 }
 }
 #endif
-

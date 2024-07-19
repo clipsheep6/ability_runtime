@@ -8203,7 +8203,7 @@ int AbilityManagerService::CheckPermissionForUIService(const Want &want, const A
 
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start UIServiceExtension");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckCallServiceExtensionPermission failed");
         return result;
     }
 
