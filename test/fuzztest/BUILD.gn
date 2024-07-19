@@ -319,5 +319,8 @@ group("fuzztest") {
     "wantagenthelperstring_fuzzer:fuzztest",
     "wantagenthelpertrigger_fuzzer:fuzztest",
     "wantsenderstub_fuzzer:fuzztest",
+    "abilityappdebugmanager_fuzzer:fuzztest",
+    "abilityappmgrevent_fuzzer:fuzztest",
+    "abilitychildprocessrecord_fuzzer:fuzztest",
   ]
 }
