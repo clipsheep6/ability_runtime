@@ -3977,6 +3977,16 @@ int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection>
         return ERR_OK;
     }
 
+    auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    if (userId == U0_USER_ID) {
+        auto connectManagers = GetConnectManagers();
+        for (auto& item : connectManagers) {
+            if (item.second && item.second->DisconnectAbilityLocked(connect) == ERR_OK) {
+                return ERR_OK;
+            }
+        }
+    }
+
     // EnterpriseAdminExtensionAbility Scene
     connectManager = GetConnectManagerByUserId(USER_ID_DEFAULT);
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
