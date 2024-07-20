@@ -55,6 +55,8 @@ const std::string LIMIT_MAXIMUM_EXTENSIONS_OF_PER_DEVICE =
     "const.sys.abilityms.limit_maximum_extensions_of_per_device";
 const std::string CACHE_EXTENSION_TYPES = "const.sys.abilityms.cache_extension";
 constexpr const char* START_ABILITY_WITHOUT_CALLERTOKEN = "/system/etc/start_ability_without_caller_token.json";
+constexpr const char* START_ABILITY_WITHOUT_CALLERTOKEN_PATH =
+    "/etc/ability_runtime/start_ability_without_caller_token.json";
 constexpr const char* START_ABILITY_WITHOUT_CALLERTOKEN_TITLE = "startAbilityWithoutCallerToken";
 }
 
@@ -329,7 +331,8 @@ bool AppUtils::IsAllowStartAbilityWithoutCallerToken(const std::string& bundleNa
 void AppUtils::LoadStartAbilityWithoutCallerToken()
 {
     nlohmann::json object;
-    if (!JsonUtils::GetInstance().LoadConfiguration(START_ABILITY_WITHOUT_CALLERTOKEN, object)) {
+    if (!JsonUtils::GetInstance().LoadConfiguration(
+        START_ABILITY_WITHOUT_CALLERTOKEN_PATH, object, START_ABILITY_WITHOUT_CALLERTOKEN)) {
         TAG_LOGE(AAFwkTag::DEFAULT, "load start ability without caller token list failed.");
         return;
     }
