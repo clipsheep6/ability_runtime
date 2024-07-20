@@ -36,7 +36,7 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        TAG_LOGI(AAFwkTag::DELEGATOR, "called");
+        TAG_LOGD(AAFwkTag::DELEGATOR, "called");
         reference.reset();
         std::unique_ptr<JsAbilityDelegatorRegistry>(static_cast<JsAbilityDelegatorRegistry *>(data));
     }
@@ -54,7 +54,7 @@ public:
 private:
     napi_value OnGetAbilityDelegator(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::DELEGATOR, "called");
+        TAG_LOGD(AAFwkTag::DELEGATOR, "called");
         if (!AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator()) {
             TAG_LOGE(AAFwkTag::DELEGATOR, "get delegator failed");
             return CreateJsNull(env);
@@ -72,7 +72,7 @@ private:
 
     napi_value OnGetArguments(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::DELEGATOR, "called");
+        TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
         std::shared_ptr<AppExecFwk::AbilityDelegatorArgs> abilityDelegatorArgs =
             AppExecFwk::AbilityDelegatorRegistry::GetArguments();
@@ -87,7 +87,7 @@ private:
 
 napi_value JsAbilityDelegatorRegistryInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::DELEGATOR, "null env or exportObj");
         return nullptr;
@@ -109,17 +109,17 @@ napi_value JsAbilityDelegatorRegistryInit(napi_env env, napi_value exportObj)
 
 napi_value AbilityLifecycleStateInit(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "null env");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "env is nullptr");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "null objValue");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "objValue is nullptr");
         return nullptr;
     }
     napi_set_named_property(env, objValue, "UNINITIALIZED",

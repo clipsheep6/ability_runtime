@@ -33,55 +33,47 @@ void JSAbilityMonitor::OnAbilityCreate(const std::weak_ptr<NativeReference> &abi
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityCreate", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityForeground", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityBackground", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityDestroy", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onWindowStageCreate", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onWindowStageRestore", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onWindowStageDestroy", abilityObj);
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::SetJsAbilityMonitor(napi_value jsAbilityMonitor)
 {
     TAG_LOGD(AAFwkTag::DELEGATOR, "called");
-
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsAbilityMonitor, 1, &ref);
     jsAbilityMonitor_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));

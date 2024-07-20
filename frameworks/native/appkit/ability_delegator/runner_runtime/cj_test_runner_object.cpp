@@ -28,20 +28,19 @@ CJTestRunnerFuncs* g_cjTestRunnerFuncs = nullptr;
 
 void RegisterCJTestRunnerFuncs(void (*registerFunc)(CJTestRunnerFuncs*))
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "RegisterCJTestRunnerFuncs start.");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     if (g_cjTestRunnerFuncs != nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Repeated registration for cj functions of CJTestRunner.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "repeated registration for cj functions of CJTestRunner");
         return;
     }
 
     if (registerFunc == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "RegisterCJTestRunnerFuncs failed, registerFunc is nullptr.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null registerFunc");
         return;
     }
 
     g_cjTestRunnerFuncs = new CJTestRunnerFuncs();
     registerFunc(g_cjTestRunnerFuncs);
-    TAG_LOGI(AAFwkTag::DELEGATOR, "RegisterCJTestRunnerFuncs end.");
 }
 
 namespace OHOS {
@@ -55,7 +54,7 @@ std::shared_ptr<CJTestRunnerObject> CJTestRunnerObject::LoadModule(const std::st
     auto id = g_cjTestRunnerFuncs->cjTestRunnerCreate(name.c_str());
     if (id == 0) {
         TAG_LOGE(AAFwkTag::DELEGATOR,
-            "Failed to invoke CJTestRunnerObject::LoadModule. Ability: %{public}s is not registered.", name.c_str());
+            "failed to invoke CJTestRunnerObject::LoadModule. Ability: %{public}s is not registered", name.c_str());
         return nullptr;
     }
     return std::make_shared<CJTestRunnerObject>(id);

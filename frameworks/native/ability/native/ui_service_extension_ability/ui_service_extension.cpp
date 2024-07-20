@@ -82,7 +82,7 @@ sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want 
 {
     auto option = sptr<Rosen::WindowOption>::MakeSptr();
     if (option == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Option is null.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "option is null.");
         return nullptr;
     }
     if (extensionWindowConfig->windowAttribute == Rosen::ExtensionWindowAttribute::SUB_WINDOW) {
@@ -105,7 +105,7 @@ sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want 
             extensionWindowConfig->systemWindowOptions.windowType, winType)) {
             option->SetWindowType(winType);
         } else {
-            TAG_LOGE(AAFwkTag::UIABILITY, "ParseSystemWindowTypeForApiWindowType error");
+            TAG_LOGE(AAFwkTag::UIABILITY, "parse system window type for apiWindowType error");
             return nullptr;
         }
     }

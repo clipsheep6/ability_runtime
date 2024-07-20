@@ -49,7 +49,7 @@ void RemoveUIServiceAbilityConnection(int64_t connectId)
     } else {
         TAG_LOGD(AAFwkTag::CONTEXT, "not exist");
     }
-    TAG_LOGI(AAFwkTag::CONTEXT, "Connects new size:%{public}zu", g_uiServiceExtensionConnects.size());
+    TAG_LOGI(AAFwkTag::CONTEXT, "connects new size:%{public}zu", g_uiServiceExtensionConnects.size());
 }
 
 int64_t InsertUIServiceAbilityConnection(sptr<JSUIServiceExtAbilityConnection> connection, const AAFwk::Want &want)

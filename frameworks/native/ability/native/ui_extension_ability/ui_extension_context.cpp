@@ -287,7 +287,7 @@ ErrCode UIExtensionContext::AddFreeInstallObserver(const sptr<IFreeInstallObserv
 {
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::UI_EXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
     }
     return ret;
 }

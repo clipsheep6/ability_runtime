@@ -35,12 +35,12 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
 
     auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "the bundleMgrHelper is nullptr");
         return nullptr;
     }
 
     if (!args) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid ability delegator args.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "invalid ability delegator args");
         return nullptr;
     }
 
@@ -53,7 +53,7 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) != ERR_OK) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get bundle info.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "failed to get bundle info");
         return nullptr;
     }
 
