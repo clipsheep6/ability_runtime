@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,51 +13,41 @@
  * limitations under the License.
  */
 
-#include "appmanager_fuzzer.h"
+#include "abilitystubinterface_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "app_mgr_service.h"
+#define private public
+#include "ability_manager_service.h"
+#undef private
 #include "message_parcel.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
-using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
-constexpr int INPUT_ZERO = 0;
-constexpr int INPUT_ONE = 1;
-constexpr int INPUT_TWO = 2;
-constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-constexpr size_t OFFSET_ZERO = 24;
-constexpr size_t OFFSET_ONE = 16;
-constexpr size_t OFFSET_TWO = 8;
-const std::u16string APPMGR_INTERFACE_TOKEN = u"ohos.appexecfwk.AppMgr";
 }
-
-uint32_t GetU32Data(const char* ptr)
-{
-    // convert fuzz input data to an integer
-    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[INPUT_TWO] << OFFSET_TWO) |
-        ptr[INPUT_THREE];
-}
+const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     for (uint32_t code = 0;
-        code <= static_cast<uint32_t>(AppMgrInterfaceCode::RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB); ++code) {
+        code <= static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT); ++code) {
         MessageParcel parcel;
-        parcel.WriteInterfaceToken(APPMGR_INTERFACE_TOKEN);
+        parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
         parcel.WriteBuffer(data, size);
         parcel.RewindRead(0);
         MessageParcel reply;
         MessageOption option;
-        std::shared_ptr<AppMgrService> appMgr = std::make_shared<AppMgrService>();
-        appMgr->OnRemoteRequest(code, parcel, reply, option);
+        DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_ =
+            std::make_shared<SubManagersHelper>(nullptr, nullptr);
+        DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_->currentUIAbilityManager_ =
+            std::make_shared<UIAbilityLifecycleManager>();
+        DelayedSingleton<AbilityManagerService>::GetInstance()->OnRemoteRequest(code, parcel, reply, option);
     }
 
     return true;
@@ -78,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char*)malloc(size + 1);
+    char* ch = static_cast<char*>(malloc(size + 1));
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;
@@ -91,6 +81,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
+
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
     free(ch);
     ch = nullptr;
