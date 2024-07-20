@@ -32,11 +32,11 @@ constexpr const char* ERROR_MSG_CAPABILITY_NOT_SUPPORT = "Capability not support
 constexpr const char* ERROR_MSG_INNER = "Internal error.";
 constexpr const char* ERROR_MSG_RESOLVE_ABILITY = "The specified ability does not exist.";
 constexpr const char* ERROR_MSG_INVALID_ABILITY_TYPE = "Incorrect ability type.";
-constexpr const char* ERROR_MSG_INVALID_ID = "Input error. The specified ID does not exist.";
-constexpr const char* ERROR_MSG_INVISIBLE = "Can not start invisible component.";
+constexpr const char* ERROR_MSG_INVALID_ID = "The specified ID does not exist.";
+constexpr const char* ERROR_MSG_INVISIBLE = "Failed to start the invisible ability.";
 constexpr const char* ERROR_MSG_STATIC_CFG_PERMISSION = "The specified process does not have the permission.";
 constexpr const char* ERROR_MSG_CROSS_USER = "Cross-user operations are not allowed.";
-constexpr const char* ERROR_MSG_SERVICE_BUSY = "Service busy.Try again later.";
+constexpr const char* ERROR_MSG_SERVICE_BUSY = "Service busy. There are concurrent tasks. Try again later.";
 constexpr const char* ERROR_MSG_CROWDTEST_EXPIRED = "The crowdtesting application expires.";
 constexpr const char* ERROR_MSG_WUKONG_MODE = "An ability cannot be started or stopped in Wukong mode.";
 constexpr const char* ERROR_MSG_CONTINUATION_FLAG = "The call with the continuation flag is forbidden.";
@@ -53,28 +53,29 @@ constexpr const char* ERROR_MSG_FREE_INSTALL_OTHERS = "Installation-free is not 
 constexpr const char* ERROR_MSG_FREE_INSTALL_CROSS_DEVICE = "Cross-device installation-free is not supported.";
 constexpr const char* ERROR_MSG_INVALID_URI_FLAG = "Invalid URI flag.";
 constexpr const char* ERROR_MSG_INVALID_URI_TYPE = "Invalid URI type, only support file Uri.";
-constexpr const char* ERROR_MSG_GRANT_URI_PERMISSION = "Sandbox application can not grant URI permission.";
+constexpr const char* ERROR_MSG_GRANT_URI_PERMISSION = "A sandbox application cannot grant URI permission.";
 constexpr const char* ERROR_MSG_OPERATION_NOT_SUPPORTED = "Operation not supported.";
 constexpr const char* ERROR_MSG_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND =
-    "The number of child process exceeds upper bound.";
+    "The number of child processes exceeds the upper limit.";
 constexpr const char* ERROR_MSG_RESTART_APP_INCORRECT_ABILITY =
-    "The target to restart does not belong to the current app or is not a UIAbility.";
+    "The target to restart does not belong to the current application or is not a UIAbility.";
 constexpr const char* ERROR_MSG_RESTART_APP_FREQUENT = "Restart too frequently. Try again at least 10s later.";
 constexpr const char* ERROR_MSG_INVALID_CALLER = "The caller has been released.";
 constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission does not exist.";
-constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "Input error. The specified mission listener does not exist.";
-constexpr const char* ERROR_MSG_START_ABILITY_WAITTING = "The previous ability is starting, wait start later.";
-constexpr const char* ERROR_MSG_NOT_SELF_APPLICATION = "The target application is not self application.";
+constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "The specified mission listener does not exist.";
+constexpr const char* ERROR_MSG_START_ABILITY_WAITTING =
+    "Another ability is being started. Wait until it finishes starting.";
+constexpr const char* ERROR_MSG_NOT_SELF_APPLICATION = "The target application is not the current application.";
 constexpr const char* ERROR_MSG_ABILITY_NOT_FOREGROUND =
-    "The interface can be called only when ability is foreground.";
+    "The API can be called only when the ability is running in the foreground.";
 constexpr const char* ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE =
-    "An ability cannot move to foreground or background in Wukong mode.";
-constexpr const char* ERROR_MSG_START_OPTIONS_CHECK_FAILED = "Start options check failed.";
-constexpr const char* ERROR_MSG_ABILITY_ALREADY_RUNNING = "Ability already running.";
+    "An ability cannot switch to the foreground or background in Wukong mode.";
+constexpr const char* ERROR_MSG_START_OPTIONS_CHECK_FAILED = "The StartOptions check failed.";
+constexpr const char* ERROR_MSG_ABILITY_ALREADY_RUNNING = "The ability is already running.";
 constexpr const char* ERROR_MSG_NOT_SUPPORT_CROSS_APP_START =
-    "The application is not allow jumping to other applications when api version is above 11.";
-constexpr const char* ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT = "Can not match any component.";
-constexpr const char* ERROR_MSG_TARGET_BUNDLE_NOT_EXIST = "The target bundle does not exist.";
+    "Redirection to a third-party application is not allowed in API version 11 or later.";
+constexpr const char* ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT = "No matching ability is found.";
+constexpr const char* ERROR_MSG_TARGET_BUNDLE_NOT_EXIST = "The bundle does not exist or no patch has been applied.";
 constexpr const char* ERROR_MSG_NO_RESIDENT_PERMISSION =
     "The caller application can only set the resident status of the configured process.";
 constexpr const char* ERROR_MSG_MULTI_APP_NOT_SUPPORTED = "App clone or multi-instance is not supported.";

@@ -267,7 +267,7 @@ napi_value JSAbilityDelegator::OnAddAbilityMonitor(napi_env env, NapiCallbackInf
         TAG_LOGI(AAFwkTag::DELEGATOR, "OnAddAbilityMonitor NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "addAbilityMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling AddAbilityMonitor failed."));
             return;
         }
         delegator->AddAbilityMonitor(monitor);
@@ -295,7 +295,7 @@ napi_value JSAbilityDelegator::OnAddAbilityMonitorSync(napi_env env, NapiCallbac
     if (delegator) {
         delegator->AddAbilityMonitor(monitor);
     } else {
-        ThrowError(env, COMMON_FAILED, "addAbilityMonitor failed.");
+        ThrowError(env, COMMON_FAILED, "Calling AddAbilityMonitorSync failed.");
     }
     return CreateJsUndefined(env);
 }
@@ -316,7 +316,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitor(napi_env env, NapiCallba
         TAG_LOGI(AAFwkTag::DELEGATOR, "OnAddAbilityStageMonitor NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "addAbilityStageMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling AddAbilityStageMonitor failed."));
             return;
         }
         delegator->AddAbilityStageMonitor(monitor);
@@ -347,7 +347,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitorSync(napi_env env, NapiCa
     }
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        ThrowError(env, COMMON_FAILED, "addAbilityStageMonitor failed.");
+        ThrowError(env, COMMON_FAILED, "Calling AddAbilityStageMonitorSync failed.");
         return CreateJsUndefined(env);
     }
     delegator->AddAbilityStageMonitor(monitor);
@@ -373,7 +373,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityMonitor(napi_env env, NapiCallback
         TAG_LOGI(AAFwkTag::DELEGATOR, "OnRemoveAbilityMonitor NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "removeAbilityMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling RemoveAbilityMonitor failed."));
             return;
         }
         delegator->RemoveAbilityMonitor(monitor);
@@ -413,7 +413,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityMonitorSync(napi_env env, NapiCall
     }
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        ThrowError(env, COMMON_FAILED, "removeAbilityMonitor failed.");
+        ThrowError(env, COMMON_FAILED, "Calling RemoveAbilityMonitorSync failed.");
         return CreateJsUndefined(env);
     }
     delegator->RemoveAbilityMonitor(monitor);
@@ -447,7 +447,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitor(napi_env env, NapiCal
 
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "removeAbilityStageMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling RemoveAbilityStageMonitor failed."));
             return;
         }
         delegator->RemoveAbilityStageMonitor(monitor);
@@ -479,7 +479,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(napi_env env, Nap
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        ThrowError(env, COMMON_FAILED, "removeAbilityStageMonitor failed.");
+        ThrowError(env, COMMON_FAILED, "Calling RemoveAbilityStageMonitorSync failed.");
         return CreateJsUndefined(env);
     }
     delegator->RemoveAbilityStageMonitor(monitor);
@@ -534,7 +534,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityMonitor(napi_env env, NapiCallbackIn
         if (abilityObjectBox && !abilityObjectBox->object_.expired()) {
             ResolveWithNoError(env, task, abilityObjectBox->object_.lock()->GetNapiValue());
         } else {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "waitAbilityMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling WaitAbilityMonitor failed."));
         }
     };
 
@@ -590,7 +590,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityStageMonitor(napi_env env, NapiCallb
         if (abilityStageObjBox && !abilityStageObjBox->object_.expired()) {
             ResolveWithNoError(env, task, abilityStageObjBox->object_.lock()->GetNapiValue());
         } else {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "waitAbilityStageMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling WaitAbilityStageMonitor failed."));
         }
     };
     napi_value lastParam = nullptr;
@@ -781,14 +781,14 @@ napi_value JSAbilityDelegator::OnGetCurrentTopAbility(napi_env env, NapiCallback
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
             TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid delegator");
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "getCurrentTopAbility failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling GetCurrentTopAbility failed."));
             return;
         }
 
         auto property = delegator->GetCurrentTopAbility();
         if (!property || property->object_.expired()) {
             TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid property");
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "getCurrentTopAbility failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling GetCurrentTopAbility failed."));
         } else {
             {
                 std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
@@ -853,13 +853,13 @@ napi_value JSAbilityDelegator::OnDoAbilityForeground(napi_env env, NapiCallbackI
         TAG_LOGI(AAFwkTag::DELEGATOR, "OnDoAbilityForeground NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityForeground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling DoAbilityForeground failed."));
             return;
         }
         if (delegator->DoAbilityForeground(remoteObject)) {
             ResolveWithNoError(env, task, CreateJsNull(env));
         } else {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityForeground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling DoAbilityForeground failed."));
         }
     };
 
@@ -885,13 +885,13 @@ napi_value JSAbilityDelegator::OnDoAbilityBackground(napi_env env, NapiCallbackI
         TAG_LOGI(AAFwkTag::DELEGATOR, "OnDoAbilityBackground NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityBackground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling DoAbilityBackground failed."));
             return;
         }
         if (delegator->DoAbilityBackground(remoteObject)) {
             ResolveWithNoError(env, task, CreateJsNull(env));
         } else {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityBackground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling DoAbilityBackground failed."));
         }
     };
 
@@ -918,7 +918,7 @@ napi_value JSAbilityDelegator::OnFinishTest(napi_env env, NapiCallbackInfo& info
         TAG_LOGI(AAFwkTag::DELEGATOR, "OnFinishTest NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(env, CreateJsError(env, COMMON_FAILED, "finishTest failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "Calling FinishTest failed."));
             return;
         }
         delegator->FinishUserTest(msg, code);

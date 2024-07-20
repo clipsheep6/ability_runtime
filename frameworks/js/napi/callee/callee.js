@@ -27,7 +27,7 @@ const ERROR_CODE_INNER_ERROR = 16000050;
 
 const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
 const ERROR_MSG_FUNC_REGISTERED = 'Method registered. The method has registered.';
-const ERROR_MSG_FUNC_NOT_EXIST = 'Method not registered. The method has not registered.';
+const ERROR_MSG_FUNC_NOT_EXIST = 'The method has not been registered.';
 const ERROR_MSG_INNER_ERROR = 'Inner Error.';
 
 let errMap = new Map();
