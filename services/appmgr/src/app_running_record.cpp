@@ -787,25 +787,27 @@ std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleNa
     return nullptr;
 }
 
-void AppRunningRecord::StateChangedNotifyObserver(
-    const std::shared_ptr<AbilityRunningRecord> &ability,
-    const int32_t state,
-    bool isAbility,
-    bool isFromWindowFocusChanged)
+void AppRunningRecord::StateChangedNotifyObserver(const std::shared_ptr<AbilityRunningRecord> &ability,
+    int32_t state, bool isAbility, bool isFromWindowFocusChanged)
 {
-    if (!ability || ability->GetAbilityInfo() == nullptr) {
+    if (ability == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "ability is null");
         return;
     }
+    auto abilityInfo = ability->GetAbilityInfo();
+    if (abilityInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityInfo is nullptr");
+        return;
+    }
     AbilityStateData abilityStateData;
-    abilityStateData.bundleName = ability->GetAbilityInfo()->applicationInfo.bundleName;
-    abilityStateData.moduleName = ability->GetAbilityInfo()->moduleName;
+    abilityStateData.bundleName = abilityInfo->applicationInfo.bundleName;
+    abilityStateData.moduleName = abilityInfo->moduleName;
     abilityStateData.abilityName = ability->GetName();
     abilityStateData.pid = GetPriorityObject()->GetPid();
     abilityStateData.abilityState = state;
-    abilityStateData.uid = ability->GetAbilityInfo()->applicationInfo.uid;
+    abilityStateData.uid = abilityInfo->applicationInfo.uid;
     abilityStateData.token = ability->GetToken();
-    abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
+    abilityStateData.abilityType = static_cast<int32_t>(abilityInfo->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
     abilityStateData.abilityRecordId = ability->GetAbilityRecordId();
     auto applicationInfo = GetApplicationInfo();
@@ -820,9 +822,11 @@ void AppRunningRecord::StateChangedNotifyObserver(
     if (applicationInfo && applicationInfo->bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         abilityStateData.isAtomicService = true;
     }
-
-    if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
-        TAG_LOGD(AAFwkTag::APPMGR, "extension type, not notify any more.");
+    TAG_LOGI(AAFwkTag::APPMGR, "The ability(bundle:%{public}s, ability:%{public}s) state will change.",
+        abilityStateData.bundleName.c_str(), abilityStateData.abilityName.c_str());
+    if (isAbility && abilityInfo->type == AbilityType::EXTENSION &&
+        abilityInfo->extensionAbilityType != ExtensionAbilityType::UI) {
+        TAG_LOGW(AAFwkTag::APPMGR, "extensionType:%{public}d, not notify any more.", abilityInfo->extensionAbilityType);
         return;
     }
     auto serviceInner = appMgrServiceInner_.lock();
