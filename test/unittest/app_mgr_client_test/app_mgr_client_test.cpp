@@ -1417,5 +1417,45 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AttachedToStatusBar_001, TestSize.Level0
     appMgrClient->AttachedToStatusBar(token);
     EXPECT_TRUE(appMgrClient != nullptr);
 }
+
+/**
+ * @tc.name: AppMgrClient_SetAppFreezeFilter_001
+ * @tc.desc: Can not attach to status bar by wrong token.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_SetAppFreezeFilter_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    int32_t pid = 1;
+    bool ret = appMgrClient->SetAppFreezeFilter(pid);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyProcessDependedOnWeb_001
+ * @tc.desc: Can not attach to status bar by wrong token.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyProcessDependedOnWeb_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    int32_t ret = appMgrClient->NotifyProcessDependedOnWeb();
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AppMgrClient_KillProcessDependedOnWeb_001
+ * @tc.desc: Can not attach to status bar by wrong token.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_KillProcessDependedOnWeb_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    appMgrClient->KillProcessDependedOnWeb();
+    EXPECT_NE(appMgrClient->GetRemoteObject(), nullptr);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
