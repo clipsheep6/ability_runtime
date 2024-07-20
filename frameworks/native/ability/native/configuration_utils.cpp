@@ -112,6 +112,40 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 }
 
+void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, float density,
+    Rosen::DisplayOrientation orientation, std::shared_ptr<Configuration> configuration,
+    std::shared_ptr<ResourceManager> resourceManager, bool &changed)
+{
+    TAG_LOGD(AAFwkTag::ABILITY, "Update display config.");
+    if (configuration == nullptr || resourceManager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
+        return;
+    }
+
+    auto direction = AppExecFwk::GetDirectionStr(ResourceConfigHelper::ConvertDirectionToGlobal(orientation));
+
+    Configuration newConfig;
+    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, direction);
+
+    std::vector<std::string> changeKeyV;
+    configuration->CompareDifferent(changeKeyV, newConfig);
+    if (changeKeyV.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITY, "There's no changed config, return.");
+        return;
+    }
+    configuration->Merge(changeKeyV, newConfig);
+    changed = true;
+
+    UpdateDisplayResConfig(resourceManager, density, direction);
+
+    auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
+    TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s for all windows.",
+        diffConfiguration->GetName().c_str());
+    Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
+}
+
+
 bool ConfigurationUtils::GetDisplayConfig(Rosen::DisplayId displayId, float &density,
     std::string &directionStr)
 {

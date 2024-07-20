@@ -153,5 +153,16 @@ bool ResourceConfigHelper::ConvertStringToUint32(std::string source, uint32_t &r
     }
     return true;
 }
+
+Global::Resource::Direction ResourceConfigHelper::ConvertDirectionToGlobal(const Rosen::DisplayOrientation display)
+{
+    if (display == Rosen::DisplayOrientation::LANDSCAPE || display == Rosen::DisplayOrientation::LANDSCAPE_INVERTED) {
+        return Global::Resource::Direction::DIRECTION_HORIZONTAL;
+    }
+    if (display == Rosen::DisplayOrientation::PORTRAIT || display == Rosen::DisplayOrientation::PORTRAIT_INVERTED) {
+        return Global::Resource::Direction::DIRECTION_VERTICAL;
+    }
+    return Global::Resource::Direction::DIRECTION_NOT_SET;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

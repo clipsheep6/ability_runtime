@@ -834,7 +834,8 @@ void JsServiceExtension::OnDisplayInfoChange(const sptr<IRemoteObject>& token, R
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump: %{public}s", contextConfig->GetName().c_str());
     bool configChanged = false;
     auto configUtils = std::make_shared<ConfigurationUtils>();
-    configUtils->UpdateDisplayConfig(displayId, contextConfig, context->GetResourceManager(), configChanged);
+    configUtils->UpdateDisplayConfig(displayId, density, orientation, contextConfig,
+        context->GetResourceManager(), configChanged);
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump after update: %{public}s", contextConfig->GetName().c_str());
 
     if (configChanged) {
