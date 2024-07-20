@@ -206,6 +206,9 @@ int DialogSessionManager::SendDialogResult(const Want &want, const std::string &
         int32_t appIndex = want.GetIntParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, 0);
         targetWant.SetParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, appIndex);
     }
+    if (!targetWant.HasParameter(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY)) {
+        targetWant.SetParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, 0);
+    }
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityMgr) {
