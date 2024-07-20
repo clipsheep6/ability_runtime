@@ -471,6 +471,7 @@
           "//foundation/ability/ability_runtime/tools/test:moduletest",
           "//foundation/ability/ability_runtime/tools/test:systemtest",
           "//foundation/ability/ability_runtime/tools/test:unittest",
+          "//foundation/ability/ability_runtime/cj_environment/test/unittest:unittest",
           "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest",
           "//foundation/ability/ability_runtime/service_router_framework:test_target"
         ]
