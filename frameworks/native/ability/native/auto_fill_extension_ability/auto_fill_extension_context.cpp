@@ -19,6 +19,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+const size_t AutoFillExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AutoFillExtensionContext"));
+
 void AutoFillExtensionContext::SetAutoFillExtensionCallback(
     const std::weak_ptr<IAutoFillExtensionCallback> &autoFillExtensionCallback)
 {

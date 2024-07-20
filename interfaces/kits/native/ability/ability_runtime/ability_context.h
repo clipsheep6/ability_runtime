@@ -29,6 +29,7 @@
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
 #include "start_options.h"
+#include "ui_holder.h"
 #include "want.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -38,17 +39,13 @@
 #endif
 
 namespace OHOS {
-namespace Ace {
-class UIContent;
-}
-
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
 using RequestDialogResultTask = std::function<void(int32_t resultCode, const AAFwk::Want&)>;
 class LocalCallContainer;
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
-class AbilityContext : public Context {
+class AbilityContext : public Context, public UIHolder {
 public:
     virtual ~AbilityContext() = default;
 
@@ -379,12 +376,6 @@ public:
      */
     virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) = 0;
 
-    /**
-     * @brief Get ui content object.
-     *
-     * @return UIContent object of ACE.
-     */
-    virtual Ace::UIContent* GetUIContent() = 0;
     virtual ErrCode StartAbilityByType(const std::string &type, AAFwk::WantParams &wantParam,
         const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) = 0;
     virtual ErrCode CreateModalUIExtensionWithApp(const AAFwk::Want &want) = 0;
@@ -395,6 +386,12 @@ public:
     virtual void SetTerminating(bool state) = 0;
     virtual void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) = 0;
     virtual void RemoveResultCallbackTask(int requestCode) = 0;
+
+    bool IsUIHolder() override
+    {
+        return true;
+    }
+
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;
 

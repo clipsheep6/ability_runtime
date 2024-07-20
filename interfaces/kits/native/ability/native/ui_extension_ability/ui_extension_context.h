@@ -22,22 +22,20 @@
 #include "extension_context.h"
 #include "free_install_observer_interface.h"
 #include "start_options.h"
+#include "ui_holder.h"
 #include "want.h"
 #ifdef SUPPORT_SCREEN
 #include "window.h"
 #endif // SUPPORT_SCREEN
 
 namespace OHOS {
-namespace Ace {
-class UIContent;
-}
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
 /**
  * @brief context supply for UIExtension
  *
  */
-class UIExtensionContext : public ExtensionContext {
+class UIExtensionContext : public ExtensionContext, public UIHolder {
 public:
     UIExtensionContext() = default;
     virtual ~UIExtensionContext() = default;
@@ -140,11 +138,12 @@ public:
 
     virtual ErrCode ReportDrawnCompleted();
 #ifdef SUPPORT_SCREEN
-    void SetWindow(sptr<Rosen::Window> window);
+    virtual void SetWindow(sptr<Rosen::Window> window);
 
     sptr<Rosen::Window> GetWindow();
+
+    Ace::UIContent* GetUIContent() override;
 #endif // SUPPORT_SCREEN
-    Ace::UIContent* GetUIContent();
 
     ErrCode OpenLink(const AAFwk::Want& want, int reuqestCode);
 
@@ -157,6 +156,11 @@ public:
 
     void RemoveResultCallbackTask(int requestCode);
 
+    bool IsUIHolder() override
+    {
+        return true;
+    }
+
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
 #ifdef SUPPORT_SCREEN
@@ -165,15 +169,14 @@ protected:
     {
         return contextTypeId == CONTEXT_TYPE_ID || ExtensionContext::IsContext(contextTypeId);
     }
+
+    sptr<Rosen::Window> window_ = nullptr;
 #endif // SUPPORT_SCREEN
 private:
     static int ILLEGAL_REQUEST_CODE;
     std::map<int, RuntimeTask> resultCallbacks_;
 
     int curRequestCode_ = 0;
-#ifdef SUPPORT_SCREEN
-    sptr<Rosen::Window> window_ = nullptr;
-#endif // SUPPORT_SCREEN
     std::mutex mutexlock_;
     /**
      * @brief Get Current Ability Type
