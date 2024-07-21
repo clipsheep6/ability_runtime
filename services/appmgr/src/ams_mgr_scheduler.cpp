@@ -344,6 +344,18 @@ int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName, const bo
     return amsMgrServiceInner_->KillApplication(bundleName, clearPageStack);
 }
 
+int32_t AmsMgrScheduler::ForceKillApplication(const std::string &bundleName,
+    const int userId, const int appIndex)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName=%{public}s,userId=%{public}d,apIndex=%{public}d",
+        bundleName.c_str(), userId, appIndex);
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    return amsMgrServiceInner_->ForceKillApplication(bundleName, userId, appIndex);
+}
+
 int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, uid = %{public}d", bundleName.c_str(), uid);

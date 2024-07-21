@@ -17,6 +17,7 @@
 
 #include <cinttypes>
 #include <csignal>
+#include <cstdint>
 #include <mutex>
 #include <queue>
 #include <securec.h>
@@ -170,8 +171,6 @@ constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
 #define APP_OVERLAY_FLAG 0x100
-
-constexpr int32_t BASE_USER_RANGE = 200000;
 
 constexpr int32_t MAX_RESTART_COUNT = 3;
 constexpr int32_t RESTART_INTERVAL_TIME = 120000;
@@ -1148,6 +1147,49 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName, const
     }
 
     return KillApplicationByBundleName(bundleName, clearPageStack);
+}
+
+int32_t AppMgrServiceInner::ForceKillApplication(const std::string &bundleName,
+    const int userId, const int appIndex)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called.");
+    if (!IsSceneBoardCall()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "this is not called by SceneBoard.");
+        return AAFwk::CHECK_PERMISSION_FAILED;
+    }
+
+    return ForceKillApplicationInner(bundleName, userId, appIndex);
+}
+
+int32_t AppMgrServiceInner::ForceKillApplicationInner(const std::string &bundleName,
+    const int userId, const int appIndex)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+
+    std::list<pid_t> pids;
+    int32_t newUserId = userId;
+    if (userId == DEFAULT_INVAL_VALUE) {
+        newUserId = GetUserIdByUid(IPCSkeleton::GetCallingUid());
+    }
+    int32_t result = ERR_OK;
+    if (!appRunningManager_->GetPidsByBundleNameUserIdAndAppIndex(bundleName, newUserId, appIndex, pids)) {
+        TAG_LOGI(AAFwkTag::APPMGR, "not start");
+        return result;
+    }
+    for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
+        result = KillProcessByPid(*iter, "ForceKillApplicationByBundleName");
+        if (result < 0) {
+            TAG_LOGE(AAFwkTag::APPMGR,
+                "ForceKillApplicationByBundleName failed for bundleName:%{public}s pid:%{public}d",
+                bundleName.c_str(), *iter);
+            return result;
+        }
+    }
+    return result;
 }
 
 int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, const int uid)

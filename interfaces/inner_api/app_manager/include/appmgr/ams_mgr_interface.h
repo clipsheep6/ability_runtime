@@ -148,6 +148,16 @@ public:
     virtual int KillApplication(const std::string &bundleName, const bool clearPageStack = true) = 0;
 
     /**
+     * ForceKillApplication, call ForceKillApplication() through proxy object, force kill the application.
+     *
+     * @param  bundleName, bundle name in Application record.
+     * @param  userId, userId.
+     * @param  appIndex, appIndex.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int ForceKillApplication(const std::string &bundleName, const int userId = -1, const int appIndex = 0) = 0;
+
+    /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.
@@ -379,6 +389,7 @@ public:
         ATTACHED_TO_STATUS_BAR,
         BLOCK_PROCESS_CACHE_BY_PIDS,
         IS_KILLED_FOR_UPGRADE_WEB,
+        FORCE_KILL_APPLICATION,
     };
 };
 }  // namespace AppExecFwk
