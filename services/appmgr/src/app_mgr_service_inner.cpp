@@ -1898,7 +1898,7 @@ bool AppMgrServiceInner::ProcessExist(pid_t pid, int32_t uid)
     if (uid == -1 || stat_buf.st_uid == 0) {
         return true;
     }
-    if (stat_buf.st_uid == uid) {
+    if (stat_buf.st_uid == static_cast<uint32_t>(uid)) {
         return true;
     }
     return false;
