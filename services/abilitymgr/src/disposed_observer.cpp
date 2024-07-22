@@ -42,7 +42,7 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
             Want want = *disposedRule_.want;
             want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
-            bool ret = systemUIExtension->CreateModalUIExtension(want);
+            bool ret = IN_PROCESS_CALL(systemUIExtension->CreateModalUIExtension(want));
             if (!ret) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start system UIExtension");
             }
@@ -67,7 +67,7 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
             Want want = *disposedRule_.want;
             want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
-            bool ret = systemUIExtension->CreateModalUIExtension(want);
+            bool ret = IN_PROCESS_CALL(systemUIExtension->CreateModalUIExtension(want));
             if (!ret) {
                 interceptor_->UnregisterObserver(pageStateData.bundleName);
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start system UIExtension");
