@@ -40,8 +40,10 @@ private:
 
     int OnExtensionConnectedInner(MessageParcel &data, MessageParcel &reply);
     int OnExtensionDisconnectedInner(MessageParcel &data, MessageParcel &reply);
+#ifdef WITH_DLP
     int OnDlpAbilityOpenedInner(MessageParcel &data, MessageParcel &reply);
     int OnDlpAbilityClosedInner(MessageParcel &data, MessageParcel &reply);
+#endif // WITH_DLP
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

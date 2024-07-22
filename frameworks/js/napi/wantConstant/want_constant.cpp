@@ -98,11 +98,13 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
 #ifdef ENABLE_ERRCODE
     napi_value params = nullptr;
     napi_create_object(env, &params);
+#ifdef WITH_DLP
     SetNamedProperty(env, params, "ohos.dlp.params.sandbox", "DLP_PARAMS_SANDBOX");
     SetNamedProperty(env, params, "ohos.dlp.params.bundleName", "DLP_PARAMS_BUNDLE_NAME");
     SetNamedProperty(env, params, "ohos.dlp.params.moduleName", "DLP_PARAMS_MODULE_NAME");
     SetNamedProperty(env, params, "ohos.dlp.params.abilityName", "DLP_PARAMS_ABILITY_NAME");
     SetNamedProperty(env, params, "ohos.dlp.params.index", "DLP_PARAMS_INDEX");
+#endif // WITH_DLP
     SetNamedProperty(env, params, "ability.params.backToOtherMissionStack", "ABILITY_BACK_TO_OTHER_MISSION_STACK");
     SetNamedProperty(env, params, "ohos.ability.params.abilityRecoveryRestart", "ABILITY_RECOVERY_RESTART");
     SetNamedProperty(env, params, "ohos.ability.params.asssertFaultSessionId", "ASSERT_FAULT_SESSION_ID");

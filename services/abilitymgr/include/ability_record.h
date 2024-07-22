@@ -1050,8 +1050,10 @@ private:
 
     bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken, uint32_t callingTokenId = 0);
 
+#ifdef WITH_DLP
     void HandleDlpAttached();
     void HandleDlpClosed();
+#endif // WITH_DLP
     void NotifyRemoveShellProcess(int32_t type);
     void NotifyAnimationAbilityDied();
     inline void SetCallerAccessTokenId(uint32_t callerAccessTokenId)

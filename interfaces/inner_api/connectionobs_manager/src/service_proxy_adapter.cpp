@@ -24,7 +24,9 @@ namespace {
 const std::u16string ABILITY_MGR_DESCRIPTOR = u"ohos.aafwk.AbilityManager";
 constexpr uint32_t REGISTER_CONNECTION_OBSERVER = 2502;
 constexpr uint32_t UNREGISTER_CONNECTION_OBSERVER = 2503;
+#ifdef WITH_DLP
 constexpr uint32_t GET_DLP_CONNECTION_INFOS = 2504;
+#endif // WITH_DLP
 constexpr uint32_t GET_CONNECTION_DATA = 2505;
 constexpr int32_t CYCLE_LIMIT = 1000;
 }
@@ -96,6 +98,7 @@ int32_t ServiceProxyAdapter::UnregisterObserver(const sptr<IConnectionObserver> 
     return reply.ReadInt32();
 }
 
+#ifdef WITH_DLP
 int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
 {
     if (!remoteObj_) {
@@ -141,6 +144,7 @@ int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo
 
     return result;
 }
+#endif // WITH_DLP
 
 int32_t ServiceProxyAdapter::GetConnectionData(std::vector<ConnectionData> &connectionData)
 {

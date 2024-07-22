@@ -230,6 +230,7 @@ void ConnectionStateManager::HandleDataAbilityCallerDied(int32_t callerPid)
     HandleCallerDied(callerPid);
 }
 
+#ifdef WITH_DLP
 void ConnectionStateManager::AddDlpManager(const std::shared_ptr<AbilityRecord> &dlpManger)
 {
     if (!dlpManger) {
@@ -283,12 +284,14 @@ void ConnectionStateManager::RemoveDlpAbility(const std::shared_ptr<AbilityRecor
     }
     controller->NotifyDlpAbilityClosed(dlpData);
 }
+#endif // WITH_DLP
 
 void ConnectionStateManager::HandleAppDied(int32_t pid)
 {
     HandleCallerDied(pid);
 }
 
+#ifdef WITH_DLP
 void ConnectionStateManager::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
 {
     std::lock_guard<ffrt::mutex> guard(dlpLock_);
@@ -304,6 +307,7 @@ void ConnectionStateManager::GetDlpConnectionInfos(std::vector<AbilityRuntime::D
         infos.emplace_back(info);
     }
 }
+#endif // WITH_DLP
 
 void ConnectionStateManager::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData)
 {
@@ -478,6 +482,7 @@ void ConnectionStateManager::HandleDataAbilityDiedInner(const sptr<IRemoteObject
     }
 }
 
+#ifdef WITH_DLP
 bool ConnectionStateManager::HandleDlpAbilityInner(const std::shared_ptr<AbilityRecord> &dlpAbility,
     bool isAdd, AbilityRuntime::DlpStateData &dlpData)
 {
@@ -510,6 +515,7 @@ bool ConnectionStateManager::HandleDlpAbilityInner(const std::shared_ptr<Ability
 
     return dlpItem->RemoveDlpConnectionState(dlpAbility, dlpData);
 }
+#endif // WITH_DLP
 
 void ConnectionStateManager::InitAppStateObserver()
 {

@@ -51,7 +51,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterObserver(const std::shared_ptr<ConnectionObserver> &observer);
-
+ 
     /**
      * get exist dlp connection infos.
      *

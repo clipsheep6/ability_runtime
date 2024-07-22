@@ -38,10 +38,12 @@ int ConnectionObserverStub::OnRemoteRequest(
                 return OnExtensionConnectedInner(data, reply);
             case ON_EXTENSION_DISCONNECTED:
                 return OnExtensionDisconnectedInner(data, reply);
+#ifdef WITH_DLP
             case ON_DLP_ABILITY_OPENED:
                 return OnDlpAbilityOpenedInner(data, reply);
             case ON_DLP_ABILITY_CLOSED:
                 return OnDlpAbilityClosedInner(data, reply);
+#endif // WITH_DLP
         }
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -71,6 +73,7 @@ int ConnectionObserverStub::OnExtensionDisconnectedInner(MessageParcel &data, Me
     return NO_ERROR;
 }
 
+#ifdef WITH_DLP
 int ConnectionObserverStub::OnDlpAbilityOpenedInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<DlpStateData> dlpData(data.ReadParcelable<DlpStateData>());
@@ -94,5 +97,6 @@ int ConnectionObserverStub::OnDlpAbilityClosedInner(MessageParcel &data, Message
     OnDlpAbilityClosed(*dlpData);
     return NO_ERROR;
 }
+#endif // WITH_DLP
 }  // namespace AbilityRuntime
 }  // namespace OHOS

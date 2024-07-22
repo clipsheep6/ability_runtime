@@ -70,9 +70,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AbilityRuntime::ConnectionData connectionData;
     connectionObserverClientImpl->HandleExtensionConnected(connectionData);
     connectionObserverClientImpl->HandleExtensionDisconnected(connectionData);
+#ifdef WITH_DLP
     AbilityRuntime::DlpStateData dlpStateData;
     connectionObserverClientImpl->HandleDlpAbilityOpened(dlpStateData);
     connectionObserverClientImpl->HandleDlpAbilityClosed(dlpStateData);
+#endif // WITH_DLP
     sptr<IRemoteObject> remoteObj;
     auto serviceProxyAdapter = std::make_shared<ServiceProxyAdapter>(remoteObj);
     connectionObserverClientImpl->UnregisterFromServiceLocked(serviceProxyAdapter);
