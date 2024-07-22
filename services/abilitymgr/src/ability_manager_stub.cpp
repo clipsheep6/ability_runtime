@@ -221,6 +221,9 @@ int AbilityManagerStub::OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &
     if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE) {
         return EnableRecoverAbilityInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_RECOVERY_SUBMITINFO) {
+        return SubmitSaveRecoveryInfoInner(data, reply);
+    }
     if (interfaceCode == AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK) {
         return ScheduleClearRecoveryPageStackInner(data, reply);
     }
@@ -2771,6 +2774,17 @@ int AbilityManagerStub::EnableRecoverAbilityInner(MessageParcel &data, MessagePa
 int AbilityManagerStub::ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply)
 {
     ScheduleClearRecoveryPageStack();
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SubmitSaveRecoveryInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SubmitSaveRecoveryInfoInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    SubmitSaveRecoveryInfo(token);
     return NO_ERROR;
 }
 

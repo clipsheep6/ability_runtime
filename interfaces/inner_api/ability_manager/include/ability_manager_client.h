@@ -1163,6 +1163,13 @@ public:
     void EnableRecoverAbility(sptr<IRemoteObject> token);
 
     /**
+     * @brief Submit save recovery info.
+     *
+     * @param token Ability identify.
+     */
+    void SubmitSaveRecoveryInfo(sptr<IRemoteObject> token);
+
+    /**
      * @brief Schedule recovery ability.
      *
      * @param token Ability identify.
