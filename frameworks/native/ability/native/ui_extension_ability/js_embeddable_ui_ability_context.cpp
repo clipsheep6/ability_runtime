@@ -181,7 +181,6 @@ napi_value JsEmbeddableUIAbilityContext::MoveAbilityToBackground(napi_env env, n
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnMoveAbilityToBackground);
 }
 
-
 napi_value JsEmbeddableUIAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
     if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
