@@ -34,7 +34,7 @@ JsShareExtension::JsShareExtension(const std::unique_ptr<Runtime> &runtime)
 
 JsShareExtension::~JsShareExtension()
 {
-    TAG_LOGD(AAFwkTag::SHARE_EXT, "destructor.");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "destructor");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
