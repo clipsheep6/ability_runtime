@@ -19,18 +19,13 @@ namespace OHOS {
 namespace AbilityRuntime {
 sptr<InsightIntentHostClient> InsightIntentHostClient::instance_ = nullptr;
 std::mutex InsightIntentHostClient::instanceMutex_;
+std::once_flag InsightIntentHostClient::singletonFlag_;
 
 sptr<InsightIntentHostClient> InsightIntentHostClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock_l(instanceMutex_);
-        if (instance_ == nullptr) {
-            instance_ = new (std::nothrow) InsightIntentHostClient();
-            if (instance_ == nullptr) {
-                TAG_LOGE(AAFwkTag::INTENT, "failed to create InsightIntentHostClient.");
-            }
-        }
-    }
+    std::call_once(singletonFlag_, []() {
+        instance_ = new (std::nothrow) InsightIntentHostClient();
+    });
     return instance_;
 }
 
