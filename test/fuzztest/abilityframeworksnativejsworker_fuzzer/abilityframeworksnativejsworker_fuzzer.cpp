@@ -66,9 +66,9 @@ sptr<Token> GetFuzzAbilityToken()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-    workerInfo->codePath = "/data/test/codePath";
+    workerInfo->codePath = panda::panda_file::StringPacProtect("/data/test/codePath");
     workerInfo->packagePathStr = "/data/test/packagePath";
-    workerInfo->hapPath = "/data/test/hapPath";
+    workerInfo->hapPath = panda::panda_file::StringPacProtect("/data/test/hapPath");
     workerInfo->moduleName = "moduleName";
     AbilityRuntime::AssetHelper helper = AbilityRuntime::AssetHelper(workerInfo);
     std::string jsonStr(data, size);
