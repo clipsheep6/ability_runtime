@@ -566,7 +566,6 @@ napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi
     BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);
     BindNativeFunction(env, objValue, "setMissionContinueState", moduleName, SetMissionContinueState);
     BindNativeFunction(env, objValue, "startAbilityByType", moduleName, StartAbilityByType);
-
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, objValue, "setMissionLabel", moduleName, SetMissionLabel);
     BindNativeFunction(env, objValue, "setMissionIcon", moduleName, SetMissionIcon);
