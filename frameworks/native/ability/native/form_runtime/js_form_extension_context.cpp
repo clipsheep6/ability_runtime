@@ -20,7 +20,6 @@
 
 #include "hilog_tag_wrapper.h"
 #include "form_mgr_errors.h"
-#include "ipc_skeleton.h"
 #include "js_extension_context.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
@@ -31,7 +30,6 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "napi_form_util.h"
-#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -94,12 +92,6 @@ public:
 
 private:
     std::weak_ptr<FormExtensionContext> context_;
-
-    bool CheckCallerIsSystemApp() const
-    {
-        auto selfToken = IPCSkeleton::GetSelfTokenID();
-        return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken);
-    }
 
     napi_value OnUpdateForm(napi_env env, NapiCallbackInfo& info)
     {
@@ -204,11 +196,6 @@ private:
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info)
     {
         TAG_LOGD(AAFwkTag::FORM_EXT, "ConnectAbility called.");
-        if (!CheckCallerIsSystemApp()) {
-            TAG_LOGE(AAFwkTag::FORM_EXT, "ConnectAbility app is not system-app, can not use system-api");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
-            return CreateJsUndefined(env);
-        }
         // Check params count
         if (info.argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::FORM_EXT, "Connect ability failed, not enough arguments.");
@@ -251,11 +238,6 @@ private:
     napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
     {
         TAG_LOGI(AAFwkTag::FORM_EXT, "DisconnectAbility");
-        if (!CheckCallerIsSystemApp()) {
-            TAG_LOGE(AAFwkTag::FORM_EXT, "DisconnectAbility app is not system-app, can not use system-api");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
-            return CreateJsUndefined(env);
-        }
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::FORM_EXT, "Disconnect ability failed, not enough parameters.");
             ThrowTooFewParametersError(env);
