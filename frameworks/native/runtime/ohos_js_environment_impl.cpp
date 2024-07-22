@@ -57,7 +57,7 @@ void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void
             break;
     }
 
-    if (g_eventHandler  == nullptr) {
+    if (g_eventHandler == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
         return;
     }

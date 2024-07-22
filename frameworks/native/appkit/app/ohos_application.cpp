@@ -477,6 +477,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         }
         config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, valueGet);
     }
+
     if (!colorMode.empty() && colorModeIsSetByApp.empty() && colorModeIsSetBySa.empty()) {
         if ((!globalColorModeIsSetByApp.empty() && globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) ||
             !globalColorModeIsSetBySa.empty()) {
@@ -497,6 +498,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
             return;
         }
     }
+
     if (!language.empty() && languageIsSetByApp.empty() && !globalLanguageIsSetByApp.empty()) {
         TAG_LOGD(AAFwkTag::APPKIT, "language has been set by app");
         return;

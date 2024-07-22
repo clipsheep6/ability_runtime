@@ -224,6 +224,8 @@ public:
      */
     virtual int32_t ScheduleDumpIpcStat(std::string& result) override;
 
+    virtual void ScheduleCacheProcess() override;
+
     /**
      * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
      * Start querying the application's ffrt usage.
@@ -233,8 +235,6 @@ public:
      * @return Returns 0 on success, error code on failure.
      */
     virtual int32_t ScheduleDumpFfrt(std::string& result) override;
-
-    virtual void ScheduleCacheProcess() override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

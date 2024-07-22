@@ -124,14 +124,15 @@ public:
         return 0;
     }
 
+    void ScheduleCacheProcess() override
+    {}
+
     int32_t ScheduleDumpFfrt(std::string& result) override
     {
         return 0;
     }
-    void ScheduleClearPageStack() override
-    {}
 
-    void ScheduleCacheProcess() override
+    void ScheduleClearPageStack() override
     {}
 };
 class AppMgrServiceModuleTest : public testing::Test {

@@ -151,7 +151,7 @@ JsUIAbility::JsUIAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 
 JsUIAbility::~JsUIAbility()
 {
-    //"maintenance log
+    //maintenance log
     TAG_LOGI(AAFwkTag::UIABILITY, "called");
     if (abilityContext_ != nullptr) {
         abilityContext_->Unbind();
