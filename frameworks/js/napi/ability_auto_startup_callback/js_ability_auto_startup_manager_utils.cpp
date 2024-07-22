@@ -14,6 +14,8 @@
  */
 
 #include "js_ability_auto_startup_manager_utils.h"
+
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "napi_common_util.h"
 
@@ -127,7 +129,7 @@ napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create js AutoStartupInfo failed.");
         return nullptr;
     }
-    if (info.appCloneIndex != -1) {
+    if (info.appCloneIndex >= 0 && info.appCloneIndex < GlobalConstant::MAX_APP_CLONE_INDEX) {
         napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
         if (appCloneIndex == nullptr) {
             TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
