@@ -18,11 +18,11 @@
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hitrace_meter.h"
 #include "permission_constants.h"
 #include "server_constant.h"
 #include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
+#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {

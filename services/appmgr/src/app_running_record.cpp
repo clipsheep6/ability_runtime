@@ -2290,6 +2290,24 @@ SupportProcessCacheState AppRunningRecord::GetSupportProcessCacheState()
     return procCacheSupportState_;
 }
 
+void AppRunningRecord::ScheduleCacheProcess()
+{
+    if (appLifeCycleDeal_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleCacheProcess();
+}
+
+bool AppRunningRecord::CancelTask(std::string msg)
+{
+    if (!taskHandler_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is nullptr");
+        return false;
+    }
+    return taskHandler_->CancelTask(msg);
+}
+
 void AppRunningRecord::SetBrowserHost(sptr<IRemoteObject> browser)
 {
     browserHost_ = browser;
@@ -2320,24 +2338,6 @@ void AppRunningRecord::SetGPUPid(pid_t gpuPid)
 pid_t AppRunningRecord::GetGPUPid()
 {
     return gpuPid_;
-}
-
-void AppRunningRecord::ScheduleCacheProcess()
-{
-    if (appLifeCycleDeal_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
-        return;
-    }
-    appLifeCycleDeal_->ScheduleCacheProcess();
-}
-
-bool AppRunningRecord::CancelTask(std::string msg)
-{
-    if (!taskHandler_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is nullptr");
-        return false;
-    }
-    return taskHandler_->CancelTask(msg);
 }
 
 void AppRunningRecord::SetAttachedToStatusBar(bool isAttached)

@@ -231,8 +231,6 @@ public:
 
     int DumpIpcStat(std::string& result);
 
-    int DumpFfrt(std::string& result);
-
     /**
      * Notifies the application of process caching.
      *
@@ -240,6 +238,8 @@ public:
      * @return
      */
     void ScheduleCacheProcess();
+
+    int DumpFfrt(std::string& result);
 
 private:
     mutable std::mutex schedulerMutex_;
