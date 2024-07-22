@@ -50,8 +50,6 @@ uint32_t GetU32Data(const char* ptr)
         ptr[INPUT_THREE];
 }
 
-
-
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<AppDebugInfo>appDebugInfo = std::make_shared<AppDebugInfo>();
