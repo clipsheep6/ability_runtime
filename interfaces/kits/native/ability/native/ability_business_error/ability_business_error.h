@@ -146,7 +146,7 @@ enum class AbilityErrorCode {
 
     // extension start service has been controlled.
     ERROR_CODE_EXTENSION_START_SERVICE_CONTROLLED = 16000070,
-    
+
     // app is not Clone.
     ERROR_NOT_APP_CLONE = 16000071,
 

@@ -256,7 +256,7 @@ public:
 
     virtual void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result);
-        
+
     virtual bool HandleInsightIntent(const AAFwk::Want &want);
 
     virtual bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result);

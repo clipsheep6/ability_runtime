@@ -204,9 +204,9 @@ private:
     std::set<uint64_t> foregroundWindows_;
     std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
+    sptr<IRemoteObject> token_ = nullptr;
     int32_t screenMode_ = AAFwk::IDLE_SCREEN_MODE;
     std::shared_ptr<int32_t> screenModePtr_;
-    sptr<IRemoteObject> token_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

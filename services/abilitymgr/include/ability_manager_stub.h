@@ -285,10 +285,10 @@ private:
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetUIExtensionSessionInfoInner(MessageParcel &data, MessageParcel &reply);
-    int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
     int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);

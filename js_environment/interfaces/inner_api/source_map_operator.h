@@ -20,6 +20,7 @@
 #include <string>
 
 #include "ffrt.h"
+#include "js_env_logger.h"
 #include "source_map.h"
 
 namespace OHOS {
