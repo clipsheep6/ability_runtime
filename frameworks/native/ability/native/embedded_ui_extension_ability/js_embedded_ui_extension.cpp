@@ -34,7 +34,7 @@ JsEmbeddedUIExtension::JsEmbeddedUIExtension(const std::unique_ptr<Runtime> &run
 
 JsEmbeddedUIExtension::~JsEmbeddedUIExtension()
 {
-    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "destructor.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "destructor");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
