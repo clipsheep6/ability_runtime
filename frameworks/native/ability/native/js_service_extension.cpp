@@ -50,6 +50,25 @@ constexpr size_t ARGC_TWO = 2;
 }
 
 namespace {
+sptr<IRemoteObject> GetNativeRemoteObject(napi_env env, napi_value obj)
+{
+    if (env == nullptr || obj == nullptr) {
+        HILOG_ERROR("obj is null.");
+        return nullptr;
+    }
+    napi_valuetype type;
+    napi_typeof(env, obj, &type);
+    if (type == napi_undefined || type == napi_null) {
+        HILOG_ERROR("obj is invalid type.");
+        return nullptr;
+    }
+    if (type != napi_object) {
+        HILOG_ERROR("obj is not an object.");
+        return nullptr;
+    }
+    return NAPI_ohos_rpc_getNativeRemoteObject(env, obj);
+}
+
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
 {
     void *data = nullptr;
@@ -71,7 +90,7 @@ napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
     auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *>(data);
     sptr<IRemoteObject> service = nullptr;
     if (argc > 0) {
-        service = NAPI_ohos_rpc_getNativeRemoteObject(env, argv[0]);
+        service = GetNativeRemoteObject(env, argv[0]);
     }
     callbackInfo->Call(service);
     AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Destroy(callbackInfo);
@@ -304,7 +323,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
     HandleScope handleScope(jsRuntime_);
     napi_value result = CallOnConnect(want);
     napi_env env = jsRuntime_.GetNapiEnv();
-    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
+    auto remoteObj = GetNativeRemoteObject(env, result);
     if (remoteObj == nullptr) {
         HILOG_ERROR("remoteObj null.");
     }
@@ -320,7 +339,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
         isAsyncCallback = false;
-        sptr<IRemoteObject> remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
+        sptr<IRemoteObject> remoteObj = GetNativeRemoteObject(env, result);
         if (remoteObj == nullptr) {
             HILOG_ERROR("remoteObj null.");
         }
