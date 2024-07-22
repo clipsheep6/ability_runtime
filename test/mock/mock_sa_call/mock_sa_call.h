@@ -67,6 +67,28 @@ public:
         SetSelfTokenID(tokenId);
         Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     }
+
+    static void IsMockCheckObserverCallerPermission()
+    {
+        uint64_t tokenId;
+        const char* perms[] = {
+            perms[0] = "ohos.permission.RUNNING_STATE_OBSERVER",
+        };
+
+        NativeTokenInfoParams infoInstance = {
+            .dcapsNum = 0,
+            .permsNum = static_cast<int32_t>(sizeof(perms)/sizeof(perms[0])),
+            .aclsNum = 0,
+            .dcaps = nullptr,
+            .perms = perms,
+            .acls = nullptr,
+            .aplStr = "system_core",
+        };
+        infoInstance.processName = "memmgrservice";
+        tokenId = GetAccessTokenId(&infoInstance);
+        SetSelfTokenID(tokenId);
+        Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    }
 };
 }  // namespace OHOS::AAFwk
 #endif // UNITTEST_OHOS_ABILITY_RUNTIME_IS_SA_CALL_TEST_H

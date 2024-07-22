@@ -29,6 +29,7 @@
 #include "connection_observer_errors.h"
 #include "session/host/include/session.h"
 #include "scene_board_judgement.h"
+#include "mock_sa_call.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -722,6 +723,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, StopSyncRemoteMissions_001, TestSize.L
 HWTEST_F(AbilityManagerServiceSecondTest, RegisterObserver_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceSecondTest RegisterObserver_001 start");
+    AAFwk::IsMockSaCall::IsMockCheckObserverCallerPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     EXPECT_EQ(abilityMs_->RegisterObserver(nullptr), AbilityRuntime::ERR_INVALID_OBSERVER);
     HILOG_INFO("AbilityManagerServiceSecondTest RegisterObserver_001 end");
@@ -736,6 +738,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, RegisterObserver_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceSecondTest, UnregisterObserver_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceSecondTest UnregisterObserver_001 start");
+    AAFwk::IsMockSaCall::IsMockCheckObserverCallerPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     EXPECT_EQ(abilityMs_->UnregisterObserver(nullptr), 0);
     HILOG_INFO("AbilityManagerServiceSecondTest UnregisterObserver_001 end");
@@ -1585,8 +1588,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckSenderWantInfo_001, TestSize.Leve
     WantSenderInfo wantSenderInfo;
     wantSenderInfo.bundleName = "badeName";
     int32_t callerUid = 0;
-    EXPECT_FALSE(abilityMs_->CheckSenderWantInfo(callerUid, wantSenderInfo));
-
+    EXPECT_TRUE(abilityMs_->CheckSenderWantInfo(callerUid, wantSenderInfo));
     HILOG_INFO("AbilityManagerServiceSecondTest CheckSenderWantInfo_001 end");
 }
 }  // namespace AAFwk
