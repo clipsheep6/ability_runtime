@@ -1278,7 +1278,7 @@ HWTEST_F(AmsMgrSchedulerTest, SetAppWaitingDebug_002, TestSize.Level0)
     const std::string bundleName;
     bool isPersist = true;
     auto iret = amsMgrScheduler->SetAppWaitingDebug(bundleName, isPersist);
-    ASSERT_EQ(iret, 22);
+    ASSERT_EQ(iret, ERR_PERMISSION_DENIED);
 }
 
 /*
@@ -1346,7 +1346,7 @@ HWTEST_F(AmsMgrSchedulerTest, GetWaitingDebugApp_002, TestSize.Level0)
     ASSERT_NE(amsMgrScheduler, nullptr);
     std::vector<std::string> debugInfoList;
     auto iret = amsMgrScheduler->GetWaitingDebugApp(debugInfoList);
-    ASSERT_EQ(iret, 0);
+    ASSERT_EQ(iret, ERR_PERMISSION_DENIED);
 }
 
 /*

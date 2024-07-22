@@ -34,8 +34,6 @@ public:
 
 private:
     int SendInner(MessageParcel &data, MessageParcel &reply);
-    using RequestFuncType = int (WantSenderStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

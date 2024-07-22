@@ -80,6 +80,7 @@ using OHOS::AAFwk::Want;
 class WindowFocusChangedListener;
 class WindowVisibilityChangedListener;
 using LoabAbilityTaskFunc = std::function<void()>;
+constexpr int32_t BASE_USER_RANGE = 200000;
 
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
@@ -260,6 +261,17 @@ public:
      * @return ERR_OK, return back success, others fail.
      */
     virtual int32_t KillApplication(const std::string &bundleName, const bool clearPageStack = true);
+
+    /**
+     * ForceKillApplication, force kill the application.
+     *
+     * @param  bundleName, bundle name in Application record.
+     * @param  userId, userId.
+     * @param  appIndex, appIndex.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t ForceKillApplication(const std::string &bundleName, const int userId = -1,
+        const int appIndex = 0);
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -1141,6 +1153,8 @@ public:
     bool IsKilledForUpgradeWeb(const std::string &bundleName) const;
 
 private:
+    int32_t ForceKillApplicationInner(const std::string &bundleName, const int userId = -1,
+        const int appIndex = 0);
 
     std::string FaultTypeToString(FaultDataType type);
 

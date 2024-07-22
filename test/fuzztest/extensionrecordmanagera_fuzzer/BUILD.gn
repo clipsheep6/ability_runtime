@@ -37,7 +37,21 @@ ohos_fuzztest("ExtensionRecordManageraFuzzTest") {
   ]
 
   sources = [
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/ability_state_data.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_mgr_client.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_service_manager.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_state_data.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/application_state_observer_stub.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/page_state_data.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_data.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_record_factory.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_record_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/preload_uiext_state_observer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record_factory.cpp",
+    "${ability_runtime_services_path}/common/src/app_utils.cpp",
+    "${ability_runtime_services_path}/common/src/json_utils.cpp",
     "extensionrecordmanagera_fuzzer.cpp",
   ]
 
@@ -57,23 +71,28 @@ ohos_fuzztest("ExtensionRecordManageraFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
-    "napi:ace_napi",
     "os_account:os_account_innerkits",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
+    "window_manager:libwsutils",
   ]
 
   if (ability_runtime_graphics) {

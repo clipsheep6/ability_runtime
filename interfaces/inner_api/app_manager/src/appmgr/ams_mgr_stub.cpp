@@ -190,6 +190,8 @@ int32_t AmsMgrStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data
             return HandleBlockProcessCacheByPids(data, reply);
         case static_cast<uint32_t>(IAmsMgr::Message::IS_KILLED_FOR_UPGRADE_WEB):
             return HandleIsKilledForUpgradeWeb(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::FORCE_KILL_APPLICATION):
+            return HandleForceKillApplication(data, reply);
     }
     return AAFwk::ERR_CODE_NOT_EXIST;
 }
@@ -358,6 +360,21 @@ ErrCode AmsMgrStub::HandleKillApplication(MessageParcel &data, MessageParcel &re
         bundleName.c_str(), clearPageStack);
 
     int32_t result = KillApplication(bundleName, clearPageStack);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleForceKillApplication(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    int userId = data.ReadInt32();
+    int appIndex = data.ReadInt32();
+
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s,userId=%{public}d,appIndex=%{public}d",
+        bundleName.c_str(), userId, appIndex);
+
+    int32_t result = ForceKillApplication(bundleName, userId, appIndex);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

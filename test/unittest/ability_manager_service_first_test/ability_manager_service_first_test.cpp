@@ -22,6 +22,7 @@
 #include "ability_manager_service.h"
 #include "ability_connect_manager.h"
 #include "ability_connection.h"
+#include "ability_scheduler.h"
 #include "ability_start_setting.h"
 #include "recovery_param.h"
 #undef private
@@ -1683,6 +1684,168 @@ HWTEST_F(AbilityManagerServiceFirstTest, QueryAllAutoStartupApplications_0200, T
     std::vector<AutoStartupInfo> infoList;
     auto result = abilityMs_->QueryAllAutoStartupApplications(infoList);
     EXPECT_NE(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_StopServiceAbility_002
+ * @tc.desc: Test the state of StopServiceAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, StopServiceAbility_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest StopServiceAbility_002 start");
+    MyFlag::flag_ = 1;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    Want want;
+    EXPECT_EQ(abilityMs->StopServiceAbility(want, USER_ID_U100), ERR_CROSS_USER);
+    MyFlag::flag_ = 0;
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest StopServiceAbility_002 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_StopServiceAbility_003
+ * @tc.desc: Test the state of StopServiceAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, StopServiceAbility_003, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest StopServiceAbility_003 start");
+    MyFlag::flag_ = 1;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    const int32_t index = -1;
+    const int32_t userId = -1;
+    Want want;
+    want.SetBundle("com.example.abilityManagerServiceTest");
+    want.SetParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, index);
+    EXPECT_EQ(abilityMs->StopServiceAbility(want, userId), ERR_APP_CLONE_INDEX_INVALID);
+    MyFlag::flag_ = 0;
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest StopServiceAbility_003 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_KillProcess_0100
+ * @tc.desc: Test the state of KillProcess
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, KillProcess_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest KillProcess_0100 start");
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto resultFunction = abilityMs->KillProcess("test");
+    EXPECT_EQ(resultFunction, GET_BUNDLE_INFO_FAILED);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest KillProcess_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_ExecuteIntent_0100
+ * @tc.desc: Test ExecuteIntent without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, ExecuteIntent_0100, TestSize.Level1)
+{
+    uint64_t key = 0;
+    sptr<IRemoteObject> callerToken;
+    InsightIntentExecuteParam param;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->ExecuteIntent(key, callerToken, param);
+    auto expectRes = 1;
+    EXPECT_EQ(res, expectRes);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_IsAbilityStarted_0100
+ * @tc.desc: Test  when missionListMgr is nullptr and IsSceneBoardEnabled return false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, IsAbilityStarted_0100, TestSize.Level1)
+{
+    AppExecFwk::AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> targetRecord = MockAbilityRecord(AbilityType::PAGE);
+    int32_t oriValidUserId = 0;
+
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId);
+    EXPECT_EQ(res, false);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_OnExecuteIntent_0100
+ * @tc.desc: Test OnExecuteIntent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, OnExecuteIntent_0100, TestSize.Level1)
+{
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> targetRecord = nullptr;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->OnExecuteIntent(abilityRequest, targetRecord);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_OnExecuteIntent_0200
+ * @tc.desc: Test OnExecuteIntent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, OnExecuteIntent_0200, TestSize.Level1)
+{
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "data.client.bundle";
+    abilityRequest.abilityInfo.name = "ClientAbility";
+    abilityRequest.abilityInfo.type = AbilityType::DATA;
+
+    std::shared_ptr<AbilityRecord> targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+
+    OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    targetRecord->SetScheduler(scheduler);
+
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->OnExecuteIntent(abilityRequest, targetRecord);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_StartAbilityWithInsightIntent_0100
+ * @tc.desc: Test StartAbilityWithInsightIntent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, StartAbilityWithInsightIntent_0100, TestSize.Level1)
+{
+    Want want;
+    int32_t userId = 1;
+    int requestCode = 0;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->StartAbilityWithInsightIntent(want, userId, requestCode);
+    EXPECT_EQ(res, ERR_INVALID_CALLER);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_StartExtensionAbilityWithInsightIntent_0100
+ * @tc.desc: Test StartExtensionAbilityWithInsightIntent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, StartExtensionAbilityWithInsightIntent_0100, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->StartExtensionAbilityWithInsightIntent(want, extensionType);
+    EXPECT_EQ(res, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_StartAbilityByCallWithInsightIntent_0100
+ * @tc.desc: Test StartAbilityByCallWithInsightIntent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, StartAbilityByCallWithInsightIntent_0100, TestSize.Level1)
+{
+    Want want;
+    InsightIntentExecuteParam param;
+    sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs->StartAbilityByCallWithInsightIntent(want, callerToken, param);
+    EXPECT_EQ(res, RESOLVE_ABILITY_ERR);
 }
 } // namespace AAFwk
 } // namespace OHOS
