@@ -24,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 ActionExtension *ActionExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    TAG_LOGD(AAFwkTag::ACTION_EXT, "called.");
+    TAG_LOGD(AAFwkTag::ACTION_EXT, "called");
     if (!runtime) {
         return new ActionExtension();
     }
