@@ -59,6 +59,7 @@
 #include "uri_permission_manager_client.h"
 #include "permission_constants.h"
 #include "process_options.h"
+#include "utils/state_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
 #include "mission_info_mgr.h"
@@ -135,47 +136,6 @@ const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
 #endif
-const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
-    std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
-    std::map<AbilityState, std::string>::value_type(INACTIVE, "INACTIVE"),
-    std::map<AbilityState, std::string>::value_type(ACTIVE, "ACTIVE"),
-    std::map<AbilityState, std::string>::value_type(INACTIVATING, "INACTIVATING"),
-    std::map<AbilityState, std::string>::value_type(ACTIVATING, "ACTIVATING"),
-    std::map<AbilityState, std::string>::value_type(TERMINATING, "TERMINATING"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND, "FOREGROUND"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUND, "BACKGROUND"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUNDING, "FOREGROUNDING"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUNDING, "BACKGROUNDING"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUND_FAILED, "BACKGROUND_FAILED"),
-};
-const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
-    std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
-    std::map<AppState, std::string>::value_type(AppState::READY, "READY"),
-    std::map<AppState, std::string>::value_type(AppState::FOREGROUND, "FOREGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::BACKGROUND, "BACKGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
-    std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
-    std::map<AppState, std::string>::value_type(AppState::END, "END"),
-    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
-};
-const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateMap = {
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INITIAL, INITIAL),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INACTIVE, INACTIVE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_ACTIVE, ACTIVE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INVALID_WINDOW_MODE,
-        FOREGROUND_INVALID_MODE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_WINDOW_FREEZED,
-        FOREGROUND_WINDOW_FREEZED),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_FAILED, BACKGROUND_FAILED),
-};
 
 auto g_addLifecycleEventTask = [](sptr<Token> token, FreezeUtil::TimeoutState state, std::string &methodName) {
     CHECK_POINTER_LOG(token, "token is nullptr");
@@ -2201,29 +2161,17 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
 
 std::string AbilityRecord::ConvertAbilityState(const AbilityState &state)
 {
-    auto it = stateToStrMap.find(state);
-    if (it != stateToStrMap.end()) {
-        return it->second;
-    }
-    return "INVALIDSTATE";
+    return  StateUtils::StateToStrMap(state);
 }
 
 std::string AbilityRecord::ConvertAppState(const AppState &state)
 {
-    auto it = appStateToStrMap_.find(state);
-    if (it != appStateToStrMap_.end()) {
-        return it->second;
-    }
-    return "INVALIDSTATE";
+    return StateUtils::AppStateToStrMap(state);
 }
 
 int AbilityRecord::ConvertLifeCycleToAbilityState(const AbilityLifeCycleState &state)
 {
-    auto it = convertStateMap.find(state);
-    if (it != convertStateMap.end()) {
-        return it->second;
-    }
-    return DEFAULT_INVAL_VALUE;
+    return StateUtils::ConvertStateMap(state);
 }
 
 void AbilityRecord::Dump(std::vector<std::string> &info)

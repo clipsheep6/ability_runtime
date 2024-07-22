@@ -974,16 +974,16 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // prevent the app from dominating the screen
-    auto callerPid = IPCSkeleton::GetCallingPid();
-    AppExecFwk::RunningProcessInfo processInfo;
-    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
-    bool isDelegatorCall = processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false);
-    if (callerToken == nullptr && !IsCallerSceneBoard() && !isDelegatorCall && !isForegroundToRestartApp &&
-        !PermissionVerification::GetInstance()->IsSACall() && !PermissionVerification::GetInstance()->IsShellCall() &&
-        !InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+    if (callerToken == nullptr && !IsCallerSceneBoard() && !isForegroundToRestartApp &&
+        !PermissionVerification::GetInstance()->IsSACall() && !PermissionVerification::GetInstance()->IsShellCall()) {
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        AppExecFwk::RunningProcessInfo processInfo;
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+        bool isDelegatorCall = processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false);
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
-        if (!AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
+        if (!isDelegatorCall && !InsightIntentExecuteParam::IsInsightIntentExecute(want) &&
+            !AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
             return ERR_INVALID_CALLER;
         }

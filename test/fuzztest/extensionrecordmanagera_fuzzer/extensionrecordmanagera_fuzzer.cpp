@@ -72,7 +72,8 @@ void FuzztestExtensionRecordManagerFunc1(std::shared_ptr<ExtensionRecordManager>
     Want want;
     AppExecFwk::AbilityInfo abilityInfo;
     AppExecFwk::ApplicationInfo applicationInfo;
-    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     std::shared_ptr<ExtensionRecord> record = std::make_shared<ExtensionRecord>(abilityRecord);
     mgr->GenerateExtensionRecordId(int32Param);
     mgr->AddExtensionRecord(int32Param, record);
@@ -80,10 +81,9 @@ void FuzztestExtensionRecordManagerFunc1(std::shared_ptr<ExtensionRecordManager>
     mgr->AddExtensionRecordToTerminatedList(int32Param);
     mgr->AddExtensionRecordToTerminatedList(1); // 1 means valid id, construct exist recordId
     mgr->AddExtensionRecord(1, record); // 1 means valid id
-    std::shared_ptr<ExtensionRecord> extensionRecord = std::make_shared<ExtensionRecord>();
+    std::shared_ptr<ExtensionRecord> extensionRecord = std::make_shared<ExtensionRecord>(abilityRecord);
     mgr->GetExtensionRecord(1, stringParam, extensionRecord, boolParam);  // 1 means valid id
     mgr->GetExtensionRecord(int32Param, stringParam, extensionRecord, boolParam);
-    AppExecFwk::AbilityInfo abilityInfo;
     mgr->IsBelongToManager(abilityInfo);
     std::vector<std::string> extensionList;
     mgr->GetActiveUIExtensionList(int32Param, extensionList);
@@ -123,16 +123,16 @@ void FuzztestExtensionRecordManagerFunc2(std::shared_ptr<ExtensionRecordManager>
     mgr->UpdateProcessName(abilityRequest, record);
     record->processMode_ = PROCESS_MODE_HOST_SPECIFIED;
     mgr->UpdateProcessName(abilityRequest, record);
-
-    mgr->GetHostBundleNameForExtensionId(1, "bundleName"); // 1 means id
+    std::string bundleName = "bundleName";
+    mgr->GetHostBundleNameForExtensionId(1, bundleName); // 1 means id
     mgr->AddExtensionRecord(1, record); // 1 means id
-    mgr->GetHostBundleNameForExtensionId(1, "bundleName"); // 1 means id, exist.
-    mgr->GetHostBundleNameForExtensionId(int32Param, "bundleName"); // 1 means id, exist.
+    mgr->GetHostBundleNameForExtensionId(1, bundleName); // 1 means id, exist.
+    mgr->GetHostBundleNameForExtensionId(int32Param, bundleName); // 1 means id, exist.
     abilityRecord->SetUIExtensionAbilityId(-1);
     mgr->AddExtensionRecord(1, record); // 1 means id
     abilityRecord->SetUIExtensionAbilityId(1);
     mgr->AddPreloadUIExtensionRecord(abilityRecord);
-    PreLoadUIExtensionMapKey key;
+    ExtensionRecordManager::PreLoadUIExtensionMapKey key;
     mgr->RemoveAllPreloadUIExtensionRecord(key); // called
     mgr->IsPreloadExtensionRecord(abilityRequest, stringParam, record, boolParam);  // called
     mgr->RemovePreloadUIExtensionRecordById(key, int32Param);  // called
@@ -144,6 +144,7 @@ void FuzztestExtensionRecordManagerFunc2(std::shared_ptr<ExtensionRecordManager>
     mgr->GetRootCallerTokenLocked(int32Param);
     mgr->CreateExtensionRecord(abilityRequest, stringParam, record, int32Param);
     mgr->GetUIExtensionRootHostInfo(nullptr);
+    sptr<Token> token = GetFuzzAbilityToken();
     mgr->GetUIExtensionRootHostInfo(token);
     mgr->extensionRecords_.clear();
 }
@@ -161,8 +162,7 @@ void FuzztestExtensionRecordManagerFunc3(std::shared_ptr<ExtensionRecordManager>
     mgr->GetUIExtensionSessionInfo(nullptr, uiExtensionSessionInfo);
     mgr->AddExtensionRecord(0, record);
     mgr->AddExtensionRecord(1, record); // 1 means id
-    mgr->GetExtensionRecordById(int32Param); // called
-    MGR->LoadTimeout(int32Param); // called
+    mgr->LoadTimeout(int32Param); // called
     mgr->ForegroundTimeout(int32Param); // called
     mgr->BackgroundTimeout(int32Param); // called
     mgr->TerminateTimeout(int32Param); // called

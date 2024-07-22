@@ -360,6 +360,32 @@ bool AppRunningManager::ProcessExitByBundleNameAndUid(
     return (pids.empty() ? false : true);
 }
 
+bool AppRunningManager::GetPidsByBundleNameUserIdAndAppIndex(const std::string &bundleName,
+    const int userId, const int appIndex, std::list<pid_t> &pids)
+{
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
+        auto appInfoList = appRecord->GetAppInfoList();
+        auto isExist = [&bundleName, &userId, &appIndex](const std::shared_ptr<ApplicationInfo> &appInfo) {
+            return appInfo->bundleName == bundleName && appInfo->uid / BASE_USER_RANGE == userId &&
+                appInfo->appIndex == appIndex;
+        };
+        auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
+        pid_t pid = appRecord->GetPriorityObject()->GetPid();
+        if (iter == appInfoList.end() || pid <= 0) {
+            continue;
+        }
+        pids.push_back(pid);
+        appRecord->SetKilling();
+    }
+
+    return (!pids.empty());
+}
+
 bool AppRunningManager::ProcessExitByPid(pid_t pid)
 {
     auto appRecord = GetAppRunningRecordByPid(pid);

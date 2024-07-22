@@ -28,6 +28,7 @@
 #include "mock_ability_token.h"
 #include "ability_bundle_event_callback.h"
 #include "session/host/include/session.h"
+#include "system_ability_definition.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -763,12 +764,369 @@ HWTEST_F(AbilityManagerServiceFourthTest, CheckBrokerCallPermission_001, TestSiz
 HWTEST_F(AbilityManagerServiceFourthTest, CheckAbilityCallPermission_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest CheckAbilityCallPermission_001 start");
-    Want want;
     AbilityRequest abilityRequest;
     AppExecFwk::AbilityInfo abilityInfo;
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->CheckAbilityCallPermission(abilityRequest, abilityInfo, 0);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest CheckAbilityCallPermission_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallPermission
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, CheckCallPermission_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest CheckCallPermission_001 start");
+    Want want;
+    AbilityRequest abilityRequest;
+    AppExecFwk::AbilityInfo abilityInfo;
+    std::string callerBundleName{""};
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->CheckCallPermission(want, abilityInfo, abilityRequest, true, true, 0, callerBundleName);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest CheckCallPermission_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: PreStartFreeInstall
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService PreStartFreeInstall
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, PreStartFreeInstall_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest PreStartFreeInstall_001 start");
+    Want want, localWant;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->PreStartFreeInstall(want, callerToken, 0, true, localWant);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest PreStartFreeInstall_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityByConnectManager
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityByConnectManager
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityByConnectManager_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityByConnectManager_001 start");
+    Want want;
+    AbilityRequest abilityRequest;
+    AppExecFwk::AbilityInfo abilityInfo;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->StartAbilityByConnectManager(want, abilityRequest, abilityInfo, 0, callerToken);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityByConnectManager_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbility
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, StartAbility_003, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbility_003 start");
+    Want want;
+    AbilityStartSetting abilityStartSetting;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->StartAbility(want, abilityStartSetting, callerToken, 0, 0);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbility_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ImplicitStartAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ImplicitStartAbility
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, ImplicitStartAbility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ImplicitStartAbility_001 start");
+    Want want;
+    AbilityStartSetting abilityStartSetting;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->ImplicitStartAbility(want, abilityStartSetting, callerToken, 0, 0);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ImplicitStartAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityAsCaller_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityAsCaller_002 start");
+    Want want;
+    StartOptions startOptions;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->StartAbilityAsCaller(want, startOptions, callerToken, callerToken, 0, 0);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityAsCaller_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCaller
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityForResultAsCaller_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityForResultAsCaller_001 start");
+    Want want;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->StartAbilityForResultAsCaller(want, callerToken, 0, 0);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityForResultAsCaller_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCaller
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityAsCaller_003, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityAsCaller_003 start");
+    Want want;
+    StartOptions startOptions;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->StartAbilityForResultAsCaller(want, startOptions, callerToken, 0, 0);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityAsCaller_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RequestDialogService
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RequestDialogService
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, RequestDialogService_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest RequestDialogService_001 start");
+    Want want;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->RequestDialogService(want, callerToken);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest RequestDialogService_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ReportDrawnCompleted
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ReportDrawnCompleted
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, ReportDrawnCompleted_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ReportDrawnCompleted_001 start");
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->ReportDrawnCompleted(callerToken);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ReportDrawnCompleted_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIAbilityBySCB
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, StartUIAbilityBySCB_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartUIAbilityBySCB_001 start");
+    bool isColdStart;
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->StartUIAbilityBySCB(MockSessionInfo(0), isColdStart);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartUIAbilityBySCB_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsDmsAlive
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsDmsAlive
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, IsDmsAlive_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest IsDmsAlive_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->IsDmsAlive();
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest IsDmsAlive_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordAppExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordAppExitReason
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, RecordAppExitReason_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest RecordAppExitReason_001 start");
+    AAFwk::ExitReason exitReason;
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->RecordAppExitReason(exitReason);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest RecordAppExitReason_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OnAddSystemAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService OnAddSystemAbility
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, OnAddSystemAbility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest OnAddSystemAbility_001 start");
+    std::string deviceId{"BACKGROUND_TASK_MANAGER_SERVICE_ID"};
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnAddSystemAbility(BACKGROUND_TASK_MANAGER_SERVICE_ID, deviceId);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest OnAddSystemAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OnRemoveSystemAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService OnRemoveSystemAbility
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, OnRemoveSystemAbility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest OnRemoveSystemAbility_001 start");
+    std::string deviceId{"BACKGROUND_TASK_MANAGER_SERVICE_ID"};
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnRemoveSystemAbility(BACKGROUND_TASK_MANAGER_SERVICE_ID, deviceId);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest OnRemoveSystemAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SubscribeBackgroundTask
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SubscribeBackgroundTask
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, SubscribeBackgroundTask_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SubscribeBackgroundTask_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->SubscribeBackgroundTask();
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SubscribeBackgroundTask_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: UnSubscribeBackgroundTask
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UnSubscribeBackgroundTask
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, UnSubscribeBackgroundTask_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest UnSubscribeBackgroundTask_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->UnSubscribeBackgroundTask();
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest UnSubscribeBackgroundTask_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SubscribeBundleEventCallback
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SubscribeBundleEventCallback
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, SubscribeBundleEventCallback_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SubscribeBundleEventCallback_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->SubscribeBundleEventCallback();
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SubscribeBundleEventCallback_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: UnsubscribeBundleEventCallback
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UnsubscribeBundleEventCallback
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, UnsubscribeBundleEventCallback_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest UnsubscribeBundleEventCallback_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->UnsubscribeBundleEventCallback();
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest UnsubscribeBundleEventCallback_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ReportEventToRSS
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ReportEventToRSS
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, ReportEventToRSS_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ReportEventToRSS_001 start");
+    AppExecFwk::AbilityInfo abilityInfo;
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->ReportEventToRSS(abilityInfo, callerToken);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ReportEventToRSS_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RequestModalUIExtension
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RequestModalUIExtension
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, RequestModalUIExtension_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest RequestModalUIExtension_001 start");
+    Want want;
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->RequestModalUIExtension(want);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest RequestModalUIExtension_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ChangeAbilityVisibility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ChangeAbilityVisibility
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, ChangeAbilityVisibility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ChangeAbilityVisibility_001 start");
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->ChangeAbilityVisibility(callerToken, true);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ChangeAbilityVisibility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ChangeUIAbilityVisibilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ChangeUIAbilityVisibilityBySCB
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, ChangeUIAbilityVisibilityBySCB_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ChangeUIAbilityVisibilityBySCB_001 start");
+    auto callerToken = MockToken(AbilityType::PAGE);
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->ChangeUIAbilityVisibilityBySCB(MockSessionInfo(0), true);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ChangeUIAbilityVisibilityBySCB_001 end");
 }
 
 } // namespace AAFwk

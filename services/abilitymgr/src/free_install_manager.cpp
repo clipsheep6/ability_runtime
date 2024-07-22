@@ -747,7 +747,7 @@ void FreeInstallManager::NotifyInsightIntentFreeInstallResult(const Want &want, 
     if (resultCode != ERR_OK) {
         RemoveFreeInstallInfo(want.GetElement().GetBundleName(), want.GetElement().GetAbilityName(),
             want.GetStringParam(Want::PARAM_RESV_START_TIME));
-        NotifyInsightIntentExecuteDone(want, resultCode);
+        NotifyInsightIntentExecuteDone(want, ERR_INVALID_VALUE);
         return;
     }
 

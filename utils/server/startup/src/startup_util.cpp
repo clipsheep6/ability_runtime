@@ -25,13 +25,17 @@ namespace OHOS::AbilityRuntime {
 bool StartupUtil::GetAppIndex(const AAFwk::Want &want, int32_t &appIndex)
 {
     appIndex = want.GetIntParam(ServerConstant::DLP_INDEX, 0);
+    if (appIndex > GlobalConstant::MAX_APP_CLONE_INDEX) {
+        return true;
+    }
     if (appIndex == 0) {
         appIndex = want.GetIntParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, 0);
         if (appIndex < 0 || appIndex > GlobalConstant::MAX_APP_CLONE_INDEX) {
             return false;
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 int32_t StartupUtil::BuildAbilityInfoFlag()

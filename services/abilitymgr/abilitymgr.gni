@@ -136,6 +136,7 @@ abilityms_files = [
 
   #utils
   "src/utils/window_options_utils.cpp",
+  "src/utils/state_utils.cpp",
   "src/utils/extension_permissions_util.cpp",
   "src/utils/app_mgr_util.cpp",
   "src/utils/dump_utils.cpp",

@@ -56,6 +56,7 @@ private:
     int32_t HandleAttachPidToParent(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessWithAccount(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplication(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleForceKillApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAbilityAttachTimeOut(MessageParcel &data, MessageParcel &reply);
     int32_t HandlePrepareTerminate(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplicationByUid(MessageParcel &data, MessageParcel &reply);
