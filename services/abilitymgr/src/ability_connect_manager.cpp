@@ -40,6 +40,8 @@
 #include "ui_extension_utils.h"
 #include "ui_service_extension_connection_constants.h"
 #include "cache_extension_utils.h"
+#include "datetime_ex.h"
+#include "init_reboot.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -2140,6 +2142,25 @@ void AbilityConnectManager::KeepAbilityAlive(const std::shared_ptr<AbilityRecord
             return;
         }
     }
+
+    if (abilityRecord->IsSceneBoard()) {
+        static int sceneBoardCrashCount = 0;
+        static int64_t tickCount = GetTickCount();
+        int64_t tickNow = GetTickCount();
+        const int64_t maxTime = 240000; // 240000 4min
+        const int maxCount = 4; // 4: crash happend 4 times during 4 mins
+        if (tickNow - tickCount > maxTime) {
+            sceneBoardCrashCount = 0;
+            tickCount = tickNow;
+        }
+        ++sceneBoardCrashCount;
+        if (sceneBoardCrashCount >= maxCount) {
+            std::string reason = "SceneBoard exits " + std::to_string(sceneBoardCrashCount) +
+                "times in " + std::to_string(maxTime) + "ms";
+            DoRebootExt("panic", reason.c_str());
+        }
+    }
+
     if (DelayedSingleton<AppScheduler>::GetInstance()->IsKilledForUpgradeWeb(abilityInfo.bundleName)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "bundle is killed for upgrade web");
         return;
