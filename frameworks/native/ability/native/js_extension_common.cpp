@@ -49,7 +49,7 @@ JsExtensionCommon::~JsExtensionCommon()
 
 void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration> &fullConfig)
 {
-    TAG_LOGI(AAFwkTag::EXT, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::EXT, "called");
     if (!fullConfig) {
         TAG_LOGE(AAFwkTag::EXT, "invalid configuration.");
         return;
@@ -65,7 +65,7 @@ void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk:
 
 void JsExtensionCommon::OnMemoryLevel(int level)
 {
-    TAG_LOGD(AAFwkTag::EXT, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "called");
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();

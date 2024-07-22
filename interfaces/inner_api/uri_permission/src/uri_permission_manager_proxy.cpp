@@ -30,7 +30,7 @@ UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &
 int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
@@ -73,7 +73,7 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
 int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
@@ -126,7 +126,7 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
 int32_t UriPermissionManagerProxy::GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
     const std::string &targetBundleName, int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermissionPrivileged is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
@@ -170,7 +170,7 @@ int32_t UriPermissionManagerProxy::GrantUriPermissionPrivileged(const std::vecto
 
 void UriPermissionManagerProxy::RevokeUriPermission(const uint32_t tokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
@@ -194,7 +194,7 @@ void UriPermissionManagerProxy::RevokeUriPermission(const uint32_t tokenId, int3
 
 int UriPermissionManagerProxy::RevokeAllUriPermissions(const uint32_t tokenId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeAllUriPermissions is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
@@ -217,7 +217,7 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const uint32_t tokenId)
 int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
     int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeUriPermissionManually is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
@@ -247,7 +247,7 @@ int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const
 
 bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::VerifyUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
@@ -278,7 +278,7 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
 std::vector<bool> UriPermissionManagerProxy::CheckUriAuthorization(const std::vector<std::string> &uriVec,
     uint32_t flag, uint32_t tokenId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::CheckUriAuthorization is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::CheckUriAuthorization is called");
     std::vector<bool> result(uriVec.size(), false);
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);

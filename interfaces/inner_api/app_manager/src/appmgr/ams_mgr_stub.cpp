@@ -492,7 +492,7 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
 
 int32_t AmsMgrStub::HandleNotifyAppMgrRecordExitReason(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "HandleNotifyAppMgrRecordExitReason called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     int32_t pid = data.ReadInt32();
     int32_t reason = data.ReadInt32();
     std::string exitMsg = Str16ToStr8(data.ReadString16());

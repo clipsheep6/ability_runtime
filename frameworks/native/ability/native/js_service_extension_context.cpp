@@ -187,7 +187,7 @@ private:
     static void ClearFailedCallConnection(
         const std::weak_ptr<ServiceExtensionContext>& serviceContext, const std::shared_ptr<CallerCallBack> &callback)
     {
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "clear failed call of startup is called.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
         auto context = serviceContext.lock();
         if (context == nullptr || callback == nullptr) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "clear failed call of startup input param is nullptr.");
@@ -681,7 +681,7 @@ private:
 
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "ConnectAbility called.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
         // Check params count
         if (info.argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "Connect ability error, not enough params.");

@@ -41,7 +41,7 @@ sptr<IRemoteObject> RequestInfo::GetToken()
 
 napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
 {
-    TAG_LOGD(AAFwkTag::DIALOG, "WrapRequestInfo called.");
+    TAG_LOGD(AAFwkTag::DIALOG, "called");
     if (request == nullptr) {
         TAG_LOGE(AAFwkTag::DIALOG, "request is nullptr.");
         return nullptr;
@@ -102,7 +102,7 @@ napi_value RequestInfo::CreateJsWindowRect(
 
 std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(napi_env env, napi_value jsParam)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "UnwrapRequestInfo called.");
+    TAG_LOGI(AAFwkTag::DIALOG, "called");
     if (jsParam == nullptr) {
         TAG_LOGE(AAFwkTag::DIALOG, "jsParam is nullptr");
         return nullptr;

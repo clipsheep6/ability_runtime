@@ -360,7 +360,7 @@ void NapiAsyncTask::Execute(napi_env env, void* data)
 
 void NapiAsyncTask::Complete(napi_env env, napi_status status, void* data)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (data == nullptr) {
         return;
     }

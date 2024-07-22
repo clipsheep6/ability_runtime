@@ -194,7 +194,7 @@ bool LocalCallContainer::IsCallBackCalled(const std::vector<std::shared_ptr<Call
 {
     for (auto& callBack : callers) {
         if (callBack != nullptr && !callBack->IsCallBack()) {
-            TAG_LOGI(AAFwkTag::LOCAL_CALL, "%{public}s call back is not called.", __func__);
+            TAG_LOGI(AAFwkTag::LOCAL_CALL, "callback is not called");
             return false;
         }
     }
@@ -204,7 +204,7 @@ bool LocalCallContainer::IsCallBackCalled(const std::vector<std::shared_ptr<Call
 
 void LocalCallContainer::DumpCalls(std::vector<std::string>& info)
 {
-    TAG_LOGD(AAFwkTag::LOCAL_CALL, "LocalCallContainer::DumpCalls called.");
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "called");
     info.emplace_back("          caller connections:");
     std::lock_guard<std::mutex> lock(mutex_);
     for (auto &item : callProxyRecords_) {

@@ -56,7 +56,7 @@ void UriPermissionManagerService::OnStart()
 
 void UriPermissionManagerService::OnStop()
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "OnStop is called.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "called");
     SelfClean();
 }
 

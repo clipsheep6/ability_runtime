@@ -61,7 +61,7 @@ public:
 private:
     napi_value OnStartChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::PROCESSMGR, "OnStartChildProcess called.");
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "called");
         if (ChildProcessManager::GetInstance().IsChildProcess()) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
@@ -152,7 +152,7 @@ private:
 
     napi_value OnStartArkChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::PROCESSMGR, "OnStartArkChildProcess called.");
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "called");
         if (ChildProcessManager::GetInstance().IsChildProcess()) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
@@ -229,7 +229,7 @@ private:
 
 napi_value JsChildProcessManagerInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::PROCESSMGR, "Invalid input params");
         return nullptr;

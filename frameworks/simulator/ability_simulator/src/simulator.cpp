@@ -498,7 +498,7 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
 
 void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     if (abilityStage_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY_SIM, "abilityStage_ is nullptr");
         return;
@@ -547,7 +547,7 @@ void SimulatorImpl::SetMockList(const std::map<std::string, std::string> &mockLi
 
 void SimulatorImpl::InitResourceMgr()
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     resourceMgr_ = std::shared_ptr<Global::Resource::ResourceManager>(Global::Resource::CreateResourceManager());
     if (resourceMgr_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY_SIM, "resourceMgr is nullptr");

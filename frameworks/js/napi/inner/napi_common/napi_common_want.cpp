@@ -327,7 +327,7 @@ bool InnerWrapWantParamsRemoteObject(
 
 bool InnerWrapWantParamsArrayChar(napi_env env, napi_value jsObject, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     long size = 0;
     if (ao->GetLength(size) != ERR_OK) {
         return false;
@@ -774,7 +774,7 @@ bool InnerSetWantParamsArrayDouble(
 
 bool InnerUnwrapWantParamsArray(napi_env env, const std::string &key, napi_value param, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     ComplexArrayData natArrayValue;
     if (!UnwrapArrayComplexFromJS(env, param, natArrayValue)) {
         return false;
@@ -803,7 +803,7 @@ bool InnerUnwrapWantParamsArray(napi_env env, const std::string &key, napi_value
 
 bool InnerUnwrapWantParams(napi_env env, const std::string &key, napi_value param, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     AAFwk::WantParams wp;
 
     if (UnwrapWantParams(env, param, wp)) {

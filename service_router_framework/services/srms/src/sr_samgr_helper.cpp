@@ -36,7 +36,7 @@ SrSamgrHelper::~SrSamgrHelper()
 
 sptr<IBundleMgr> SrSamgrHelper::GetBundleMgr()
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "GetBundleMgr called.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "called");
     std::lock_guard<std::mutex> lock(bundleMgrMutex_);
     if (iBundleMgr_ == nullptr) {
         ConnectBundleMgrLocked();

@@ -545,7 +545,7 @@ void JsUIServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuratio
 
 void JsUIServiceExtension::ConfigurationUpdated()
 {
-    TAG_LOGD(AAFwkTag::UISERVC_EXT, "called.");
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
 

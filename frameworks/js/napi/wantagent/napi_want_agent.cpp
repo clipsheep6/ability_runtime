@@ -495,7 +495,7 @@ napi_value JsWantAgent::OnGetOperationType(napi_env env, napi_callback_info info
 
 napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -562,7 +562,7 @@ void JsWantAgent::SetOnGetBundleNameCallback(std::shared_ptr<WantAgent> wantAgen
 
 napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -827,7 +827,7 @@ int32_t JsWantAgent::GetTriggerExtraInfo(napi_env env, napi_value param, std::sh
 
 int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo &triggerInfo)
 {
-    TAG_LOGD(AAFwkTag::WANTAGENT, "GetTriggerInfo called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
     if (!CheckTypeForNapiValue(env, param, napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "param type mismatch!");
         return ERR_NOT_OK;
@@ -883,7 +883,7 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
 
 int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, WantAgentWantsParas &paras)
 {
-    TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParam called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -1031,7 +1031,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
 
 napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
 {
-    TAG_LOGD(AAFwkTag::WANTAGENT, "WrapWantAgent called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
     napi_value wantAgentClass = nullptr;
     napi_define_class(
         env,
@@ -1071,7 +1071,7 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
 
 void JsWantAgent::UnwrapWantAgent(napi_env env, napi_value jsParam, void** result)
 {
-    TAG_LOGD(AAFwkTag::WANTAGENT, "UnwrapWantAgent called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
     if (jsParam == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "UnwrapWantAgent jsParam is nullptr!");
         return;
@@ -1191,7 +1191,7 @@ napi_value JsWantAgent::OnNapiGetWant(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnNapiTrigger(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -1292,7 +1292,7 @@ void JsWantAgent::SetOnNapiGetWantAgentCallback(std::shared_ptr<WantAgentWantsPa
 
 napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);

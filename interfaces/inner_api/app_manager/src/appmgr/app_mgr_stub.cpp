@@ -350,7 +350,7 @@ int32_t AppMgrStub::HandleAttachApplication(MessageParcel &data, MessageParcel &
 int32_t AppMgrStub::HandlePreloadApplication(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
-    TAG_LOGD(AAFwkTag::APPMGR, "Stub HandlePreloadApplication called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = Str16ToStr8(data.ReadString16());
     int32_t userId = data.ReadInt32();
     int32_t preloadMode = data.ReadInt32();
@@ -942,7 +942,7 @@ int32_t AppMgrStub::HandleBlockAppServiceDone(MessageParcel &data, MessageParcel
 int32_t AppMgrStub::HandleGetAppRunningStateByBundleName(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     auto ret = GetAppRunningStateByBundleName(bundleName);
     if (!reply.WriteBool(ret)) {
@@ -954,7 +954,7 @@ int32_t AppMgrStub::HandleGetAppRunningStateByBundleName(MessageParcel &data, Me
 int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
@@ -971,7 +971,7 @@ int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParc
 int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
@@ -989,7 +989,7 @@ int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel
 int32_t AppMgrStub::HandleSetContinuousTaskProcess(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     int32_t pid = data.ReadInt32();
     bool isContinuousTask = data.ReadBool();
     auto ret = SetContinuousTaskProcess(pid, isContinuousTask);
@@ -1003,7 +1003,7 @@ int32_t AppMgrStub::HandleSetContinuousTaskProcess(MessageParcel &data, MessageP
 int32_t AppMgrStub::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
@@ -1020,7 +1020,7 @@ int32_t AppMgrStub::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessagePa
 int32_t AppMgrStub::HandleIsSharedBundleRunning(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     uint32_t versionCode = data.ReadUint32();
     bool result = IsSharedBundleRunning(bundleName, versionCode);
@@ -1033,7 +1033,7 @@ int32_t AppMgrStub::HandleIsSharedBundleRunning(MessageParcel &data, MessageParc
 int32_t AppMgrStub::HandleStartNativeProcessForDebugger(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "want is nullptr");
@@ -1304,7 +1304,7 @@ int32_t AppMgrStub::HandleIsAppRunning(MessageParcel &data, MessageParcel &reply
 
 int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::unique_ptr<ChildProcessRequest> request(data.ReadParcelable<ChildProcessRequest>());
     if (!request) {
         return IPC_STUB_ERR;
@@ -1324,7 +1324,7 @@ int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &
 
 int32_t AppMgrStub::HandleGetChildProcessInfoForSelf(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ChildProcessInfo info;
     auto result = GetChildProcessInfoForSelf(info);
     if (!reply.WriteInt32(result)) {
@@ -1339,7 +1339,7 @@ int32_t AppMgrStub::HandleGetChildProcessInfoForSelf(MessageParcel &data, Messag
 
 int32_t AppMgrStub::HandleAttachChildProcess(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     sptr<IRemoteObject> scheduler = data.ReadRemoteObject();
     AttachChildProcess(scheduler);
     return NO_ERROR;
@@ -1347,7 +1347,7 @@ int32_t AppMgrStub::HandleAttachChildProcess(MessageParcel &data, MessageParcel 
 
 int32_t AppMgrStub::HandleExitChildProcessSafely(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ExitChildProcessSafely();
     return NO_ERROR;
 }

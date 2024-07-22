@@ -822,7 +822,7 @@ void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::KeyE
 
 void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::DoPointerEvent called.");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     abilityImpl_->DoPointerEvent(pointerEvent);
 }
 #endif

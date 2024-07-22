@@ -35,7 +35,7 @@ const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
 int32_t QuickFixManagerClient::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     auto quickFixMgr = GetQuickFixMgrProxy();
     if (quickFixMgr == nullptr) {
@@ -64,7 +64,7 @@ int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleN
     ApplicationQuickFixInfo &quickFixInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     auto quickFixMgr = GetQuickFixMgrProxy();
     if (quickFixMgr == nullptr) {
@@ -78,7 +78,7 @@ int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleN
 sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgrProxy()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     auto quickFixMgr = GetQuickFixMgr();
     if (quickFixMgr != nullptr) {
         TAG_LOGD(AAFwkTag::QUICKFIX, "Quick fix manager has been started.");
@@ -113,7 +113,7 @@ sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgrProxy()
 
 int32_t QuickFixManagerClient::RevokeQuickFix(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     auto quickFixMgr = GetQuickFixMgrProxy();
     if (quickFixMgr == nullptr) {
@@ -128,7 +128,7 @@ int32_t QuickFixManagerClient::RevokeQuickFix(const std::string &bundleName)
 
 void QuickFixManagerClient::ClearProxy()
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     quickFixMgr_ = nullptr;
 }

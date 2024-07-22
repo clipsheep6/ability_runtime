@@ -51,7 +51,7 @@ void ConnectionObserverProxy::OnExtensionDisconnected(const ConnectionData& conn
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    TAG_LOGD(AAFwkTag::CONNECTION, "called.");
+    TAG_LOGD(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
         return;

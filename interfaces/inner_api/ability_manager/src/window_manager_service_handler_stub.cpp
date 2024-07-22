@@ -63,7 +63,7 @@ int WindowManagerServiceHandlerStub::OnRemoteRequest(
 
 int WindowManagerServiceHandlerStub::NotifyWindowTransitionInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> fromInfo(data.ReadParcelable<AbilityTransitionInfo>());
     if (!fromInfo) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read fromInfo failed.");
@@ -82,7 +82,7 @@ int WindowManagerServiceHandlerStub::NotifyWindowTransitionInner(MessageParcel &
 
 int WindowManagerServiceHandlerStub::GetFocusWindowInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = nullptr;
     int32_t ret = GetFocusWindow(abilityToken);
     if (!reply.WriteInt32(ret)) {
@@ -109,7 +109,7 @@ int WindowManagerServiceHandlerStub::GetFocusWindowInner(MessageParcel &data, Me
 
 int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read info failed!");
@@ -128,7 +128,7 @@ int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, Mes
 
 int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read info failed.");
@@ -146,7 +146,7 @@ int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, Mess
 
 int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = nullptr;
     if (data.ReadBool()) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "abilityToken is valid.");
@@ -158,7 +158,7 @@ int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &da
 
 int WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read info failed.");
@@ -170,7 +170,7 @@ int WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner(MessageParc
 
 int WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     data.ReadInt32Vector(&missionIds);
     int32_t topMissionId = data.ReadInt32();
@@ -181,7 +181,7 @@ int WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner(MessageParcel
 
 int WindowManagerServiceHandlerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     std::vector<int32_t> result;
     data.ReadInt32Vector(&missionIds);

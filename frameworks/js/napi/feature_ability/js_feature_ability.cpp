@@ -389,7 +389,7 @@ bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &request
 
 bool JsFeatureAbility::UnWrapRequestParams(napi_env env, napi_value param, DistributeReqParam &requestParam)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         TAG_LOGI(AAFwkTag::FA, "%{public}s called. Params is invalid.", __func__);

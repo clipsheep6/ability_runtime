@@ -32,7 +32,7 @@ namespace {
 }
 napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
@@ -50,7 +50,7 @@ napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData)
 
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
@@ -94,7 +94,7 @@ napi_value CreateJsAbilityFirstFrameStateData(napi_env env,
 
 napi_value CreateJsProcessData(napi_env env, const ProcessData &processData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {

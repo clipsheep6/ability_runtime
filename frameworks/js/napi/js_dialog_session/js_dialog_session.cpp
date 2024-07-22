@@ -55,7 +55,7 @@ public:
 private:
     napi_value OnGetDialogSessionInfo(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "argc = %{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < 1) {
             TAG_LOGE(AAFwkTag::DIALOG, "not enough params");
             ThrowTooFewParametersError(env);
@@ -82,7 +82,7 @@ private:
 
     napi_value OnSendDialogResult(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "argc = %{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < ARGC_THREE) {
             TAG_LOGE(AAFwkTag::DIALOG, "not enough params");
             ThrowTooFewParametersError(env);

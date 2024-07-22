@@ -50,7 +50,7 @@ void RestartAppManager::AddRestartAppHistory(const RestartAppKeyType &key, time_
 
 bool RestartAppManager::IsForegroundToRestartApp() const
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "IsForegroundToRestartApp, called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto callerPid = IPCSkeleton::GetCallingPid();
     AppExecFwk::RunningProcessInfo processInfo;
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);

@@ -509,22 +509,22 @@ void ExtensionImpl::Background(const Want &want, sptr<AAFwk::SessionInfo> sessio
 
 void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterForeground()
 {
-    TAG_LOGD(AAFwkTag::EXT, "called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
 }
 
 void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterBackground()
 {
-    TAG_LOGD(AAFwkTag::EXT, "called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
 }
 
 void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterActive()
 {
-    TAG_LOGD(AAFwkTag::EXT, "called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
 }
 
 void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterInactive()
 {
-    TAG_LOGD(AAFwkTag::EXT, "called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
 }
 }
 }

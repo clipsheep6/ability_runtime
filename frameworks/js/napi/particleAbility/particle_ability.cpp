@@ -40,7 +40,7 @@ namespace AppExecFwk {
  */
 napi_value NAPI_PAGetAppType(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_GetAppTypeCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -54,7 +54,7 @@ napi_value NAPI_PAGetAppType(napi_env env, napi_callback_info info)
  */
 napi_value NAPI_PAGetAbilityInfo(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_GetAbilityInfoCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -68,7 +68,7 @@ napi_value NAPI_PAGetAbilityInfo(napi_env env, napi_callback_info info)
  */
 napi_value NAPI_PAGetHapModuleInfo(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_GetHapModuleInfoCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -82,7 +82,7 @@ napi_value NAPI_PAGetHapModuleInfo(napi_env env, napi_callback_info info)
  */
 napi_value NAPI_PAGetContext(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_GetContextCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -96,7 +96,7 @@ napi_value NAPI_PAGetContext(napi_env env, napi_callback_info info)
  */
 napi_value NAPI_PAGetWant(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_GetWantCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -110,7 +110,7 @@ napi_value NAPI_PAGetWant(napi_env env, napi_callback_info info)
  */
 napi_value NAPI_PAGetAbilityName(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_GetAbilityNameCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -124,7 +124,7 @@ napi_value NAPI_PAGetAbilityName(napi_env env, napi_callback_info info)
  */
 napi_value NAPI_PAStopAbility(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return NAPI_StopAbilityCommon(env, info, AbilityType::UNKNOWN);
 }
 
@@ -180,7 +180,7 @@ napi_value NAPI_PACancelBackgroundRunning(napi_env env, napi_callback_info info)
  */
 napi_value ParticleAbilityInit(napi_env env, napi_value exports)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("getAppType", NAPI_PAGetAppType),
         DECLARE_NAPI_FUNCTION("getAbilityInfo", NAPI_PAGetAbilityInfo),

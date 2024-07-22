@@ -38,7 +38,7 @@ JsSaveRequestCallback::JsSaveRequestCallback(
 
 void JsSaveRequestCallback::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Finalizer is called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     std::unique_ptr<JsSaveRequestCallback>(static_cast<JsSaveRequestCallback*>(data));
 }
 

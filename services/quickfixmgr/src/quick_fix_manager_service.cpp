@@ -58,7 +58,7 @@ bool QuickFixManagerService::Init()
 int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "The caller is not system-app, can not use system-api.");
         return QUICK_FIX_NOT_SYSTEM_APP;
@@ -90,7 +90,7 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
     ApplicationQuickFixInfo &quickFixInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "The caller is not system-app, can not use system-api");
         return QUICK_FIX_NOT_SYSTEM_APP;

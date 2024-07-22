@@ -182,14 +182,14 @@ void AppScheduler::KillProcessesByUserId(int32_t userId)
 
 void AppScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->KillProcessesByPids(pids);
 }
 
 void AppScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->AttachPidToParent(token, callerToken);
 }
@@ -610,14 +610,14 @@ bool AppScheduler::IsMemorySizeSufficent() const
 
 void AppScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->AttachedToStatusBar(token);
 }
 
 void AppScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->BlockProcessCacheByPids(pids);
 }

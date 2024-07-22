@@ -59,7 +59,7 @@ napi_value AttachUIExtensionContext(napi_env env, void *value, void *)
     napi_wrap(
         env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::UI_EXT, "Finalizer for weak_ptr ui extension context is called.");
+            TAG_LOGD(AAFwkTag::UI_EXT, "Finalizer called");
             if (data == nullptr) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "Finalizer for weak_ptr is nullptr.");
                 return;
@@ -118,7 +118,7 @@ void JsPhotoEditorExtensionImpl::BindContext()
     napi_set_named_property(env, obj, "context", contextObj);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::UI_EXT, "Finalizer for weak_ptr ui extension context is called.");
+            TAG_LOGD(AAFwkTag::UI_EXT, "Finalizer called");
             if (data == nullptr) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "Finalizer for weak_ptr is nullptr.");
                 return;

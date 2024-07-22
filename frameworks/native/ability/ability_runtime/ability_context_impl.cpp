@@ -727,7 +727,7 @@ ErrCode AbilityContextImpl::RequestDialogService(AAFwk::Want &want, RequestDialo
 
 ErrCode AbilityContextImpl::ReportDrawnCompleted()
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "called.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     return AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
 }
 
