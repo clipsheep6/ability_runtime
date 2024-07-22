@@ -772,6 +772,10 @@ void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFont
     appFontCallback_ = appFontCallback;
 }
 
+void ApplicationContext::RegisterAppProcessSecurityExit(AppProcessExitCallback appProcessExitCallback) {
+    appProcessExitCallback_ = appProcessExitCallback;
+}
+
 std::string ApplicationContext::GetAppRunningUniqueId() const
 {
     TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueId is %{public}s.", appRunningUniqueId_.c_str());
@@ -816,6 +820,14 @@ void ApplicationContext::SetCurrentAppMode(int32_t appMode)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "setCurrentAppMode is %{public}d.", appMode);
     appMode_ = appMode;
+}
+
+void ApplicationContext::AppProcessSecurityExit()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "AppProcess is securely exited");
+    if (appProcessExitCallback_ != nullptr) {
+        appProcessExitCallback_();
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -1595,7 +1595,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             uncaughtExceptionInfo.hapPath = hapPath;
             wptr<MainThread> weak = this;
             uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
-                pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
+                pid, processName, applicationContext] (std::string summary, const JsEnv::ErrorObject errorObj) {
                 auto appThread = weak.promote();
                 if (appThread == nullptr) {
                     TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
@@ -1637,9 +1637,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 TAG_LOGE(AAFwkTag::APPKIT,
                     "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                     bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-                AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
-                AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-                appThread->ScheduleProcessSecurityExit();
+                applicationContext->RegisterAppProcessSecurityExit([appThread, errorObj] {
+                    AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
+                    AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+                    appThread->ScheduleProcessSecurityExit();
+                });
             };
             (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
 #ifdef CJ_FRONTEND
