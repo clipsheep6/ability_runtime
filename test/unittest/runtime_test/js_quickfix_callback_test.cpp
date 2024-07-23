@@ -57,7 +57,7 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0100, TestSize.Level0)
 
     std::string baseFileName = "<baseFileName>";
     std::string patchFileName;
-    void* patchBuffer = nullptr;
+    uint8_t* patchBuffer = nullptr;
     size_t patchSize = 0;
     bool res = jsQuickfixCallback(baseFileName, patchFileName, &patchBuffer, patchSize);
     EXPECT_FALSE(res);
@@ -78,7 +78,7 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0200, TestSize.Level0)
 
     std::string baseFileName = "baseFileName.abc";
     std::string patchFileName;
-    void* patchBuffer = nullptr;
+    uint8_t* patchBuffer = nullptr;
     size_t patchSize = 0;
     bool res = jsQuickfixCallback(baseFileName, patchFileName, &patchBuffer, patchSize);
     EXPECT_FALSE(res);
@@ -99,7 +99,7 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0300, TestSize.Level0)
 
     std::string baseFileName = "/data/storage/el1/bundle/entry/ets/modules.abc";
     std::string patchFileName;
-    void* patchBuffer = nullptr;
+    uint8_t* patchBuffer = nullptr;
     size_t patchSize = 0;
     bool res = jsQuickfixCallback(baseFileName, patchFileName, &patchBuffer, patchSize);
     EXPECT_FALSE(res);
@@ -120,7 +120,7 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0400, TestSize.Level0)
 
     std::string baseFileName = "/data/storage/el1/bundle/bundle/ets/modules.abc";
     std::string patchFileName;
-    void* patchBuffer = nullptr;
+    uint8_t* patchBuffer = nullptr;
     size_t patchSize = 0;
     bool res = jsQuickfixCallback(baseFileName, patchFileName, &patchBuffer, patchSize);
     EXPECT_FALSE(res);

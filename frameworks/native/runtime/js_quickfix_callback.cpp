@@ -15,6 +15,7 @@
 
 #include "js_quickfix_callback.h"
 
+#include "file_mapper.h"
 #include "file_path_utils.h"
 #include "hilog_tag_wrapper.h"
 #include "js_runtime.h"
@@ -27,7 +28,7 @@ namespace {
 }
 
 bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patchFileName,
-                                    void **patchBuffer, size_t &patchSize)
+                                    uint8_t **patchBuffer, size_t &patchSize)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "baseFileName: %{private}s", baseFileName.c_str());
     auto position = baseFileName.find(".abc");
@@ -56,13 +57,18 @@ bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patch
     TAG_LOGD(AAFwkTag::JSRUNTIME, "hqfFile: %{private}s, resolvedHqfFile: %{private}s", hqfFile.c_str(),
         resolvedHqfFile.c_str());
 
-    if (!JsRuntime::GetFileBuffer(resolvedHqfFile, patchFileName, newpatchBuffer_)) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetFileBuffer failed");
+    auto data = JsRuntime::GetSafeData(resolvedHqfFile, patchFileName);
+    if (data == nullptr) {
+        if (patchFileName.empty()) {
+            TAG_LOGI(AAFwkTag::JSRUNTIME, "No need to load patch cause no ets. path: %{private}s",
+                resolvedHqfFile.c_str());
+            return true;
+        }
         return false;
     }
-    *patchBuffer = newpatchBuffer_.data();
+    *patchBuffer = data->GetDataPtr();
     TAG_LOGD(AAFwkTag::JSRUNTIME, "patchFileName: %{private}s", patchFileName.c_str());
-    patchSize = newpatchBuffer_.size();
+    patchSize = data->GetDataLen();
     return true;
 }
 } // namespace AbilityRuntime

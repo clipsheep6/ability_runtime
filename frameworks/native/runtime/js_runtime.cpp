@@ -33,6 +33,7 @@
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "extract_resource_manager.h"
+#include "file_mapper.h"
 #include "file_path_utils.h"
 #include "hdc_register.h"
 #include "hilog_tag_wrapper.h"
@@ -484,6 +485,33 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
     return true;
 }
 
+std::shared_ptr<AbilityBase::FileMapper> JsRuntime::GetSafeData(const std::string& path, std::string& fileFullName)
+{
+    bool newCreate = false;
+    auto extractor = ExtractorUtil::GetExtractor(path, newCreate, true);
+    if (extractor == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get extractor failed. path: %{private}s", path.c_str());
+        return nullptr;
+    }
+
+    std::vector<std::string> fileNames;
+    extractor->GetSpecifiedTypeFiles(fileNames, ".abc");
+    if (fileNames.empty()) {
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "There's no abc file in hap or hqf: %{private}s", path.c_str());
+        return nullptr;
+    }
+    std::string fileName = fileNames.front();
+    fileFullName = path + "/" + fileName;
+
+    auto safeData = extractor->GetSafeData(fileName);
+    if (safeData == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get safe data failed. path: %{private}s", path.c_str());
+        return nullptr;
+    }
+
+    return safeData;
+}
+
 bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
@@ -493,16 +521,18 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     InitSourceMap(hqfFile);
 
     std::string patchFile;
-    std::vector<uint8_t> patchBuffer;
-    if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get patch file buffer failed.");
+    auto hqfSafeData = GetSafeData(hqfFile, patchFile);
+    if (hqfSafeData == nullptr) {
+        if (patchFile.empty()) {
+            TAG_LOGI(AAFwkTag::JSRUNTIME, "No need to load patch cause no ets. path: %{private}s", hqfFile.c_str());
+            return true;
+        }
         return false;
     }
 
     std::string baseFile;
-    std::vector<uint8_t> baseBuffer;
-    if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get base file buffer failed.");
+    auto hapSafeData = GetSafeData(hapPath, baseFile);
+    if (hapSafeData == nullptr) {
         return false;
     }
 
@@ -519,8 +549,8 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
 
     TAG_LOGD(AAFwkTag::JSRUNTIME, "LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
         patchFile.c_str(), resolvedHapPath.c_str());
-    auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
-        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
+    auto ret = panda::JSNApi::LoadPatch(vm, patchFile, hqfSafeData->GetDataPtr(), hqfSafeData->GetDataLen(),
+        resolvedHapPath, hapSafeData->GetDataPtr(), hapSafeData->GetDataLen());
     if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
         return false;

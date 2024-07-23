@@ -39,6 +39,7 @@ class EventHandler;
 
 namespace AbilityBase {
 class Extractor;
+class FileMapper;
 } // namespace AbilityBase
 
 namespace JsEnv {
@@ -116,6 +117,7 @@ public:
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
     static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer,
                               bool isABC = true);
+    static std::shared_ptr<AbilityBase::FileMapper> GetSafeData(const std::string& path, std::string& fileFullName);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void InitSourceMap(const std::string hqfFilePath);
