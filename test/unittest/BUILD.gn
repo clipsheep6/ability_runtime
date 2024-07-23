@@ -507,6 +507,7 @@ group("unittest") {
     "runtime_test:unittest",
     "sender_info_test:unittest",
     "service_extension_context_test:unittest",
+    "service_router_mgr_service_test:unittest",
     "services/ability_util_test:unittest",
     "start_options_test:unittest",
     "start_other_app_interceptor_test:unittest",
