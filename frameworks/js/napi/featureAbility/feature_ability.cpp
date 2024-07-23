@@ -688,6 +688,12 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
 
     auto work = new uv_work_t;
     auto onAbilityCB = new (std::nothrow) OnAbilityCallback;
+    if (onAbilityCB == nullptr) {
+        TAG_LOGE(AAFwkTag::FA, "Failed to allocate OnAbilityCallback");
+        delete work;
+        return;
+    }
+    
     onAbilityCB->requestCode = requestCode;
     onAbilityCB->resultCode = resultCode;
     onAbilityCB->resultData = resultData;
