@@ -1628,7 +1628,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
         }
         std::ostringstream outStream;
         if (!extractor->ExtractByName("pkgContextInfo.json", outStream)) {
-            TAG_LOGW(AAFwkTag::JSRUNTIME, "moduleName: %{public}s get pkgContextInfo failed", it->first.c_str());
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "moduleName: %{public}s get pkgContextInfo failed", it->first.c_str());
             continue;
         }
         auto jsonObject = nlohmann::json::parse(outStream.str(), nullptr, false);

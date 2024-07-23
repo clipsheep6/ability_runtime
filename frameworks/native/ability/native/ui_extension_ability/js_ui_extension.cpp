@@ -732,7 +732,8 @@ void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::
         return;
     }
     std::lock_guard<std::mutex> lock(uiWindowMutex_);
-    TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    TAG_LOGI(AAFwkTag::UI_EXT, "Before window show UIExtcomponent id: %{public}" PRId64,
+        sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     auto& uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
@@ -750,13 +751,14 @@ void JsUIExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
         return;
     }
     std::lock_guard<std::mutex> lock(uiWindowMutex_);
-    TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Fail to find uiWindow");
         return;
     }
     auto& uiWindow = uiWindowMap_[componentId];
+    TAG_LOGI(AAFwkTag::UI_EXT, "Befor window hide UIExtcomponent id: %{public}" PRId64,
+        sessionInfo->uiExtensionComponentId);
     if (uiWindow) {
         uiWindow->Hide();
         foregroundWindows_.erase(componentId);
@@ -772,7 +774,6 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
         return;
     }
     std::lock_guard<std::mutex> lock(uiWindowMutex_);
-    TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Wrong to find uiWindow");
@@ -788,6 +789,8 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
             CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
         }
     }
+    TAG_LOGI(AAFwkTag::UI_EXT, "Befor window destory, UIExtcomponent id: %{public}" PRId64,
+        sessionInfo->uiExtensionComponentId);
     auto uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Destroy();
