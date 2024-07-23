@@ -35,11 +35,11 @@
 #include "mock_test_observer_stub.h"
 #include "mock_test_runner.h"
 #include "ohos_application.h"
-#include "scene_board_judgement.h"
 #include "test_observer_stub.h"
 #include "test_observer.h"
 #include "test_runner.h"
 #include "want.h"
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;

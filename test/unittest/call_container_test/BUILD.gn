@@ -24,6 +24,7 @@ ohos_unittest("call_container_test") {
     debug = false
   }
   branch_protector_ret = "pac_ret"
+
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/ability_scheduler_mock",

@@ -56,13 +56,17 @@ void DataAbilityHelperForObserverTest::SetUpTestCase(void)
 {}
 
 void DataAbilityHelperForObserverTest::TearDownTestCase(void)
-{}
+{
+    MockAbilitySchedulerTools::GetInstance()->SetMockStatus(true);
+}
 
 void DataAbilityHelperForObserverTest::SetUp(void)
 {}
 
 void DataAbilityHelperForObserverTest::TearDown(void)
-{}
+{
+    MockAbilitySchedulerTools::DestoryInstance();
+}
 
 /**
  * @tc.number: AaFwk_DataAbilityHelper_GetFileTypes_0100

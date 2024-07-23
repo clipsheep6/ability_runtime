@@ -278,7 +278,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeRunSandboxScriptTest_0100, TestSize.Level0)
     std::string hapPath = "";
     jsRuntime->RunSandboxScript(path, hapPath);
     EXPECT_TRUE(jsRuntime != nullptr);
-
     jsRuntime.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     TAG_LOGI(AAFwkTag::TEST, "RunSandboxScript end");

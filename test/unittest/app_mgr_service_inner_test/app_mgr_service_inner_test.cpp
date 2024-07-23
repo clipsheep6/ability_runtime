@@ -4101,7 +4101,6 @@ HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_002, TestSize.Level1)
     EXPECT_FALSE(isRunning);
 }
 
-
 /**
  * @tc.name: RegisterAbilityForegroundStateObserver_0100
  * @tc.desc: Verify it when observer is nullptr.
