@@ -93,7 +93,6 @@ ohos_shared_library("runtime") {
     "ability_base:extractortool",
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
-    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -116,6 +115,11 @@ ohos_shared_library("runtime") {
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
+  ]
+
+  public_external_deps = [
+    "ability_base:session_info",
+    "ability_base:want",
   ]
 
   defines = []

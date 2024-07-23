@@ -74,7 +74,6 @@ ohos_shared_library("wantagent_innerkits") {
   ]
 
   external_deps = [
-    "ability_base:session_info",
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
@@ -86,6 +85,7 @@ ohos_shared_library("wantagent_innerkits") {
 
   public_external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",

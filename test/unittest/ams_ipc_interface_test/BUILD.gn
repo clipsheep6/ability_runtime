@@ -33,6 +33,7 @@ ohos_unittest("AmsIpcAppSchedulerInterfaceTest") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:want",
     "ability_base:zuri",
     "hilog:libhilog",
     "ipc:ipc_core",
