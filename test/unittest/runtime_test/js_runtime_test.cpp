@@ -231,20 +231,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0200, TestSize.Level
 }
 
 /**
- * @tc.name: JsRuntimeDumpHeapSnapshotTest_0100
- * @tc.desc: JsRuntime test for DumpHeapSnapshot.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimeDumpHeapSnapshotTest_0100, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "DumpHeapSnapshot start");
-    MockJsRuntime mockJsRuntime;
-    bool isPrivate = false;
-    mockJsRuntime.DumpHeapSnapshot(isPrivate);
-    TAG_LOGI(AAFwkTag::TEST, "DumpHeapSnapshot end");
-}
-
-/**
  * @tc.name: JsRuntimePreloadSystemModuleTest_0100
  * @tc.desc: JsRuntime test for PreloadSystemModule.
  * @tc.type: FUNC
@@ -1422,46 +1408,6 @@ HWTEST_F(JsRuntimeTest, GetChildOptions_0100, TestSize.Level1)
 {
     auto jsRuntime = std::make_unique<JsRuntime>();
     jsRuntime->GetChildOptions();
-    EXPECT_TRUE(jsRuntime != nullptr);
-}
-
-/**
- * @tc.name: DumpCpuProfile_0100
- * @tc.desc: JsRuntime test for DumpCpuProfile.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, DumpCpuProfile_0100, TestSize.Level1)
-{
-    auto jsRuntime = std::make_unique<JsRuntime>();
-    bool isPrivate = true;
-    jsRuntime->DumpCpuProfile();
-    EXPECT_TRUE(jsRuntime != nullptr);
-}
-
-/**
- * @tc.name: DumpHeapSnapshot_0100
- * @tc.desc: JsRuntime test for DumpHeapSnapshot.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, DumpHeapSnapshot_0100, TestSize.Level1)
-{
-    auto jsRuntime = std::make_unique<JsRuntime>();
-    bool isPrivate = true;
-    jsRuntime->DumpHeapSnapshot(isPrivate);
-    EXPECT_TRUE(jsRuntime != nullptr);
-}
-
-/**
- * @tc.name: DumpHeapSnapshot_0200
- * @tc.desc: JsRuntime test for DumpHeapSnapshot.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, DumpHeapSnapshot_0200, TestSize.Level1)
-{
-    auto jsRuntime = std::make_unique<JsRuntime>();
-    uint32_t tid = 1;
-    bool isFullGC = true;
-    jsRuntime->DumpHeapSnapshot(tid, isFullGC);
     EXPECT_TRUE(jsRuntime != nullptr);
 }
 

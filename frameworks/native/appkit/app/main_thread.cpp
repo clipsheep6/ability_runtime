@@ -651,7 +651,8 @@ void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
         return;
     }
     if (info.needSnapshot == true) {
-        runtime->DumpHeapSnapshot(info.tid, info.needGc);
+        auto helper = std::make_shared<DumpRuntimeHelper>(app);
+        helper->DumpHeapSnapshot(info.tid, info.needGc);
     } else {
         if (info.needGc == true) {
             runtime->ForceFullGC(info.tid);
@@ -2533,7 +2534,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap runtime is nullptr");
         return;
     }
-    auto taskFork = [&runtime, &isPrivate] {
+    auto taskFork = [&runtime, &isPrivate, &app] {
         TAG_LOGD(AAFwkTag::APPKIT, "HandleDump Heap taskFork start.");
         time_t startTime = time(nullptr);
         int pid = -1;
@@ -2543,7 +2544,8 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         }
         if (pid == 0) {
             runtime->AllowCrossThreadExecution();
-            runtime->DumpHeapSnapshot(isPrivate);
+            auto helper = std::make_shared<DumpRuntimeHelper>(app);
+            helper->DumpHeapSnapshot(isPrivate);
             TAG_LOGI(AAFwkTag::APPKIT, "HandleDumpHeap successful, now you can check some file");
             _exit(0);
         }
@@ -2568,7 +2570,8 @@ void MainThread::HandleDumpHeap(bool isPrivate)
     };
 
     ffrt::submit(taskFork, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
-    runtime->DumpCpuProfile();
+    auto helper = std::make_shared<DumpRuntimeHelper>(app);
+    helper->DumpCpuProfile();
 }
 
 void MainThread::DestroyHeapProfiler()

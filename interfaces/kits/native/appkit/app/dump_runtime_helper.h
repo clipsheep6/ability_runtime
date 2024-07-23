@@ -25,6 +25,9 @@ public:
     explicit DumpRuntimeHelper(const std::shared_ptr<OHOSApplication> &application);
     ~DumpRuntimeHelper() = default;
     void SetAppFreezeFilterCallback();
+    void DumpCpuProfile();
+    void DumpHeapSnapshot(bool isPrivate);
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC);
 private:
     std::shared_ptr<OHOSApplication> application_ = nullptr;
 };
