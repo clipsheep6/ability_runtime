@@ -1008,7 +1008,7 @@ ErrCode AbilityManagerClient::StartAbilityByCall(const Want &want, sptr<IAbility
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerClient::StartAbilityByCall called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     return abms->StartAbilityByCall(want, connect, nullptr, DEFAULT_INVAL_VALUE);
 }
 
@@ -1017,7 +1017,7 @@ ErrCode AbilityManagerClient::StartAbilityByCall(const Want &want, sptr<IAbility
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerClient::StartAbilityByCall called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     return abms->StartAbilityByCall(want, connect, callToken, accountId);
 }
 
@@ -1079,7 +1079,7 @@ ErrCode AbilityManagerClient::RequestDialogService(
 
 ErrCode AbilityManagerClient::ReportDrawnCompleted(sptr<IRemoteObject> callerToken)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abilityMgr = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abilityMgr);
     return abilityMgr->ReportDrawnCompleted(callerToken);
@@ -1330,7 +1330,7 @@ ErrCode AbilityManagerClient::PrepareTerminateAbility(sptr<IRemoteObject> token,
     return abms->PrepareTerminateAbility(token, callback);
 }
 
-ErrCode AbilityManagerClient::GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info)
+ErrCode AbilityManagerClient::GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &info)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
@@ -1387,6 +1387,13 @@ void AbilityManagerClient::ScheduleRecoverAbility(sptr<IRemoteObject> token, int
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     return abms->ScheduleRecoverAbility(token, reason, want);
+}
+
+void AbilityManagerClient::SubmitSaveRecoveryInfo(sptr<IRemoteObject> token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->SubmitSaveRecoveryInfo(token);
 }
 
 void AbilityManagerClient::ScheduleClearRecoveryPageStack()
@@ -1900,7 +1907,7 @@ int32_t AbilityManagerClient::StartShortcut(const Want &want, const StartOptions
 
 int32_t AbilityManagerClient::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->GetAbilityStateByPersistentId(persistentId, state);

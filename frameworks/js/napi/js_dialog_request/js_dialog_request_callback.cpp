@@ -33,7 +33,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "JsDialogRequestCallback::Finalizer is called.");
+        TAG_LOGD(AAFwkTag::DIALOG, "called");
         std::unique_ptr<JsDialogRequestCallback>(static_cast<JsDialogRequestCallback*>(data));
     }
 

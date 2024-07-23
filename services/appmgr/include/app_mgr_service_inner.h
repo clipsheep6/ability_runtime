@@ -80,6 +80,7 @@ using OHOS::AAFwk::Want;
 class WindowFocusChangedListener;
 class WindowVisibilityChangedListener;
 using LoabAbilityTaskFunc = std::function<void()>;
+constexpr int32_t BASE_USER_RANGE = 200000;
 
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
@@ -260,6 +261,17 @@ public:
      * @return ERR_OK, return back success, others fail.
      */
     virtual int32_t KillApplication(const std::string &bundleName, const bool clearPageStack = true);
+
+    /**
+     * ForceKillApplication, force kill the application.
+     *
+     * @param  bundleName, bundle name in Application record.
+     * @param  userId, userId.
+     * @param  appIndex, appIndex.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t ForceKillApplication(const std::string &bundleName, const int userId = -1,
+        const int appIndex = 0);
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -1039,18 +1051,18 @@ public:
         const std::string &libName, int32_t childProcessCount, const sptr<IRemoteObject> &callback);
 
     /**
-     * Whether the current application process is the last surviving process.
-     * @param bundleName To query the bundle name of a process.
-     * @return Returns true is final application process, others return false.
-     */
-    bool IsFinalAppProcessByBundleName(const std::string &bundleName);
-
-    /**
      * To clear the process by ability token.
      *
      * @param token the unique identification to the ability.
      */
     void ClearProcessByToken(sptr<IRemoteObject> token);
+
+    /**
+     * Whether the current application process is the last surviving process.
+     * @param bundleName To query the bundle name of a process.
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcessByBundleName(const std::string &bundleName);
 
     /**
      * @brief Notify memory size state changed to sufficient or insufficent.
@@ -1106,14 +1118,6 @@ public:
     bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
         const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
 
-    bool GetSceneBoardAttachFlag() const;
-
-    void SetSceneBoardAttachFlag(bool flag);
-
-    void CacheLoabAbilityTask(const LoabAbilityTaskFunc& func);
-
-    void SubmitCacheLoabAbilityTask();
-
     /**
      * Check caller is test ability
      *
@@ -1121,7 +1125,14 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestModeInner(const pid_t pid, bool &isUserTest);
+  
+    bool GetSceneBoardAttachFlag() const;
 
+    void SetSceneBoardAttachFlag(bool flag);
+
+    void CacheLoabAbilityTask(const LoabAbilityTaskFunc& func);
+
+    void SubmitCacheLoabAbilityTask();
     /**
      * Notifies that one ability is attached to status bar.
      *
@@ -1141,6 +1152,8 @@ public:
     bool IsKilledForUpgradeWeb(const std::string &bundleName) const;
 
 private:
+    int32_t ForceKillApplicationInner(const std::string &bundleName, const int userId = -1,
+        const int appIndex = 0);
 
     std::string FaultTypeToString(FaultDataType type);
 
@@ -1520,9 +1533,9 @@ private:
     void HandleConfigurationChange(const Configuration &config);
     bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
     int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
-    void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord,
         sptr<IRemoteObject> token);
+    void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token);
     bool IsSceneBoardCall();
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
@@ -1560,8 +1573,8 @@ private:
     ffrt::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
     ffrt::mutex startChildProcessLock_;
-    std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
     std::vector<std::string> serviceExtensionWhiteList_;
+    std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
     std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;

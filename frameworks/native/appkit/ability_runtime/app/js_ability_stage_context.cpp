@@ -53,7 +53,7 @@ void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<N
 
 napi_value CreateJsAbilityStageContext(napi_env env, std::shared_ptr<AbilityRuntime::Context> context)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;

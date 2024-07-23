@@ -67,7 +67,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
 
 void ServiceAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
 }
 }  // namespace AppExecFwk

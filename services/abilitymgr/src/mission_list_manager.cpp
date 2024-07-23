@@ -2903,7 +2903,7 @@ int MissionListManager::SetMissionIcon(const sptr<IRemoteObject> &token, const s
 void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
 {
     FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (!abilityToken) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s ability token is nullptr.", __func__);
         return;
@@ -3515,7 +3515,7 @@ void MissionListManager::NotifyRestartSpecifiedAbility(AbilityRequest &request, 
     sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
         = iface_cast<AppExecFwk::IAbilityInfoCallback> (request.abilityInfoCallback);
     if (abilityInfoCallback != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s called.", __func__);
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         abilityInfoCallback->NotifyRestartSpecifiedAbility(token);
     }
 }
@@ -3548,7 +3548,7 @@ void MissionListManager::NotifyStartSpecifiedAbility(AbilityRequest &abilityRequ
 
 void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::lock_guard guard(managerLock_);
     if (waitingAbilityQueue_.empty()) {
         return;

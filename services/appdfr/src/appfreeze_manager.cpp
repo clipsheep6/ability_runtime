@@ -425,6 +425,7 @@ std::string AppfreezeManager::CatchJsonStacktrace(int pid, const std::string& fa
     std::string msg;
     size_t defaultMaxFaultNum = 256;
     if (!dumplog.DumpCatch(pid, 0, msg, defaultMaxFaultNum, true)) {
+        TAG_LOGI(AAFwkTag::APPDFR, "appfreeze catch stack failed");
         FindStackByPid(ret, pid, msg);
     } else {
         ret = msg;

@@ -134,7 +134,7 @@ const std::shared_ptr<StartupConfig>& StartupManager::GetDefaultConfig() const
 
 int32_t StartupManager::RemoveAllResult()
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     for (auto &iter : startupTasks_) {
         if (iter.second != nullptr) {
             iter.second->RemoveResult();

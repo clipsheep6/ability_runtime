@@ -453,7 +453,6 @@ bool AppSpawnClient::VerifyMsg(const AppSpawnStartMsg &startMsg)
     return true;
 }
 
-// 预启动
 int32_t AppSpawnClient::PreStartNWebSpawnProcess()
 {
     TAG_LOGI(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess");
@@ -465,7 +464,7 @@ int32_t AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
     TAG_LOGI(AAFwkTag::APPMGR, "StartProcess");
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!VerifyMsg(startMsg)) {
-        return ERR_INVALID_VALUE;  // 入参非法
+        return ERR_INVALID_VALUE;
     }
 
     int32_t ret = 0;
@@ -510,9 +509,9 @@ int32_t AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
     int32_t ret = 0;
     AppSpawnReqMsgHandle reqHandle = nullptr;
 
-    // 入参校验
+    // check parameters
     if (!VerifyMsg(startMsg)) {
-        return ERR_INVALID_VALUE;  // 入参非法
+        return ERR_INVALID_VALUE;
     }
 
     ret = OpenConnection();

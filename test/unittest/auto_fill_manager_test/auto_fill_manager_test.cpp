@@ -253,5 +253,57 @@ HWTEST_F(AutoFillManagerTest, IsNeedToCreatePopupWindow_0100, TestSize.Level1)
     isPopupAutoFill = manager.IsNeedToCreatePopupWindow(AbilityBase::AutoFillType::PERSON_FULL_NAME);
     EXPECT_EQ(isPopupAutoFill, true);
 }
+
+/*
+ * Feature: AutoFillManager
+ * Function: CloseUIExtension
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: test when extensionCallback is not nullptr.
+ */
+HWTEST_F(AutoFillManagerTest, CloseUIExtension_0100, TestSize.Level1)
+{
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
+    uint32_t autoFillSessionId = 0;
+    auto extensionCallback = std::make_shared<AbilityRuntime::AutoFillExtensionCallback>();
+    manager.extensionCallbacks_.emplace(autoFillSessionId, extensionCallback);
+    manager.CloseUIExtension(autoFillSessionId);
+    manager.extensionCallbacks_.clear();
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: CloseUIExtension
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: test when extensionCallback is nullptr.
+ */
+HWTEST_F(AutoFillManagerTest, CloseUIExtension_0200, TestSize.Level1)
+{
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
+    uint32_t autoFillSessionId = 0;
+    manager.CloseUIExtension(autoFillSessionId);
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: BindModalUIExtensionCallback
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: test BindModalUIExtensionCallback.
+ */
+HWTEST_F(AutoFillManagerTest, BindModalUIExtensionCallback_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRuntime::AutoFillExtensionCallback> extensionCallback;
+    Ace::ModalUIExtensionCallbacks callback;
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
+    manager.BindModalUIExtensionCallback(extensionCallback, callback);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

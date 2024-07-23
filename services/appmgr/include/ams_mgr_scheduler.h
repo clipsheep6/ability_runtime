@@ -154,6 +154,17 @@ public:
     virtual int32_t KillApplication(const std::string &bundleName,  const bool clearPageStack = true) override;
 
     /**
+     * ForceKillApplication, force kill the application.
+     *
+     * @param  bundleName, bundle name in Application record.
+     * @param  userId, userId.
+     * @param  appIndex, appIndex.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t ForceKillApplication(const std::string &bundleName, const int userId = -1,
+        const int appIndex = 0) override;
+
+    /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.

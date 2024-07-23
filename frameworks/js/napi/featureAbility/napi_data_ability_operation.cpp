@@ -51,7 +51,7 @@ napi_value DataAbilityOperationInit(napi_env env, napi_value exports)
 napi_value UnwrapDataAbilityOperation(
     std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         TAG_LOGE(AAFwkTag::FA, "%{public}s, Params is invalid.", __func__);
         return nullptr;
@@ -149,7 +149,7 @@ napi_value BuildDataAbilityOperation(
 bool GetDataAbilityOperationBuilder(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, const int type, const std::shared_ptr<Uri> &uri)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     switch (type) {
         case DataAbilityOperation::TYPE_INSERT:
             builder = DataAbilityOperation::NewInsertBuilder(uri);
@@ -173,7 +173,7 @@ bool GetDataAbilityOperationBuilder(
 napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env,
     napi_value valueBucketParam)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     napi_value result;
 
     if (param == nullptr) {
@@ -190,7 +190,7 @@ napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &pa
 napi_value UnwrapDataAbilityPredicatesBackReferences(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, napi_env env, napi_value predicatesBackReferencesParam)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
 
     if (!IsTypeForNapiValue(env, predicatesBackReferencesParam, napi_object)) {
         TAG_LOGE(AAFwkTag::FA, "%{public}s, predicatesBackReferencesParam is invalid.", __func__);

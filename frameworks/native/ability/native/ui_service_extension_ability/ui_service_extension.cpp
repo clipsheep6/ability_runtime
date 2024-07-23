@@ -74,5 +74,43 @@ std::shared_ptr<UIServiceExtensionContext> UIServiceExtension::CreateAndInitCont
     }
     return context;
 }
+
+#ifdef SUPPORT_GRAPHICS
+sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want &want,
+    const std::shared_ptr< Rosen::ExtensionWindowConfig>& extensionWindowConfig,
+    const sptr<AAFwk::SessionInfo>& sessionInfo)
+{
+    auto option = sptr<Rosen::WindowOption>::MakeSptr();
+    if (option == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Option is null.");
+        return nullptr;
+    }
+    if (extensionWindowConfig->windowAttribute == Rosen::ExtensionWindowAttribute::SUB_WINDOW) {
+        option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_APP_SUB_WINDOW);
+        option->SetParentId(sessionInfo->hostWindowId);
+        option->SetExtensionTag(true);
+        option->SetSubWindowTitle(extensionWindowConfig->subWindowOptions.title);
+        option->SetSubWindowDecorEnable(extensionWindowConfig->subWindowOptions.decorEnabled);
+        if (extensionWindowConfig->subWindowOptions.isModal) {
+            option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_IS_MODAL);
+            if (extensionWindowConfig->subWindowOptions.isTopmost) {
+                option->SetWindowTopmost(true);
+            }
+        }
+    } else if (extensionWindowConfig->windowAttribute == Rosen::ExtensionWindowAttribute::SYSTEM_WINDOW) {
+        Rosen::WindowType winType;
+        if (Rosen::ParseSystemWindowTypeForApiWindowType(
+            extensionWindowConfig->systemWindowOptions.windowType, winType)) {
+            option->SetWindowType(winType);
+        } else {
+            TAG_LOGE(AAFwkTag::UIABILITY, "ParseSystemWindowTypeForApiWindowType error");
+            return nullptr;
+        }
+    }
+    option->SetWindowMode(Rosen::WindowMode::WINDOW_MODE_FLOATING);
+    option->SetWindowRect(extensionWindowConfig->windowRect);
+    return option;
+}
+#endif
 }
 }

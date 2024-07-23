@@ -453,7 +453,7 @@ void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int st
 
 bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     auto callback = std::make_unique<InsightIntentExecutorAsyncCallback>();
     callback.reset(InsightIntentExecutorAsyncCallback::Create());
     if (callback == nullptr) {
@@ -507,7 +507,7 @@ bool JsServiceExtension::GetInsightIntentExecutorInfo(const Want &want,
     const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
     InsightIntentExecutorInfo &executorInfo)
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     auto context = GetContext();
     if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
         TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
@@ -735,7 +735,7 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
 
 void JsServiceExtension::ConfigurationUpdated()
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
 

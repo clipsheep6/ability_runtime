@@ -30,6 +30,7 @@ namespace AAFwk {
 namespace {
 constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
 constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
+constexpr int32_t ERMS_ISALLOW_RESULTCODE = 10;
 constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr int32_t BROKER_UID = 5557;
 }
@@ -38,6 +39,8 @@ thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityI
 thread_local bool StartAbilityUtils::skipCrowTest = false;
 thread_local bool StartAbilityUtils::skipStartOther = false;
 thread_local bool StartAbilityUtils::skipErms = false;
+thread_local int32_t StartAbilityUtils::ermsResultCode = ERMS_ISALLOW_RESULTCODE;
+thread_local bool StartAbilityUtils::isWantWithAppCloneIndex = false;
 
 bool StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken, int32_t &appIndex)
 {
@@ -47,6 +50,7 @@ bool StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> caller
         appIndex = abilityRecord->GetAppIndex();
         return true;
     }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "appCloneIndex: %{public}d.", want.GetIntParam(Want::PARAM_APP_CLONE_INDEX_KEY, 0));
     return AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex);
 }
 
@@ -116,6 +120,15 @@ int32_t StartAbilityUtils::CheckAppProvisionMode(const Want& want, int32_t userI
     return ERR_OK;
 }
 
+std::vector<int32_t> StartAbilityUtils::GetCloneAppIndexes(const std::string &bundleName, int32_t userId)
+{
+    std::vector<int32_t> appIndexes;
+    auto bms = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bms, appIndexes);
+    IN_PROCESS_CALL_WITHOUT_RET(bms->GetCloneAppIndexes(bundleName, appIndexes, userId));
+    return appIndexes;
+}
+
 StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
     const sptr<IRemoteObject> &callerToken, bool isExtension)
 {
@@ -154,6 +167,13 @@ StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId
         TAG_LOGW(AAFwkTag::ABILITYMGR, "callerAbilityInfo has been created");
     }
     StartAbilityUtils::callerAbilityInfo = StartAbilityInfo::CreateCallerAbilityInfo(callerToken);
+
+    StartAbilityUtils::ermsResultCode = ERMS_ISALLOW_RESULTCODE;
+    StartAbilityUtils::isWantWithAppCloneIndex = false;
+    if (want.HasParameter(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY) && appIndex >= 0 &&
+        appIndex < AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        StartAbilityUtils::isWantWithAppCloneIndex = true;
+    }
 }
 
 StartAbilityInfoWrap::~StartAbilityInfoWrap()
@@ -163,6 +183,8 @@ StartAbilityInfoWrap::~StartAbilityInfoWrap()
     StartAbilityUtils::skipCrowTest = false;
     StartAbilityUtils::skipStartOther = false;
     StartAbilityUtils::skipErms = false;
+    StartAbilityUtils::ermsResultCode = ERMS_ISALLOW_RESULTCODE;
+    StartAbilityUtils::isWantWithAppCloneIndex = false;
 }
 
 std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const Want &want, int32_t userId,

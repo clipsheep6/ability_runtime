@@ -48,16 +48,17 @@ uint32_t GetU32Data(const char* ptr)
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = GetU32Data(data) % (static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID) + 1);
-
-    MessageParcel parcel;
-    parcel.WriteInterfaceToken(APPMGR_INTERFACE_TOKEN);
-    parcel.WriteBuffer(data, size);
-    parcel.RewindRead(0);
-    MessageParcel reply;
-    MessageOption option;
-    std::shared_ptr<AppMgrService> appMgr = std::make_shared<AppMgrService>();
-    appMgr->OnRemoteRequest(code, parcel, reply, option);
+    for (uint32_t code = 0;
+        code <= static_cast<uint32_t>(AppMgrInterfaceCode::RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB); ++code) {
+        MessageParcel parcel;
+        parcel.WriteInterfaceToken(APPMGR_INTERFACE_TOKEN);
+        parcel.WriteBuffer(data, size);
+        parcel.RewindRead(0);
+        MessageParcel reply;
+        MessageOption option;
+        std::shared_ptr<AppMgrService> appMgr = std::make_shared<AppMgrService>();
+        appMgr->OnRemoteRequest(code, parcel, reply, option);
+    }
 
     return true;
 }

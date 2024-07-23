@@ -66,19 +66,19 @@ napi_value JsPhotoEditorExtensionContext::CreateJsPhotoEditorExtensionContext(
 
 napi_value JsPhotoEditorExtensionContext::SaveEditedContentWithUri(napi_env env, napi_callback_info info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "SaveEditedContentWithUri is called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     GET_NAPI_INFO_AND_CALL(env, info, JsPhotoEditorExtensionContext, OnSaveEditedContentWithUri);
 }
 
 napi_value JsPhotoEditorExtensionContext::SaveEditedContentWithImage(napi_env env, napi_callback_info info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "SaveEditedContentWithImage is called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     GET_NAPI_INFO_AND_CALL(env, info, JsPhotoEditorExtensionContext, OnSaveEditedContentWithImage);
 }
 
 napi_value JsPhotoEditorExtensionContext::OnSaveEditedContentWithUri(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "OnSaveEditedContentWithUri is called: param size: %{public}d.",
+    TAG_LOGD(AAFwkTag::UI_EXT, "called: param size: %{public}d.",
              static_cast<int32_t>(info.argc));
 
     if (info.argc != ARGC_TWO) {

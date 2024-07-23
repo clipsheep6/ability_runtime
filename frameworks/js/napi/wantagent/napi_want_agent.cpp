@@ -1176,6 +1176,7 @@ napi_value JsWantAgent::OnNapiGetWant(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnNapiTrigger(napi_env env, napi_callback_info info)
 {
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);

@@ -182,14 +182,14 @@ void AppScheduler::KillProcessesByUserId(int32_t userId)
 
 void AppScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->KillProcessesByPids(pids);
 }
 
 void AppScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->AttachPidToParent(token, callerToken);
 }
@@ -252,6 +252,20 @@ int AppScheduler::KillApplication(const std::string &bundleName, const bool clea
     int ret = (int)appMgrClient_->KillApplication(bundleName, clearPageStack);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to kill application.");
+        return INNER_ERR;
+    }
+
+    return ERR_OK;
+}
+
+int AppScheduler::ForceKillApplication(const std::string &bundleName,
+    const int userId, const int appIndex)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    int ret = (int)appMgrClient_->ForceKillApplication(bundleName, userId, appIndex);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to force kill application.");
         return INNER_ERR;
     }
 
@@ -596,14 +610,14 @@ bool AppScheduler::IsMemorySizeSufficent() const
 
 void AppScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->AttachedToStatusBar(token);
 }
 
 void AppScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->BlockProcessCacheByPids(pids);
 }

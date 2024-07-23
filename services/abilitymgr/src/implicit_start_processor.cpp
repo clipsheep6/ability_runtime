@@ -25,12 +25,14 @@
 #include "errors.h"
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
 #include "event_report.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
 #include "scene_board_judgement.h"
 #include "start_ability_utils.h"
+#include "startup_util.h"
 #include "want.h"
 
 namespace OHOS {
@@ -86,7 +88,8 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
     return false;
 }
 
-int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode)
+int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode,
+    const std::string &replaceWantString, bool isAppCloneSelector)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "implicit start ability by type: %{public}d", request.callType);
@@ -96,9 +99,14 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     std::vector<DialogAppInfo> dialogAppInfos;
     request.want.RemoveParam(APP_CLONE_INDEX);
     bool findDefaultApp = false;
-    auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, false, findDefaultApp);
+    int32_t ret = ERR_OK;
+    if (isAppCloneSelector) {
+        ret = GenerateAbilityRequestByAppIndexes(userId, request, dialogAppInfos);
+    } else {
+        ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, false, findDefaultApp);
+    }
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request failed.");
         return ret;
     }
     AbilityUtil::WantSetParameterWindowMode(request.want, windowMode);
@@ -136,7 +144,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         if (want.GetBoolParam("isCreateAppGallerySelector", false)) {
             want.RemoveParam("isCreateAppGallerySelector");
-            DialogSessionManager::GetInstance().CreateSelectorModalDialog(request, want, userId, dialogAppInfos);
+            DialogSessionManager::GetInstance().CreateImplicitSelectorModalDialog(request, want, userId,
+                dialogAppInfos);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         TAG_LOGE(AAFwkTag::ABILITYMGR, "implicit query ability infos failed, show tips dialog.");
@@ -153,7 +162,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         if (want.GetBoolParam("isCreateAppGallerySelector", false)) {
             want.RemoveParam("isCreateAppGallerySelector");
-            DialogSessionManager::GetInstance().CreateSelectorModalDialog(request, want, userId, dialogAppInfos);
+            DialogSessionManager::GetInstance().CreateImplicitSelectorModalDialog(request, want, userId,
+                dialogAppInfos);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         std::vector<DialogAppInfo> dialogAllAppInfos;
@@ -206,7 +216,12 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         if (want.GetBoolParam("isCreateAppGallerySelector", false)) {
             want.RemoveParam("isCreateAppGallerySelector");
-            return DialogSessionManager::GetInstance().CreateSelectorModalDialog(request, want, userId, dialogAppInfos);
+            if (isAppCloneSelector) {
+                return DialogSessionManager::GetInstance().CreateCloneSelectorModalDialog(request, want,
+                    userId, dialogAppInfos, replaceWantString);
+            }
+            return DialogSessionManager::GetInstance().CreateImplicitSelectorModalDialog(request,
+                want, userId, dialogAppInfos);
         }
         ret = abilityMgr->ImplicitStartAbilityAsCaller(request.want, request.callerToken, nullptr);
         // reset calling indentity
@@ -225,7 +240,12 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     }
     if (want.GetBoolParam("isCreateAppGallerySelector", false)) {
         want.RemoveParam("isCreateAppGallerySelector");
-        return DialogSessionManager::GetInstance().CreateSelectorModalDialog(request, want, userId, dialogAppInfos);
+        if (isAppCloneSelector) {
+            return DialogSessionManager::GetInstance().CreateCloneSelectorModalDialog(request, want, userId,
+                dialogAppInfos, replaceWantString);
+        }
+        return DialogSessionManager::GetInstance().CreateImplicitSelectorModalDialog(request, want, userId,
+            dialogAppInfos);
     }
     ret = abilityMgr->ImplicitStartAbilityAsCaller(request.want, request.callerToken, nullptr);
     // reset calling indentity
@@ -446,10 +466,76 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         dialogAppInfo.bundleIconId = info.applicationInfo.iconId;
         dialogAppInfo.bundleLabelId = info.applicationInfo.labelId;
         dialogAppInfo.visible = info.visible;
+        dialogAppInfo.appIndex = info.applicationInfo.appIndex;
+        dialogAppInfo.multiAppMode = info.applicationInfo.multiAppMode;
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
 
     return ERR_OK;
+}
+
+int ImplicitStartProcessor::GenerateAbilityRequestByAppIndexes(int32_t userId, AbilityRequest &request,
+    std::vector<DialogAppInfo> &dialogAppInfos)
+{
+    auto appIndexes = StartAbilityUtils::GetCloneAppIndexes(request.want.GetBundle(), userId);
+    if (appIndexes.size() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The size of appIndexes is too large.");
+        return ERR_INVALID_VALUE;
+    }
+    auto bms = GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
+    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
+    abilityInfos.emplace_back(request.abilityInfo);
+    for (auto &appIndex: appIndexes) {
+        AppExecFwk::AbilityInfo abilityInfo;
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(request.want.GetElement(), abilityInfoFlag, appIndex,
+            abilityInfo, userId));
+        if (abilityInfo.name.empty() || abilityInfo.bundleName.empty()) {
+            int32_t ret = FindExtensionInfo(request.want, abilityInfoFlag, userId, appIndex, abilityInfo);
+            if (ret != ERR_OK) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "query clone extension info failed.");
+                return ret;
+            }
+        }
+        abilityInfos.emplace_back(abilityInfo);
+    }
+    for (const auto &info : abilityInfos) {
+        DialogAppInfo dialogAppInfo;
+        dialogAppInfo.abilityName = info.name;
+        dialogAppInfo.bundleName = info.bundleName;
+        dialogAppInfo.moduleName = info.moduleName;
+        dialogAppInfo.abilityIconId = info.iconId;
+        dialogAppInfo.abilityLabelId = info.labelId;
+        dialogAppInfo.bundleIconId = info.applicationInfo.iconId;
+        dialogAppInfo.bundleLabelId = info.applicationInfo.labelId;
+        dialogAppInfo.visible = info.visible;
+        dialogAppInfo.appIndex = info.applicationInfo.appIndex;
+        dialogAppInfo.multiAppMode = info.applicationInfo.multiAppMode;
+        dialogAppInfos.emplace_back(dialogAppInfo);
+    }
+    return ERR_OK;
+}
+
+int ImplicitStartProcessor::FindExtensionInfo(const Want &want, int32_t flags, int32_t userId,
+    int32_t appIndex, AppExecFwk::AbilityInfo &abilityInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto bms = GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    AppExecFwk::ExtensionAbilityInfo extensionInfo;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneExtensionAbilityInfoWithAppIndex(want.GetElement(),
+        flags, appIndex, extensionInfo, userId));
+    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionInfo empty.");
+        return RESOLVE_ABILITY_ERR;
+    }
+    if (AbilityRuntime::StartupUtil::IsSupportAppClone(extensionInfo.type)) {
+        AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, abilityInfo);
+        return ERR_OK;
+    }
+    return ERR_APP_CLONE_INDEX_INVALID;
 }
 
 int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t userId,
@@ -489,6 +575,9 @@ int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t us
             dialogAppInfo.abilityLabelId = abilityInfo.labelId;
             dialogAppInfo.bundleIconId = abilityInfo.applicationInfo.iconId;
             dialogAppInfo.bundleLabelId = abilityInfo.applicationInfo.labelId;
+            dialogAppInfo.visible = abilityInfo.visible;
+            dialogAppInfo.appIndex = abilityInfo.applicationInfo.appIndex;
+            dialogAppInfo.multiAppMode = abilityInfo.applicationInfo.multiAppMode;
             dialogAppInfos.emplace_back(dialogAppInfo);
         }
     }
@@ -720,6 +809,8 @@ void ImplicitStartProcessor::AddAbilityInfoToDialogInfos(const AddInfoParam &par
     dialogAppInfo.bundleIconId = param.info.applicationInfo.iconId;
     dialogAppInfo.bundleLabelId = param.info.applicationInfo.labelId;
     dialogAppInfo.visible = param.info.visible;
+    dialogAppInfo.appIndex = param.info.applicationInfo.appIndex;
+    dialogAppInfo.multiAppMode = param.info.applicationInfo.multiAppMode;
     dialogAppInfos.emplace_back(dialogAppInfo);
 }
 

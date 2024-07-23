@@ -224,7 +224,7 @@ bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
 bool ProcessSyncInput(napi_env &env, napi_callback_info info, bool isStart,
     SyncRemoteMissionsContext* syncContext, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s,called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     size_t argc = 2;
     napi_value argv[2] = { nullptr };
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -255,7 +255,7 @@ bool ProcessSyncInput(napi_env &env, napi_callback_info info, bool isStart,
 void StartSyncRemoteMissionsAsyncWork(napi_env &env, const napi_value resourceName,
     SyncRemoteMissionsContext* syncContext)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void* data) {
             SyncRemoteMissionsContext* syncContext = (SyncRemoteMissionsContext*)data;
@@ -300,7 +300,7 @@ void StartSyncRemoteMissionsAsyncWork(napi_env &env, const napi_value resourceNa
 
 napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     auto syncContext = new SyncRemoteMissionsContext();
     if (!ProcessSyncInput(env, info, true, syncContext, errInfo)) {
@@ -328,7 +328,7 @@ napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 void StopSyncRemoteMissionsAsyncWork(napi_env &env, napi_value resourceName,
     SyncRemoteMissionsContext* syncContext)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void* data) {
             SyncRemoteMissionsContext* syncContext = (SyncRemoteMissionsContext*)data;
@@ -372,7 +372,7 @@ void StopSyncRemoteMissionsAsyncWork(napi_env &env, napi_value resourceName,
 
 napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     auto syncContext = new SyncRemoteMissionsContext();
     if (!ProcessSyncInput(env, info, false, syncContext, errInfo)) {
@@ -399,7 +399,7 @@ napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
 
 RegisterMissionCB *CreateRegisterMissionCBCBInfo(napi_env &env)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s registerMissionCB == nullptr", __func__);
@@ -415,7 +415,7 @@ RegisterMissionCB *CreateRegisterMissionCBCBInfo(napi_env &env)
 
 OnCB *CreateOnCBCBInfo(napi_env &env)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto onCB = new (std::nothrow) OnCB;
     if (onCB == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s onCB == nullptr", __func__);
@@ -431,7 +431,7 @@ OnCB *CreateOnCBCBInfo(napi_env &env)
 
 void RegisterMissionExecuteCB(napi_env env, void *data)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto registerMissionCB = (RegisterMissionCB*)data;
 
     std::lock_guard<std::mutex> autoLock(registrationLock_);
@@ -473,7 +473,7 @@ void RegisterMissionExecuteCB(napi_env env, void *data)
 
 void RegisterMissionCallbackCompletedCB(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto registerMissionCB = static_cast<RegisterMissionCB *>(data);
     // set result
     napi_value result[2] = { nullptr };
@@ -540,7 +540,7 @@ napi_value RegisterMissionAsync(napi_env env, RegisterMissionCB *registerMission
 
 bool CheckMissionCallbackProperty(napi_env &env, const napi_value &value, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     bool isFirstCallback = false;
     napi_has_named_property(env, value, "notifyMissionsChanged", &isFirstCallback);
     bool isSecondCallback = false;
@@ -559,7 +559,7 @@ bool CheckMissionCallbackProperty(napi_env &env, const napi_value &value, std::s
 bool SetCallbackReference(napi_env &env, const napi_value &value,
     RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     if (!CheckMissionCallbackProperty(env, value, errInfo)) {
         return false;
     }
@@ -612,7 +612,7 @@ bool SetCallbackReference(napi_env &env, const napi_value &value,
 bool CreateCallbackReference(napi_env &env, const napi_value &value,
     RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, value, &valuetype);
     if (valuetype == napi_object) {
@@ -632,7 +632,7 @@ bool CreateCallbackReference(napi_env &env, const napi_value &value,
 bool CreateOnCallbackReference(napi_env &env, const napi_value &jsMethod,
     OnCB *onCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, jsMethod, &valuetype);
     if (valuetype != napi_function) {
@@ -710,7 +710,7 @@ bool OnWrapType(napi_env &env, napi_value &argc,
 napi_value RegisterMissionWrap(napi_env &env, napi_callback_info info,
     RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     size_t argcAsync = 3;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
@@ -745,7 +745,7 @@ napi_value RegisterMissionWrap(napi_env &env, napi_callback_info info,
 
 void OnExecuteCB(napi_env &env, OnCB *onCB)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::lock_guard<std::mutex> autoLock(onLock_);
     sptr<NAPIRemoteOnListener> registrationOfOn;
     auto item = registrationOfOn_.find(onCB->type);
@@ -790,7 +790,7 @@ void OnExecuteCB(napi_env &env, OnCB *onCB)
 napi_value OnWrap(napi_env &env, napi_callback_info info,
     OnCB *onCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     size_t argcAsync = 2;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
@@ -823,7 +823,7 @@ napi_value OnWrap(napi_env &env, napi_callback_info info,
 
 void OffExecuteCB(napi_env env, OnCB *onCB)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::lock_guard<std::mutex> autoLock(onLock_);
     sptr<NAPIRemoteOnListener> registrationOfOn;
     auto item = registrationOfOn_.find(onCB->type);
@@ -851,7 +851,7 @@ void OffExecuteCB(napi_env env, OnCB *onCB)
 napi_value OffWrap(napi_env &env, napi_callback_info info,
     OnCB *onCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     size_t argcAsync = 2;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
@@ -883,7 +883,7 @@ napi_value OffWrap(napi_env &env, napi_callback_info info,
 
 napi_value NAPI_RegisterMissionListener(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     RegisterMissionCB *registerMissionCB = CreateRegisterMissionCBCBInfo(env);
     if (registerMissionCB == nullptr) {
@@ -906,7 +906,7 @@ napi_value NAPI_RegisterMissionListener(napi_env env, napi_callback_info info)
 
 napi_value NAPI_On(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     OnCB *onCB = CreateOnCBCBInfo(env);
     if (onCB == nullptr) {
@@ -929,7 +929,7 @@ napi_value NAPI_On(napi_env env, napi_callback_info info)
 
 napi_value NAPI_Off(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     OnCB *onCB = CreateOnCBCBInfo(env);
     if (onCB == nullptr) {
@@ -952,7 +952,7 @@ napi_value NAPI_Off(napi_env env, napi_callback_info info)
 
 napi_value NAPI_ContinueState(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_value continueState = nullptr;
     napi_create_object(env, &continueState);
     napi_value active = nullptr;
@@ -1136,7 +1136,7 @@ void UvWorkOnCallback(uv_work_t *work, int status)
 
 void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string &deviceId)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     uv_loop_s *loop = nullptr;
 
     napi_get_uv_event_loop(env_, &loop);
@@ -1171,7 +1171,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string &deviceI
 void NAPIRemoteOnListener::OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
     const std::string &bundleName, const std::string &continueType, const std::string &srcBundleName)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     uv_loop_s *loop = nullptr;
 
     napi_get_uv_event_loop(env_, &loop);
@@ -1211,7 +1211,7 @@ void NAPIRemoteOnListener::OnCallback(const uint32_t continueState, const std::s
 
 void UvWorkNotifySnapshot(uv_work_t *work, int status)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "UvWorkNotifySnapshot enter, uv_queue_work");
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     if (work == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "UvWorkNotifySnapshot, work is null");
         return;
@@ -1366,7 +1366,7 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string &deviceId,
 
 void UnRegisterMissionExecuteCB(napi_env env, void *data)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto registerMissionCB = (RegisterMissionCB*)data;
 
     std::lock_guard<std::mutex> autoLock(registrationLock_);
@@ -1395,7 +1395,7 @@ void UnRegisterMissionExecuteCB(napi_env env, void *data)
 
 void UnRegisterMissionPromiseCompletedCB(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto registerMissionCB = (RegisterMissionCB*)data;
     // set result
     napi_value result[2] = { nullptr };
@@ -1445,7 +1445,7 @@ napi_value UnRegisterMissionPromise(napi_env env, RegisterMissionCB *registerMis
 bool GetUnRegisterMissionDeviceId(napi_env &env, const napi_value &value,
     RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_value napiDeviceId = nullptr;
     napi_valuetype valueType = napi_undefined;
     bool isDeviceId = false;
@@ -1487,7 +1487,7 @@ bool GetUnRegisterMissionDeviceId(napi_env &env, const napi_value &value,
 napi_value UnRegisterMissionWrap(napi_env &env, napi_callback_info info,
     RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     size_t argc = 2;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = nullptr;
@@ -1522,7 +1522,7 @@ napi_value UnRegisterMissionWrap(napi_env &env, napi_callback_info info,
 
 napi_value NAPI_UnRegisterMissionListener(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     RegisterMissionCB *registerMissionCB = CreateRegisterMissionCBCBInfo(env);
     if (registerMissionCB == nullptr) {
@@ -1545,7 +1545,7 @@ napi_value NAPI_UnRegisterMissionListener(napi_env env, napi_callback_info info)
 
 napi_value WrapString(napi_env &env, const std::string &param, const std::string &paramName)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
 
     napi_value jsValue = nullptr;
     TAG_LOGD(AAFwkTag::MISSION, "%{public}s called. %{public}s = %{public}s",
@@ -1557,7 +1557,7 @@ napi_value WrapString(napi_env &env, const std::string &param, const std::string
 
 napi_value WrapInt32(napi_env &env, int32_t num, const std::string &paramName)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
 
     napi_value jsObject = nullptr;
     napi_create_object(env, &jsObject);
@@ -1582,7 +1582,7 @@ napi_value CreateInt32(napi_env &env, int32_t num, const std::string &paramName)
 
 ContinueAbilityCB *CreateContinueAbilityCBCBInfo(napi_env &env)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto continueAbilityCB = new (std::nothrow) ContinueAbilityCB;
     if (continueAbilityCB == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s continueAbilityCB == nullptr", __func__);
@@ -1598,7 +1598,7 @@ ContinueAbilityCB *CreateContinueAbilityCBCBInfo(napi_env &env)
 
 void ContinueAbilityExecuteCB(napi_env env, void *data)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto continueAbilityCB = static_cast<ContinueAbilityCB *>(data);
     TAG_LOGI(AAFwkTag::MISSION, "create continueAbilityCB success.");
     sptr<NAPIMissionContinue> continuation(new (std::nothrow) NAPIMissionContinue());
@@ -1642,7 +1642,7 @@ void ContinueAbilityExecuteCB(napi_env env, void *data)
 
 void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     auto continueAbilityCB = static_cast<ContinueAbilityCB *>(data);
     // set result
     napi_value result[2] = { nullptr };
@@ -1819,7 +1819,7 @@ bool CheckContinueDeviceInfoWantParam(napi_env &env, napi_value &napiWantParam,
 bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     if (!CheckContinueKeyExist(env, value)) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Wrong argument key.", __func__);
         errInfo = "Parameter error. The type of \"parameter\" must be ContinueMission";
@@ -1860,7 +1860,7 @@ bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
 bool CheckArgsWithBundleName(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     if (!CheckBundleNameExist(env, value)) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Args without bundleName.", __func__);
         return false;
@@ -1899,7 +1899,7 @@ bool CheckArgsWithBundleName(napi_env &env, const napi_value &value,
 bool CheckContinueCallback(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_value jsMethod = nullptr;
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, value, &valuetype);
@@ -1935,7 +1935,7 @@ bool CheckContinueCallback(napi_env &env, const napi_value &value,
 bool CheckContinueCallbackWithBundleName(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, value, &valueType);
     if (valueType != napi_function) {
@@ -1951,7 +1951,7 @@ bool CheckContinueCallbackWithBundleName(napi_env &env, const napi_value &value,
 napi_value ContinueAbilityWrap(napi_env &env, napi_callback_info info,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     size_t argcAsync = 3;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = nullptr;
@@ -2006,7 +2006,7 @@ napi_value ContinueAbilityWrap(napi_env &env, napi_callback_info info,
 
 napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     std::string errInfo = "Parameter error";
     ContinueAbilityCB *continueAbilityCB = CreateContinueAbilityCBCBInfo(env);
     if (continueAbilityCB == nullptr) {

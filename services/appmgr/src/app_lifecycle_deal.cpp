@@ -285,7 +285,7 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
     const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
@@ -296,7 +296,7 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
 
 int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
@@ -307,7 +307,7 @@ int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
 
 int32_t AppLifeCycleDeal::ChangeAppGcState(int32_t state)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
@@ -382,6 +382,17 @@ int AppLifeCycleDeal::DumpIpcStat(std::string& result)
     return appThread->ScheduleDumpIpcStat(result);
 }
 
+void AppLifeCycleDeal::ScheduleCacheProcess()
+{
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
+        return;
+    }
+
+    appThread->ScheduleCacheProcess();
+}
+
 int AppLifeCycleDeal::DumpFfrt(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
@@ -393,17 +404,6 @@ int AppLifeCycleDeal::DumpFfrt(std::string& result)
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appThread->ScheduleDumpFfrt(result);
-}
-
-void AppLifeCycleDeal::ScheduleCacheProcess()
-{
-    auto appThread = GetApplicationClient();
-    if (!appThread) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
-        return;
-    }
-
-    appThread->ScheduleCacheProcess();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

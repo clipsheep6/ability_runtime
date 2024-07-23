@@ -34,7 +34,7 @@ AbilityExperienceRule *AbilityExperienceRule::Unmarshalling(Parcel &in)
         return nullptr;
     }
 
-    if (!in.ReadBool(rule->isAllow)) {
+    if (!in.ReadInt32(rule->resultCode)) {
         delete rule;
         return nullptr;
     }
@@ -51,8 +51,8 @@ AbilityExperienceRule *AbilityExperienceRule::Unmarshalling(Parcel &in)
 
 bool AbilityExperienceRule::Marshalling(Parcel &parcel) const
 {
-    if (!parcel.WriteBool(isAllow)) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write isAllow failed");
+    if (!parcel.WriteInt32(resultCode)) {
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write resultCode failed");
         return false;
     }
 

@@ -30,6 +30,8 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_ui_service_extension_context.h"
+#include "js_window_stage.h"
+#include "js_window.h"
 #include "js_ui_service_host_proxy.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -41,7 +43,6 @@
 #include "session_info.h"
 #include "ui_service_extension_connection_constants.h"
 #include "window_scene.h"
-#include "js_window_stage.h"
 #include "wm_common.h"
 #include "window.h"
 #ifdef SUPPORT_GRAPHICS
@@ -250,6 +251,45 @@ void JsUIServiceExtension::OnStart(const AAFwk::Want &want)
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
 }
 
+void JsUIServiceExtension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    Extension::OnStart(want, sessionInfo);
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "call");
+
+    auto context = GetContext();
+    if (context != nullptr) {
+        int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
+        TAG_LOGD(AAFwkTag::UISERVC_EXT, "displayId %{public}d", displayId);
+        auto configUtils = std::make_shared<ConfigurationUtils>();
+        configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = jsRuntime_.GetNapiEnv();
+
+    // display config has changed, need update context.config
+    if (context != nullptr) {
+        JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
+    }
+
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value argv[] = {napiWant};
+    CallObjectMethod("onCreate", argv, ARGC_ONE);
+#ifdef SUPPORT_GRAPHICS
+    auto extensionWindowConfig = std::make_shared<Rosen::ExtensionWindowConfig>();
+    OnSceneWillCreated(extensionWindowConfig);
+    auto option = GetWindowOption(want, extensionWindowConfig, sessionInfo);
+    sptr<Rosen::Window> extensionWindow = Rosen::Window::Create(extensionWindowConfig->windowName, option, context);
+    if (extensionWindow != nullptr) {
+        OnSceneDidCreated(extensionWindow);
+        context->SetWindow(extensionWindow);
+    } else {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "extensionWindow is nullptr");
+    }
+#endif
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
+}
 
 void JsUIServiceExtension::OnStop()
 {
@@ -505,7 +545,7 @@ void JsUIServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuratio
 
 void JsUIServiceExtension::ConfigurationUpdated()
 {
-    TAG_LOGD(AAFwkTag::UISERVC_EXT, "called.");
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
 
@@ -598,6 +638,31 @@ void JsUIServiceExtension::OnChange(Rosen::DisplayId displayId)
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "finished.");
 }
 
+void JsUIServiceExtension::OnSceneWillCreated(std::shared_ptr<Rosen::ExtensionWindowConfig> extensionWindowConfig)
+{
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "OnSceneWillCreated call");
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+    auto jsExtensionWindowConfig = CreateJsExtensionWindowConfig(env, extensionWindowConfig);
+    if (jsExtensionWindowConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to create jsExtensionWindowConfig object.");
+        return;
+    }
+    napi_value argv[] = {jsExtensionWindowConfig};
+    CallObjectMethod("onWindowWillCreate", argv, ArraySize(argv));
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "End OnSceneWillCreated.");
+}
+
+void JsUIServiceExtension::OnSceneDidCreated(sptr<Rosen::Window>& window)
+{
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "OnSceneDidCreated call");
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+    napi_value jsWindow = Rosen::CreateJsWindowObject(env, window);
+    napi_value argv[] = {jsWindow};
+    CallObjectMethod("onWindowDidCreate", argv, ArraySize(argv));
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "End OnSceneDidCreated.");
+}
 #endif
 }
 } // OHOS

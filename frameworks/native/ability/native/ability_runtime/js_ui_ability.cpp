@@ -214,7 +214,7 @@ void JsUIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
 void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
     std::shared_ptr<AAFwk::Want> want, const std::string &moduleName, const std::string &srcPath)
 {
-    TAG_LOGI(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGI(AAFwkTag::UIABILITY, "called");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     jsAbilityObj_ = jsRuntime_.LoadModule(
@@ -510,7 +510,7 @@ void JsUIAbility::OnSceneRestored()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     UIAbility::OnSceneRestored();
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     HandleScope handleScope(jsRuntime_);
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
@@ -920,7 +920,7 @@ void JsUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
         TAG_LOGW(AAFwkTag::UIABILITY, "Intent execute param invalid.");
         RequestFocus(want);
@@ -960,7 +960,7 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
         TAG_LOGW(AAFwkTag::UIABILITY, "Intent execute param invalid.");
         OnForeground(want);
@@ -1005,7 +1005,7 @@ void JsUIAbility::ExecuteInsightIntentBackground(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
         TAG_LOGW(AAFwkTag::UIABILITY, "Intent execute param invalid.");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
@@ -1037,7 +1037,7 @@ bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     InsightIntentExecutorInfo& executeInfo)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 
     auto context = GetAbilityContext();
     if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
@@ -1067,7 +1067,7 @@ bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
 
 int32_t JsUIAbility::OnContinue(WantParams &wantParams)
 {
-    TAG_LOGI(AAFwkTag::UIABILITY, "OnContinue called.");
+    TAG_LOGI(AAFwkTag::UIABILITY, "called");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {

@@ -48,7 +48,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let phoneShowHapList = [];
     let jsonIconMap: Map<string, image.PixelMap> = new Map();
     for (let i = 1; i <= globalThis.params.hapList.length; i++) {
-      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i - 1]));
       await this.getHapResource(globalThis.params.hapList[i - 1], showHapList, jsonIconMap);
       if (i % lineNums === 0) {
         phoneShowHapList.push(showHapList);
@@ -65,7 +65,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let signalRowShowHapList = [];
     let signalRowPhoneShowHapList = [];
     for (let i = 1; i <= globalThis.params.hapList.length; i++) {
-      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i - 1]));
       await this.getHapResource(globalThis.params.hapList[i - 1], signalRowShowHapList, jsonIconMap);
       if (i % signalRowlineNums === 0) {
         signalRowPhoneShowHapList.push(signalRowShowHapList);
@@ -99,19 +99,30 @@ export default class SelectorServiceExtensionAbility extends extension {
     let appIcon = '';
     let type = '';
     let userId = Number('0');
+    let appIndex = Number(hap.appIndex);
     if (!globalThis.params.isDefaultSelector) {
       type = hap.type;
       userId = Number(hap.userId);
     }
     let lableId = Number(hap.label);
+    if (lableId === 0) {
+      lableId = Number(hap.bundleLabel);
+    }
     let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
     await moduleContext.resourceManager.getString(lableId).then(value => {
-      appName = value;
+      if (appIndex === 0) {
+        appName = value;
+      } else {
+        appName = value + hap.appIndex;
+      }
     }).catch(error => {
       console.error(TAG, 'getString error:' + JSON.stringify(error));
     });
 
     let iconId = Number(hap.icon);
+    if (iconId === 0) {
+      iconId = Number(hap.bundleIcon);
+    }
     await moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
       appIcon = value;
       if (appIcon.indexOf('image/json') > -1) {
@@ -123,7 +134,8 @@ export default class SelectorServiceExtensionAbility extends extension {
               <drawableDescriptor.LayeredDrawableDescriptor> imageDescriptor;
             let foregroundDescriptor: drawableDescriptor.DrawableDescriptor = layeredDrawableDescriptor.getForeground();
             if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
-              jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName, foregroundDescriptor.getPixelMap());
+              jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName + ':' + hap.appIndex,
+                foregroundDescriptor.getPixelMap());
             } else {
               console.error(TAG, 'get foregroundDescriptor is null');
             }
@@ -136,7 +148,7 @@ export default class SelectorServiceExtensionAbility extends extension {
       console.error(TAG, 'getMediaBase64 error:' + JSON.stringify(error));
     });
     showHapList.push(bundleName + '#' + abilityName + '#' + appName +
-      '#' + appIcon + '#' + moduleName + '#' + type + '#' + userId);
+      '#' + appIcon + '#' + moduleName + '#' + type + '#' + userId + '#' + appIndex);
   }
 
   async onRequest(want, startId) {

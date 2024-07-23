@@ -24,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 EmbeddedUIExtension *EmbeddedUIExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called");
     if (runtime == nullptr) {
         return new EmbeddedUIExtension();
     }

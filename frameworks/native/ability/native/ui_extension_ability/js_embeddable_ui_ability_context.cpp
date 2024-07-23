@@ -56,7 +56,7 @@ JsEmbeddableUIAbilityContext::JsEmbeddableUIAbilityContext(const std::shared_ptr
 
 void JsEmbeddableUIAbilityContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "The Finalizer of embeddable UI ability context is called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     std::unique_ptr<JsEmbeddableUIAbilityContext>(static_cast<JsEmbeddableUIAbilityContext*>(data));
 }
 
@@ -447,13 +447,13 @@ napi_value JsEmbeddableUIAbilityContext::OnMoveAbilityToBackground(napi_env env,
 #ifdef SUPPORT_GRAPHICS
 napi_value JsEmbeddableUIAbilityContext::SetMissionLabel(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::UI_EXT, "Set mission label is called.");
+    TAG_LOGI(AAFwkTag::UI_EXT, "called");
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnSetMissionLabel);
 }
 
 napi_value JsEmbeddableUIAbilityContext::SetMissionIcon(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::UI_EXT, "Set mission icon is called.");
+    TAG_LOGI(AAFwkTag::UI_EXT, "called");
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnSetMissionIcon);
 }
 

@@ -28,7 +28,7 @@ WindowManagerServiceHandlerProxy::WindowManagerServiceHandlerProxy(const sptr<IR
 void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo,
     sptr<AbilityTransitionInfo> toInfo, bool& animaEnabled)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -57,7 +57,7 @@ void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransi
 
 int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& abilityToken)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -82,7 +82,7 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
 void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info,
     std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write interface token.");
@@ -111,7 +111,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
 void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info,
     std::shared_ptr<Media::PixelMap> pixelMap)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -135,7 +135,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
 
 void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> abilityToken)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -166,7 +166,7 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
 
 void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -187,7 +187,7 @@ void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTr
 int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::vector<int32_t>& missionIds,
     int32_t topMissionId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -218,7 +218,7 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::ve
 int32_t WindowManagerServiceHandlerProxy::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
     std::vector<int32_t>& result)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;

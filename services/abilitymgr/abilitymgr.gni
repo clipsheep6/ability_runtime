@@ -58,6 +58,7 @@ abilityms_files = [
   "src/ams_configuration_parameter.cpp",
   "src/insight_intent_utils.cpp",
   "src/insight_intent_profile.cpp",
+  "src/recovery_info_timer.cpp",
 
   # interceptor
   "src/interceptor/ability_interceptor_executer.cpp",
@@ -136,6 +137,7 @@ abilityms_files = [
 
   #utils
   "src/utils/window_options_utils.cpp",
+  "src/utils/state_utils.cpp",
   "src/utils/extension_permissions_util.cpp",
   "src/utils/app_mgr_util.cpp",
   "src/utils/dump_utils.cpp",

@@ -68,7 +68,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
+        TAG_LOGI(AAFwkTag::FORM_EXT, "called");
         std::unique_ptr<JsFormExtensionContext>(static_cast<JsFormExtensionContext*>(data));
     }
 
@@ -103,7 +103,7 @@ private:
 
     napi_value OnUpdateForm(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
+        TAG_LOGI(AAFwkTag::FORM_EXT, "called");
         if (info.argc < UPDATE_FORM_PARAMS_SIZE) {
             TAG_LOGE(AAFwkTag::FORM_EXT, "Not enough params, not enough params");
             return CreateJsUndefined(env);
@@ -203,7 +203,7 @@ private:
 
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::FORM_EXT, "ConnectAbility called.");
+        TAG_LOGD(AAFwkTag::FORM_EXT, "called");
         if (!CheckCallerIsSystemApp()) {
             TAG_LOGE(AAFwkTag::FORM_EXT, "ConnectAbility app is not system-app, can not use system-api");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);

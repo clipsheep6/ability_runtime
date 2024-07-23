@@ -78,7 +78,7 @@ void ChildMainThread::Start(const std::map<std::string, int32_t> &fds)
 
 int32_t ChildMainThread::GetChildProcessInfo(ChildProcessInfo &info)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "GetChildProcessInfo called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     if (object == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "failed to get app manager service");
@@ -103,7 +103,7 @@ void ChildMainThread::SetFds(const std::map<std::string, int32_t> &fds)
 
 bool ChildMainThread::Init(const std::shared_ptr<EventRunner> &runner, const ChildProcessInfo &processInfo)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread:Init called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (runner == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "runner is null.");
         return false;
@@ -122,7 +122,7 @@ bool ChildMainThread::Init(const std::shared_ptr<EventRunner> &runner, const Chi
 
 bool ChildMainThread::Attach()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread::Attach called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto sysMrgClient = DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     if (sysMrgClient == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get SysMrgClient.");
@@ -144,7 +144,7 @@ bool ChildMainThread::Attach()
 
 bool ChildMainThread::ScheduleLoadJs()
 {
-    TAG_LOGI(AAFwkTag::APPKIT, "ScheduleLoadJs called.");
+    TAG_LOGI(AAFwkTag::APPKIT, "called");
     if (mainHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "mainHandler_ is null");
         return false;
@@ -176,7 +176,7 @@ bool ChildMainThread::ScheduleLoadJs()
 
 void ChildMainThread::HandleLoadJs()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "HandleLoadJs called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!processInfo_ || !bundleInfo_) {
         TAG_LOGE(AAFwkTag::APPKIT, "processInfo or bundleInfo_ is null.");
         return;
@@ -209,7 +209,7 @@ void ChildMainThread::HandleLoadJs()
 
 void ChildMainThread::HandleLoadArkTs()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "HandleLoadArkTs called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!processInfo_ || !bundleInfo_) {
         TAG_LOGE(AAFwkTag::APPKIT, "processInfo or bundleInfo_ is null.");
         return;
@@ -297,7 +297,7 @@ bool ChildMainThread::ScheduleExitProcessSafely()
 
 void ChildMainThread::HandleExitProcessSafely()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "HandleExitProcessSafely called start.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleExitProcessSafely get runner error.");
@@ -339,7 +339,7 @@ bool ChildMainThread::ScheduleRunNativeProc(const sptr<IRemoteObject> &mainProce
 
 void ChildMainThread::HandleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "HandleRunNativeProc called start.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!processInfo_) {
         TAG_LOGE(AAFwkTag::APPKIT, "processInfo is null.");
         return;

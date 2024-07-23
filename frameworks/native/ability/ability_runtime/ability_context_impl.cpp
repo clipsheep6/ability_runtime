@@ -727,7 +727,7 @@ ErrCode AbilityContextImpl::RequestDialogService(AAFwk::Want &want, RequestDialo
 
 ErrCode AbilityContextImpl::ReportDrawnCompleted()
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "called.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     return AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
 }
 
@@ -777,8 +777,12 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
 ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "SetMissionContinueState: %{public}d", state);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state,
-        sessionToken_.promote());
+    auto sessionToken = GetSessionToken();
+    if (sessionToken == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "sessionToken is null");
+        return ERR_INVALID_VALUE;
+    }
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state, sessionToken);
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::CONTEXT, "SetMissionContinueState failed: %{public}d", err);
     }

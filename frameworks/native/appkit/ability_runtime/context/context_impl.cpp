@@ -805,10 +805,26 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
 
                 TAG_LOGD(AAFwkTag::APPKIT, "loadPath: %{public}s", loadPath.c_str());
                 GetOverlayPath(resourceManager, bundleInfo.name, hapModuleInfo.moduleName, loadPath, currentBundle);
+                AddPatchResource(resourceManager, loadPath, hapModuleInfo.hqfInfo.hqfFilePath,
+                    bundleInfo.applicationInfo.debug);
             }
         }
     }
     return resourceManager;
+}
+
+void ContextImpl::AddPatchResource(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+    const std::string &loadPath, const std::string &hqfPath, bool isDebug)
+{
+    std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
+    if (!hqfPath.empty() && isDebug) {
+        std::string realHqfPath = std::regex_replace(hqfPath, pattern, LOCAL_CODE_PATH);
+        TAG_LOGI(AAFwkTag::APPKIT, "AddPatchResource hapPath:%{public}s, patchPath:%{public}s",
+            loadPath.c_str(), realHqfPath.c_str());
+        if (!resourceManager->AddPatchResource(loadPath.c_str(), realHqfPath.c_str())) {
+            TAG_LOGE(AAFwkTag::APPKIT, "AddPatchResource failed");
+        }
+    }
 }
 
 void ContextImpl::GetOverlayPath(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,

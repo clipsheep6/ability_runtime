@@ -203,7 +203,6 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
         TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
-    TAG_LOGD(AAFwkTag::DEFAULT, "EventName is %{public}s", name.c_str());
     switch (eventName) {
         case EventName::START_ABILITY_ERROR:
         case EventName::TERMINATE_ABILITY_ERROR:

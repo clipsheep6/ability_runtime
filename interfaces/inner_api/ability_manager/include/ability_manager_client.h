@@ -1034,7 +1034,7 @@ public:
     void UpdateMissionSnapShot(sptr<IRemoteObject> token,
         std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
 
-    ErrCode GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info);
+    ErrCode GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &info);
     ErrCode SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow);
 #endif
 
@@ -1161,6 +1161,13 @@ public:
      * @param token Ability identify.
      */
     void EnableRecoverAbility(sptr<IRemoteObject> token);
+
+    /**
+     * @brief Submit save recovery info.
+     *
+     * @param token Ability identify.
+     */
+    void SubmitSaveRecoveryInfo(sptr<IRemoteObject> token);
 
     /**
      * @brief Schedule recovery ability.

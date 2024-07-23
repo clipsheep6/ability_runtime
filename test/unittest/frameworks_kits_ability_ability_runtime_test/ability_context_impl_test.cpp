@@ -236,6 +236,29 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionContinueState_01
 }
 
 /**
+ * @tc.name: Ability_Context_Impl_SetMissionContinueState_0200
+ * @tc.desc: test set mission continue state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionContinueState_0200, Function | MediumTest | Level1)
+{
+    ASSERT_TRUE(g_mockAbilityMs != nullptr);
+    ASSERT_TRUE(context_ != nullptr);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = g_mockAbilityMs;
+    g_mockAbilityMs->SetCommonMockResult(false);
+
+    AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_INACTIVE;
+    auto ret = context_->SetMissionContinueState(state);
+    EXPECT_NE(ret, 0);
+
+    g_mockAbilityMs->SetCommonMockResult(true);
+    ret = context_->SetMissionContinueState(state);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
+}
+
+/**
  * @tc.name: Ability_Context_Impl_SetMissionLabel_0100
  * @tc.desc: test set mission label.
  * @tc.type: FUNC

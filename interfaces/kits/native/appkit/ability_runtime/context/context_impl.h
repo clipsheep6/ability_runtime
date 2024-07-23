@@ -435,6 +435,8 @@ private:
         const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
     void GetOverlayPath(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const std::string &bundleName, const std::string &moduleName, std::string &loadPath, bool currentBundle);
+    void AddPatchResource(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const std::string &loadPath, const std::string &hqfPath, bool isDebug);
     void SubscribeToOverlayEvents(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const std::string &name, const std::string &hapModuleName, std::string &loadPath,
         std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos);

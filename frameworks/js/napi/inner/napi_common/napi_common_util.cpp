@@ -851,7 +851,7 @@ napi_value GetCallbackErrorValue(napi_env env, int errCode)
  */
 AsyncJSCallbackInfo *CreateAsyncJSCallbackInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
@@ -946,7 +946,7 @@ bool WrapThreadReturnData(napi_env env, const ThreadReturnData *data, napi_value
  */
 bool CreateAsyncCallback(napi_env env, napi_value param, AsyncJSCallbackInfo *callback)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (param == nullptr || callback == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, param or callback is null.", __func__);
@@ -993,7 +993,7 @@ napi_ref CreateCallbackRefFromJS(napi_env env, napi_value param)
  */
 napi_value ExecuteAsyncCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCallbackInfo, const AsyncParamEx *param)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (asyncCallbackInfo == nullptr || param == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo or param is null", __func__);
         return nullptr;
@@ -1027,7 +1027,7 @@ napi_value ExecuteAsyncCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCall
  */
 napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCallbackInfo, const AsyncParamEx *param)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (asyncCallbackInfo == nullptr || param == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo or param is null", __func__);
         return nullptr;
@@ -1062,7 +1062,7 @@ napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCa
  */
 void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
@@ -1092,7 +1092,7 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 
 void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo is null", __func__);
@@ -1132,7 +1132,7 @@ void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
  */
 void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
@@ -1155,7 +1155,7 @@ void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
 
 void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {

@@ -24,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 ShareExtension *ShareExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    TAG_LOGD(AAFwkTag::SHARE_EXT, "called.");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "called");
     if (!runtime) {
         return new ShareExtension();
     }

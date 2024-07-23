@@ -18,11 +18,11 @@
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hitrace_meter.h"
 #include "permission_constants.h"
 #include "server_constant.h"
 #include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
+#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {
@@ -67,34 +67,34 @@ bool PermissionVerification::VerifyCallingPermission(
 
 bool PermissionVerification::IsSACall() const
 {
-    TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: is called.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "called");
     auto callerToken = GetCallingTokenID();
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
         TAG_LOGD(AAFwkTag::DEFAULT, "caller tokenType is native, verify success");
         return true;
     }
-    TAG_LOGD(AAFwkTag::DEFAULT, "Not SA called.");
+    TAG_LOGD(AAFwkTag::DEFAULT, "Not SA called");
     return false;
 }
 
 bool PermissionVerification::IsShellCall() const
 {
-    TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: is called.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "called");
     auto callerToken = GetCallingTokenID();
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
         TAG_LOGD(AAFwkTag::DEFAULT, "caller tokenType is shell, verify success");
         return true;
     }
-    TAG_LOGD(AAFwkTag::DEFAULT, "Not shell called.");
+    TAG_LOGD(AAFwkTag::DEFAULT, "Not shell called");
     return false;
 }
 
 bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::DEFAULT, "PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
+    TAG_LOGD(AAFwkTag::DEFAULT, "called");
     if (!IsSACall()) {
         TAG_LOGE(AAFwkTag::DEFAULT, "caller tokenType is not native, verify failed.");
         return false;

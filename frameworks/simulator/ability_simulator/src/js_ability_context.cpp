@@ -142,7 +142,7 @@ napi_value JsAbilityContext::TerminateSelfWithResult(napi_env env, napi_callback
 
 napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     auto abilityContext = context_.lock();
     if (abilityContext == nullptr) {
         return nullptr;
@@ -203,7 +203,7 @@ napi_value CreateJsErrorByNativeErr(napi_env env, int32_t err, const std::string
 void JsAbilityContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     if (jsContext == nullptr || config == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY_SIM, "jsContext is nullptr.");
         return;

@@ -1322,7 +1322,7 @@ private:
 
     napi_value OnPreloadApplication(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "OnPreloadApplication called.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         if (argc < ARGC_THREE) {
             TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication Invalid param count.");
             ThrowTooFewParametersError(env);

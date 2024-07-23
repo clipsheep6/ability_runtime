@@ -74,6 +74,7 @@
 #ifdef CJ_FRONTEND
 #include "cj_runtime.h"
 #endif
+#include "nlohmann/json.hpp"
 #include "ohos_application.h"
 #include "overlay_module_info.h"
 #include "parameters.h"
@@ -156,7 +157,9 @@ const std::string SIGNAL_HANDLER = "OS_SignalHandler";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
-
+const std::string JSON_KEY_APP_FONT_SIZE_SCALE = "fontSizeScale";
+const std::string JSON_KEY_APP_FONT_MAX_SCALE = "fontSizeMaxScale";
+const std::string JSON_KEY_APP_CONFIGURATION = "configuration";
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
 
@@ -1050,14 +1053,14 @@ bool MainThread::CheckForHandleLaunchApplication(const AppLaunchData &appLaunchD
 
 bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
     const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
-    bool multiProjects, const Configuration &config)
+    const Configuration &config, const ApplicationInfo &appInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     bool isStageBased = entryHapModuleInfo.isStageBasedModel;
-    if (isStageBased && multiProjects) {
+    if (isStageBased && appInfo.multiProjects) {
         TAG_LOGI(AAFwkTag::APPKIT, "multiProjects");
     } else {
-        OnStartAbility(bundleName, resourceManager, entryHapModuleInfo);
+        OnStartAbility(bundleName, resourceManager, entryHapModuleInfo, appInfo.debug);
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -1104,7 +1107,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
 
 void MainThread::OnStartAbility(const std::string &bundleName,
     std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
-    const AppExecFwk::HapModuleInfo &entryHapModuleInfo)
+    const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const bool isDebugApp)
 {
     std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName);
     std::string loadPath =
@@ -1128,6 +1131,15 @@ void MainThread::OnStartAbility(const std::string &bundleName,
                 TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
             }
             SubscribeOverlayChange(bundleName, loadPath, resourceManager, entryHapModuleInfo);
+        }
+        std::string hqfPath = entryHapModuleInfo.hqfInfo.hqfFilePath;
+        if (!hqfPath.empty() && isDebugApp) {
+            hqfPath = std::regex_replace(hqfPath, pattern, std::string(LOCAL_CODE_PATH));
+            TAG_LOGI(AAFwkTag::APPKIT, "AddPatchResource hapPath:%{public}s, patchPath:%{public}s",
+                loadPath.c_str(), hqfPath.c_str());
+            if (!resourceManager->AddPatchResource(loadPath.c_str(), hqfPath.c_str())) {
+                TAG_LOGE(AAFwkTag::APPKIT, "AddPatchResource failed");
+            }
         }
     }
 }
@@ -1300,8 +1312,8 @@ CJUncaughtExceptionInfo MainThread::CreateCjExceptionInfo(const std::string &bun
             time_t timet;
             time(&timet);
             std::string errName = errorObj.name ? errorObj.name : "[none]";
-            std::string errMsg = errorObj.name ? errorObj.message : "[none]";
-            std::string errStack = errorObj.name ? errorObj.stack : "[none]";
+            std::string errMsg = errorObj.message ? errorObj.message : "[none]";
+            std::string errStack = errorObj.stack ? errorObj.stack : "[none]";
             HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "CJ_ERROR",
                 OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
                 EVENT_KEY_PACKAGE_NAME, bundleName,
@@ -1347,7 +1359,7 @@ CJUncaughtExceptionInfo MainThread::CreateCjExceptionInfo(const std::string &bun
 void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::APPKIT, "HandleLaunchApplication called.");
+    TAG_LOGI(AAFwkTag::APPKIT, "called");
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         TAG_LOGE(AAFwkTag::APPKIT, "CheckForHandleLaunchApplication failed.");
         return;
@@ -1747,8 +1759,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
+    Configuration appConfig = config;
+    ParseAppConfigurationParams(bundleInfo.applicationInfo.configuration, appConfig);
+
     if (!InitResourceManager(resourceManager, entryHapModuleInfo, bundleInfo.name,
-        bundleInfo.applicationInfo.multiProjects, config)) {
+        appConfig, bundleInfo.applicationInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "InitResourceManager failed");
         return;
     }
@@ -1759,7 +1774,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextDeal->SetApplicationContext(application_);
     application_->AttachBaseContext(contextDeal);
     application_->SetAbilityRecordMgr(abilityRecordMgr_);
-    application_->SetConfiguration(config);
+    application_->SetConfiguration(appConfig);
     contextImpl->SetConfiguration(application_->GetConfiguration());
 
     applicationImpl_->SetRecordId(appLaunchData.GetRecordId());
@@ -2239,7 +2254,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCac
 void MainThread::HandleForegroundApplication()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::APPKIT, "called.");
+    TAG_LOGI(AAFwkTag::APPKIT, "called");
     if ((application_ == nullptr) || (appMgr_ == nullptr)) {
         TAG_LOGE(AAFwkTag::APPKIT, "MainThread::handleForegroundApplication error!");
         return;
@@ -2951,7 +2966,7 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
     const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "ScheduleNotifyLoadRepairPatch function called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     wptr<MainThread> weak = this;
     auto task = [weak, bundleName, callback, recordId]() {
         auto appThread = weak.promote();
@@ -2985,7 +3000,7 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
 int32_t MainThread::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "function called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     wptr<MainThread> weak = this;
     auto task = [weak, callback, recordId]() {
         auto appThread = weak.promote();
@@ -3007,7 +3022,7 @@ int32_t MainThread::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &c
 bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     std::vector<std::pair<std::string, std::string>> &fileMap)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "The bundleMgrHelper is nullptr.");
@@ -3046,7 +3061,7 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     wptr<MainThread> weak = this;
     auto task = [weak, bundleName, callback, recordId]() {
         auto appThread = weak.promote();
@@ -3243,7 +3258,7 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 
 int32_t MainThread::ChangeAppGcState(int32_t state)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (application_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "application_ is nullptr.");
         return ERR_INVALID_VALUE;
@@ -3406,6 +3421,43 @@ void MainThread::ScheduleCacheProcess()
     if (!mainHandler_->PostTask(task, "MainThread:ScheduleCacheProcess")) {
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
     }
+}
+
+void MainThread::ParseAppConfigurationParams(const std::string configuration, Configuration &appConfig)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "start");
+    if (configuration.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the configuration is empty");
+        return;
+    }
+    nlohmann::json configurationJson = nlohmann::json::parse(configuration, nullptr, false);
+    if (configurationJson.is_discarded()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "json discarded error");
+        return;
+    }
+    if (!configurationJson.contains(JSON_KEY_APP_CONFIGURATION)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "app configuration is not exist");
+        return;
+    }
+    nlohmann::json jsonObject = configurationJson.at(JSON_KEY_APP_CONFIGURATION).get<nlohmann::json>();
+    if (jsonObject.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "app configuration is null");
+        return;
+    }
+    if (jsonObject.contains(JSON_KEY_APP_FONT_SIZE_SCALE)
+        && jsonObject[JSON_KEY_APP_FONT_SIZE_SCALE].is_string()) {
+        appConfig.AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE,
+            jsonObject.at(JSON_KEY_APP_FONT_SIZE_SCALE).get<std::string>());
+    }
+    if (jsonObject.contains(JSON_KEY_APP_FONT_MAX_SCALE)
+        && jsonObject[JSON_KEY_APP_FONT_MAX_SCALE].is_string()) {
+        std::string appFontMaxScale = jsonObject.at(JSON_KEY_APP_FONT_MAX_SCALE).get<std::string>();
+        const std::regex INTEGER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
+        if (std::regex_match(appFontMaxScale, INTEGER_REGEX)) {
+            appConfig.AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_MAX_SCALE, appFontMaxScale);
+        }
+    }
+    TAG_LOGD(AAFwkTag::APPKIT, "configuration_: %{public}s", appConfig.GetName().c_str());
 }
 
 /**

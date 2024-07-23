@@ -557,9 +557,9 @@ public:
 
     void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
-    void SetSingleton(bool isSingleton);
-
     void SetMainProcess(bool isMainProcess);
+
+    void SetSingleton(bool isSingleton);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -795,14 +795,14 @@ public:
     void SetAttachedToStatusBar(bool isAttached);
     bool IsAttachedToStatusBar();
 
+    void ScheduleCacheProcess();
+
     void SetBrowserHost(sptr<IRemoteObject> browser);
     sptr<IRemoteObject> GetBrowserHost();
     void SetIsGPU(bool gpu);
     bool GetIsGPU();
     void SetGPUPid(pid_t gpuPid);
     pid_t GetGPUPid();
-
-    void ScheduleCacheProcess();
     
     inline void SetStrictMode(bool strictMode)
     {

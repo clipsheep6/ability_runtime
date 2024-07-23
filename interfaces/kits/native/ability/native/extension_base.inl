@@ -77,7 +77,7 @@ template<class C>
 void ExtensionBase<C>::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
     Extension::OnConfigurationUpdated(configuration);
-    TAG_LOGD(AAFwkTag::EXT, "called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
 
     if (!context_) {
         TAG_LOGE(AAFwkTag::EXT, "context is nullptr.");
@@ -99,7 +99,7 @@ template<class C>
 void ExtensionBase<C>::OnMemoryLevel(int level)
 {
     Extension::OnMemoryLevel(level);
-    TAG_LOGD(AAFwkTag::EXT, "called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
 
     if (extensionCommon_) {
         extensionCommon_->OnMemoryLevel(level);

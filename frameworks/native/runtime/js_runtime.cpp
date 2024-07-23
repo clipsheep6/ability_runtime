@@ -324,7 +324,7 @@ void JsRuntime::InitConsoleModule()
 
 bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "StartDebugger called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return true;
 }
 
@@ -486,7 +486,7 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
 
 bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "LoadRepairPatch function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
@@ -532,7 +532,7 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
 
 bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "UnLoadRepairPatch function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
@@ -564,7 +564,7 @@ bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
 
 bool JsRuntime::NotifyHotReloadPage()
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 #ifdef SUPPORT_SCREEN
     Ace::HotReloader::HotReload();
 #endif // SUPPORT_SCREEN
@@ -1481,15 +1481,15 @@ void JsRuntime::InitWorkerModule(const Options& options)
 {
     CHECK_POINTER(jsEnv_);
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-    workerInfo->codePath = options.codePath;
+    workerInfo->codePath = panda::panda_file::StringPacProtect(options.codePath);
     workerInfo->isDebugVersion = options.isDebugVersion;
     workerInfo->isBundle = options.isBundle;
     workerInfo->packagePathStr = options.packagePathStr;
     workerInfo->assetBasePathStr = options.assetBasePathStr;
-    workerInfo->hapPath = options.hapPath;
-    workerInfo->isStageModel = options.isStageModel;
+    workerInfo->hapPath = panda::panda_file::StringPacProtect(options.hapPath);
+    workerInfo->isStageModel = panda::panda_file::BoolPacProtect(options.isStageModel);
     workerInfo->moduleName = options.moduleName;
-    workerInfo->apiTargetVersion = options.apiTargetVersion;
+    workerInfo->apiTargetVersion = panda::panda_file::DataProtect(static_cast<uintptr_t>(options.apiTargetVersion));
     if (options.isJsFramework) {
         SetJsFramework();
     }

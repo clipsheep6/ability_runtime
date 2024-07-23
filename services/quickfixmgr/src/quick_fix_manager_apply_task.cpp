@@ -65,7 +65,7 @@ public:
 
     void OnPatchDeployed(const std::shared_ptr<AppExecFwk::QuickFixResult> &result) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (applyTask_ == nullptr) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Apply task is nullptr, result is %{public}s.", result->ToString().c_str());
             return;
@@ -98,7 +98,7 @@ public:
 
     void OnPatchSwitched(const std::shared_ptr<AppExecFwk::QuickFixResult> &result) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (applyTask_ == nullptr) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Apply task is nullptr, result is %{public}s.", result->ToString().c_str());
             return;
@@ -134,7 +134,7 @@ public:
 
     void OnPatchDeleted(const std::shared_ptr<AppExecFwk::QuickFixResult> &result) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (applyTask_ == nullptr) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Apply task is nullptr, result is %{public}s.", result->ToString().c_str());
             return;
@@ -181,7 +181,7 @@ public:
 
     void OnPatchDeployed(const std::shared_ptr<AppExecFwk::QuickFixResult> &result) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     }
 };
 
@@ -237,7 +237,7 @@ public:
 
     void OnLoadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (resultCode != 0) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Notify app load patch failed with %{public}d.", resultCode);
             applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
@@ -250,7 +250,7 @@ public:
 
     void OnUnloadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (resultCode != 0) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Notify app load patch failed with %{public}d.", resultCode);
             applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
@@ -271,7 +271,7 @@ public:
 
     void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (resultCode != 0) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Notify app load patch failed with %{public}d.", resultCode);
             applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
@@ -297,12 +297,12 @@ public:
 
     void OnLoadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     }
 
     void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     }
 };
 
@@ -338,7 +338,7 @@ void QuickFixManagerApplyTask::InitRevokeTask(const std::string &bundleName, boo
 void QuickFixManagerApplyTask::HandlePatchDeployed()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     isRunning_ = GetRunningState();
     if (isRunning_ && isSoContained_) {
@@ -367,7 +367,7 @@ void QuickFixManagerApplyTask::HandlePatchDeployed()
 void QuickFixManagerApplyTask::HandlePatchSwitched()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     if (isRunning_ && !isSoContained_) {
         return PostNotifyLoadRepairPatchTask();
@@ -379,7 +379,7 @@ void QuickFixManagerApplyTask::HandlePatchSwitched()
 void QuickFixManagerApplyTask::HandlePatchDeleted()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     if (isRunning_ && !isSoContained_ && type_ == AppExecFwk::QuickFixType::HOT_RELOAD) {
         return PostNotifyHotReloadPageTask();
@@ -618,7 +618,7 @@ bool QuickFixManagerApplyTask::GetRunningState()
 void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t resultCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
 
     Want want;
     if (GetTaskType() == TaskType::QUICK_FIX_APPLY) {
@@ -860,7 +860,7 @@ void QuickFixManagerApplyTask::HandleRevokeQuickFixAppRunning()
 
 void QuickFixManagerApplyTask::HandleRevokePatchSwitched()
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     // process is run, notify app unload patch
     if (GetRunningState()) {
         PostRevokeQuickFixNotifyUnloadPatchTask();
@@ -918,7 +918,7 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixDeleteTask()
 
 void QuickFixManagerApplyTask::PostRevokeQuickFixProcessDiedTask()
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     // app process died
     HandleRevokeQuickFixAppStop();
     PostTimeOutTask();

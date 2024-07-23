@@ -34,7 +34,7 @@ JsActionExtension::JsActionExtension(const std::unique_ptr<Runtime> &runtime)
 
 JsActionExtension::~JsActionExtension()
 {
-    TAG_LOGD(AAFwkTag::ACTION_EXT, "destructor.");
+    TAG_LOGD(AAFwkTag::ACTION_EXT, "destructor");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

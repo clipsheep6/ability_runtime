@@ -41,6 +41,7 @@ public:
     MOCK_METHOD1(AbilityCleaned, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
     MOCK_METHOD2(KillApplication, int32_t(const std::string& appName, const bool clearPageStack));
+    MOCK_METHOD3(ForceKillApplication, int32_t(const std::string& appName, const int userId, const int appIndex));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string& bundleName));
     MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo>& info));

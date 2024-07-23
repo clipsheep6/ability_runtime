@@ -221,6 +221,9 @@ int AbilityManagerStub::OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &
     if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE) {
         return EnableRecoverAbilityInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_RECOVERY_SUBMITINFO) {
+        return SubmitSaveRecoveryInfoInner(data, reply);
+    }
     if (interfaceCode == AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK) {
         return ScheduleClearRecoveryPageStackInner(data, reply);
     }
@@ -1898,7 +1901,7 @@ int AbilityManagerStub::IsRamConstrainedDeviceInner(MessageParcel &data, Message
 
 int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "amsStub %{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     std::string srcDeviceId = data.ReadString();
     std::string dstDeviceId = data.ReadString();
     int32_t missionId = data.ReadInt32();
@@ -2156,7 +2159,7 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
 
 int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     data.ReadInt32Vector(&missionIds);
     int32_t topMissionId = data.ReadInt32();
@@ -2169,7 +2172,7 @@ int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, Messa
 
 int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     std::vector<int32_t> result;
 
@@ -2774,6 +2777,17 @@ int AbilityManagerStub::ScheduleClearRecoveryPageStackInner(MessageParcel &data,
     return NO_ERROR;
 }
 
+int AbilityManagerStub::SubmitSaveRecoveryInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SubmitSaveRecoveryInfoInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    SubmitSaveRecoveryInfo(token);
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::HandleRequestDialogService(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
@@ -2798,7 +2812,7 @@ int AbilityManagerStub::HandleRequestDialogService(MessageParcel &data, MessageP
 
 int32_t AbilityManagerStub::HandleReportDrawnCompleted(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     if (callerToken == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is invalid.");
@@ -3023,7 +3037,7 @@ int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &
 
 int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
     if (abilityToken == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s read abilityToken failed!", __func__);
@@ -3035,7 +3049,7 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawingBySCBInner, called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     int32_t sessionId = data.ReadInt32();
     CompleteFirstFrameDrawing(sessionId);
     return NO_ERROR;
@@ -3134,7 +3148,7 @@ int AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner(MessagePar
 
 int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     std::vector<MissionValidResult> results;
 

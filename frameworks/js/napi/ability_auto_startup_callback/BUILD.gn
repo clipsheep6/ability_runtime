@@ -18,6 +18,7 @@ ohos_shared_library("autostartupcallback") {
   include_dirs = [
     "./",
     "${ability_runtime_napi_path}/inner/napi_common/",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 
   sources = [

@@ -59,6 +59,7 @@ public:
 
 private:
     static std::mutex instanceMutex_;
+    static std::once_flag singletonFlag_;
     uint64_t key_ = 0;
     static sptr<InsightIntentHostClient> instance_;
     mutable std::mutex insightIntentExecutebackMutex_;

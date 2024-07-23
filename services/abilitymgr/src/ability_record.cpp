@@ -59,6 +59,7 @@
 #include "uri_permission_manager_client.h"
 #include "permission_constants.h"
 #include "process_options.h"
+#include "utils/state_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
 #include "mission_info_mgr.h"
@@ -135,47 +136,6 @@ const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
 #endif
-const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
-    std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
-    std::map<AbilityState, std::string>::value_type(INACTIVE, "INACTIVE"),
-    std::map<AbilityState, std::string>::value_type(ACTIVE, "ACTIVE"),
-    std::map<AbilityState, std::string>::value_type(INACTIVATING, "INACTIVATING"),
-    std::map<AbilityState, std::string>::value_type(ACTIVATING, "ACTIVATING"),
-    std::map<AbilityState, std::string>::value_type(TERMINATING, "TERMINATING"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND, "FOREGROUND"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUND, "BACKGROUND"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUNDING, "FOREGROUNDING"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUNDING, "BACKGROUNDING"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUND_FAILED, "BACKGROUND_FAILED"),
-};
-const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
-    std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
-    std::map<AppState, std::string>::value_type(AppState::READY, "READY"),
-    std::map<AppState, std::string>::value_type(AppState::FOREGROUND, "FOREGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::BACKGROUND, "BACKGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
-    std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
-    std::map<AppState, std::string>::value_type(AppState::END, "END"),
-    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
-};
-const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateMap = {
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INITIAL, INITIAL),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INACTIVE, INACTIVE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_ACTIVE, ACTIVE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INVALID_WINDOW_MODE,
-        FOREGROUND_INVALID_MODE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_WINDOW_FREEZED,
-        FOREGROUND_WINDOW_FREEZED),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_FAILED, BACKGROUND_FAILED),
-};
 
 auto g_addLifecycleEventTask = [](sptr<Token> token, FreezeUtil::TimeoutState state, std::string &methodName) {
     CHECK_POINTER_LOG(token, "token is nullptr");
@@ -790,7 +750,7 @@ std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
 void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (isRecent) {
         auto want = GetWantFromMission();
         NotifyAnimationFromRecentTask(startOptions, want);
@@ -872,7 +832,7 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
     std::shared_ptr<StartOptions> &startOptions)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s was called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (isRecent) {
         auto want = GetWantFromMission();
         if (isCold) {
@@ -893,10 +853,10 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
     if (IsDebug()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "PostCancelStartingWindowHotTask was called, debug mode, just return.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "debug mode, just return.");
         return;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "PostCancelStartingWindowHotTask was called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER_LOG(handler, "Fail to get TaskHandler.");
 
@@ -921,10 +881,10 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
     if (IsDebug()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "PostCancelStartingWindowColdTask was called, debug mode, just return.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "debug mode, just return.");
         return;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "PostCancelStartingWindowColdTask was called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER_LOG(handler, "Fail to get TaskHandler.");
 
@@ -2201,29 +2161,17 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
 
 std::string AbilityRecord::ConvertAbilityState(const AbilityState &state)
 {
-    auto it = stateToStrMap.find(state);
-    if (it != stateToStrMap.end()) {
-        return it->second;
-    }
-    return "INVALIDSTATE";
+    return  StateUtils::StateToStrMap(state);
 }
 
 std::string AbilityRecord::ConvertAppState(const AppState &state)
 {
-    auto it = appStateToStrMap_.find(state);
-    if (it != appStateToStrMap_.end()) {
-        return it->second;
-    }
-    return "INVALIDSTATE";
+    return StateUtils::AppStateToStrMap(state);
 }
 
 int AbilityRecord::ConvertLifeCycleToAbilityState(const AbilityLifeCycleState &state)
 {
-    auto it = convertStateMap.find(state);
-    if (it != convertStateMap.end()) {
-        return it->second;
-    }
-    return DEFAULT_INVAL_VALUE;
+    return StateUtils::ConvertStateMap(state);
 }
 
 void AbilityRecord::Dump(std::vector<std::string> &info)
@@ -2453,7 +2401,7 @@ void AbilityRecord::RemoveAbilityDeathRecipient() const
 
 void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
 
@@ -3163,6 +3111,11 @@ void AbilityRecord::PublishFileOpenEvent(const Want &want)
 
 void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId)
 {
+    if (specifyTokenId_ > 0) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "specifyTokenId is %{public}u, cleaned.", specifyTokenId_);
+        tokenId = specifyTokenId_;
+        specifyTokenId_ = 0;
+    }
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
@@ -3208,10 +3161,13 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
     const std::string &targetBundleName, uint32_t tokenId)
 {
-    auto callerTokenId = specifyTokenId_ > 0 ? specifyTokenId_ :
-        static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u, specifyTokenId=%{public}u",
-        callerTokenId, tokenId, specifyTokenId_);
+    auto callerTokenId = tokenId > 0 ? tokenId :
+        static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0));
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u", callerTokenId, tokenId);
+    if (callerTokenId == 0) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerTokenId is invalid.");
+        return;
+    }
     uint32_t flag = want.GetFlags();
     std::vector<Uri> validUriList = {};
     for (auto &&uriStr : uriVec) {

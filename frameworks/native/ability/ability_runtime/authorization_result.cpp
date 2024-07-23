@@ -21,7 +21,7 @@ namespace AbilityRuntime {
 void AuthorizationResult::GrantResultsCallback(const std::vector<std::string>& permissions,
     const std::vector<int>& grantResults)
 {
-    TAG_LOGI(AAFwkTag::DEFAULT, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::DEFAULT, "called");
     if (task_) {
         TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s callback client function.", __func__);
         task_(permissions, grantResults);

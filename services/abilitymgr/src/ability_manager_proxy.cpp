@@ -1715,6 +1715,31 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     return;
 }
 
+void AbilityManagerProxy::SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& token)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteInterfaceToken failed.");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteRemoteObject failed.");
+        return;
+    }
+
+    error = SendRequest(AbilityManagerInterfaceCode::ABILITY_RECOVERY_SUBMITINFO, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return;
+    }
+    return;
+}
+
 int AbilityManagerProxy::KillProcess(const std::string &bundleName, const bool clearPageStack)
 {
     MessageParcel data;
@@ -2166,7 +2191,7 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
 int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "amsProxy %{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -3052,7 +3077,7 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info)
+int AbilityManagerProxy::GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &info)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -4064,7 +4089,7 @@ int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<I
 
 int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (callerToken == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is nullptr");
         return INNER_ERR;

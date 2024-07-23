@@ -48,7 +48,7 @@ sptr<AppExecFwk::IAppMgr> QuickFixUtil::GetAppManagerProxy()
 
 sptr<AppExecFwk::IQuickFixManager> QuickFixUtil::GetBundleQuickFixMgrProxy()
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleMgrHelper is nullptr.");

@@ -343,6 +343,9 @@ public:
 
     int32_t UpdateConfigurationDelayed(const std::shared_ptr<AppRunningRecord> &appRecord);
 
+    bool GetPidsByBundleNameUserIdAndAppIndex(const std::string &bundleName,
+        const int userId, const int appIndex, std::list<pid_t> &pids);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     int32_t AssignRunningProcessInfoByAppRecord(

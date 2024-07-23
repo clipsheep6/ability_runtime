@@ -38,7 +38,7 @@ public:
     virtual void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     virtual void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    sptr<UIAbilityServiceHostStubImpl>& GetServiceHostStub() { return serviceHostStub_; }
+    sptr<UIAbilityServiceHostStubImpl> GetServiceHostStub() { return serviceHostStub_; }
     void SetProxyObject(napi_value proxy);
     napi_value GetProxyObject();
     void SetNapiAsyncTask(std::shared_ptr<NapiAsyncTask>& task);

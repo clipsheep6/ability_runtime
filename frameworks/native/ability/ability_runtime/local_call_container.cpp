@@ -191,7 +191,7 @@ bool LocalCallContainer::IsCallBackCalled(const std::vector<std::shared_ptr<Call
 {
     for (auto& callBack : callers) {
         if (callBack != nullptr && !callBack->IsCallBack()) {
-            TAG_LOGE(AAFwkTag::LOCAL_CALL, "call back is not called");
+            TAG_LOGI(AAFwkTag::LOCAL_CALL, "callback is not called");
             return false;
         }
     }

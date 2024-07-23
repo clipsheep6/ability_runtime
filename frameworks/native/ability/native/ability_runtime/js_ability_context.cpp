@@ -178,7 +178,7 @@ void StartAbilityByCallComplete(napi_env env, NapiAsyncTask& task, std::weak_ptr
     if (calldata->err != 0) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
         task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-        TAG_LOGD(AAFwkTag::CONTEXT, "clear failed call of startup is called.");
+        TAG_LOGD(AAFwkTag::CONTEXT, "clear failed call of startup is called");
         auto context = abilityContext.lock();
         if (context == nullptr || callerCallBack == nullptr) {
             TAG_LOGE(AAFwkTag::CONTEXT, "clear failed call of startup input param is nullptr.");
@@ -377,7 +377,7 @@ napi_value JsAbilityContext::DisconnectUIServiceExtension(napi_env env, napi_cal
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "clear failed call of startup is called.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "clear failed call of startup is called");
     auto context = abilityContext.lock();
     if (context == nullptr || callback == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "clear failed call of startup input param is nullptr.");
@@ -576,7 +576,7 @@ napi_value JsAbilityContext::OnConnectUIServiceExtension(napi_env env, NapiCallb
     }
 
     sptr<JSUIServiceExtAbilityConnection> connection = sptr<JSUIServiceExtAbilityConnection>::MakeSptr(env);
-    sptr<UIAbilityServiceHostStubImpl>& stub = connection->GetServiceHostStub();
+    sptr<UIAbilityServiceHostStubImpl> stub = connection->GetServiceHostStub();
     want.SetParam(UISERVICEHOSTPROXY_KEY, stub->AsObject());
 
     result = nullptr;
@@ -1685,7 +1685,7 @@ napi_value JsAbilityContext::OnIsTerminating(napi_env env, NapiCallbackInfo& inf
 
 napi_value JsAbilityContext::OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "called.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
     NapiAsyncTask::ExecuteCallback execute = [weak = context_, innerErrorCode]() {
         auto context = weak.lock();
@@ -1901,11 +1901,13 @@ void JSAbilityConnection::ReleaseNativeReference(NativeReference* ref)
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "ReleaseNativeReference: failed to get uv loop.");
+        delete ref;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "ReleaseNativeReference: failed to create work.");
+        delete ref;
         return;
     }
     work->data = reinterpret_cast<void *>(ref);

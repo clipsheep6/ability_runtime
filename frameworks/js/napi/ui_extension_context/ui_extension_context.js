@@ -39,6 +39,14 @@ class UIExtensionContext extends ExtensionContext {
     return this.__context_impl__.startUIServiceExtensionAbility(want, callback);
   }
 
+  connectUIServiceExtensionAbility(want, callback) {
+    return this.__context_impl__.connectUIServiceExtensionAbility(want, callback);
+  }
+
+  disconnectUIServiceExtensionAbility(proxy) {
+    return this.__context_impl__.disconnectUIServiceExtensionAbility(proxy);
+  }
+
   openLink(link, options, callback) {
     console.log('openLink');
     return this.__context_impl__.openLink(link, options, callback);

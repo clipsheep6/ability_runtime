@@ -251,7 +251,7 @@ ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const 
     if (abilityRecord == nullptr) {
         auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
         (const_cast<Want &>(want)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
-        return systemUIExtension->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
+        return IN_PROCESS_CALL(systemUIExtension->CreateModalUIExtension(want)) ? ERR_OK : INNER_ERR;
     } else {
         return abilityRecord->CreateModalUIExtension(want);
     }

@@ -33,7 +33,7 @@ InsightIntentExecutorMgr::~InsightIntentExecutorMgr()
 bool InsightIntentExecutorMgr::ExecuteInsightIntent(Runtime& runtime, const InsightIntentExecutorInfo& executeInfo,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     auto executeParam = executeInfo.executeParam;
     if (executeParam == nullptr || executeParam->insightIntentParam_ == nullptr) {
         TAG_LOGE(AAFwkTag::INTENT, "Execute param invalid.");
@@ -86,14 +86,14 @@ bool InsightIntentExecutorMgr::ExecuteInsightIntent(Runtime& runtime, const Insi
 void InsightIntentExecutorMgr::AddInsightIntentExecutor(uint64_t intentId,
     const std::shared_ptr<InsightIntentExecutor>& executor)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     insightIntentExecutors_[intentId] = executor;
 }
 
 void InsightIntentExecutorMgr::RemoveInsightIntentExecutor(uint64_t intentId)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     insightIntentExecutors_.erase(intentId);
 }
@@ -101,7 +101,7 @@ void InsightIntentExecutorMgr::RemoveInsightIntentExecutor(uint64_t intentId)
 void InsightIntentExecutorMgr::TriggerCallbackInner(
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback, int32_t errCode)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     AppExecFwk::InsightIntentExecuteResult result;
     result.innerErr = errCode;
     callback->Call(result);
