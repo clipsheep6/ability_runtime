@@ -25,6 +25,7 @@
 #include "configuration.h"
 #include "hap_module_info.h"
 #include "want.h"
+#include <mutex>
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -56,7 +57,7 @@ public:
     void AddAbility(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
     void RemoveAbility(const sptr<IRemoteObject> &token);
-    bool ContainsAbility() const;
+    bool ContainsAbility();
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
     virtual void OnMemoryLevel(int level);
     virtual int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
@@ -65,6 +66,7 @@ public:
 private:
     friend class JsAbilityStage;
     std::shared_ptr<Context> context_;
+    std::mutex recordMutex_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<AppExecFwk::AbilityLocalRecord>> abilityRecords_;
     std::weak_ptr<AppExecFwk::OHOSApplication> application_;
 };
