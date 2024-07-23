@@ -29,6 +29,7 @@ ohos_moduletest("ui_extension_info_module_test") {
   }
 
   deps = [
+    "${ability_runtime_services_path}/common:ui_extension_utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

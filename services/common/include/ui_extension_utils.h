@@ -23,138 +23,19 @@
 
 namespace OHOS {
 namespace AAFwk {
-namespace {
-constexpr int EDM_SA_UID = 3057;
-}
 namespace UIExtensionUtils {
 // ui extension type list
-inline std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet()
-{
-    return std::unordered_set<AppExecFwk::ExtensionAbilityType> {
-        AppExecFwk::ExtensionAbilityType::SHARE,
-        AppExecFwk::ExtensionAbilityType::ACTION,
-        AppExecFwk::ExtensionAbilityType::EMBEDDED_UI,
-        AppExecFwk::ExtensionAbilityType::INSIGHT_INTENT_UI,
-        AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
-        AppExecFwk::ExtensionAbilityType::UI,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
-        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
-        AppExecFwk::ExtensionAbilityType::ADS,
-        AppExecFwk::ExtensionAbilityType::VOIP,
-        AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_PRINT,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
-        AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_NAVIGATION,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
-        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
-        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
-        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
-        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
-    };
-}
-
-inline bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type)
-{
-    return GetUiExtensionSet().count(type) > 0;
-}
-
-inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
-{
-    const std::unordered_set<AppExecFwk::ExtensionAbilityType> systemUiExtensionSet = {
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_PRINT,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_NAVIGATION,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
-        AppExecFwk::ExtensionAbilityType::UI,
-        AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
-        AppExecFwk::ExtensionAbilityType::ADS,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
-        AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
-        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
-        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
-        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
-    };
-    return systemUiExtensionSet.find(type) != systemUiExtensionSet.end();
-}
-
+    std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet();
+    bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type);
+    bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type);
 // In this case, extension which be starting needs that caller should be the system app, otherwise not supported.
-inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
-{
-    const std::unordered_set<AppExecFwk::ExtensionAbilityType> uiExtensionStartingSet = {
-        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
-        AppExecFwk::ExtensionAbilityType::INSIGHT_INTENT_UI,
-        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
-        AppExecFwk::ExtensionAbilityType::SHARE,
-        AppExecFwk::ExtensionAbilityType::ACTION,
-        AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
-        AppExecFwk::ExtensionAbilityType::VOIP
-    };
-    return uiExtensionStartingSet.find(type) != uiExtensionStartingSet.end();
-}
-
+    bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type);
 // In this collection, extension can be embedded by public app, which requires vertical businesses to ensure security.
-inline bool IsPublicForEmbedded(const AppExecFwk::ExtensionAbilityType type)
-{
-    const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForEmbeddedSet = {
-        AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
-        AppExecFwk::ExtensionAbilityType::ADS,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
-        AppExecFwk::ExtensionAbilityType::SYS_VISUAL,
-        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART
-    };
-    return publicForEmbeddedSet.find(type) != publicForEmbeddedSet.end();
-}
-
+    bool IsPublicForEmbedded(const AppExecFwk::ExtensionAbilityType type);
 // In this collection, extension can be embedded by public app, which some UX effects are constrained
-inline bool IsPublicForConstrainedEmbedded(const AppExecFwk::ExtensionAbilityType type)
-{
-    const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForConstrainedEmbeddedSet = {
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER
-    };
-    return publicForConstrainedEmbeddedSet.find(type) != publicForConstrainedEmbeddedSet.end();
-}
-
-inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)
-{
-    bool enterpriseAdminSa = (IPCSkeleton::GetCallingUid() == EDM_SA_UID);
-    bool isEnterpriseAdmin = (type == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN);
-    return enterpriseAdminSa && isEnterpriseAdmin;
-}
-
-inline bool IsWindowExtension(const AppExecFwk::ExtensionAbilityType type)
-{
-    return type == AppExecFwk::ExtensionAbilityType::WINDOW;
-}
+    bool IsPublicForConstrainedEmbedded(const AppExecFwk::ExtensionAbilityType type);
+    bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type);
+    bool IsWindowExtension(const AppExecFwk::ExtensionAbilityType type);
 } // namespace UIExtensionUtils
 } // namespace AAFwk
 } // namespace OHOS
