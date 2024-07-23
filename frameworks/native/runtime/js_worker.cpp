@@ -193,7 +193,7 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
         if (uri.find_first_of("/") == 0) {
             TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with /modulename");
             realPath = uri.substr(1);
-        } else if (uri.find("../") == 0 && !GetIsStageModel()) {
+        } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
             TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with ../");
             realPath = uri.substr(PATH_THREE);
         } else if (uri.find_first_of("@") == 0) {
@@ -207,10 +207,10 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
         filePath = NormalizedFileName(realPath);
         TAG_LOGI(AAFwkTag::JSRUNTIME, "filePath %{private}s", filePath.c_str());
 
-        if (!GetIsStageModel()) {
+        if (!workerInfo_->isStageModel) {
             GetAmi(ami, filePath);
         } else {
-            ami = (workerInfo_->codePath).GetOriginString() + filePath;
+            ami = workerInfo_->codePath + filePath;
         }
 
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
@@ -251,11 +251,10 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
 
         filePath = NormalizedFileName(realPath);
         // for safe reason, filePath must starts with 'abcs/' in restricted env
-        if (isRestricted && filePath.find(RESTRICTED_PREFIX_PATH)
-            && (static_cast<int32_t>(workerInfo_->apiTargetVersion.GetOriginPointer())) >= API12) {
+        if (isRestricted && filePath.find(RESTRICTED_PREFIX_PATH) && workerInfo_->apiTargetVersion >= API12) {
             filePath = RESTRICTED_PREFIX_PATH + filePath;
         }
-        ami = (workerInfo_->codePath).GetOriginString() + filePath;
+        ami = workerInfo_->codePath + filePath;
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
             if (!ReadAmiData(ami, buff, buffSize, content, useSecureMem, isRestricted)) {
@@ -316,10 +315,9 @@ bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* bu
     bool& useSecureMem, bool isRestricted)
 {
     // Current function is a private, validity of workerInfo_ has been checked by caller.
-    int32_t apiTargetVersion = static_cast<int32_t>(workerInfo_->apiTargetVersion.GetOriginPointer());
-    bool apiSatisfy = apiTargetVersion == 0 || apiTargetVersion > API8;
-    if (GetIsStageModel() && !isRestricted && apiSatisfy) {
-        if (apiTargetVersion >= API12) {
+    bool apiSatisfy = workerInfo_->apiTargetVersion == 0 || workerInfo_->apiTargetVersion > API8;
+    if (workerInfo_->isStageModel && !isRestricted && apiSatisfy) {
+        if (workerInfo_->apiTargetVersion >= API12) {
             useSecureMem = true;
             return GetSafeData(ami, buff, buffSize);
         } else if (GetSafeData(ami, buff, buffSize)) {
@@ -383,8 +381,8 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
 
     std::string newHapPath;
     size_t pos = filePath.find('/');
-    if (!GetIsStageModel()) {
-        newHapPath = (workerInfo_->hapPath).GetOriginString();
+    if (!workerInfo_->isStageModel) {
+        newHapPath = workerInfo_->hapPath;
     } else {
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
             if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
@@ -404,7 +402,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;
     std::string realfilePath;
     size_t fileLen = 0;
-    if (!GetIsStageModel()) {
+    if (!workerInfo_->isStageModel) {
         bool flag = false;
         for (const auto& basePath : workerInfo_->assetBasePathStr) {
             realfilePath = basePath + filePath;
@@ -421,12 +419,11 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
     } else {
         realfilePath = filePath.substr(pos + 1);
         TAG_LOGD(AAFwkTag::JSRUNTIME, "realfilePath: %{private}s", realfilePath.c_str());
-        int32_t apiTargetVersion = static_cast<int32_t>(workerInfo_->apiTargetVersion.GetOriginPointer());
-        bool apiSatisfy = apiTargetVersion == 0 || apiTargetVersion > API8;
-        if (GetIsStageModel() && !isRestricted && apiSatisfy && !extractor->IsHapCompress(realfilePath)) {
+        bool apiSatisfy = workerInfo_->apiTargetVersion == 0 || workerInfo_->apiTargetVersion > API8;
+        if (workerInfo_->isStageModel && !isRestricted && apiSatisfy && !extractor->IsHapCompress(realfilePath)) {
             TAG_LOGD(AAFwkTag::JSRUNTIME, "Use secure mem.");
             auto safeData = extractor->GetSafeData(realfilePath);
-            if (apiTargetVersion >= API12) {
+            if (workerInfo_->apiTargetVersion >= API12) {
                 useSecureMem = true;
                 if (safeData == nullptr) {
                     TAG_LOGE(AAFwkTag::JSRUNTIME, "Get secure mem failed, file %{private}s.", filePath.c_str());
@@ -466,7 +463,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
     std::string fileName = filePath.substr(slashPos + 1);
     std::string path = filePath.substr(0, slashPos + 1);
 
-    std::string loadPath = ExtractorUtil::GetLoadFilePath((workerInfo_->hapPath).GetOriginString());
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(workerInfo_->hapPath);
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (extractor == nullptr) {
@@ -500,7 +497,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
         }
     }
 
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "targetFilePath %{private}s", targetFilePath.c_str());
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "targetFilePath %{public}s", targetFilePath.c_str());
 
     if (!flag) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "get targetFilePath failed!");
@@ -511,17 +508,10 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
         std::string filePathName = basePath + targetFilePath;
         bool hasFile = extractor->HasEntry(filePathName);
         if (hasFile) {
-            ami = (workerInfo_->hapPath).GetOriginString() + "/" + filePathName;
+            ami = workerInfo_->hapPath + "/" + filePathName;
             return;
         }
     }
-}
-
-bool AssetHelper::GetIsStageModel()
-{
-    bool stageModule = workerInfo_->isStageModel.GetBool();
-    TAG_LOGI(AAFwkTag::JSRUNTIME, "stagemodule: %{public}d", stageModule);
-    return stageModule;
 }
 
 int32_t GetContainerId()

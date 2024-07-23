@@ -314,13 +314,13 @@ void NativeRuntimeImpl::InitWorkerModule(const Options& options, const std::shar
     }
 
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-    workerInfo->codePath = panda::panda_file::StringPacProtect(options.codePath);
+    workerInfo->codePath = options.codePath;
     workerInfo->isDebugVersion = options.isDebugVersion;
     workerInfo->isBundle = options.isBundle;
     workerInfo->packagePathStr = options.packagePathStr;
     workerInfo->assetBasePathStr = options.assetBasePathStr;
-    workerInfo->hapPath = panda::panda_file::StringPacProtect(options.hapPath);
-    workerInfo->isStageModel = panda::panda_file::BoolPacProtect(options.isStageModel);
+    workerInfo->hapPath = options.hapPath;
+    workerInfo->isStageModel = options.isStageModel;
     workerInfo->moduleName = options.moduleName;
     if (options.isJsFramework) {
         SetJsFramework();

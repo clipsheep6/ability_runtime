@@ -1481,15 +1481,15 @@ void JsRuntime::InitWorkerModule(const Options& options)
 {
     CHECK_POINTER(jsEnv_);
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-    workerInfo->codePath = panda::panda_file::StringPacProtect(options.codePath);
+    workerInfo->codePath = options.codePath;
     workerInfo->isDebugVersion = options.isDebugVersion;
     workerInfo->isBundle = options.isBundle;
     workerInfo->packagePathStr = options.packagePathStr;
     workerInfo->assetBasePathStr = options.assetBasePathStr;
-    workerInfo->hapPath = panda::panda_file::StringPacProtect(options.hapPath);
-    workerInfo->isStageModel = panda::panda_file::BoolPacProtect(options.isStageModel);
+    workerInfo->hapPath = options.hapPath;
+    workerInfo->isStageModel = options.isStageModel;
     workerInfo->moduleName = options.moduleName;
-    workerInfo->apiTargetVersion = panda::panda_file::DataProtect(static_cast<uintptr_t>(options.apiTargetVersion));
+    workerInfo->apiTargetVersion = options.apiTargetVersion;
     if (options.isJsFramework) {
         SetJsFramework();
     }
