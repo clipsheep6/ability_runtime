@@ -48,6 +48,18 @@ ohos_shared_library("appmanager_napi") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
+  if (defined(build_cross_platform_version) && build_cross_platform_version) {
+    is_cross_platform_version = true
+  } else {
+    is_cross_platform_version = false
+  }
+  if (!is_mingw && !is_mac && !is_linux && is_standard_system &&
+      !is_cross_platform_version) {
+    external_deps += [ "ace_engine:ace_container_scope" ]
+    defines += [ "SUPPORT_CONTAINER_SCOPE" ]
+  }
+
   relative_install_dir = "module/application"
 
   subsystem_name = "ability"
