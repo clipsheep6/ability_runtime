@@ -25,6 +25,9 @@ sptr<InsightIntentHostClient> InsightIntentHostClient::GetInstance()
 {
     std::call_once(singletonFlag_, []() {
         instance_ = new (std::nothrow) InsightIntentHostClient();
+        if (instance_ == nullptr) {
+            TAG_LOGE(AAFwkTag::INTENT, "failed to create InsightIntentHostClient.");
+        }
     });
     return instance_;
 }
