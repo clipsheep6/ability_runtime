@@ -307,7 +307,7 @@ int DialogSessionManager::CreateCloneSelectorModalDialog(AbilityRequest &ability
     parameters.SetParam("appselector.selectorType",
         AAFwk::Integer::Box(static_cast<int>(SelectorType::APP_CLONR_SELECTOR)));
     if (replaceWant !=  "") {
-        parameters.SetParam("replaceWant", AAFwk::String::Box(replaceWant));
+        parameters.SetParam("ecological.replaceWant", AAFwk::String::Box(replaceWant));
     }
 
     std::string dialogSessionId = GenerateDialogSessionRecordCommon(abilityRequest, userId, parameters,
