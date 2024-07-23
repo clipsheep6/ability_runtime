@@ -1637,8 +1637,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 TAG_LOGE(AAFwkTag::APPKIT,
                     "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                     bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-                applicationContext->RegisterAppProcessSecurityExit([appThread, errorObj] {
+                applicationContext->RegisterProcessSecurityExit([appThread, errorObj] {
                     AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
+                    TAG_LOGI(AAFwkTag::APPKIT, "Process has exited as %{public}s", exitReason.exitMsg.c_str());
                     AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
                     appThread->ScheduleProcessSecurityExit();
                 });

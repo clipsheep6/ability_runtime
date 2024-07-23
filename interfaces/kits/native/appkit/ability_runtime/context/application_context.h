@@ -132,7 +132,7 @@ public:
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
     void RegisterAppFontObserver(AppConfigUpdateCallback appFontCallback);
-    void RegisterAppProcessSecurityExit(AppProcessExitCallback appProcessExitCallback);
+    void RegisterProcessSecurityExit(AppProcessExitCallback appProcessExitCallback);
 
     std::string GetAppRunningUniqueId() const;
     void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
@@ -141,7 +141,7 @@ public:
     void SetCurrentAppCloneIndex(int32_t appIndex);
     int32_t GetCurrentAppMode();
     void SetCurrentAppMode(int32_t appIndex);
-    void AppProcessSecurityExit();
+    void ProcessSecurityExit();
 
     using SelfType = ApplicationContext;
     static const size_t CONTEXT_TYPE_ID;

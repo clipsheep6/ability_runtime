@@ -772,7 +772,8 @@ void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFont
     appFontCallback_ = appFontCallback;
 }
 
-void ApplicationContext::RegisterAppProcessSecurityExit(AppProcessExitCallback appProcessExitCallback) {
+void ApplicationContext::RegisterProcessSecurityExit(AppProcessExitCallback appProcessExitCallback)     
+{
     appProcessExitCallback_ = appProcessExitCallback;
 }
 
@@ -822,9 +823,8 @@ void ApplicationContext::SetCurrentAppMode(int32_t appMode)
     appMode_ = appMode;
 }
 
-void ApplicationContext::AppProcessSecurityExit()
+void ApplicationContext::ProcessSecurityExit()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "AppProcess is securely exited");
     if (appProcessExitCallback_ != nullptr) {
         appProcessExitCallback_();
     }
