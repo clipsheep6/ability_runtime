@@ -466,6 +466,7 @@ group("unittest") {
     "event_report_test:unittest",
     "extension_config_mgr_test:unittest",
     "extension_manager_client_test:unittest",
+    "extension_permissions_util_test:unittest",
     "fault_data:unittest",
     "file_path_utils_test:unittest",
     "frameworks_kits_ability_ability_runtime_test:unittest",
