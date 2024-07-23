@@ -446,7 +446,6 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     std::string language = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     std::string colorMode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     std::string fontSizeScal = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE);
-    std::string fontWeightScale = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
     std::string languageIsSetByApp =
         config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
     std::string colorModeIsSetByApp =
@@ -484,7 +483,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
             return;
         }
     }
-    if (!fontSizeScal.empty() || !fontWeightScale.empty()) {
+    if (!fontSizeScal.empty()) {
         if (!globalFontFollowSysteme.empty()
             && globalFontFollowSysteme.compare(ConfigurationInner::IS_APP_FONT_FOLLOW_SYSTEM) != 0) {
             TAG_LOGW(AAFwkTag::APPKIT, "the font configured for the app does not take effect with the system");
