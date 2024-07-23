@@ -772,7 +772,7 @@ void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFont
     appFontCallback_ = appFontCallback;
 }
 
-void ApplicationContext::RegisterProcessSecurityExit(AppProcessExitCallback appProcessExitCallback)     
+void ApplicationContext::RegisterProcessSecurityExit(AppProcessExitCallback appProcessExitCallback)   
 {
     appProcessExitCallback_ = appProcessExitCallback;
 }
