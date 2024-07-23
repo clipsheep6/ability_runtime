@@ -18,17 +18,16 @@
 
 #include <gtest/gtest.h>
 #include <mutex>
-
-#include "ability_connect_callback_interface.h"
-#include "ability_manager_errors.h"
-#include "ability_manager_interface.h"
-#include "ability_scheduler_interface.h"
 #include "abs_shared_result_set.h"
 #include "data_ability_predicates.h"
+#include "values_bucket.h"
+#include "ability_connect_callback_interface.h"
+#include "ability_manager_errors.h"
 #include "fa_ability_context.h"
+#include "ability_manager_interface.h"
+#include "ability_scheduler_interface.h"
 #include "iremote_object.h"
 #include "iremote_stub.h"
-#include "values_bucket.h"
 #include "want.h"
 
 #define OPENFILENUM (1246)

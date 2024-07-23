@@ -31,11 +31,11 @@
 #include "mock_iability_monitor.h"
 #include "mock_test_observer_stub.h"
 #include "ohos_application.h"
-#include "scene_board_judgement.h"
 #include "test_observer_stub.h"
 #include "test_observer.h"
 #include "test_runner.h"
 #include "want.h"
+#include "scene_board_judgement.h"
 
 using namespace testing::ext;
 using namespace OHOS;
