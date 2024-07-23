@@ -263,7 +263,6 @@ ohos_shared_library("abilitykit_native") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:extractortool",
-    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
@@ -290,6 +289,7 @@ ohos_shared_library("abilitykit_native") {
   }
 
   public_external_deps = [
+    "ability_base:session_info",
     "accessibility:accessibility_common",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
@@ -423,6 +423,7 @@ ohos_shared_library("extensionkit_native") {
   public_deps = [ ":abilitykit_utils" ]
 
   public_external_deps = [
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
   ]
