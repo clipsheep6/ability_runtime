@@ -28,104 +28,98 @@ ReverseContinuationSchedulerReplica::ReverseContinuationSchedulerReplica(
 
 void ReverseContinuationSchedulerReplica::PassPrimary(const sptr<IRemoteObject> &primary)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     auto task = [reverseContinuationSchedulerReplica = this, primary]() {
         reverseContinuationSchedulerReplica->HandlerPassPrimary(primary);
     };
 
     if (mainHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ReverseContinuationSchedulerReplica::PassPrimary mainHandler_ == nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ReverseContinuationSchedulerReplica::PassPrimary PostTask error");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error");
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplica::ReverseContinuation()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     auto task = [reverseContinuationSchedulerReplica = this]() {
         reverseContinuationSchedulerReplica->HandlerReverseContinuation();
     };
 
     if (mainHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplica::ReverseContinuation mainHandler_ == nullptr");
+            "mainHandler_ is nullptr");
         return false;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ReverseContinuationSchedulerReplica::ReverseContinuation PostTask error");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error");
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return true;
 }
 
 void ReverseContinuationSchedulerReplica::NotifyReverseResult(int reverseResult)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     auto task = [reverseContinuationSchedulerReplica = this, reverseResult]() {
         reverseContinuationSchedulerReplica->HandlerNotifyReverseResult(reverseResult);
     };
 
     if (mainHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplica::NotifyReverseResult mainHandler_ == nullptr");
+            "mainHandler_ is nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ReverseContinuationSchedulerReplica::NotifyReverseResult PostTask error");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error");
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 void ReverseContinuationSchedulerReplica::HandlerPassPrimary(const sptr<IRemoteObject> &primary)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
+            "replicaHandlerTmp is nullptr");
         return;
     }
     replicaHandlerTmp->PassPrimary(primary);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplica::HandlerReverseContinuation()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
+            "replicaHandlerTmp is nullptr");
         return false;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return replicaHandlerTmp->ReverseContinuation();
 }
 
 void ReverseContinuationSchedulerReplica::HandlerNotifyReverseResult(int reverseResult)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
+            "replicaHandlerTmp is nullptr");
         return;
     }
     replicaHandlerTmp->NotifyReverseResult(reverseResult);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

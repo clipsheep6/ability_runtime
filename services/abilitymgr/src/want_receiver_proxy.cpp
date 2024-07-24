@@ -40,12 +40,12 @@ void WantReceiverProxy::Send(const int32_t resultCode)
     data.WriteInt32(resultCode);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "Remote() is NULL");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "remote is NULL");
         return;
     }
     int32_t ret = remote->SendRequest(static_cast<uint32_t>(IWantReceiver::WANT_RECEIVER_SEND), data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::WANTAGENT, "error code: %{public}d", ret);
     }
 }
 
@@ -67,13 +67,13 @@ void WantReceiverProxy::PerformReceive(const Want &want, int resultCode, const s
     msgData.WriteInt32(sendingUser);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "Remote() is NULL");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "remote is NULL");
         return;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IWantReceiver::WANT_RECEIVER_PERFORM_RECEIVE), msgData, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::WANTAGENT, "error code: %{public}d", ret);
     }
 }
 }  // namespace AAFwk
