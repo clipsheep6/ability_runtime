@@ -27,6 +27,7 @@ group("fuzztest") {
     "abilityappmgrrenderstatedata_fuzzer:fuzztest",
     "abilityappmgrrenderstateobservermanager_fuzzer:fuzztest",
     "abilityappmgrrunningmultiinfo_fuzzer:fuzztest",
+    "abilityapppreloader_fuzzer:fuzztest",
     "abilityattachtimeout_fuzzer:fuzztest",
     "abilityautostartupdatamanager_fuzzer:fuzztest",
     "abilityautostartupdatamanagera_fuzzer:fuzztest",
