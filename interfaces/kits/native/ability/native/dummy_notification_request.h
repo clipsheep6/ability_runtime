@@ -18,11 +18,13 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+#ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
 class NotificationRequest {
 public:
     NotificationRequest() = default;
     ~NotificationRequest() = default;
 };
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_DUMMY_NOTIFICATION_REQUEST_H
