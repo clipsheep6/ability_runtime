@@ -186,8 +186,12 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
     }
 
     pid_t pid = IPCSkeleton::GetCallingPid();
-    std::function<void()> attachApplicationFunc = [appMgrServiceInner = appMgrServiceInner_, pid, app]() {
-        appMgrServiceInner->AttachApplication(pid, iface_cast<IAppScheduler>(app));
+    auto appScheduler = iface_cast<IAppScheduler>(app);
+    if (appScheduler == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appScheduler null");
+    }
+    std::function<void()> attachApplicationFunc = [appMgrServiceInner = appMgrServiceInner_, pid, appScheduler]() {
+        appMgrServiceInner->AttachApplication(pid, appScheduler);
     };
     taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_ATTACH_APPLICATION,
@@ -708,7 +712,7 @@ int AppMgrService::DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
         TAG_LOGE(AAFwkTag::APPMGR, "invalid pid: %{public}s", optionPid.c_str());
         return DumpErrorCode::ERR_INVALID_PID_ERROR;
     }
-    
+
     switch (key) {
         case KEY_DUMP_IPC_START:
             return DumpIpcStart(pid, result);
@@ -800,7 +804,7 @@ int AppMgrService::DumpIpc(const std::vector<std::u16string>& args, std::string&
     std::string optionPid = Str16ToStr8(args[INDEX_PID]);
     TAG_LOGD(AAFwkTag::APPMGR, "option pid:%{public}s, option cmd:%{public}s",
         optionPid.c_str(), optionCmd.c_str());
-    
+
     DumpIpcKey key;
     if (!GetDumpIpcKeyByOption(optionCmd, key)) {
         result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))

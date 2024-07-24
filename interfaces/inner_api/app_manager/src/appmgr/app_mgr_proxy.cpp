@@ -45,6 +45,9 @@ void AppMgrProxy::AttachApplication(const sptr<IRemoteObject> &obj)
     if (!WriteInterfaceToken(data)) {
         return;
     }
+    if (obj == nullptr || obj.GetRefPtr() == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "app scheduler null");
+    }
     PARCEL_UTIL_WRITE_NORET(data, RemoteObject, obj.GetRefPtr());
 
     PARCEL_UTIL_SENDREQ_NORET(AppMgrInterfaceCode::APP_ATTACH_APPLICATION, data, reply, option);

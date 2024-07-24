@@ -1125,7 +1125,7 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestModeInner(const pid_t pid, bool &isUserTest);
-  
+
     bool GetSceneBoardAttachFlag() const;
 
     void SetSceneBoardAttachFlag(bool flag);
@@ -1511,6 +1511,7 @@ private:
 
     AAFwk::EventInfo BuildEventInfo(std::shared_ptr<AppRunningRecord> appRecord) const;
 
+    void NotifyAppAttachFailed(std::shared_ptr<AppRunningRecord> appRecord);
 private:
     /**
      * Notify application status.

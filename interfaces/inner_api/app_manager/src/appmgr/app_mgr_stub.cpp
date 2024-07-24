@@ -343,6 +343,9 @@ int32_t AppMgrStub::HandleAttachApplication(MessageParcel &data, MessageParcel &
 {
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> client = data.ReadRemoteObject();
+    if (client == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "remote object null");
+    }
     AttachApplication(client);
     return NO_ERROR;
 }
