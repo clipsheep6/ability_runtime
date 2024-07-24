@@ -24,20 +24,16 @@ ConnectCallbackStub::ConnectCallbackStub() {}
 
 int ConnectCallbackStub::ConnectInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     string deviceId = Str16ToStr8(data.ReadString16());
     string deviceType = Str16ToStr8(data.ReadString16());
     Connect(deviceId, deviceType);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return OHOS::ERR_NONE;
 }
 
 int ConnectCallbackStub::DisconnectInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     string deviceId = Str16ToStr8(data.ReadString16());
     Disconnect(deviceId);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return OHOS::ERR_NONE;
 }
 /**
@@ -50,10 +46,9 @@ int ConnectCallbackStub::DisconnectInner(MessageParcel &data, MessageParcel &rep
 int ConnectCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
     std::u16string token = data.ReadInterfaceToken();
     if (token.compare(IConnectCallback::GetDescriptor()) != 0) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Descriptor is wrong", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Descriptor is wrong");
         return OHOS::ERR_INVALID_REPLY;
     }
     switch (code) {
@@ -62,7 +57,6 @@ int ConnectCallbackStub::OnRemoteRequest(
         case COMMAND_DISCONNECT:
             return DisconnectInner(data, reply);
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "ConnectCallbackStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk

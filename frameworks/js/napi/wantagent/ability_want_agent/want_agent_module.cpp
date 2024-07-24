@@ -36,7 +36,7 @@ EXTERN_C_START
 
 napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::WANTAGENT, "JsNapiWantAgentInit is called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
 
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "env or exportObj nullptr");
@@ -53,7 +53,6 @@ napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
 
-    TAG_LOGD(AAFwkTag::WANTAGENT, "JsNapiWantAgentInit BindNativeFunction called");
     const char *moduleName = "JsWantAgent";
     BindNativeFunction(env, exportObj, "equal", moduleName, JsWantAgent::Equal);
     BindNativeFunction(env, exportObj, "getBundleName", moduleName, JsWantAgent::GetBundleName);
@@ -63,7 +62,6 @@ napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "getWant", moduleName, JsWantAgent::NapiGetWant);
     BindNativeFunction(env, exportObj, "getWantAgent", moduleName, JsWantAgent::NapiGetWantAgent);
     BindNativeFunction(env, exportObj, "getOperationType", moduleName, JsWantAgent::NapiGetOperationType);
-    TAG_LOGD(AAFwkTag::WANTAGENT, "JsNapiWantAgentInit end");
     return exportObj;
 }
 EXTERN_C_END

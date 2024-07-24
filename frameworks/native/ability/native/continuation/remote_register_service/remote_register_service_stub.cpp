@@ -24,13 +24,10 @@ RemoteRegisterServiceStub::~RemoteRegisterServiceStub() {}
 int RemoteRegisterServiceStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION,
-        "%{public}s called, cmd=%{public}d, flags=%{public}d", __func__, code, option.GetFlags());
-
     std::u16string descriptor = IRemoteRegisterService::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s local descriptor is not equal to remote", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
     switch (code) {
@@ -43,13 +40,11 @@ int RemoteRegisterServiceStub::OnRemoteRequest(
         case COMMAND_SHOW_DEVICE_LIST:
             return ShowDeviceListInner(data, reply);
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s Not found cmd, need check.", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     std::string bundleName = data.ReadString();
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     ExtraParams *pExtras = nullptr;
@@ -59,7 +54,7 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
     }
     if (pExtras == nullptr) {
         reply.WriteInt32(ERR_INVALID_DATA);
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s error to read ExtraParams.", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "error to read ExtraParams");
         return ERR_INVALID_DATA;
     }
 
@@ -68,7 +63,7 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
         delete pExtras;
         pExtras = nullptr;
         reply.WriteInt32(ERR_NULL_OBJECT);
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Failed to read IConnectCallback.", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Failed to read IConnectCallback");
         return ERR_NULL_OBJECT;
     }
 
@@ -77,35 +72,29 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
     delete pExtras;
     pExtras = nullptr;
     reply.WriteInt32(result);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int RemoteRegisterServiceStub::UnregisterInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     int registerToken = data.ReadInt32();
     bool result = Unregister(registerToken);
     reply.WriteInt32(result ? ERR_NONE : IPC_STUB_ERR);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int RemoteRegisterServiceStub::UpdateConnectStatusInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     int registerToken = data.ReadInt32(registerToken);
     std::string deviceId = data.ReadString();
     int status = data.ReadInt32();
     bool result = UpdateConnectStatus(registerToken, deviceId, status);
     reply.WriteInt32(result ? ERR_NONE : IPC_STUB_ERR);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     int registerToken = data.ReadInt32();
     ExtraParams *pExtras = nullptr;
     int32_t extraId = data.ReadInt32();
@@ -114,7 +103,7 @@ int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageP
     }
     if (pExtras == nullptr) {
         reply.WriteInt32(ERR_INVALID_DATA);
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Failed to read ExtraParams", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Failed to read ExtraParams");
         return ERR_INVALID_DATA;
     }
 
@@ -122,7 +111,6 @@ int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageP
     delete pExtras;
     pExtras = nullptr;
     reply.WriteInt32(result ? ERR_NONE : IPC_STUB_ERR);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

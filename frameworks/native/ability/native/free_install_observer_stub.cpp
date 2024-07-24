@@ -54,7 +54,7 @@ int FreeInstallObserverStub::OnRemoteRequest(
     std::u16string descriptor = FreeInstallObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::FREE_INSTALL, "Local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "descriptor is not equal remote");
         return ERR_INVALID_STATE;
     }
 

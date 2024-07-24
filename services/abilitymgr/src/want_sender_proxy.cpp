@@ -43,12 +43,12 @@ void WantSenderProxy::Send(SenderInfo &senderInfo)
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "Remote() is NULL");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "remote is NULL");
         return;
     }
     int32_t ret = remote->SendRequest(static_cast<uint32_t>(IWantSender::WANT_SENDER_SEND), data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::WANTAGENT, "error code: %{public}d", ret);
     }
 }
 }  // namespace AAFwk
