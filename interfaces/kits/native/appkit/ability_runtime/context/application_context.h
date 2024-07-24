@@ -24,10 +24,10 @@
 #include "context.h"
 #include "context_impl.h"
 #include "environment_callback.h"
-#include "exit_reason.h"
 namespace OHOS {
 namespace AAFwk {
 class Want;
+struct ExitReason;
 }
 namespace AbilityRuntime {
 using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
