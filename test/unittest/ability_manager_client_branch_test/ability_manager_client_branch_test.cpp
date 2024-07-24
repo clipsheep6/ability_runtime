@@ -1749,6 +1749,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByUIContentSession_0200, Te
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0200 end";
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.number: NotifySaveAsResult_0100
  * @tc.name: NotifySaveAsResult
@@ -1760,6 +1761,7 @@ HWTEST_F(AbilityManagerClientBranchTest, NotifySaveAsResult_0100, TestSize.Level
     auto result = client_->NotifySaveAsResult(want, 0, 0);
     EXPECT_EQ(result, ERR_OK);
 }
+#endif // WITH_DLP
 
 /**
  * @tc.number: PrepareTerminateAbility_0100
@@ -1787,6 +1789,7 @@ HWTEST_F(AbilityManagerClientBranchTest, PrepareTerminateAbilityBySCB_0100, Test
     EXPECT_EQ(result, ERR_OK);
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.number: UpdateMissionSnapShot_0100
  * @tc.name: UpdateMissionSnapShot
@@ -1799,6 +1802,7 @@ HWTEST_F(AbilityManagerClientBranchTest, UpdateMissionSnapShot_0100, TestSize.Le
     auto pixelMap = std::shared_ptr<Media::PixelMap>();
     client_->UpdateMissionSnapShot(token, pixelMap);
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: AbilityManagerClient_RegisterSessionHandler_0100

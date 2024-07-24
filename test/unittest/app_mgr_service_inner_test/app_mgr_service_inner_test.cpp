@@ -3149,6 +3149,7 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
     TAG_LOGI(AAFwkTag::TEST, "AttachRenderProcess_002 end");
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.name: BuildStartFlags_001
  * @tc.desc: build start flags.
@@ -3171,6 +3172,7 @@ HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
 
     TAG_LOGI(AAFwkTag::TEST, "BuildStartFlags_001 end");
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: RegisterFocusListener_001

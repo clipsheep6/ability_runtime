@@ -857,7 +857,9 @@ public:
 
     virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer) override;
 
+#ifdef WITH_DLP
     virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos) override;
+#endif // WITH_DLP
 
     virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData) override;
 
@@ -2093,9 +2095,11 @@ private:
 
     AAFwk::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
+#ifdef WITH_DLP
     int CheckDlpForExtension(
         const Want &want, const sptr<IRemoteObject> &callerToken,
         int32_t userId, AAFwk::EventInfo &eventInfo, const EventName &eventName);
+#endif // WITH_DLP
 
     void InitStartupFlag();
 

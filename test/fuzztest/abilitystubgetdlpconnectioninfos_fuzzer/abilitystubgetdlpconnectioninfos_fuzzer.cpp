@@ -35,7 +35,9 @@ const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
+#ifdef WITH_DLP
     uint32_t code = static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DLP_CONNECTION_INFOS);
+#endif // WITH_DLP
 
     MessageParcel parcel;
     parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
@@ -47,7 +49,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         std::make_shared<SubManagersHelper>(nullptr, nullptr);
     DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_->currentUIAbilityManager_ =
         std::make_shared<UIAbilityLifecycleManager>();
+#ifdef WITH_DLP
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnRemoteRequest(code, parcel, reply, option);
+#endif // WITH_DLP
 
     return true;
 }

@@ -33,9 +33,11 @@ static uint32_t BuildStartFlags(const AAFwk::Want &want, const ApplicationInfo &
         startFlags = startFlags | (START_FLAG_BASE << StartFlags::COLD_START);
     }
 
+#ifdef WITH_DLP
     if (want.GetIntParam(DLP_PARAMS_INDEX, 0) != 0) {
         startFlags = startFlags | (START_FLAG_BASE << StartFlags::DLP_MANAGER);
     }
+#endif // WITH_DLP
 
     if (applicationInfo.debug) {
         startFlags = startFlags | (START_FLAG_BASE << StartFlags::DEBUGGABLE);

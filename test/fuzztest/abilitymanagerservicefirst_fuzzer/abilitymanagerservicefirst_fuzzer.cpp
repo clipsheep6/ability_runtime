@@ -134,8 +134,10 @@ void DoSomethingInterestingWithMyAPI2(AbilityManagerService &abilityms, Want& wa
     sptr<AbilityRuntime::IConnectionObserver> observer;
     abilityms.RegisterObserver(observer);
     abilityms.UnregisterObserver(observer);
+#ifdef WITH_DLP
     std::vector<AbilityRuntime::DlpConnectionInfo> infos;
     abilityms.GetDlpConnectionInfos(infos);
+#endif // WITH_DLP
     std::vector<AbilityRuntime::ConnectionData> connectionData;
     abilityms.GetConnectionData(connectionData);
 

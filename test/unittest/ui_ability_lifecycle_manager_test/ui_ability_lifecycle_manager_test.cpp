@@ -38,7 +38,9 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AAFwk {
 namespace {
+#ifdef WITH_DLP
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+#endif // WITH_DLP
 constexpr int32_t TEST_UID = 20010001;
 };
 class UIAbilityLifecycleManagerTest : public testing::Test {
@@ -2295,6 +2297,7 @@ HWTEST_F(UIAbilityLifecycleManagerTest, OnAcceptWantResponse_001, TestSize.Level
     uiAbilityLifecycleManager.reset();
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.name: UIAbilityLifecycleManager_OnAcceptWantResponse_0200
  * @tc.desc: OnAcceptWantResponse
@@ -2335,6 +2338,7 @@ HWTEST_F(UIAbilityLifecycleManagerTest, OnAcceptWantResponse_002, TestSize.Level
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, flag);
     uiAbilityLifecycleManager.reset();
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: UIAbilityLifecycleManager_StartSpecifiedAbilityBySCB_0100
@@ -3875,6 +3879,7 @@ HWTEST_F(UIAbilityLifecycleManagerTest, DispatchBackground_002, TestSize.Level1)
     EXPECT_EQ(uiAbilityLifecycleManager->DispatchBackground(abilityRecord), ERR_INVALID_VALUE);
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.name: UIAbilityLifecycleManager_CheckProperties_0100
  * @tc.desc: CheckProperties
@@ -3946,6 +3951,7 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CheckProperties_003, TestSize.Level1)
     auto ret = uiAbilityLifecycleManager->CheckProperties(abilityRecord, abilityRequest, launchMode);
     EXPECT_EQ(ret, true);
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: UIAbilityLifecycleManager_ResolveAbility_0100

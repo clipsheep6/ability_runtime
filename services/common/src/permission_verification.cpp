@@ -54,6 +54,8 @@ bool PermissionVerification::VerifyCallingPermission(
     const std::string &permissionName, const uint32_t specifyTokenId) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "VerifyCallingPermission permission %{public}s, specifyTokenId is %{public}u",
+        permissionName.c_str(), specifyTokenId);
     auto callerToken = specifyTokenId == 0 ? GetCallingTokenID() : specifyTokenId;
     TAG_LOGD(AAFwkTag::DEFAULT, "callerToken is %{public}u", callerToken);
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName, false);
