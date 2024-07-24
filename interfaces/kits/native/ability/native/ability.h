@@ -729,7 +729,9 @@ public:
      * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
      * notification bar.
      */
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     virtual void KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest) final;
+    #endif
 
     /**
      * @brief Cancels background running of this ability to free up system memory.

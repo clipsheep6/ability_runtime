@@ -22,6 +22,7 @@
 #include "iremote_object.h"
 
 namespace OHOS {
+#ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
 namespace Notification {
 class MockIRemoteObject : public IRemoteObject {
 public:
@@ -78,5 +79,6 @@ public:
     }
 };
 } // namespace Notification
+#endif
 } // namespace OHOS
 #endif

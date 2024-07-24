@@ -200,10 +200,12 @@ void Ability::Dump(const std::string& extra)
     return;
 }
 
+#ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
 void Ability::KeepBackgroundRunning(int id, const NotificationRequest& notificationRequest)
 {
     return;
 }
+#endif
 
 void Ability::CancelBackgroundRunning()
 {
