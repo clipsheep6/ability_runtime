@@ -17,7 +17,6 @@
 #include <map>
 #include <mutex>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "native_child_callback.h"
 #include "child_process_manager.h"
 

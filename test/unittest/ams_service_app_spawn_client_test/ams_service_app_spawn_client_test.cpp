@@ -21,7 +21,6 @@
 #include <gtest/gtest.h>
 #include "securec.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_app_spawn_socket.h"
 
 using namespace testing::ext;

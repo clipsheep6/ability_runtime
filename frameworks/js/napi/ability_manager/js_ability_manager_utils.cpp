@@ -19,7 +19,6 @@
 
 #include "ability_state.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi_common_want.h"
@@ -119,7 +118,7 @@ napi_value AbilityStateInit(napi_env env)
 
 napi_value UserStatusInit(napi_env env)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -132,7 +131,7 @@ napi_value UserStatusInit(napi_env env)
 
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {

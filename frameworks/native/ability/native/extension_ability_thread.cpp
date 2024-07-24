@@ -20,7 +20,6 @@
 #include "ability_loader.h"
 #include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ui_extension_utils.h"
 
@@ -32,7 +31,6 @@ namespace {
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 constexpr static char CUSTOM_EXTENSION[] = "ExtensionAbility";
-constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
 constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
@@ -151,11 +149,6 @@ void ExtensionAbilityThread::CreateExtensionAbilityName(
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
         abilityName = INPUTMETHOD_EXTENSION;
     }
-#ifdef SUPPORT_GRAPHICS
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
-        abilityName = MEDIA_CONTROL_EXTENSION;
-    }
-#endif // SUPPORT_GRAPHICS
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
         abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
     }
@@ -410,7 +403,7 @@ void ExtensionAbilityThread::ScheduleAbilityTransaction(
 
 void ExtensionAbilityThread::ScheduleConnectAbility(const Want &want)
 {
-    TAG_LOGD(AAFwkTag::EXT, "Called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
     if (abilityHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "abilityHandler_ is nullptr.");
         return;
@@ -433,7 +426,7 @@ void ExtensionAbilityThread::ScheduleConnectAbility(const Want &want)
 void ExtensionAbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::EXT, "Called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
     if (abilityHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "abilityHandler_ is nullptr.");
         return;

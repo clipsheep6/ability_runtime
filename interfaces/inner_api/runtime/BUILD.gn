@@ -93,7 +93,6 @@ ohos_shared_library("runtime") {
     "ability_base:extractortool",
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
-    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -118,6 +117,11 @@ ohos_shared_library("runtime") {
     "zlib:shared_libz",
   ]
 
+  public_external_deps = [
+    "ability_base:session_info",
+    "ability_base:want",
+  ]
+
   defines = []
 
   if (cj_frontend) {
@@ -127,8 +131,6 @@ ohos_shared_library("runtime") {
         [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
 
     defines += [ "CJ_FRONTEND" ]
-
-    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
   }
 
   if (is_standard_system) {

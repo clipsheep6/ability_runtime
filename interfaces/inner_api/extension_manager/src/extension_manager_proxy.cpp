@@ -18,7 +18,6 @@
 #include "ability_manager_errors.h"
 #include "ability_manager_ipc_interface_code.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "want.h"
 

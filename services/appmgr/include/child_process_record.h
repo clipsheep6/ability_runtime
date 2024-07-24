@@ -23,6 +23,7 @@
 #include "app_death_recipient.h"
 #include "child_scheduler_interface.h"
 #include "child_process_info.h"
+#include "child_process_request.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -30,14 +31,14 @@ class AppRunningRecord;
 
 class ChildProcessRecord {
 public:
-    ChildProcessRecord(pid_t hostPid, const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord,
-        int32_t childProcessCount, bool isStartWithDebug);
+    ChildProcessRecord(pid_t hostPid, const ChildProcessRequest &request,
+        const std::shared_ptr<AppRunningRecord> hostRecord);
     ChildProcessRecord(pid_t hostPid, const std::string &libName, const std::shared_ptr<AppRunningRecord> hostRecord,
         const sptr<IRemoteObject> &mainProcessCb, int32_t childProcessCount, bool isStartWithDebug);
     virtual ~ChildProcessRecord();
 
-    static std::shared_ptr<ChildProcessRecord> CreateChildProcessRecord(pid_t hostPid, const std::string &srcEntry,
-        const std::shared_ptr<AppRunningRecord> hostRecord, int32_t childProcessCount, bool isStartWithDebug);
+    static std::shared_ptr<ChildProcessRecord> CreateChildProcessRecord(pid_t hostPid,
+        const ChildProcessRequest &request, const std::shared_ptr<AppRunningRecord> hostRecord);
     static std::shared_ptr<ChildProcessRecord> CreateNativeChildProcessRecord(pid_t hostPid, const std::string &libName,
         const std::shared_ptr<AppRunningRecord> hostRecord, const sptr<IRemoteObject> &mainProcessCb,
         int32_t childProcessCount, bool isStartWithDebug);
@@ -57,9 +58,12 @@ public:
     void RemoveDeathRecipient();
     void ScheduleExitProcessSafely();
     bool isStartWithDebug();
-    int32_t GetProcessType() const;
+    int32_t GetChildProcessType() const;
     sptr<IRemoteObject> GetMainProcessCallback() const;
     void ClearMainProcessCallback();
+    void SetEntryParams(const std::string &entryParams);
+    std::string GetEntryParams() const;
+
 private:
     void MakeProcessName(const std::shared_ptr<AppRunningRecord> hostRecord);
 
@@ -75,6 +79,7 @@ private:
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
     sptr<IRemoteObject> mainProcessCb_ = nullptr;
     bool isStartWithDebug_;
+    std::string entryParams_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

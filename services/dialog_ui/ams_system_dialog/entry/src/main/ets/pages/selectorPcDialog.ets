@@ -79,6 +79,7 @@ struct SelectorPcDialog {
     globalThis.abilityWant.bundleName = item.split('#')[0];
     globalThis.abilityWant.abilityName = item.split('#')[1];
     globalThis.abilityWant.moduleName = item.split('#')[4];
+    globalThis.abilityWant.parameters['ohos.extra.param.key.appCloneIndex'] = Number(item.split('#')[7]);
     globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
         console.error(this.TAG + ' startAbility finish, error: ' + JSON.stringify(error));
@@ -148,7 +149,7 @@ struct SelectorPcDialog {
                   let foregroundDescriptor: drawableDescriptor.DrawableDescriptor =
                     layeredDrawableDescriptor.getForeground();
                   if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
-                    globalThis.jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName,
+                    globalThis.jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName + ':' + hap.appIndex,
                       foregroundDescriptor.getPixelMap());
                   } else {
                     console.error(this.TAG, 'get foregroundDescriptor is null');
@@ -276,7 +277,7 @@ struct SelectorPcDialog {
                     if (item.split('#')[3] != '') {
                       if (item.split('#')[3].indexOf('image/json') > -1) {
                         Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4] +
-                          ':' + item.split('#')[1]))
+                          ':' + item.split('#')[1] + ':' + item.split('#')[7]))
                           .height(48)
                           .width(48)
                           .alignSelf(ItemAlign.Center)
@@ -372,7 +373,7 @@ struct SelectorPcDialog {
                     if (item.split('#')[3] != '') {
                       if (item.split('#')[3].indexOf('image/json') > -1) {
                         Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4] +
-                          ':' + item.split('#')[1]))
+                          ':' + item.split('#')[1] + ':' + item.split('#')[7]))
                           .height(48)
                           .width(48)
                           .alignSelf(ItemAlign.Center)

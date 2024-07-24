@@ -15,7 +15,6 @@
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include <unistd.h>
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"

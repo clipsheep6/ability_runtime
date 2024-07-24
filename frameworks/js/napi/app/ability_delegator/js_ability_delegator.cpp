@@ -18,7 +18,6 @@
 #include <mutex>
 #include "ability_delegator_registry.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_ability_delegator_utils.h"
 #include "js_context_utils.h"
 #include "js_error_utils.h"
@@ -144,7 +143,7 @@ JSAbilityDelegator::JSAbilityDelegator()
 
 void JSAbilityDelegator::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
     std::unique_ptr<JSAbilityDelegator>(static_cast<JSAbilityDelegator *>(data));
 }
 
@@ -255,7 +254,7 @@ napi_value JSAbilityDelegator::SetMockList(napi_env env, napi_callback_info info
 
 napi_value JSAbilityDelegator::OnAddAbilityMonitor(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, false)) {
@@ -284,7 +283,7 @@ napi_value JSAbilityDelegator::OnAddAbilityMonitor(napi_env env, NapiCallbackInf
 
 napi_value JSAbilityDelegator::OnAddAbilityMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, true)) {
@@ -303,7 +302,7 @@ napi_value JSAbilityDelegator::OnAddAbilityMonitorSync(napi_env env, NapiCallbac
 
 napi_value JSAbilityDelegator::OnAddAbilityStageMonitor(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
@@ -337,7 +336,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitor(napi_env env, NapiCallba
 
 napi_value JSAbilityDelegator::OnAddAbilityStageMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
@@ -360,7 +359,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitorSync(napi_env env, NapiCa
 
 napi_value JSAbilityDelegator::OnRemoveAbilityMonitor(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, false)) {
@@ -404,7 +403,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityMonitor(napi_env env, NapiCallback
 
 napi_value JSAbilityDelegator::OnRemoveAbilityMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, true)) {
@@ -432,7 +431,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityMonitorSync(napi_env env, NapiCall
 
 napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitor(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
@@ -468,7 +467,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitor(napi_env env, NapiCal
 
 napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
@@ -492,7 +491,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(napi_env env, Nap
 
 napi_value JSAbilityDelegator::OnWaitAbilityMonitor(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     TimeoutCallback opt {false, false};
@@ -552,7 +551,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityMonitor(napi_env env, NapiCallbackIn
 
 napi_value JSAbilityDelegator::OnWaitAbilityStageMonitor(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
     TimeoutCallback opt {false, false};
@@ -606,7 +605,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityStageMonitor(napi_env env, NapiCallb
 
 napi_value JSAbilityDelegator::OnPrint(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string msg;
     if (!ParsePrintPara(env, info, msg)) {
@@ -635,7 +634,7 @@ napi_value JSAbilityDelegator::OnPrint(napi_env env, NapiCallbackInfo& info)
 
 napi_value JSAbilityDelegator::OnPrintSync(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string msg;
     if (!ParsePrintPara(env, info, msg)) {
@@ -656,7 +655,7 @@ napi_value JSAbilityDelegator::OnPrintSync(napi_env env, NapiCallbackInfo& info)
 
 napi_value JSAbilityDelegator::OnExecuteShellCommand(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string cmd;
     TimeoutCallback opt {false, false};
@@ -715,7 +714,7 @@ napi_value JSAbilityDelegator::OnExecuteShellCommand(napi_env env, NapiCallbackI
 
 napi_value JSAbilityDelegator::OnGetAppContext(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
@@ -744,7 +743,7 @@ napi_value JSAbilityDelegator::OnGetAppContext(napi_env env, NapiCallbackInfo& i
 
 napi_value JSAbilityDelegator::OnGetAbilityState(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::DELEGATOR, "Incorrect number of parameters");
@@ -770,7 +769,7 @@ napi_value JSAbilityDelegator::OnGetAbilityState(napi_env env, NapiCallbackInfo&
 
 napi_value JSAbilityDelegator::OnGetCurrentTopAbility(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     if (info.argc >= ARGC_ONE && !AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
         TAG_LOGE(AAFwkTag::DELEGATOR, "Parse getCurrentTopAbility parameter failed");
@@ -808,7 +807,7 @@ napi_value JSAbilityDelegator::OnGetCurrentTopAbility(napi_env env, NapiCallback
 
 napi_value JSAbilityDelegator::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     AAFwk::Want want;
     if (!ParseStartAbilityPara(env, info, want)) {
@@ -841,7 +840,7 @@ napi_value JSAbilityDelegator::OnStartAbility(napi_env env, NapiCallbackInfo& in
 
 napi_value JSAbilityDelegator::OnDoAbilityForeground(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityCommonPara(env, info, remoteObject)) {
@@ -873,7 +872,7 @@ napi_value JSAbilityDelegator::OnDoAbilityForeground(napi_env env, NapiCallbackI
 
 napi_value JSAbilityDelegator::OnDoAbilityBackground(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityCommonPara(env, info, remoteObject)) {
@@ -905,7 +904,7 @@ napi_value JSAbilityDelegator::OnDoAbilityBackground(napi_env env, NapiCallbackI
 
 napi_value JSAbilityDelegator::OnFinishTest(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string msg;
     int64_t code = 0;
@@ -934,7 +933,7 @@ napi_value JSAbilityDelegator::OnFinishTest(napi_env env, NapiCallbackInfo& info
 
 napi_value JSAbilityDelegator::OnSetMockList(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    TAG_LOGI(AAFwkTag::DELEGATOR, "argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::map<std::string, std::string> mockList;
     if (!ParseMockListPara(env, info, mockList)) {
@@ -950,7 +949,7 @@ napi_value JSAbilityDelegator::OnSetMockList(napi_env env, NapiCallbackInfo& inf
 napi_value JSAbilityDelegator::ParseMonitorPara(
     napi_env env, napi_value value, std::shared_ptr<AbilityMonitor> &monitor)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, monitorRecord size = %{public}zu", g_monitorRecord.size());
+    TAG_LOGI(AAFwkTag::DELEGATOR, "monitorRecord size = %{public}zu", g_monitorRecord.size());
 
     for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
@@ -1008,7 +1007,7 @@ napi_value JSAbilityDelegator::ParseMonitorPara(
 napi_value JSAbilityDelegator::ParseStageMonitorPara(
     napi_env env, napi_value value, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter, stageMonitorRecord size = %{public}zu", g_stageMonitorRecord.size());
+    TAG_LOGI(AAFwkTag::DELEGATOR, "stageMonitorRecord size = %{public}zu", g_stageMonitorRecord.size());
 
     isExisted = false;
     for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {

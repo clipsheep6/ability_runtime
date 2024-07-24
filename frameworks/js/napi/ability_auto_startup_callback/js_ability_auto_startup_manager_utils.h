@@ -17,7 +17,6 @@
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_AUTO_STARTUP_MANAGER_UTILS_H
 
 #include "auto_startup_info.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "native_engine/native_engine.h"

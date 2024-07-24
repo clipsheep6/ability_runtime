@@ -16,22 +16,16 @@
 #include "free_install_observer_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 FreeInstallObserverStub::FreeInstallObserverStub()
-{
-    memberFuncMap_[IFreeInstallObserver::ON_INSTALL_FINISHED] =
-        &FreeInstallObserverStub::OnInstallFinishedInner;
-}
+{}
 
 FreeInstallObserverStub::~FreeInstallObserverStub()
-{
-    memberFuncMap_.clear();
-}
+{}
 
 int FreeInstallObserverStub::OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -41,6 +35,16 @@ int FreeInstallObserverStub::OnInstallFinishedInner(MessageParcel &data, Message
     int resultCode = data.ReadInt32();
 
     OnInstallFinished(bundleName, abilityName, startTime, resultCode);
+    return NO_ERROR;
+}
+
+int FreeInstallObserverStub::OnInstallFinishedByUrlInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string startTime = data.ReadString();
+    std::string url = data.ReadString();
+    int resultCode = data.ReadInt32();
+
+    OnInstallFinishedByUrl(startTime, url, resultCode);
     return NO_ERROR;
 }
 
@@ -54,12 +58,11 @@ int FreeInstallObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    switch (code) {
+        case IFreeInstallObserver::ON_INSTALL_FINISHED:
+            return OnInstallFinishedInner(data, reply);
+        case IFreeInstallObserver::ON_INSTALL_FINISHED_BY_URL:
+            return OnInstallFinishedByUrlInner(data, reply);
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

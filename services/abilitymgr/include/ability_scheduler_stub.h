@@ -75,8 +75,14 @@ private:
     int ShareDataInner(MessageParcel &data, MessageParcel &reply);
     int CreateModalUIExtensionInner(MessageParcel &data, MessageParcel &reply);
     int UpdateSessionTokenInner(MessageParcel &data, MessageParcel &reply);
-    using RequestFuncType = int (AbilitySchedulerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
+    int OnRemoteRequestInner(
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFirst(
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSecond(
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThird(
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 
 /**

@@ -21,7 +21,6 @@
 #include "ability_manager_client.h"
 #include "app_mgr_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
 #include "bool_wrapper.h"
@@ -52,7 +51,7 @@ constexpr int OPTION_WINDOW_WIDTH = 264;
 
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 
-const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSNR";
+const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDESNR";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -63,6 +62,7 @@ constexpr struct option LONG_OPTIONS[] = {
     {"module", required_argument, nullptr, 'm'},
     {"cold-start", no_argument, nullptr, 'C'},
     {"debug", no_argument, nullptr, 'D'},
+    {"error-info-enhance", no_argument, nullptr, 'E'},
     {"native-debug", no_argument, nullptr, 'N'},
     {"mutil-thread", no_argument, nullptr, 'R'},
     {"action", required_argument, nullptr, 'A'},
@@ -157,26 +157,26 @@ AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char* argv[]) :
 ErrCode AbilityManagerShellCommand::CreateCommandMap()
 {
     commandMap_ = {
-        {"help", std::bind(&AbilityManagerShellCommand::RunAsHelpCommand, this)},
-        {"screen", std::bind(&AbilityManagerShellCommand::RunAsScreenCommand, this)},
-        {"start", std::bind(&AbilityManagerShellCommand::RunAsStartAbility, this)},
-        {"stop-service", std::bind(&AbilityManagerShellCommand::RunAsStopService, this)},
-        {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
-        {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
-        {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
-        {"process", std::bind(&AbilityManagerShellCommand::RunAsProcessCommand, this)},
-        {"attach", std::bind(&AbilityManagerShellCommand::RunAsAttachDebugCommand, this)},
-        {"detach", std::bind(&AbilityManagerShellCommand::RunAsDetachDebugCommand, this)},
-        {"appdebug", std::bind(&AbilityManagerShellCommand::RunAsAppDebugDebugCommand, this)},
+        {"help", [this]() { return this->RunAsHelpCommand(); }},
+        {"screen", [this]() { return this->RunAsScreenCommand(); }},
+        {"start", [this]() { return this->RunAsStartAbility(); }},
+        {"stop-service", [this]() { return this->RunAsStopService(); }},
+        {"dump", [this]() { return this->RunAsDumpsysCommand(); }},
+        {"force-stop", [this]() { return this->RunAsForceStop(); }},
+        {"test", [this]() { return this->RunAsTestCommand(); }},
+        {"process", [this]() { return this->RunAsProcessCommand(); }},
+        {"attach", [this]() { return this->RunAsAttachDebugCommand(); }},
+        {"detach", [this]() { return this->RunAsDetachDebugCommand(); }},
+        {"appdebug", [this]() { return this->RunAsAppDebugDebugCommand(); }},
 #ifdef ABILITY_COMMAND_FOR_TEST
-        {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
-        {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
-        {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
-        {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
+        {"force-timeout", [this]() { return this->RunForceTimeoutForTest(); }},
+        {"block-ability", [this]() { return this->RunAsBlockAbilityCommand(); }},
+        {"block-ams-service", [this]() { return this->RunAsBlockAmsServiceCommand(); }},
+        {"block-app-service", [this]() { return this->RunAsBlockAppServiceCommand(); }},
 #endif
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
-        {"forceexitapp", std::bind(&AbilityManagerShellCommand::RunAsForceExitAppCommand, this)},
-        {"notifyappfault", std::bind(&AbilityManagerShellCommand::RunAsNotifyAppFaultCommand, this)},
+        {"forceexitapp", [this]() { return this->RunAsForceExitAppCommand(); }},
+        {"notifyappfault", [this]() { return this->RunAsNotifyAppFaultCommand(); }},
 #endif
     };
 
@@ -185,142 +185,39 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
 
 ErrCode AbilityManagerShellCommand::CreateMessageMap()
 {
-    messageMap_ = {
-        //  code + message
-        {
-            RESOLVE_ABILITY_ERR,
-            "error: resolve ability err.",
-        },
-        {
-            GET_ABILITY_SERVICE_FAILED,
-            "error: get ability service failed.",
-        },
-        {
-            ABILITY_SERVICE_NOT_CONNECTED,
-            "error: ability service not connected.",
-        },
-        {
-            RESOLVE_APP_ERR,
-            "error: resolve app err.",
-        },
-        {
-            ABILITY_EXISTED,
-            "error: ability existed.",
-        },
-        {
-            CREATE_MISSION_STACK_FAILED,
-            "error: create mission stack failed.",
-        },
-        {
-            CREATE_ABILITY_RECORD_FAILED,
-            "error: create ability record failed.",
-        },
-        {
-            START_ABILITY_WAITING,
-            "start ability successfully. waiting...",
-        },
-        {
-            TERMINATE_LAUNCHER_DENIED,
-            "error: terminate launcher denied.",
-        },
-        {
-            CONNECTION_NOT_EXIST,
-            "error: connection not exist.",
-        },
-        {
-            INVALID_CONNECTION_STATE,
-            "error: invalid connection state.",
-        },
-        {
-            LOAD_ABILITY_TIMEOUT,
-            "error: load ability timeout.",
-        },
-        {
-            CONNECTION_TIMEOUT,
-            "error: connection timeout.",
-        },
-        {
-            GET_BUNDLE_MANAGER_SERVICE_FAILED,
-            "error: get bundle manager service failed.",
-        },
-        {
-            REMOVE_MISSION_FAILED,
-            "error: remove mission failed.",
-        },
-        {
-            INNER_ERR,
-            "error: inner err.",
-        },
-        {
-            GET_RECENT_MISSIONS_FAILED,
-            "error: get recent missions failed.",
-        },
-        {
-            REMOVE_STACK_LAUNCHER_DENIED,
-            "error: remove stack launcher denied.",
-        },
-        {
-            TARGET_ABILITY_NOT_SERVICE,
-            "error: target ability not service.",
-        },
-        {
-            TERMINATE_SERVICE_IS_CONNECTED,
-            "error: terminate service is connected.",
-        },
-        {
-            START_SERVICE_ABILITY_ACTIVATING,
-            "error: start service ability activating.",
-        },
-        {
-            KILL_PROCESS_FAILED,
-            "error: kill process failed.",
-        },
-        {
-            UNINSTALL_APP_FAILED,
-            "error: uninstall app failed.",
-        },
-        {
-            TERMINATE_ABILITY_RESULT_FAILED,
-            "error: terminate ability result failed.",
-        },
-        {
-            CHECK_PERMISSION_FAILED,
-            "error: check permission failed.",
-        },
-        {
-            NO_FOUND_ABILITY_BY_CALLER,
-            "error: no found ability by caller.",
-        },
-        {
-            ABILITY_VISIBLE_FALSE_DENY_REQUEST,
-            "error: ability visible false deny request.",
-        },
-        {
-            GET_BUNDLE_INFO_FAILED,
-            "error: get bundle info failed.",
-        },
-        {
-            ERR_NOT_DEVELOPER_MODE,
-            "error: not developer mode.",
-        },
-        {
-            KILL_PROCESS_KEEP_ALIVE,
-            "error: keep alive process can not be killed.",
-        },
-        {
-            ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE,
-            "error: unlock screen failed in developer mode."
-        },
-        {
-            ERR_NOT_SUPPORTED_PRODUCT_TYPE,
-            "error: not supported in the current product type."
-        },
-        {
-            ERR_NOT_IN_APP_PROVISION_MODE,
-            "error: not supported in non-app-provision mode."
-        }
-    };
-
+    messageMap_[RESOLVE_ABILITY_ERR] = "error: resolve ability err.";
+    messageMap_[GET_ABILITY_SERVICE_FAILED] = "error: get ability service failed.";
+    messageMap_[ABILITY_SERVICE_NOT_CONNECTED] = "error: ability service not connected.";
+    messageMap_[RESOLVE_APP_ERR] = "error: resolve app err.";
+    messageMap_[ABILITY_EXISTED] = "error: ability existed.";
+    messageMap_[CREATE_MISSION_STACK_FAILED] = "error: create mission stack failed.";
+    messageMap_[CREATE_ABILITY_RECORD_FAILED] = "error: create ability record failed.";
+    messageMap_[START_ABILITY_WAITING] = "start ability successfully. waiting...";
+    messageMap_[TERMINATE_LAUNCHER_DENIED] = "error: terminate launcher denied.";
+    messageMap_[CONNECTION_NOT_EXIST] = "error: connection not exist.";
+    messageMap_[INVALID_CONNECTION_STATE] = "error: invalid connection state.";
+    messageMap_[LOAD_ABILITY_TIMEOUT] = "error: load ability timeout.";
+    messageMap_[CONNECTION_TIMEOUT] = "error: connection timeout.";
+    messageMap_[GET_BUNDLE_MANAGER_SERVICE_FAILED] = "error: get bundle manager service failed.";
+    messageMap_[REMOVE_MISSION_FAILED] = "error: remove mission failed.";
+    messageMap_[INNER_ERR] = "error: inner err.";
+    messageMap_[GET_RECENT_MISSIONS_FAILED] = "error: get recent missions failed.";
+    messageMap_[REMOVE_STACK_LAUNCHER_DENIED] = "error: remove stack launcher denied.";
+    messageMap_[TARGET_ABILITY_NOT_SERVICE] = "error: target ability not service.";
+    messageMap_[TERMINATE_SERVICE_IS_CONNECTED] = "error: terminate service is connected.";
+    messageMap_[START_SERVICE_ABILITY_ACTIVATING] = "error: start service ability activating.";
+    messageMap_[KILL_PROCESS_FAILED] = "error: kill process failed.";
+    messageMap_[UNINSTALL_APP_FAILED] = "error: uninstall app failed.";
+    messageMap_[TERMINATE_ABILITY_RESULT_FAILED] = "error: terminate ability result failed.";
+    messageMap_[CHECK_PERMISSION_FAILED] = "error: check permission failed.";
+    messageMap_[NO_FOUND_ABILITY_BY_CALLER] = "error: no found ability by caller.";
+    messageMap_[ABILITY_VISIBLE_FALSE_DENY_REQUEST] = "error: ability visible false deny request.";
+    messageMap_[GET_BUNDLE_INFO_FAILED] = "error: get bundle info failed.";
+    messageMap_[ERR_NOT_DEVELOPER_MODE] = "error: not developer mode.";
+    messageMap_[KILL_PROCESS_KEEP_ALIVE] = "error: keep alive process can not be killed.";
+    messageMap_[ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE] = "error: unlock screen failed in developer mode.";
+    messageMap_[ERR_NOT_SUPPORTED_PRODUCT_TYPE] = "error: not supported in the current product type.";
+    messageMap_[ERR_NOT_IN_APP_PROVISION_MODE] = "error: not supported in non-app-provision mode.";
     return OHOS::ERR_OK;
 }
 
@@ -334,6 +231,46 @@ ErrCode AbilityManagerShellCommand::RunAsHelpCommand()
     resultReceiver_.append(HELP_MSG);
 
     return OHOS::ERR_OK;
+}
+
+void AbilityManagerShellCommand::HandleInvalidScreenOptions(int& result)
+{
+    switch (optopt) {
+        case 'p': {
+            // 'aa screen -p' with no argument
+            TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -p' with no argument.", cmd_.c_str());
+
+            resultReceiver_.append("error: option ");
+            resultReceiver_.append("requires a value.\n");
+
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+        case 0: {
+            // 'aa screen' with an unknown option: aa screen --x
+            // 'aa screen' with an unknown option: aa screen --xxx
+            std::string unknownOption = "";
+            std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+            TAG_LOGI(AAFwkTag::AA_TOOL, "'aa screen' with an unknown option.");
+
+            resultReceiver_.append(unknownOptionMsg);
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+        default: {
+            // 'aa screen' with an unknown option: aa screen -x
+            // 'aa screen' with an unknown option: aa screen -xxx
+            std::string unknownOption = "";
+            std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+            TAG_LOGI(AAFwkTag::AA_TOOL, "'aa screen' with an unknown option.");
+
+            resultReceiver_.append(unknownOptionMsg);
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+    }
 }
 
 ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
@@ -370,42 +307,7 @@ ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
         }
 
         if (option == '?') {
-            switch (optopt) {
-                case 'p': {
-                    // 'aa screen -p' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -p' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 0: {
-                    // 'aa screen' with an unknown option: aa screen --x
-                    // 'aa screen' with an unknown option: aa screen --xxx
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa screen' with an unknown option.");
-
-                    resultReceiver_.append(unknownOptionMsg);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                default: {
-                    // 'aa screen' with an unknown option: aa screen -x
-                    // 'aa screen' with an unknown option: aa screen -xxx
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa screen' with an unknown option.");
-
-                    resultReceiver_.append(unknownOptionMsg);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-            }
+            HandleInvalidScreenOptions(result);
             break;
         }
 
@@ -819,7 +721,7 @@ pid_t AbilityManagerShellCommand::ConvertPid(std::string& inputPid)
 
 ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
 {
-    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "called");
     std::string bundleName = "";
     ParseBundleName(bundleName);
     if (bundleName.empty()) {
@@ -840,7 +742,7 @@ ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
 
 ErrCode AbilityManagerShellCommand::RunAsDetachDebugCommand()
 {
-    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "called");
     std::string bundleName = "";
     ParseBundleName(bundleName);
     if (bundleName.empty()) {
@@ -944,7 +846,7 @@ bool AbilityManagerShellCommand::ParseAppDebugParameter(
 
 ErrCode AbilityManagerShellCommand::RunAsAppDebugDebugCommand()
 {
-    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "called");
     std::string bundleName;
     bool isPersist = false;
     bool isCancel = false;
@@ -1488,6 +1390,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     std::string typeVal;
     bool isColdStart = false;
     bool isDebugApp = false;
+    bool isErrorInfoEnhance = false;
     bool isContinuation = false;
     bool isSandboxApp = false;
     bool isNativeDebug = false;
@@ -1984,6 +1887,13 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 isDebugApp = true;
                 break;
             }
+            case 'E': {
+                // 'aa start -E'
+                // error info enhance
+                isErrorInfoEnhance = true;
+                TAG_LOGD(AAFwkTag::AA_TOOL, "isErrorInfoEnhance");
+                break;
+            }
             case 'S': {
                 // 'aa start -b <bundleName> -a <abilityName> -p <perf-cmd> -S'
                 // enter sandbox to perform app
@@ -2007,6 +1917,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // app multi thread
                 isMultiThread = true;
                 TAG_LOGD(AAFwkTag::AA_TOOL, "isMultiThread");
+                break;
             }
             case 0: {
                 // 'aa start' with an unknown option: aa start -x
@@ -2071,6 +1982,9 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (!typeVal.empty()) {
                 want.SetType(typeVal);
+            }
+            if (isErrorInfoEnhance) {
+                want.SetParam("errorInfoEnhance", isErrorInfoEnhance);
             }
             if (isMultiThread) {
                 want.SetParam("multiThread", isMultiThread);

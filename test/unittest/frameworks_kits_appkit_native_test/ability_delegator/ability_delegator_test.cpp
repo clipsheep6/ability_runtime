@@ -22,14 +22,13 @@
 #define private public
 #include "ability_delegator.h"
 #include "ability_manager_client.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context_impl.h"
+#include "context_impl.h"
 #undef private
 
 #include "ability_delegator_infos.h"
 #include "ability_delegator_registry.h"
 #include "app_loader.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "mock_ability_delegator_stub.h"
 #include "mock_iability_monitor.h"

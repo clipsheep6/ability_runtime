@@ -17,7 +17,6 @@
 
 #include "ability_delegator_registry.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_ability_stage_context.h"
 #include "js_context_utils.h"
 #include "js_runtime.h"
@@ -48,9 +47,9 @@ constexpr const char* EXCLUDE_FROM_AUTO_START = "excludeFromAutoStart";
 constexpr const char* RUN_ON_THREAD = "runOnThread";
 constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
 constexpr const char* CONFIG_ENTRY = "configEntry";
-constexpr const char *MAIN_THREAD = "mainThread";
 constexpr const char *TASKPOOL = "taskPool";
-    
+constexpr const char *TASKPOOL_LOWER = "taskpool";
+
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "AttachAbilityStageContext");
@@ -63,7 +62,7 @@ napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
         TAG_LOGW(AAFwkTag::APPKIT, "invalid context.");
         return nullptr;
     }
-    napi_value object = CreateJsAbilityStageContext(env, ptr, nullptr, nullptr);
+    napi_value object = CreateJsAbilityStageContext(env, ptr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &object, 1);
     if (systemModule == nullptr) {
         TAG_LOGW(AAFwkTag::APPKIT, "invalid systemModule.");
@@ -169,7 +168,7 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context,
         TAG_LOGE(AAFwkTag::APPKIT, "stage is nullptr");
         return;
     }
-    
+
     SetJsAbilityStage(context);
 }
 
@@ -409,42 +408,42 @@ int32_t JsAbilityStage::RunAutoStartupTask(const std::function<void()> &callback
 
 int32_t JsAbilityStage::RegisterStartupTaskFromProfile(std::vector<JsStartupTask> &jsStartupTasks)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "RegisterStartupTaskFromProfile called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     std::vector<std::string> profileInfo;
     if (!GetProfileInfoFromResourceManager(profileInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "appStartup config not exist.");
         return ERR_INVALID_VALUE;
     }
-    
+
     if (!AnalyzeProfileInfoAndRegisterStartupTask(profileInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "appStartup config not exist.");
         return ERR_INVALID_VALUE;
     }
-    
+
     return ERR_OK;
 }
 
 bool JsAbilityStage::GetProfileInfoFromResourceManager(std::vector<std::string> &profileInfo)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "GetProfileInfoFromResourceManager called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto context = GetContext();
     if (!context) {
         TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr.");
         return false;
     }
-    
+
     auto resMgr = context->GetResourceManager();
     if (!resMgr) {
         TAG_LOGE(AAFwkTag::APPKIT, "resMgr is nullptr.");
         return false;
     }
-    
+
     auto hapModuleInfo = context->GetHapModuleInfo();
     if (!hapModuleInfo) {
         TAG_LOGE(AAFwkTag::APPKIT, "hapModuleInfo is nullptr.");
         return false;
     }
-    
+
     jsRuntime_.UpdateModuleNameAndAssetPath(hapModuleInfo->moduleName);
     bool isCompressed = !hapModuleInfo->hapPath.empty();
     std::string appStartup = hapModuleInfo->appStartup;
@@ -452,7 +451,7 @@ bool JsAbilityStage::GetProfileInfoFromResourceManager(std::vector<std::string> 
         TAG_LOGE(AAFwkTag::APPKIT, "appStartup invalid.");
         return false;
     }
-    
+
     GetResFromResMgr(appStartup, resMgr, isCompressed, profileInfo);
     if (profileInfo.empty()) {
         TAG_LOGE(AAFwkTag::APPKIT, "appStartup config not exist.");
@@ -482,17 +481,17 @@ std::unique_ptr<NativeReference> JsAbilityStage::LoadJsSrcEntry(const std::strin
     bool esmodule = hapModuleInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE;
     std::string moduleName(hapModuleInfo->moduleName);
     std::string srcPath(moduleName + "/" + srcEntry);
-    
+
     auto pos = srcPath.rfind('.');
     if (pos == std::string::npos) {
         return nullptr;
     }
     srcPath.erase(pos);
     srcPath.append(".abc");
-    
+
     std::unique_ptr<NativeReference> jsCode(
         jsRuntime_.LoadModule(moduleName, srcPath, hapModuleInfo->hapPath, esmodule));
-    
+
     return jsCode;
 }
 
@@ -525,7 +524,7 @@ void JsAbilityStage::SetOptionalParameters(
     const nlohmann::json &module,
     JsStartupTask &jsStartupTask)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "SetOptionalParameters called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (module.contains(DEPENDENCIES) && module[DEPENDENCIES].is_array()) {
         std::vector<std::string> dependencies;
         for (const auto& dependency : module.at(DEPENDENCIES)) {
@@ -544,15 +543,13 @@ void JsAbilityStage::SetOptionalParameters(
 
     if (module.contains(RUN_ON_THREAD) && module[RUN_ON_THREAD].is_string()) {
         std::string profileName = module.at(RUN_ON_THREAD).get<std::string>();
-        if (profileName == MAIN_THREAD) {
-            jsStartupTask.SetCallCreateOnMainThread(true);
-        } else if (profileName == TASKPOOL) {
+        if (profileName == TASKPOOL || profileName == TASKPOOL_LOWER) {
             jsStartupTask.SetCallCreateOnMainThread(false);
         } else {
-            TAG_LOGW(AAFwkTag::APPKIT, "RunOnThread configuration is invalid.");
+            jsStartupTask.SetCallCreateOnMainThread(true);
         }
     }
-    
+
     if (module.contains(WAIT_ON_MAIN_THREAD) && module[WAIT_ON_MAIN_THREAD].is_boolean()) {
         jsStartupTask.SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());
     } else {
@@ -562,7 +559,7 @@ void JsAbilityStage::SetOptionalParameters(
 
 bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<std::string> &profileInfo)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "AnalyzeProfileInfoAndRegisterStartupTask called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     std::string startupInfo;
     for (const std::string& info: profileInfo) {
         startupInfo.append(info);
@@ -598,7 +595,7 @@ bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<
             TAG_LOGE(AAFwkTag::APPKIT, "Invalid module data.");
             return false;
         }
-        
+
         std::unique_ptr<NativeReference> startupJsRef = LoadJsSrcEntry(module.at(SRC_ENTRY).get<std::string>());
         if (startupJsRef == nullptr) {
             TAG_LOGE(AAFwkTag::APPKIT, "load js appStartup tasks failed.");
@@ -730,7 +727,7 @@ bool JsAbilityStage::GetResFromResMgr(
         TAG_LOGE(AAFwkTag::APPKIT, "res name is empty.");
         return false;
     }
-    
+
     size_t pos = resName.rfind(PROFILE_FILE_PREFIX);
     if ((pos == std::string::npos) || (pos == resName.length() - strlen(PROFILE_FILE_PREFIX))) {
         TAG_LOGE(AAFwkTag::APPKIT, "res name %{public}s is invalid.", resName.c_str());
@@ -781,10 +778,10 @@ void JsAbilityStage::SetJsAbilityStage(const std::shared_ptr<Context> &context)
         TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
         return;
     }
-    
+
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
-    
+
     napi_value obj = nullptr;
     if (jsAbilityStageObj_) {
         obj = jsAbilityStageObj_->GetNapiValue();
@@ -793,8 +790,8 @@ void JsAbilityStage::SetJsAbilityStage(const std::shared_ptr<Context> &context)
             return;
         }
     }
-    
-    napi_value contextObj = CreateJsAbilityStageContext(env, context, nullptr, nullptr);
+
+    napi_value contextObj = CreateJsAbilityStageContext(env, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &contextObj, 1);
     if (shellContextRef_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get LoadSystemModuleByEngine");
@@ -809,7 +806,7 @@ void JsAbilityStage::SetJsAbilityStage(const std::shared_ptr<Context> &context)
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachAbilityStageContext, workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
-    
+
     if (obj != nullptr) {
         napi_set_named_property(env, obj, "context", contextObj);
     }

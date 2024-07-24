@@ -17,7 +17,6 @@
 
 #include "form_extension.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
 FormExtensionModuleLoader::FormExtensionModuleLoader() = default;

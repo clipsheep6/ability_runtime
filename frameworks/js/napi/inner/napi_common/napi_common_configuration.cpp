@@ -17,7 +17,6 @@
 
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_util.h"
 
 namespace OHOS {
@@ -96,7 +95,7 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
 
 bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);

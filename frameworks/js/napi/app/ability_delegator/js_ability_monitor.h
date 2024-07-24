@@ -18,7 +18,6 @@
 
 #include <memory>
 #include <string>
-#include "hilog_wrapper.h"
 #include "native_engine/native_reference.h"
 
 namespace OHOS {

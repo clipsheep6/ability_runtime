@@ -18,7 +18,6 @@
 #include <sstream>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "native_engine/native_engine.h"
 #ifdef SUPPORT_GRAPHICS
 #include "ui_content.h"

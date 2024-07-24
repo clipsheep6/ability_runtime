@@ -16,21 +16,13 @@
 #include "insight_intent_execute_callback_stub.h"
 #include "insight_intent_host_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 
-InsightIntentExecuteCallbackStub::InsightIntentExecuteCallbackStub()
-{
-    requestFuncMap_[ON_INSIGHT_INTENT_EXECUTE_DONE] = &InsightIntentExecuteCallbackStub::OnExecuteDoneInner;
-}
+InsightIntentExecuteCallbackStub::InsightIntentExecuteCallbackStub() {}
 
-InsightIntentExecuteCallbackStub::~InsightIntentExecuteCallbackStub()
-{
-    TAG_LOGD(AAFwkTag::INTENT, "call");
-    requestFuncMap_.clear();
-}
+InsightIntentExecuteCallbackStub::~InsightIntentExecuteCallbackStub() {}
 
 int32_t InsightIntentExecuteCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -40,13 +32,10 @@ int32_t InsightIntentExecuteCallbackStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    if (code == ON_INSIGHT_INTENT_EXECUTE_DONE) {
+        return OnExecuteDoneInner(data, reply);
     }
+
     TAG_LOGW(AAFwkTag::INTENT, "default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

@@ -16,7 +16,6 @@
 #include "connection_observer_proxy.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 
@@ -52,7 +51,7 @@ void ConnectionObserverProxy::OnExtensionDisconnected(const ConnectionData& conn
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    TAG_LOGD(AAFwkTag::CONNECTION, "called.");
+    TAG_LOGD(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
         return;
@@ -70,6 +69,7 @@ void ConnectionObserverProxy::OnExtensionDisconnected(const ConnectionData& conn
     }
 }
 
+#ifdef WITH_DLP
 void ConnectionObserverProxy::OnDlpAbilityOpened(const DlpStateData& dlpData)
 {
     MessageParcel data;
@@ -117,6 +117,7 @@ void ConnectionObserverProxy::OnDlpAbilityClosed(const DlpStateData& dlpData)
         return;
     }
 }
+#endif // WITH_DLP
 
 int32_t ConnectionObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)

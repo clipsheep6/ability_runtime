@@ -17,7 +17,6 @@
 
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_object_stub.h"
 using namespace testing;
 using namespace testing::ext;

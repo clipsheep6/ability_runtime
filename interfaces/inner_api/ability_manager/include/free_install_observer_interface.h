@@ -36,8 +36,19 @@ public:
     virtual void OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode) = 0;
 
+    /**
+     * OnInstallFinishedByUrl, return free install result.
+     *
+     * @param startTime Free install start request time.
+     * @param url Free install url.
+     * @param resultCode The result of this free install.
+     */
+    virtual void OnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+        const int &resultCode) = 0;
+
     enum {
         ON_INSTALL_FINISHED = 1,
+        ON_INSTALL_FINISHED_BY_URL = 2,
     };
 };
 } // namespace AbilityRuntime

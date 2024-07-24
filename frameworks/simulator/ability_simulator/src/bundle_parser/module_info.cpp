@@ -16,7 +16,6 @@
 #include "module_info.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"

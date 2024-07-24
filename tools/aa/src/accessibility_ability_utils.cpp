@@ -18,7 +18,6 @@
 
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 

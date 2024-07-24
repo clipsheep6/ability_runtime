@@ -19,7 +19,6 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -74,7 +73,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
 
 void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto server = server_.lock();
     CHECK_POINTER(server);
     if (event.GetRunCount() == 0) {
@@ -92,7 +91,7 @@ void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 
 void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleActiveTimeOut(abilityRecordId);
@@ -100,7 +99,7 @@ void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 
 void AbilityEventHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleInactiveTimeOut(abilityRecordId);

@@ -19,7 +19,6 @@
 #include "ability_runtime/cj_ability_context.h"
 #include "cj_common_ffi.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

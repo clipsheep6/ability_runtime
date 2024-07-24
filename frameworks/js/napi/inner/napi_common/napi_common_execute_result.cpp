@@ -16,7 +16,6 @@
 #include "napi_common_execute_result.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "insight_intent_execute_result.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
@@ -28,7 +27,7 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteResult &executeResult)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_valuetype::napi_object)) {
         TAG_LOGE(AAFwkTag::JSNAPI, "UnwrapExecuteResult not object");

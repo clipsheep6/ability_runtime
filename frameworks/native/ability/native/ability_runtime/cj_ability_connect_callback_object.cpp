@@ -17,7 +17,6 @@
 
 #include "cj_remote_object_ffi.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace OHOS::AbilityRuntime;
 

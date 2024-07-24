@@ -16,7 +16,6 @@
 #include "quick_fix_callback_proxy.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "parcel_macro_base.h"
 
@@ -24,7 +23,7 @@ namespace OHOS {
 namespace AppExecFwk {
 void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 
     MessageParcel data;
     MessageParcel reply;
@@ -41,7 +40,7 @@ void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode, int32_t recordId
 
 void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 
     MessageParcel data;
     MessageParcel reply;
@@ -58,7 +57,7 @@ void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode, int32_t record
 
 void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode, int32_t recordId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 
     MessageParcel data;
     MessageParcel reply;

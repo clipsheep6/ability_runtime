@@ -44,7 +44,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
         if (want) {
+#ifdef WITH_DLP
             abilitymgr->HandleDlpApp(*want);
+#endif // WITH_DLP
             delete want;
             want = nullptr;
         }

@@ -18,7 +18,6 @@
 #define private public
 #include "ams_mgr_scheduler.h"
 #undef private
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

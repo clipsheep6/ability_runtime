@@ -16,7 +16,6 @@
 #include "reverse_continuation_scheduler_primary_stub.h"
 #include "ability_scheduler_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -24,16 +23,9 @@ namespace AppExecFwk {
 const std::string ReverseContinuationSchedulerPrimaryStub::DESCRIPTOR(
     "ohos.abilityshell.ReverseContinuationSchedulerMaster");
 
-ReverseContinuationSchedulerPrimaryStub::ReverseContinuationSchedulerPrimaryStub()
-{
-    requestFuncMap_[NOTIFY_REPLICA_TERMINATED] = &ReverseContinuationSchedulerPrimaryStub::NotifyReplicaTerminatedInner;
-    requestFuncMap_[CONTINUATION_BACK] = &ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner;
-}
+ReverseContinuationSchedulerPrimaryStub::ReverseContinuationSchedulerPrimaryStub() {}
 
-ReverseContinuationSchedulerPrimaryStub::~ReverseContinuationSchedulerPrimaryStub()
-{
-    requestFuncMap_.clear();
-}
+ReverseContinuationSchedulerPrimaryStub::~ReverseContinuationSchedulerPrimaryStub() {}
 
 /**
  * @brief Sets an entry for receiving requests.
@@ -56,19 +48,11 @@ int ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest(
             "ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, DESCRIPTOR != touken");
         return -1;
     }
-
-    auto iter = requestFuncMap_.find(code);
-    if (iter != requestFuncMap_.end()) {
-        auto func = iter->second;
-        if (func != nullptr) {
-            return (this->*func)(data, reply);
-        } else {
-            TAG_LOGW(AAFwkTag::CONTINUATION,
-                "ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, func is nullptr");
-        }
-    } else {
-        TAG_LOGW(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, iter not find");
+    switch (code) {
+        case NOTIFY_REPLICA_TERMINATED:
+            return NotifyReplicaTerminatedInner(data, reply);
+        case CONTINUATION_BACK:
+            return ContinuationBackInner(data, reply);
     }
     TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

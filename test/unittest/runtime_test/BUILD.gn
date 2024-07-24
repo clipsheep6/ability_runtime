@@ -125,24 +125,17 @@ ohos_unittest("hdc_register_test") {
     "hdc_register_test.cpp",
   ]
 
-  configs = [
-    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
-    ":coverage_flags",
-  ]
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
   deps = [
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
-    "ability_runtime:js_environment",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "napi:ace_napi",
   ]
 }
 

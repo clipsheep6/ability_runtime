@@ -19,7 +19,6 @@
 #include "auto_startup_info.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 
@@ -31,18 +30,9 @@ AutoStartupCallBackStub::AutoStartupCallBackStub()
     Init();
 }
 
-AutoStartupCallBackStub::~AutoStartupCallBackStub()
-{
-    requestFuncMap_.clear();
-}
+AutoStartupCallBackStub::~AutoStartupCallBackStub() {}
 
-void AutoStartupCallBackStub::Init()
-{
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_ON)] =
-        &AutoStartupCallBackStub::OnAutoStartupOnInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_OFF)] =
-        &AutoStartupCallBackStub::OnAutoStartupOffInner;
-}
+void AutoStartupCallBackStub::Init() {}
 
 int AutoStartupCallBackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -54,13 +44,15 @@ int AutoStartupCallBackStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    switch (code) {
+        case static_cast<uint32_t>(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_ON):
+            return OnAutoStartupOnInner(data, reply);
+            break;
+        case static_cast<uint32_t>(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_OFF):
+            return OnAutoStartupOffInner(data, reply);
+            break;
     }
+
     TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

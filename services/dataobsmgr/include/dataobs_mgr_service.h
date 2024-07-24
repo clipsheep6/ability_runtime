@@ -26,7 +26,6 @@
 #include "dataobs_mgr_inner_ext.h"
 #include "dataobs_mgr_inner_pref.h"
 #include "dataobs_mgr_stub.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "system_ability.h"
 #include "task_handler_wrap.h"

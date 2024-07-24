@@ -24,7 +24,6 @@
 #include "ffrt.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "hisysevent.h"
 #include "parameter.h"
@@ -170,6 +169,7 @@ int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
         faultData.notifyApp = false;
         faultData.waitSaveState = false;
         faultData.forceExit = false;
+        faultData.eventId = it->eventId;
         bool isExit = IsExitApp(it->errorObject.name);
         if (isExit) {
             faultData.forceExit = true;

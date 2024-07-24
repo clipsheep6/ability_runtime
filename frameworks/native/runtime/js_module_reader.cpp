@@ -20,7 +20,6 @@
 #include "bundle_mgr_proxy.h"
 #include "file_path_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "js_runtime_utils.h"

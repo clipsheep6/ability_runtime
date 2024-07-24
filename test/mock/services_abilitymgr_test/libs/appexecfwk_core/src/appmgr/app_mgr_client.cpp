@@ -77,7 +77,8 @@ AppMgrResultCode AppMgrClient::KillProcessesByUserId(int32_t userId)
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::KillApplication(const std::string& bundleName)
+AppMgrResultCode AppMgrClient::KillApplication(
+    const std::string& bundleName, const bool clearPageStack = true)
 {
     return AppMgrResultCode::RESULT_OK;
 }
@@ -108,7 +109,7 @@ AppMgrResultCode AppMgrClient::ConnectAppMgrService()
 void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject>& token)
 {}
 
-void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token)
+void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

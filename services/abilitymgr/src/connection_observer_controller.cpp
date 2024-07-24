@@ -17,7 +17,6 @@
 
 #include "connection_observer_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -83,6 +82,7 @@ void ConnectionObserverController::NotifyExtensionDisconnected(const AbilityRunt
     CallObservers(&AbilityRuntime::IConnectionObserver::OnExtensionDisconnected, data);
 }
 
+#ifdef WITH_DLP
 void ConnectionObserverController::NotifyDlpAbilityOpened(const AbilityRuntime::DlpStateData& data)
 {
     CallObservers(&AbilityRuntime::IConnectionObserver::OnDlpAbilityOpened, data);
@@ -92,6 +92,7 @@ void ConnectionObserverController::NotifyDlpAbilityClosed(const AbilityRuntime::
 {
     CallObservers(&AbilityRuntime::IConnectionObserver::OnDlpAbilityClosed, data);
 }
+#endif // WITH_DLP
 
 std::vector<sptr<AbilityRuntime::IConnectionObserver>> ConnectionObserverController::GetObservers()
 {

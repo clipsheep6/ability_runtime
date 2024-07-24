@@ -23,7 +23,6 @@
 #undef protected
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "want.h"
 #include "mock_window.h"
 
@@ -359,6 +358,62 @@ HWTEST_F(UIExtensionContextTest, OpenAtomicService_0100, TestSize.Level1)
     EXPECT_TRUE(context != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "OpenAtomicService_0100 end");
+}
+
+/**
+ * @tc.number: OpenLink_0100
+ * @tc.name: OpenLink
+ * @tc.desc: OpenLink.
+ */
+HWTEST_F(UIExtensionContextTest, OpenLink_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "OpenLink_0100 start");
+    AAFwk::Want want;
+    int requestCode = 0;
+    auto context = std::make_shared<UIExtensionContext>();
+    EXPECT_NE(context, nullptr);
+    context->OpenLink(want, requestCode);
+    EXPECT_TRUE(context != nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "OpenLink_0100 end");
+}
+
+/**
+ * @tc.number: RemoveResultCallbackTask_0100
+ * @tc.name: RemoveResultCallbackTask
+ * @tc.desc: RemoveResultCallbackTask.
+ */
+HWTEST_F(UIExtensionContextTest, RemoveResultCallbackTask_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "RemoveResultCallbackTask_0100 start");
+    auto context = std::make_shared<UIExtensionContext>();
+    EXPECT_NE(context, nullptr);
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want &want, bool isInner) {
+        GTEST_LOG_(INFO) << "RemoveResultCallbackTask_0100 task called";
+    };
+    context->InsertResultCallbackTask(requestCode, std::move(task));
+    context->RemoveResultCallbackTask(requestCode);
+    auto count = context->resultCallbacks_.size();
+    EXPECT_EQ(count, 0);
+    TAG_LOGI(AAFwkTag::TEST, "RemoveResultCallbackTask_0100 end");
+}
+
+/**
+ * @tc.number: AddFreeInstallObserver_0100
+ * @tc.name: AddFreeInstallObserver
+ * @tc.desc: AddFreeInstallObserver.
+ */
+HWTEST_F(UIExtensionContextTest, AddFreeInstallObserver_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AddFreeInstallObserver_0100 start");
+    sptr<IFreeInstallObserver> observer;
+    auto context = std::make_shared<UIExtensionContext>();
+    EXPECT_NE(context, nullptr);
+    context->AddFreeInstallObserver(observer);
+    EXPECT_TRUE(context != nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "AddFreeInstallObserver_0100 end");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

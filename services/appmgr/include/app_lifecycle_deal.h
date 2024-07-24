@@ -163,6 +163,14 @@ public:
     void ScheduleProcessSecurityExit();
 
     /**
+     * cheduleClearPageStack, call cheduleClearPageStack() through proxy project,
+     * Notify application clear recovery page stack.
+     *
+     * @return
+     */
+    void ScheduleClearPageStack();
+
+    /**
      * @brief Setting client for application record.
      *
      * @param thread, the application client.
@@ -223,8 +231,6 @@ public:
 
     int DumpIpcStat(std::string& result);
 
-    int DumpFfrt(std::string& result);
-
     /**
      * Notifies the application of process caching.
      *
@@ -232,6 +238,8 @@ public:
      * @return
      */
     void ScheduleCacheProcess();
+
+    int DumpFfrt(std::string& result);
 
 private:
     mutable std::mutex schedulerMutex_;

@@ -18,7 +18,6 @@
 #include "ability_business_error.h"
 #include "auto_fill_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
 
@@ -32,7 +31,7 @@ constexpr size_t ARGC_ONE = 1;
 
 void JsAutoFillManager::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     std::unique_ptr<JsAutoFillManager>(static_cast<JsAutoFillManager *>(data));
 }
 
@@ -43,7 +42,7 @@ napi_value JsAutoFillManager::RequestAutoSave(napi_env env, napi_callback_info i
 
 napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "The param is invalid.");
         ThrowTooFewParametersError(env);
@@ -72,7 +71,7 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
         return CreateJsUndefined(env);
     }
 
-    auto autoSaveMangerFunc = std::bind(&JsAutoFillManager::OnRequestAutoSaveDone, this, std::placeholders::_1);
+    auto autoSaveMangerFunc = [this](const int32_t arg) { this->OnRequestAutoSaveDone(arg); };
     saveCallback = std::make_shared<JsAutoSaveRequestCallback>(env, instanceId, autoSaveMangerFunc);
     if (saveCallback == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "saveCallback is nullptr.");
@@ -107,7 +106,8 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
         AutoFill::AutoFillRequest request;
         uiContent->DumpViewData(request.viewData, request.autoFillType);
         request.autoFillCommand = AutoFill::AutoFillCommand::SAVE;
-        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback);
+        AbilityRuntime::AutoFill::AutoFillResult result;
+        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback, result);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Request auto save error[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
@@ -140,7 +140,7 @@ void JsAutoFillManager::OnRequestAutoSaveDone(int32_t instanceId)
 
 napi_value CreateJsAutoFillType(napi_env env)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -191,7 +191,7 @@ napi_value CreateJsAutoFillType(napi_env env)
 
 napi_value CreateJsPopupPlacement(napi_env env)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -215,7 +215,7 @@ napi_value CreateJsPopupPlacement(napi_env env)
 
 napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Env or exportObj nullptr.");
         return nullptr;

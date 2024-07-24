@@ -16,7 +16,6 @@
 #include "app_state_callback_host.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "app_state_callback_proxy.h"

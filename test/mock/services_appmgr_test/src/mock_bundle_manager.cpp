@@ -19,7 +19,6 @@
 #include "ability_info.h"
 #include "application_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_overlay_manager.h"
 namespace {
 const int32_t HQF_VERSION_CODE = 1000;
@@ -272,12 +271,6 @@ bool BundleMgrService::GetBundleInfos(
     const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId)
 {
     bundleInfos = bundleInfos_;
-    return true;
-}
-
-bool BundleMgrService::GetBundleGidsByUid(
-    const std::string& bundleName, const int& uid, std::vector<int>& gids)
-{
     return true;
 }
 

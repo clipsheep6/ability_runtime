@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
@@ -64,7 +65,8 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_001, TestSize.Level1)
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMgrServ_->StartAbility(want, option, nullptr, USER_ID_U100, 0);
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMgrServ_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+        auto topAbility = reinterpret_cast<MissionListManager*>(abilityMgrServ_->
+            GetMissionListManagerByUserId(USER_ID_U100).get())->GetCurrentTopAbilityLocked();
         if (topAbility) {
             auto defualtDisplayId = 0;
             auto displayId = topAbility->GetWant().GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);

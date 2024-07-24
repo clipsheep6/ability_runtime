@@ -28,7 +28,7 @@ namespace EcologicalRuleMgrService {
 using Want = OHOS::AAFwk::Want;
 
 struct AbilityExperienceRule : public Parcelable {
-    bool isAllow = true;
+    int32_t resultCode = 10;
     std::string sceneCode = "";
     sptr<Want> replaceWant = nullptr;
 
@@ -75,6 +75,8 @@ struct AbilityCallerInfo : public Parcelable {
     std::string callerAppProvisionType;
     std::string targetAppProvisionType;
     AppExecFwk::ExtensionAbilityType callerExtensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    AppExecFwk::AbilityType targetAbilityType = AppExecFwk::AbilityType::UNKNOWN;
+    AppExecFwk::ExtensionAbilityType targetExtensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
     bool ReadFromParcel(Parcel &parcel);
 

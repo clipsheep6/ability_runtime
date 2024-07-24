@@ -27,7 +27,6 @@
 #include "app_loader.h"
 #include "event_runner.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi/native_common.h"
 #include "mock_ability_delegator_stub.h"
 #include "mock_test_observer_stub.h"

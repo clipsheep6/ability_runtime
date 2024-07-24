@@ -19,7 +19,6 @@
 #include "ability_manager_errors.h"
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"

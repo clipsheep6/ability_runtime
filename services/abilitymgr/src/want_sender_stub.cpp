@@ -16,20 +16,13 @@
 #include "want_sender_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {
 namespace AAFwk {
-WantSenderStub::WantSenderStub()
-{
-    requestFuncMap_[WANT_SENDER_SEND] = &WantSenderStub::SendInner;
-}
+WantSenderStub::WantSenderStub() {}
 
-WantSenderStub::~WantSenderStub()
-{
-    requestFuncMap_.clear();
-}
+WantSenderStub::~WantSenderStub() {}
 
 int WantSenderStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -41,12 +34,8 @@ int WantSenderStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    if (code == (WANT_SENDER_SEND)) {
+        return SendInner(data, reply);
     }
     TAG_LOGW(AAFwkTag::WANTAGENT, "WantSenderStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

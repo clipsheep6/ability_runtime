@@ -22,7 +22,7 @@ namespace OHOS {
 namespace AppExecFwk {
 int32_t AppDebugManager::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (listener == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Listener is nullptr.");
         return ERR_INVALID_DATA;
@@ -48,7 +48,7 @@ int32_t AppDebugManager::RegisterAppDebugListener(const sptr<IAppDebugListener> 
 
 int32_t AppDebugManager::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (listener == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Listener is nullptr.");
         return ERR_INVALID_DATA;
@@ -70,7 +70,7 @@ int32_t AppDebugManager::UnregisterAppDebugListener(const sptr<IAppDebugListener
 
 void AppDebugManager::StartDebug(const std::vector<AppDebugInfo> &infos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     std::vector<AppDebugInfo> incrementInfos;
     GetIncrementAppDebugInfos(infos, incrementInfos);
@@ -88,7 +88,7 @@ void AppDebugManager::StartDebug(const std::vector<AppDebugInfo> &infos)
 
 void AppDebugManager::StopDebug(const std::vector<AppDebugInfo> &infos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     std::vector<AppDebugInfo> debugInfos;
     for (auto &it : infos) {
@@ -148,7 +148,7 @@ void AppDebugManager::GetIncrementAppDebugInfos(
 
 void AppDebugManager::RemoveAppDebugInfo(const AppDebugInfo &info)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     auto isExist = [this, info](const AppDebugInfo &debugInfo) {
         return (debugInfo.bundleName == info.bundleName && debugInfo.pid == info.pid &&

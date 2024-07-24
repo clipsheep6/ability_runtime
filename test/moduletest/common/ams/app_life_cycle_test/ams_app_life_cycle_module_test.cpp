@@ -24,7 +24,6 @@
 #include "app_mgr_interface.h"
 #include "iremote_object.h"
 #include "app_state_callback_proxy.h"
-#include "hilog_wrapper.h"
 #include "refbase.h"
 #include "mock_bundle_manager.h"
 #include "mock_ability_token.h"
@@ -232,7 +231,6 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToForegroud(const sptr<MockApp
         EXPECT_NE(appRunningRecord, nullptr);
         CHECK_POINTER_IS_NULLPTR(appRunningRecord);
         int32_t recordId = appRunningRecord->GetRecordId();
-        appRunningRecord->SetUpdateStateFromService(true);
         serviceInner_->ApplicationForegrounded(recordId);
     }
 }
@@ -253,7 +251,6 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToBackGroud(const sptr<MockApp
         EXPECT_NE(appRunningRecord, nullptr);
         CHECK_POINTER_IS_NULLPTR(appRunningRecord);
         int32_t recordId = appRunningRecord->GetRecordId();
-        appRunningRecord->SetUpdateStateFromService(true);
         serviceInner_->ApplicationBackgrounded(recordId);
     }
 }

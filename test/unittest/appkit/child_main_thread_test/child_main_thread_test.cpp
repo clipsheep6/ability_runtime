@@ -22,7 +22,6 @@
 #include "child_process_info.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_app_mgr_service.h"
 #include "mock_bundle_manager.h"
 #include "sys_mgr_client.h"
@@ -113,6 +112,7 @@ HWTEST_F(ChildMainThreadTest, ScheduleLoadJs_0100, TestSize.Level0)
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     std::shared_ptr<EventHandler> handler = std::make_shared<EventHandler>(runner);
     thread->mainHandler_ = handler;
+    thread->processInfo_ = std::make_shared<ChildProcessInfo>();
 
     auto ret = thread->ScheduleLoadJs();
     EXPECT_TRUE(ret);
@@ -149,6 +149,41 @@ HWTEST_F(ChildMainThreadTest, HandleLoadJs_0100, TestSize.Level0)
     thread->processInfo_ = std::make_shared<ChildProcessInfo>();
     thread->appMgr_ = sptr<MockAppMgrService>(new (std::nothrow) MockAppMgrService());
     thread->HandleLoadJs();
+    ASSERT_NE(thread->runtime_, nullptr);
+}
+
+/**
+ * @tc.number: HandleLoadArkTs_0100
+ * @tc.desc: Test HandleLoadArkTs works
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildMainThreadTest, HandleLoadArkTs_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "HandleLoadArkTs_0100 called.");
+    sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
+    ASSERT_NE(thread, nullptr);
+
+    BundleInfo bundleInfo;
+    std::vector<HapModuleInfo> hapModuleInfos;
+    HapModuleInfo moduleInfo;
+    moduleInfo.name = "entry";
+    moduleInfo.moduleName = "entry";
+    moduleInfo.moduleType = ModuleType::ENTRY;
+    moduleInfo.hapPath = "/data/app/el1/bundle/public/com.ohos.demoprocess/entry";
+    moduleInfo.compileMode = CompileMode::ES_MODULE;
+    moduleInfo.isStageBasedModel = true;
+    hapModuleInfos.push_back(moduleInfo);
+    bundleInfo.hapModuleInfos = hapModuleInfos;
+
+    ApplicationInfo applicationInfo;
+    applicationInfo.uid = 2001;
+    bundleInfo.applicationInfo = applicationInfo;
+    
+    thread->bundleInfo_ = std::make_shared<BundleInfo>(bundleInfo);
+    thread->processInfo_ = std::make_shared<ChildProcessInfo>();
+    thread->processInfo_->srcEntry = "entry/./ets/process/AProcess.ets";
+    thread->appMgr_ = sptr<MockAppMgrService>(new (std::nothrow) MockAppMgrService());
+    thread->HandleLoadArkTs();
     ASSERT_NE(thread->runtime_, nullptr);
 }
 

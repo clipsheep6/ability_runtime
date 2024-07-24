@@ -20,7 +20,6 @@
 #include "context/application_context.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #include "ohos_application.h"
@@ -154,13 +153,13 @@ int32_t UIAbilityImpl::Share(AAFwk::WantParams &wantParam)
 
 void UIAbilityImpl::DispatchSaveAbilityState()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     needSaveDate_ = true;
 }
 
 void UIAbilityImpl::DispatchRestoreAbilityState(const AppExecFwk::PacMap &inState)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     hasSaveData_ = true;
     restoreData_ = inState;
 }
@@ -471,7 +470,7 @@ void UIAbilityImpl::WindowLifeCycleImpl::AfterForeground()
 void UIAbilityImpl::WindowLifeCycleImpl::AfterBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::BACKGROUND };
     std::string entry = std::to_string(TimeUtil::SystemTimeMillisecond()) +
         "; UIAbilityImpl::WindowLifeCycleImpl::AfterBackground; the background lifecycle.";
@@ -563,7 +562,7 @@ void UIAbilityImpl::Foreground(const AAFwk::Want &want)
 
 void UIAbilityImpl::WindowLifeCycleImpl::BackgroundFailed(int32_t type)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_DO_NOTHING)) {
         AppExecFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
@@ -593,18 +592,7 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
-#ifdef SUPPORT_SCREEN
-            if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
-                lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
-                Background();
-            }
-#endif
-            bool isAsyncCallback = false;
-            Stop(isAsyncCallback);
-            if (isAsyncCallback) {
-                // AbilityManagerService will be notified after async callback
-                ret = false;
-            }
+            HandleInitialState(ret);
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
@@ -642,6 +630,22 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
     }
     TAG_LOGD(AAFwkTag::UIABILITY, "End retVal is %{public}d.", static_cast<int>(ret));
     return ret;
+}
+
+void UIAbilityImpl::HandleInitialState(bool &ret)
+{
+#ifdef SUPPORT_SCREEN
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        Background();
+    }
+#endif
+    bool isAsyncCallback = false;
+    Stop(isAsyncCallback);
+    if (isAsyncCallback) {
+        // AbilityManagerService will be notified after async callback
+        ret = false;
+    }
 }
 
 #ifdef SUPPORT_SCREEN
@@ -703,7 +707,7 @@ void UIAbilityImpl::ExecuteInsightIntentRepeateForeground(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     auto asyncCallback =
         [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {
             TAG_LOGD(AAFwkTag::UIABILITY, "Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
@@ -725,7 +729,7 @@ void UIAbilityImpl::ExecuteInsightIntentMoveToForeground(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 
     {
         std::lock_guard<std::mutex> lock(notifyForegroundLock_);
@@ -818,7 +822,7 @@ void UIAbilityImpl::ExecuteInsightIntentBackgroundByColdBoot(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     auto asyncCallback =
         [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {
             TAG_LOGD(AAFwkTag::UIABILITY, "Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
@@ -840,7 +844,7 @@ void UIAbilityImpl::ExecuteInsightIntentBackgroundAlreadyStart(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 
     auto asyncCallback =
         [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {

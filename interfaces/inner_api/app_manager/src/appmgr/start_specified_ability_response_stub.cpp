@@ -16,7 +16,6 @@
 #include "start_specified_ability_response_stub.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 
@@ -25,26 +24,34 @@ namespace AppExecFwk {
 using namespace std::placeholders;
 StartSpecifiedAbilityResponseStub::StartSpecifiedAbilityResponseStub()
 {
-    auto handleOnAcceptWantResponse =
-        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnAcceptWantResponse, this, _1, _2);
+    auto handleOnAcceptWantResponse = [this](OHOS::MessageParcel &arg1, OHOS::MessageParcel &arg2) {
+        return HandleOnAcceptWantResponse(arg1, arg2);
+    };
+
     responseFuncMap_.emplace(static_cast<uint32_t>(
         IStartSpecifiedAbilityResponse::Message::ON_ACCEPT_WANT_RESPONSE),
         std::move(handleOnAcceptWantResponse));
 
-    auto handleOnTimeoutResponse =
-        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnTimeoutResponse, this, _1, _2);
+    auto handleOnTimeoutResponse = [this](OHOS::MessageParcel &arg1, OHOS::MessageParcel &arg2) {
+        return  HandleOnTimeoutResponse(arg1, arg2);
+    };
+
     responseFuncMap_.emplace(static_cast<uint32_t>(
         IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE),
         std::move(handleOnTimeoutResponse));
 
-    auto handleOnNewProcessRequestResponse =
-        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestResponse, this, _1, _2);
+    auto handleOnNewProcessRequestResponse = [this](OHOS::MessageParcel &arg1, OHOS::MessageParcel &arg2) {
+        return HandleOnNewProcessRequestResponse(arg1, arg2);
+    };
+
     responseFuncMap_.emplace(static_cast<uint32_t>(
         IStartSpecifiedAbilityResponse::Message::ON_NEW_PROCESS_REQUEST_RESPONSE),
         std::move(handleOnNewProcessRequestResponse));
 
-    auto handleOnNewProcessRequestTimeoutResponse =
-        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestTimeoutResponse, this, _1, _2);
+    auto handleOnNewProcessRequestTimeoutResponse = [this](OHOS::MessageParcel &arg1, OHOS::MessageParcel &arg2) {
+        return HandleOnNewProcessRequestTimeoutResponse(arg1, arg2);
+    };
+
     responseFuncMap_.emplace(static_cast<uint32_t>(
         IStartSpecifiedAbilityResponse::Message::ON_NEW_PROCESS_REQUEST_TIMEOUT_RESPONSE),
         std::move(handleOnNewProcessRequestTimeoutResponse));

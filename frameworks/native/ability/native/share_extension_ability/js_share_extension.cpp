@@ -16,7 +16,6 @@
 #include "js_share_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_extension_base.h"
 
@@ -35,7 +34,7 @@ JsShareExtension::JsShareExtension(const std::unique_ptr<Runtime> &runtime)
 
 JsShareExtension::~JsShareExtension()
 {
-    TAG_LOGD(AAFwkTag::SHARE_EXT, "destructor.");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "destructor");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

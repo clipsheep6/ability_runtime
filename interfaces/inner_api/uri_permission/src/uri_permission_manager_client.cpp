@@ -17,7 +17,6 @@
 
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -81,7 +80,7 @@ int32_t UriPermissionManagerClient::GrantUriPermissionPrivileged(const std::vect
 
 void UriPermissionManagerClient::RevokeUriPermission(const uint32_t tokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::RevokeUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeUriPermission(tokenId, abilityId);
@@ -90,7 +89,7 @@ void UriPermissionManagerClient::RevokeUriPermission(const uint32_t tokenId, int
 
 int UriPermissionManagerClient::RevokeAllUriPermissions(const uint32_t tokenId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::RevokeAllUriPermissions is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeAllUriPermissions(tokenId);
@@ -101,7 +100,7 @@ int UriPermissionManagerClient::RevokeAllUriPermissions(const uint32_t tokenId)
 int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
     int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::RevokeUriPermissionManually is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeUriPermissionManually(uri, bundleName, appIndex);
@@ -137,7 +136,7 @@ std::vector<bool> UriPermissionManagerClient::CheckUriAuthorization(const std::v
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::ConnectUriPermService is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     auto uriPermMgr = GetUriPermMgr();
     if (uriPermMgr == nullptr) {
         if (!LoadUriPermService()) {
@@ -161,7 +160,7 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 
 bool UriPermissionManagerClient::LoadUriPermService()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::LoadUriPermService is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Failed to get SystemAbilityManager.");
@@ -203,14 +202,14 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::GetUriPermMgr()
 
 void UriPermissionManagerClient::SetUriPermMgr(const sptr<IRemoteObject> &remoteObject)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::SetUriPermMgr is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     uriPermMgr_ = iface_cast<IUriPermissionManager>(remoteObject);
 }
 
 void UriPermissionManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::OnLoadSystemAbilitySuccess is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     SetUriPermMgr(remoteObject);
     std::unique_lock<std::mutex> lock(saLoadMutex_);
     saLoadFinished_ = true;
@@ -219,7 +218,7 @@ void UriPermissionManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteOb
 
 void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::OnLoadSystemAbilityFail is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     SetUriPermMgr(nullptr);
     std::unique_lock<std::mutex> lock(saLoadMutex_);
     saLoadFinished_ = true;
@@ -228,7 +227,7 @@ void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 
 void UriPermissionManagerClient::ClearProxy()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::ClearProxy is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     {
         std::lock_guard<std::mutex> lock(mutex_);
         uriPermMgr_ = nullptr;

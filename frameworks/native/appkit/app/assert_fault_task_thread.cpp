@@ -21,7 +21,6 @@
 #include "assert_fault_task_thread.h"
 #include "assert_fault_callback.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "main_thread.h"
 #include "string_wrapper.h"
 
@@ -49,7 +48,7 @@ AAFwk::UserStatus AssertFaultTaskThread::RequestAssertResult(const std::string &
     auto assertResult = ASSERT_FAULT_DEFAULT_VALUE;
     std::weak_ptr<AssertFaultTaskThread> weak = shared_from_this();
     assertHandler_->PostSyncTask([weak, exprStr, &assertResult]() {
-        TAG_LOGD(AAFwkTag::APPKIT, "Post sync task called.");
+        TAG_LOGD(AAFwkTag::APPKIT, "called");
         auto assertFaultTask = weak.lock();
         if (assertFaultTask == nullptr) {
             TAG_LOGE(AAFwkTag::APPKIT, "Assert fault task instance is nullptr.");
@@ -72,7 +71,7 @@ Assert_Status ConvertAssertResult(AAFwk::UserStatus status)
 
 static Assert_Status AssertCallback(AssertFailureInfo assertFail)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto instance = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
     if (instance == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Invalid Instance.");

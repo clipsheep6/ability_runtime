@@ -20,7 +20,6 @@
 #undef protected
 #include <gtest/gtest.h>
 #include "ability_first_frame_state_observer_stub.h"
-#include "ability_manager_errors.h"
 #include "iremote_broker.h"
 #include "mock/include/mock_permission_verification.h"
 #include "mock/include/mock_my_flag.h"
@@ -81,9 +80,9 @@ void AbilityFirstFrameStateObserverManagerTest::TearDown()
  */
 HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameStateObserver_001, TestSize.Level0)
 {
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
     std::string bundleName = "com.example.test";
-    int32_t res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    int32_t res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(nullptr, bundleName);
     EXPECT_EQ(res, ERR_NOT_SYSTEM_APP);
 }
@@ -98,11 +97,11 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameSta
  */
 HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameStateObserver_002, TestSize.Level0)
 {
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
     std::string bundleName = "com.example.test";
     MyFlag::isSystemApp_ = true;
     MyFlag::flag_ = ERR_PERMISSION_DENIED;
-    int32_t res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    int32_t res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(nullptr, bundleName);
     EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
@@ -117,11 +116,11 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameSta
  */
 HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameStateObserver_003, TestSize.Level0)
 {
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
     std::string bundleName = "";
     MyFlag::isSystemApp_ = true;
     MyFlag::flag_ = ERR_OK;
-    int32_t res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    int32_t res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(nullptr, bundleName);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
@@ -136,32 +135,32 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameSta
  */
 HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameStateObserver_004, TestSize.Level0)
 {
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
     std::string bundleName = "";
     MyFlag::isSystemApp_ = true;
     MyFlag::flag_ = ERR_OK;
     // step1. register not null remoteObj,expect success.
     sptr<MockAbilityFirstFrameStateObserver> remoteObject = new MockAbilityFirstFrameStateObserver();
-    int32_t res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    int32_t res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(remoteObject, bundleName);
     EXPECT_EQ(res, ERR_OK);
     // step2. duplicate register not null remoteObj,expect success.
-    res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(remoteObject, bundleName);
     EXPECT_EQ(res, ERR_OK);
-    auto observerMap = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto observerMap = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->observerMap_;
-    auto recipientMap = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto recipientMap = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->recipientMap_;
     // step3. duplicate register same remoteObj, expect only one observer register success.
     EXPECT_EQ(observerMap.size(), 1); // 1 means: observer num
     EXPECT_EQ(recipientMap.size(), 1); // 1 means: death recipient num
     // step4. unregister remoteObject, expect unregister success.
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         UnregisterAbilityFirstFrameStateObserver(remoteObject);
-    auto observerMap2 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto observerMap2 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->observerMap_;
-    auto recipientMap2 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto recipientMap2 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->recipientMap_;
     EXPECT_EQ(observerMap2.size(), 0);
     EXPECT_EQ(recipientMap2.size(), 0);
@@ -177,22 +176,22 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameSta
  */
 HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameStateObserver_005, TestSize.Level0)
 {
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
     std::string bundleName = "com.example.test";
     MyFlag::isSystemApp_ = true;
     MyFlag::flag_ = ERR_OK;
     // step1. register not null remoteObj,expect success.
     sptr<MockAbilityFirstFrameStateObserver> remoteObject = new MockAbilityFirstFrameStateObserver();
-    int32_t res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    int32_t res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(remoteObject, bundleName);
     EXPECT_EQ(res, ERR_OK);
     // step2. duplicate register not null remoteObj,expect success.
-    res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(remoteObject, bundleName);
     EXPECT_EQ(res, ERR_OK);
-    auto observerMap = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto observerMap = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForBundleName_->observerMap_;
-    auto recipientMap = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto recipientMap = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForBundleName_->recipientMap_;
     // step3. duplicate register same remoteObj, expect only one observer register success.
     EXPECT_EQ(observerMap.size(), 1); // 1 means observerMap size.
@@ -200,14 +199,14 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameSta
     for (auto it : observerMap) {
         EXPECT_EQ(it.second, bundleName);
     }
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         UnregisterAbilityFirstFrameStateObserver(remoteObject);
     // step4. unregister remoteObject, expect unregister success.
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         UnregisterAbilityFirstFrameStateObserver(remoteObject);
-    auto observerMap2 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto observerMap2 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->observerMap_;
-    auto recipientMap2 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto recipientMap2 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->recipientMap_;
     EXPECT_EQ(observerMap2.size(), 0);
     EXPECT_EQ(recipientMap2.size(), 0);
@@ -223,7 +222,7 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, RegisterAbilityFirstFrameSta
  */
 HWTEST_F(AbilityFirstFrameStateObserverManagerTest, HandleOnFirstFrameState_001, TestSize.Level0)
 {
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
     std::string bundleName = "com.example.test";
     MyFlag::isSystemApp_ = true;
     MyFlag::flag_ = ERR_OK;
@@ -236,17 +235,17 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, HandleOnFirstFrameState_001,
     EXPECT_CALL(*remoteObject2, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(remoteObject1.GetRefPtr(), &MockAbilityFirstFrameStateObserver::InvokeSendRequest));
-    int32_t res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    int32_t res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(remoteObject1, bundleName);
-    res = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    res = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(remoteObject2, "");
-    auto observerMap1 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto observerMap1 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForBundleName_->observerMap_;
-    auto recipientMap1 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto recipientMap1 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForBundleName_->recipientMap_;
-    auto observerMap2 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto observerMap2 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->observerMap_;
-    auto recipientMap2 = DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    auto recipientMap2 = AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         stateObserverSetForAllBundles_->recipientMap_;
     EXPECT_EQ(observerMap1.size(), 1); // 1 means observerMap size.
     EXPECT_EQ(recipientMap1.size(), 1); // 1 means recipientMap size.
@@ -256,8 +255,7 @@ HWTEST_F(AbilityFirstFrameStateObserverManagerTest, HandleOnFirstFrameState_001,
     AppExecFwk::AbilityInfo info;
     AppExecFwk::ApplicationInfo appInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, info, appInfo);
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
-        HandleOnFirstFrameState(abilityRecord);
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().HandleOnFirstFrameState(abilityRecord);
     EXPECT_EQ(remoteObject1->code_,
         static_cast<uint32_t>(IAbilityFirstFrameStateObserver::Message::ON_ABILITY_FIRST_FRAME_STATE));
     EXPECT_EQ(remoteObject2->code_,

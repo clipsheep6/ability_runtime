@@ -19,7 +19,6 @@
 #include "ecmascript/napi/include/jsnapi.h"
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "native_engine/native_engine.h"
 

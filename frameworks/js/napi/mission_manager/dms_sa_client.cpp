@@ -19,14 +19,14 @@ namespace OHOS {
 namespace AAFwk {
 DmsSaClient &DmsSaClient::GetInstance()
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     static DmsSaClient instance;
     return instance;
 }
 
 bool DmsSaClient::SubscribeDmsSA()
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     sptr<DmsSystemAbilityStatusChange> callback(new DmsSystemAbilityStatusChange());
     int32_t ret = saMgrProxy_->SubscribeSystemAbility(DISTRIBUTED_SCHED_SA_ID, callback);
     if (ret != ERR_OK) {

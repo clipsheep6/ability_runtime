@@ -17,7 +17,6 @@
 
 #include "ability_connect_callback_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 #include "want.h"

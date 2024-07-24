@@ -19,7 +19,6 @@
 
 #include "bundle_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "js_environment.h"
 #include "js_module_reader.h"

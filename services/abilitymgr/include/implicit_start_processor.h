@@ -58,12 +58,10 @@ public:
 
     static bool IsImplicitStartAction(const Want &want);
 
-    int ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode = 0);
+    int ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode = 0,
+        const std::string &replaceWantString = "", bool isAppCloneSelector = false);
 
     void ResetCallingIdentityAsCaller(int32_t tokenId);
-
-    int NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
-        std::vector<DialogAppInfo> &dialogAppInfos);
 
     void SetUriReservedFlag(const bool flag);
 
@@ -71,7 +69,14 @@ public:
 
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
-        std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList);
+        std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList, bool &findDefaultApp);
+
+    int GenerateAbilityRequestByAppIndexes(int32_t userId, AbilityRequest &request,
+        std::vector<DialogAppInfo> &dialogAppInfos);
+
+    int FindExtensionInfo(const Want &want, int32_t flags, int32_t userId, int32_t appIndex,
+        AppExecFwk::AbilityInfo &abilityInfo);
+
     std::string MatchTypeAndUri(const AAFwk::Want &want);
     std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper();
     std::vector<std::string> SplitStr(const std::string& str, char delimiter);
@@ -98,12 +103,12 @@ private:
 
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
-    bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
-
     void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
 
     void OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos);
+
+    bool IsActionImplicitStart(const Want &want, bool findDeafultApp);
 
 private:
     const static std::vector<std::string> blackList;

@@ -15,7 +15,6 @@
 
 #include "mock_bundle_mgr_helper.h"
 
-#include "hilog_wrapper.h"
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {

@@ -18,7 +18,6 @@
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_auto_fill_extension_util.h"
@@ -88,7 +87,7 @@ napi_value JsFillRequestCallback::FillRequestAutoFillPopupConfig(napi_env env, n
 
 napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse viewData JsonString!");
         ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_VIEWDATA_INVALID);
@@ -114,14 +113,14 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
 
 napi_value JsFillRequestCallback::OnFillRequestFailed(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED, "");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (info.argc < ARGC_ONE) {
         SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
         return CreateJsUndefined(env);
@@ -147,7 +146,7 @@ napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallba
 
 napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
@@ -207,7 +206,7 @@ bool JsFillRequestCallback::SetPopupConfigToWantParams(
 void JsFillRequestCallback::SendResultCodeAndViewData(
     const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode, const std::string &jsString)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (uiWindow_ == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UiWindow is nullptr.");
         return;
@@ -238,7 +237,7 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
 napi_value JsFillRequestCallback::CreateJsFillRequestCallback(napi_env env,
     const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {

@@ -16,7 +16,6 @@
 #include "call_container.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_manager_errors.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_util.h"

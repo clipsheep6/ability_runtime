@@ -30,7 +30,6 @@
 
 #include <gtest/gtest.h>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_proxy.h"
 #include "test_observer_proxy.h"
 

@@ -16,13 +16,12 @@
 #include "dialog_request_callback_impl.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 void DialogRequestCallbackImpl::SendResult(int32_t resultCode, const AAFwk::Want &want)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::DIALOG, "called");
     if (task_) {
         TAG_LOGD(AAFwkTag::DIALOG, "result code:%{public}d.", resultCode);
         task_(resultCode, want);

@@ -16,7 +16,6 @@
 #include "ability_event_util.h"
 #include "app_scheduler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

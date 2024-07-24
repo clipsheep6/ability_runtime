@@ -69,7 +69,7 @@ napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<Insi
  *
  * @return result of check startAbiliryParam parammeters.
  */
-bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want want);
+bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want);
 
 }  // namespace AbilityRuntime
 }  // namespace OHOS

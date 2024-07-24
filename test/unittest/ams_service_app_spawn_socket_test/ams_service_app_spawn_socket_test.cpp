@@ -17,7 +17,6 @@
 
 #include "app_spawn_socket.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_client_socket.h"
 #include "securec.h"
 

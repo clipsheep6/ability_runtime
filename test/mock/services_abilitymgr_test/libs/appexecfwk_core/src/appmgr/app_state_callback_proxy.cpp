@@ -16,7 +16,6 @@
 #include "app_state_callback_proxy.h"
 #include "bundle_info.h"
 
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 

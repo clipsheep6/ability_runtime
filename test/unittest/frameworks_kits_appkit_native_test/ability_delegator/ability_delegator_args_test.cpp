@@ -22,7 +22,6 @@
 #undef private
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "want.h"
 
 using namespace testing::ext;

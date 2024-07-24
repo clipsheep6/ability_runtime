@@ -20,7 +20,6 @@
 #include "mock_quick_fix_callback_stub.h"
 #undef private
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

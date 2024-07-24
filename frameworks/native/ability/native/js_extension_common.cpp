@@ -16,7 +16,6 @@
 #include "js_extension_common.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -50,7 +49,7 @@ JsExtensionCommon::~JsExtensionCommon()
 
 void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration> &fullConfig)
 {
-    TAG_LOGI(AAFwkTag::EXT, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::EXT, "called");
     if (!fullConfig) {
         TAG_LOGE(AAFwkTag::EXT, "invalid configuration.");
         return;
@@ -66,7 +65,7 @@ void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk:
 
 void JsExtensionCommon::OnMemoryLevel(int level)
 {
-    TAG_LOGD(AAFwkTag::EXT, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "called");
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();

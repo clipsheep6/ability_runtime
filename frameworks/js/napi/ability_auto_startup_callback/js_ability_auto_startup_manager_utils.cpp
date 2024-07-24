@@ -14,6 +14,8 @@
  */
 
 #include "js_ability_auto_startup_manager_utils.h"
+
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "napi_common_util.h"
 
@@ -68,7 +70,7 @@ bool IsNormalObject(napi_env env, napi_value value)
 
 napi_value CreateJsAutoStartupInfoArray(napi_env env, const std::vector<AutoStartupInfo> &infoList)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     napi_value arrayObj = nullptr;
     napi_create_array(env, &arrayObj);
     for (size_t i = 0; i < infoList.size(); ++i) {
@@ -89,7 +91,7 @@ napi_value CreateJsAutoStartupInfoArray(napi_env env, const std::vector<AutoStar
 
 napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     napi_value object = AppExecFwk::CreateJSObject(env);
     if (object == nullptr) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "object is nullptr.");
@@ -127,7 +129,7 @@ napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create js AutoStartupInfo failed.");
         return nullptr;
     }
-    if (info.appCloneIndex != -1) {
+    if (info.appCloneIndex >= 0 && info.appCloneIndex < GlobalConstant::MAX_APP_CLONE_INDEX) {
         napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
         if (appCloneIndex == nullptr) {
             TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");

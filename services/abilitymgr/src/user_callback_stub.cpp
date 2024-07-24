@@ -16,18 +16,12 @@
 #include "user_callback_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 
 namespace OHOS {
 namespace AAFwk {
-UserCallbackStub::UserCallbackStub()
-{
-    vecMemberFunc_.resize(UserCallbackCmd::CMD_MAX);
-    vecMemberFunc_[UserCallbackCmd::ON_STOP_USER_DONE] = &UserCallbackStub::OnStopUserDoneInner;
-    vecMemberFunc_[UserCallbackCmd::ON_START_USER_DONE] = &UserCallbackStub::OnStartUserDoneInner;
-}
+UserCallbackStub::UserCallbackStub() {}
 
 int UserCallbackStub::OnStopUserDoneInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -56,8 +50,14 @@ int UserCallbackStub::OnRemoteRequest(
     }
 
     if (code < UserCallbackCmd::CMD_MAX && code >= 0) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        switch (code) {
+            case UserCallbackCmd::ON_STOP_USER_DONE:
+                return OnStopUserDoneInner(data, reply);
+                break;
+            case UserCallbackCmd::ON_START_USER_DONE:
+                return OnStartUserDoneInner(data, reply);
+                break;
+        }
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

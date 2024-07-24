@@ -170,6 +170,10 @@ public:
      */
     void SetFont(std::string font);
 
+    void SetMcc(std::string mcc);
+
+    void SetMnc(std::string mnc);
+
     /**
      * @brief clear the application data by app self
      */
@@ -325,7 +329,7 @@ public:
      *
      * @return error code
      */
-    void KillProcessBySelf();
+    void KillProcessBySelf(const bool clearPageStack = true);
 
     /**
      * @brief Get running informationfor cuirrent process
@@ -363,6 +367,8 @@ public:
     Global::Resource::DeviceType GetDeviceType() const override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void PrintTokenInfo() const;
 
     static const int EL_DEFAULT = 1;
 
@@ -427,6 +433,13 @@ private:
         const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
     std::shared_ptr<Global::Resource::ResourceManager> InitResourceManagerInner(
         const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
+    void GetOverlayPath(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const std::string &bundleName, const std::string &moduleName, std::string &loadPath, bool currentBundle);
+    void AddPatchResource(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const std::string &loadPath, const std::string &hqfPath, bool isDebug);
+    void SubscribeToOverlayEvents(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const std::string &name, const std::string &hapModuleName, std::string &loadPath,
+        std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos);
     void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
     int32_t GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, bool &currentBundle);
     void GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, const int &accountId);

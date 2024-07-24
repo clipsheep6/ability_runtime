@@ -14,14 +14,13 @@
  */
 
 #include "ams_mgr_stub.h"
-
+#include "ability_manager_errors.h"
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iapp_state_callback.h"
 #include "ipc_skeleton.h"
@@ -35,95 +34,15 @@ namespace {
 constexpr int32_t MAX_APP_DEBUG_COUNT = 100;
 constexpr int32_t MAX_KILL_PROCESS_PID_COUNT = 100;
 }
+
 AmsMgrStub::AmsMgrStub()
 {
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::LOAD_ABILITY)] = &AmsMgrStub::HandleLoadAbility;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::TERMINATE_ABILITY)] =
-        &AmsMgrStub::HandleTerminateAbility;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_ABILITY_STATE)] =
-        &AmsMgrStub::HandleUpdateAbilityState;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_EXTENSION_STATE)] =
-        &AmsMgrStub::HandleUpdateExtensionState;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_STATE_CALLBACK)] =
-        &AmsMgrStub::HandleRegisterAppStateCallback;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ABILITY_BEHAVIOR_ANALYSIS)] =
-        &AmsMgrStub::HandleAbilityBehaviorAnalysis;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PEOCESS_BY_ABILITY_TOKEN)] =
-        &AmsMgrStub::HandleKillProcessByAbilityToken;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_USERID)] =
-        &AmsMgrStub::HandleKillProcessesByUserId;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESS_WITH_ACCOUNT)] =
-        &AmsMgrStub::HandleKillProcessWithAccount;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION)] = &AmsMgrStub::HandleKillApplication;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ABILITY_ATTACH_TIMEOUT)] =
-        &AmsMgrStub::HandleAbilityAttachTimeOut;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::PREPARE_TERMINATE_ABILITY)] =
-        &AmsMgrStub::HandlePrepareTerminate;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_BYUID)] =
-        &AmsMgrStub::HandleKillApplicationByUid;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_SELF)] =
-        &AmsMgrStub::HandleKillApplicationSelf;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_TOKEN)] =
-        &AmsMgrStub::HandleGetRunningProcessInfoByToken;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_ABILITY_FOREGROUNDING_FLAG)] =
-        &AmsMgrStub::HandleSetAbilityForegroundingFlagToAppRecord;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY)] =
-        &AmsMgrStub::HandleStartSpecifiedAbility;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE)] =
-        &AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID)] =
-        &AmsMgrStub::HandleGetApplicationInfoByProcessID;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::NOTIFY_APP_MGR_RECORD_EXIT_REASON)] =
-        &AmsMgrStub::HandleNotifyAppMgrRecordExitReason;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED)] =
-        &AmsMgrStub::HandleUpdateApplicationInfoInstalled;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID)] =
-        &AmsMgrStub::HandleSetCurrentUserId;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID)] =
-        &AmsMgrStub::HandleGetBundleNameByPid;
     CreateMemberFuncMap();
 }
 
-AmsMgrStub::~AmsMgrStub()
-{
-    memberFuncMap_.clear();
-}
+AmsMgrStub::~AmsMgrStub() {}
 
-void AmsMgrStub::CreateMemberFuncMap()
-{
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_DEBUG_LISTENER)] =
-        &AmsMgrStub::HandleRegisterAppDebugListener;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UNREGISTER_APP_DEBUG_LISTENER)] =
-        &AmsMgrStub::HandleUnregisterAppDebugListener;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ATTACH_APP_DEBUG)] =
-        &AmsMgrStub::HandleAttachAppDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::DETACH_APP_DEBUG)] =
-        &AmsMgrStub::HandleDetachAppDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_APP_WAITING_DEBUG)] =
-        &AmsMgrStub::HandleSetAppWaitingDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CANCEL_APP_WAITING_DEBUG)] =
-        &AmsMgrStub::HandleCancelAppWaitingDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_WAITING_DEBUG_APP)] =
-        &AmsMgrStub::HandleGetWaitingDebugApp;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_WAITING_DEBUG_APP)] =
-        &AmsMgrStub::HandleIsWaitingDebugApp;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG)] =
-        &AmsMgrStub::HandleClearNonPersistWaitingDebugFlag;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE)] =
-        &AmsMgrStub::HandleRegisterAbilityDebugResponse;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
-        &AmsMgrStub::HandleIsAttachDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN)] =
-        &AmsMgrStub::HandleClearProcessByToken;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_PIDS)] =
-        &AmsMgrStub::HandleKillProcessesByPids;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ATTACH_PID_TO_PARENT)] =
-        &AmsMgrStub::HandleAttachPidToParent;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_MEMORY_SIZE_SUFFICIENT)] =
-        &AmsMgrStub::HandleIsMemorySizeSufficent;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_KEEP_ALIVE_ENABLE_STATE)] =
-        &AmsMgrStub::HandleSetKeepAliveEnableState;
-}
+void AmsMgrStub::CreateMemberFuncMap() {}
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -137,15 +56,144 @@ int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParce
         TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is unequal to remote");
         return ERR_INVALID_STATE;
     }
+    return OnRemoteRequestInner(code, data, reply, option);
+}
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+int32_t AmsMgrStub::OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+        retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+        retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
+        return retCode;
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int32_t AmsMgrStub::OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(IAmsMgr::Message::LOAD_ABILITY):
+            return HandleLoadAbility(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::TERMINATE_ABILITY):
+            return HandleTerminateAbility(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::UPDATE_ABILITY_STATE):
+            return HandleUpdateAbilityState(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::UPDATE_EXTENSION_STATE):
+            return HandleUpdateExtensionState(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_STATE_CALLBACK):
+            return HandleRegisterAppStateCallback(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::ABILITY_BEHAVIOR_ANALYSIS):
+            return HandleAbilityBehaviorAnalysis(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_PEOCESS_BY_ABILITY_TOKEN):
+            return HandleKillProcessByAbilityToken(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_USERID):
+            return HandleKillProcessesByUserId(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESS_WITH_ACCOUNT):
+            return HandleKillProcessWithAccount(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION):
+            return HandleKillApplication(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::ABILITY_ATTACH_TIMEOUT):
+            return HandleAbilityAttachTimeOut(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::PREPARE_TERMINATE_ABILITY):
+            return HandlePrepareTerminate(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_BYUID):
+            return HandleKillApplicationByUid(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_SELF):
+            return HandleKillApplicationSelf(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_TOKEN):
+            return HandleGetRunningProcessInfoByToken(data, reply);
+    }
+    return AAFwk::ERR_CODE_NOT_EXIST;
+}
+
+int32_t AmsMgrStub::OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(IAmsMgr::Message::SET_ABILITY_FOREGROUNDING_FLAG):
+            return HandleSetAbilityForegroundingFlagToAppRecord(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY):
+            return HandleStartSpecifiedAbility(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE):
+            return HandleRegisterStartSpecifiedAbilityResponse(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID):
+            return HandleGetApplicationInfoByProcessID(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::NOTIFY_APP_MGR_RECORD_EXIT_REASON):
+            return HandleNotifyAppMgrRecordExitReason(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED):
+            return HandleUpdateApplicationInfoInstalled(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID):
+            return HandleSetCurrentUserId(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID):
+            return HandleGetBundleNameByPid(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_DEBUG_LISTENER):
+            return HandleRegisterAppDebugListener(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::UNREGISTER_APP_DEBUG_LISTENER):
+            return HandleUnregisterAppDebugListener(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::ATTACH_APP_DEBUG):
+            return HandleAttachAppDebug(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::DETACH_APP_DEBUG):
+            return HandleDetachAppDebug(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::SET_APP_WAITING_DEBUG):
+            return HandleSetAppWaitingDebug(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::CANCEL_APP_WAITING_DEBUG):
+            return HandleCancelAppWaitingDebug(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::GET_WAITING_DEBUG_APP):
+            return HandleGetWaitingDebugApp(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::IS_WAITING_DEBUG_APP):
+            return HandleIsWaitingDebugApp(data, reply);
+    }
+    return AAFwk::ERR_CODE_NOT_EXIST;
+}
+
+int32_t AmsMgrStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(IAmsMgr::Message::CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG):
+            return HandleClearNonPersistWaitingDebugFlag(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE):
+            return HandleRegisterAbilityDebugResponse(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG):
+            return HandleIsAttachDebug(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN):
+            return HandleClearProcessByToken(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_PIDS):
+            return HandleKillProcessesByPids(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::ATTACH_PID_TO_PARENT):
+            return HandleAttachPidToParent(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::IS_MEMORY_SIZE_SUFFICIENT):
+            return HandleIsMemorySizeSufficent(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::SET_KEEP_ALIVE_ENABLE_STATE):
+            return HandleSetKeepAliveEnableState(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::ATTACHED_TO_STATUS_BAR):
+            return HandleAttachedToStatusBar(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::UPDATE_CONFIGURATION):
+            return 0;
+        case static_cast<uint32_t>(IAmsMgr::Message::GET_CONFIGURATION):
+            return 0;
+        case static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_PROCESS):
+            return 0;
+        case static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_MS_DELEGATE):
+            return 0;
+        case static_cast<uint32_t>(IAmsMgr::Message::BLOCK_PROCESS_CACHE_BY_PIDS):
+            return HandleBlockProcessCacheByPids(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::IS_KILLED_FOR_UPGRADE_WEB):
+            return HandleIsKilledForUpgradeWeb(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::FORCE_KILL_APPLICATION):
+            return HandleForceKillApplication(data, reply);
+    }
+    return AAFwk::ERR_CODE_NOT_EXIST;
 }
 
 ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
@@ -288,10 +336,13 @@ ErrCode AmsMgrStub::HandleKillProcessWithAccount(MessageParcel &data, MessagePar
 
     std::string bundleName = data.ReadString();
     int accountId = data.ReadInt32();
+    bool clearPageStack = data.ReadBool();
 
-    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+    TAG_LOGI(AAFwkTag::APPMGR,
+        "bundleName = %{public}s, accountId = %{public}d, clearPageStack = %{public}d",
+        bundleName.c_str(), accountId, clearPageStack);
 
-    int32_t result = KillProcessWithAccount(bundleName, accountId);
+    int32_t result = KillProcessWithAccount(bundleName, accountId, clearPageStack);
     reply.WriteInt32(result);
 
     TAG_LOGI(AAFwkTag::APPMGR, "end");
@@ -303,7 +354,27 @@ ErrCode AmsMgrStub::HandleKillApplication(MessageParcel &data, MessageParcel &re
 {
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
-    int32_t result = KillApplication(bundleName);
+    bool clearPageStack = data.ReadBool();
+
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, clearPageStack = %{public}d",
+        bundleName.c_str(), clearPageStack);
+
+    int32_t result = KillApplication(bundleName, clearPageStack);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleForceKillApplication(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    int userId = data.ReadInt32();
+    int appIndex = data.ReadInt32();
+
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s,userId=%{public}d,appIndex=%{public}d",
+        bundleName.c_str(), userId, appIndex);
+
+    int32_t result = ForceKillApplication(bundleName, userId, appIndex);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -321,7 +392,8 @@ ErrCode AmsMgrStub::HandleKillApplicationByUid(MessageParcel &data, MessageParce
 ErrCode AmsMgrStub::HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
-    int32_t result = KillApplicationSelf();
+    bool clearPageStack = data.ReadBool();
+    int32_t result = KillApplicationSelf(clearPageStack);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "result write failed.");
         return ERR_INVALID_VALUE;
@@ -340,7 +412,8 @@ int32_t AmsMgrStub::HandleAbilityAttachTimeOut(MessageParcel &data, MessageParce
 int32_t AmsMgrStub::HandlePrepareTerminate(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    PrepareTerminate(token);
+    bool clearMissionFlag = data.ReadBool();
+    PrepareTerminate(token, clearMissionFlag);
     return NO_ERROR;
 }
 
@@ -419,7 +492,7 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
 
 int32_t AmsMgrStub::HandleNotifyAppMgrRecordExitReason(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "HandleNotifyAppMgrRecordExitReason called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     int32_t pid = data.ReadInt32();
     int32_t reason = data.ReadInt32();
     std::string exitMsg = Str16ToStr8(data.ReadString16());
@@ -462,7 +535,7 @@ int32_t AmsMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "App debug lister is null.");
@@ -479,7 +552,7 @@ int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageP
 
 int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "App debug lister is nullptr.");
@@ -496,7 +569,7 @@ int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, Messag
 
 int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -513,7 +586,7 @@ int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &rep
 
 int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -530,7 +603,7 @@ int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &rep
 
 int32_t AmsMgrStub::HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -547,7 +620,7 @@ int32_t AmsMgrStub::HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleCancelAppWaitingDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto result = CancelAppWaitingDebug();
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
@@ -558,7 +631,7 @@ int32_t AmsMgrStub::HandleCancelAppWaitingDebug(MessageParcel &data, MessageParc
 
 int32_t AmsMgrStub::HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::vector<std::string> debugInfoList;
     auto result = GetWaitingDebugApp(debugInfoList);
     if (!reply.WriteInt32(result)) {
@@ -586,7 +659,7 @@ int32_t AmsMgrStub::HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -603,7 +676,7 @@ int32_t AmsMgrStub::HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &
 
 int32_t AmsMgrStub::HandleSetKeepAliveEnableState(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     auto enable = data.ReadBool();
     SetKeepAliveEnableState(bundleName, enable);
@@ -612,14 +685,14 @@ int32_t AmsMgrStub::HandleSetKeepAliveEnableState(MessageParcel &data, MessagePa
 
 int32_t AmsMgrStub::HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ClearNonPersistWaitingDebugFlag();
     return NO_ERROR;
 }
 
 int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto response = iface_cast<IAbilityDebugResponse>(data.ReadRemoteObject());
     if (response == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Response is nullptr.");
@@ -636,7 +709,7 @@ int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, Mess
 
 int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -663,7 +736,49 @@ int32_t AmsMgrStub::HandleIsMemorySizeSufficent(MessageParcel &data, MessageParc
 {
     auto result = IsMemorySizeSufficent();
     if (!reply.WriteBool(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleAttachedToStatusBar(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    AttachedToStatusBar(token);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleBlockProcessCacheByPids(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_KILL_PROCESS_PID_COUNT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid size.");
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<int32_t> pids;
+    for (uint32_t i = 0; i < size; i++) {
+        pids.emplace_back(data.ReadInt32());
+    }
+
+    BlockProcessCacheByPids(pids);
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleIsKilledForUpgradeWeb(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = IsKilledForUpgradeWeb(bundleName);
+    if (!reply.WriteBool(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

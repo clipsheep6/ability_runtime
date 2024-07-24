@@ -17,7 +17,6 @@
 #include "js_insight_intent_executor.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "runtime.h"
 

@@ -16,7 +16,6 @@
 
 #include "app_running_status_listener_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_proxy.h"
 

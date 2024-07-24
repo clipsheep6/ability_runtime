@@ -22,7 +22,6 @@
 #include "application_data_manager.h"
 #include "event_runner.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_error_observer.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
@@ -203,7 +202,7 @@ public:
 private:
     napi_value OnOn(napi_env env, const size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOnNew(env, argc, argv);
@@ -229,7 +228,7 @@ private:
 
     napi_value OnOnOld(napi_env env, const size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         if (argc != ARGC_TWO) {
             TAG_LOGE(AAFwkTag::JSNAPI, "The param is invalid, observers need.");
             ThrowTooFewParametersError(env);
@@ -283,7 +282,7 @@ private:
 
     napi_value OnOnNew(napi_env env, const size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::JSNAPI, "The param is invalid, observers need.");
             ThrowTooFewParametersError(env);
@@ -314,7 +313,7 @@ private:
 
     napi_value OnOff(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOffNew(env, argc, argv);
@@ -340,14 +339,14 @@ private:
 
     napi_value OnOffOld(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         int32_t observerId = -1;
         if (argc != ARGC_TWO && argc != ARGC_THREE) {
             ThrowTooFewParametersError(env);
-            TAG_LOGE(AAFwkTag::JSNAPI, "unregister errorObserver error, not enough params.");
+            TAG_LOGE(AAFwkTag::JSNAPI, "not enough params.");
         } else {
             napi_get_value_int32(env, argv[INDEX_ONE], &observerId);
-            TAG_LOGI(AAFwkTag::JSNAPI, "unregister errorObserver called, observer:%{public}d", observerId);
+            TAG_LOGI(AAFwkTag::JSNAPI, "observer:%{public}d", observerId);
         }
 
         std::string type;
@@ -360,7 +359,7 @@ private:
         NapiAsyncTask::CompleteCallback complete =
             [&observer = observer_, observerId](
                 napi_env env, NapiAsyncTask& task, int32_t status) {
-            TAG_LOGI(AAFwkTag::JSNAPI, "Unregister errorObserver called.");
+            TAG_LOGI(AAFwkTag::JSNAPI, "called");
                 if (observerId == -1) {
                     task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                     return;
@@ -415,7 +414,7 @@ private:
 
     napi_value OnOffNew(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         if (argc < ARGC_TWO) {
             ThrowTooFewParametersError(env);
             TAG_LOGE(AAFwkTag::JSNAPI, "unregister errorObserver error, not enough params.");
@@ -541,7 +540,7 @@ private:
             loopObserver_ = nullptr;
             TAG_LOGI(AAFwkTag::JSNAPI, "Remove loopObserver success");
         } else {
-            TAG_LOGI(AAFwkTag::JSNAPI, "Unregister loopObserver Called.");
+            TAG_LOGI(AAFwkTag::JSNAPI, "called");
         }
         return nullptr;
     }

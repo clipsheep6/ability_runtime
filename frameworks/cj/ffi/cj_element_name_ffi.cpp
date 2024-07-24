@@ -18,7 +18,6 @@
 #include "cj_utils_ffi.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using OHOS::AppExecFwk::ElementName;
 

@@ -28,6 +28,7 @@ config("upms_config") {
 }
 
 libupms_sources = [
+  "src/file_permission_manager.cpp",
   "src/tokenid_permission.cpp",
   "src/uri_permission_manager_service.cpp",
   "src/uri_permission_manager_stub_impl.cpp",
@@ -69,10 +70,12 @@ ohos_shared_library("libupms") {
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "app_file_service:fileuri_native",
     "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "graphic_2d:color_manager",
@@ -88,6 +91,9 @@ ohos_shared_library("libupms") {
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
   ]
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+  }
   if (ability_runtime_graphics) {
     external_deps += [ "i18n:intl_util" ]
   }
@@ -98,6 +104,13 @@ ohos_shared_library("libupms") {
 
 # Note: Just for test
 ohos_static_library("libupms_static") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../test/cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   configs = [
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_services_path}/common:common_config",
@@ -120,9 +133,11 @@ ohos_static_library("libupms_static") {
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
+    "app_file_service:fileuri_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "init:libbeget_proxy",
@@ -132,6 +147,10 @@ ohos_static_library("libupms_static") {
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
   ]
+
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

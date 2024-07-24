@@ -76,6 +76,7 @@ public:
         const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
         int requestCode, RuntimeTask &&task) override;
+    ErrCode StartUIServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) override;
     ErrCode StartServiceExtensionAbility(const Want &want, int32_t accountId = -1) override;
     ErrCode StopServiceExtensionAbility(const Want& want, int32_t accountId = -1) override;
     ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) override;
@@ -186,7 +187,7 @@ public:
 
     bool IsTerminating() override
     {
-        return isTerminating_;
+        return isTerminating_.load();
     }
 
     void SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) override;
@@ -195,7 +196,7 @@ public:
 
     void SetTerminating(bool state) override
     {
-        isTerminating_ = state;
+        isTerminating_.store(state);
     }
 
     ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) override;
@@ -221,6 +222,9 @@ public:
 
     ErrCode ChangeAbilityVisibility(bool isShow) override;
 
+    ErrCode OpenLink(const AAFwk::Want& want, int requestCode) override;
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
+
     ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task) override;
 
@@ -229,6 +233,8 @@ public:
     void UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
 
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) override;
+
+    void RemoveResultCallbackTask(int requestCode) override;
 
     void SetRestoreEnabled(bool enabled) override;
     bool GetRestoreEnabled() override;
@@ -292,7 +298,7 @@ private:
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
     std::shared_ptr<LocalCallContainer> localCallContainer_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
-    bool isTerminating_ = false;
+    std::atomic<bool> isTerminating_ = false;
     int32_t missionId_ = -1;
     int32_t abilityRecordId_ = 0;
     std::mutex sessionTokenMutex_;

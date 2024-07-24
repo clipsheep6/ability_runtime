@@ -104,7 +104,7 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
 
 int32_t AppStateObserverManager::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
         return ERR_INVALID_VALUE;
@@ -127,7 +127,7 @@ int32_t AppStateObserverManager::RegisterAppForegroundStateObserver(const sptr<I
 int32_t AppStateObserverManager::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Observer nullptr.");
         return ERR_INVALID_VALUE;
@@ -151,7 +151,7 @@ int32_t AppStateObserverManager::RegisterAbilityForegroundStateObserver(
     const sptr<IAbilityForegroundStateObserver> &observer)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
         return ERR_INVALID_VALUE;
@@ -175,7 +175,7 @@ int32_t AppStateObserverManager::UnregisterAbilityForegroundStateObserver(
     const sptr<IAbilityForegroundStateObserver> &observer)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Observer nullptr.");
         return ERR_INVALID_VALUE;
@@ -385,7 +385,7 @@ void AppStateObserverManager::StateChangedNotifyObserver(
             TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, StateChangedNotifyObserver failed.");
             return;
         }
-        TAG_LOGD(AAFwkTag::APPMGR, "StateChangedNotifyObserver come.");
+        TAG_LOGI(AAFwkTag::APPMGR, "StateChangedNotifyObserver come.");
         self->HandleStateChangedNotifyObserver(abilityStateData, isAbility, isFromWindowFocusChanged);
     };
     handler_->SubmitTask(task);

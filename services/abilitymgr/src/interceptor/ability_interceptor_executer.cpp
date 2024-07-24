@@ -14,7 +14,6 @@
  */
 
 #include "interceptor/ability_interceptor_executer.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {

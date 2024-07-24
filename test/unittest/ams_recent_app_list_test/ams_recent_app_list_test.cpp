@@ -318,7 +318,6 @@ HWTEST_F(AmsRecentAppListTest, Update_003, TestSize.Level1)
 
     for (int32_t index = INDEX_NUM_1; index <= INDEX_NUM_3; index++) {
         auto appRecord = GetAppRunningRecordByIndex(index);
-        appRecord->SetUpdateStateFromService(true);
         serviceInner_->ApplicationForegrounded(appRecord->GetRecordId());
         auto appTaskInfo = serviceInner_->GetRecentAppList().front();
         EXPECT_NE(nullptr, appTaskInfo);

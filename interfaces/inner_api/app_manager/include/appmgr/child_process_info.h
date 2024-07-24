@@ -23,17 +23,20 @@
 namespace OHOS {
 namespace AppExecFwk {
 
+constexpr int32_t CHILD_PROCESS_TYPE_NOT_CHILD = -1;
 constexpr int32_t CHILD_PROCESS_TYPE_JS = 0;
 constexpr int32_t CHILD_PROCESS_TYPE_NATIVE = 1;
+constexpr int32_t CHILD_PROCESS_TYPE_ARK = 2;
 
 struct ChildProcessInfo : public Parcelable {
-    std::int32_t pid;
-    std::int32_t hostPid;
-    std::int32_t uid;
-    std::int32_t processType;
+    int32_t pid = 0;
+    int32_t hostPid = 0;
+    int32_t uid = -1;
+    int32_t childProcessType = CHILD_PROCESS_TYPE_JS;
     std::string bundleName;
     std::string processName;
     std::string srcEntry;
+    std::string entryParams;
     bool jitEnabled = false;
     bool isDebugApp = true;
     bool isStartWithDebug = false;

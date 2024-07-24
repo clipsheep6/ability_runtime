@@ -20,7 +20,6 @@
 #include "distributed_errors.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using OHOS::AAFwk::WantParams;
 namespace OHOS {
@@ -146,7 +145,9 @@ void ContinuationHandlerStage::HandleReceiveRemoteScheduler(const sptr<IRemoteOb
 
     if (schedulerDeathRecipient_ == nullptr) {
         schedulerDeathRecipient_ = new (std::nothrow) ReverseContinuationSchedulerRecipient(
-            std::bind(&ContinuationHandlerStage::OnReplicaDied, this, std::placeholders::_1));
+            [this](const wptr<IRemoteObject> &arg) {
+                this->OnReplicaDied(arg);
+        });
     }
 
     remoteReplicaProxy_ = iface_cast<IReverseContinuationSchedulerReplica>(remoteReplica);
@@ -175,7 +176,7 @@ void ContinuationHandlerStage::HandleCompleteContinuation(int result)
 
 void ContinuationHandlerStage::SetReversible(bool reversible)
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Called.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "called");
     reversible_ = reversible;
 }
 
@@ -189,13 +190,13 @@ void ContinuationHandlerStage::SetAbilityInfo(std::shared_ptr<AbilityInfo> &abil
 
 void ContinuationHandlerStage::SetPrimaryStub(const sptr<IRemoteObject> &Primary)
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Called.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "called");
     remotePrimaryStub_ = Primary;
 }
 
 void ContinuationHandlerStage::ClearDeviceInfo(std::shared_ptr<AbilityInfo> &abilityInfo)
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Called.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "called");
     abilityInfo->deviceId = "";
     abilityInfo->deviceTypes.clear();
 }
@@ -268,13 +269,13 @@ Want ContinuationHandlerStage::SetWantParams(const WantParams &wantParams)
 
 void ContinuationHandlerStage::CleanUpAfterReverse()
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Called.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "called");
     remoteReplicaProxy_ = nullptr;
 }
 
 void ContinuationHandlerStage::PassPrimary(const sptr<IRemoteObject> &Primary)
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Called.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "called");
     remotePrimaryProxy_ = iface_cast<IReverseContinuationSchedulerPrimary>(Primary);
 }
 

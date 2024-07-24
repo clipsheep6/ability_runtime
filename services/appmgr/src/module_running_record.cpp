@@ -319,7 +319,7 @@ bool ModuleRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteOb
 
 bool ModuleRunningRecord::IsAbilitiesBackgrounded()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     for (const auto &iter : abilities_) {
         const auto &ability = iter.second;

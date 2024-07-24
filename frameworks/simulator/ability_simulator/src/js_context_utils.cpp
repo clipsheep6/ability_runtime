@@ -17,7 +17,6 @@
 
 #include <iostream>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_application_context_utils.h"
 #include "js_data_converter.h"
 #include "js_runtime_utils.h"
@@ -289,7 +288,7 @@ napi_value JsBaseContext::OnGetCloudFileDir(napi_env env, NapiCallbackInfo &info
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetCloudFileDir();

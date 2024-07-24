@@ -18,7 +18,6 @@
 #include "connection_observer_errors.h"
 #include "connection_observer_stub_impl.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
@@ -60,6 +59,7 @@ int32_t ConnectionObserverClientImpl::UnregisterObserver(const std::shared_ptr<C
     return ret;
 }
 
+#ifdef WITH_DLP
 int32_t ConnectionObserverClientImpl::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
 {
     auto proxy = GetServiceProxy();
@@ -70,6 +70,7 @@ int32_t ConnectionObserverClientImpl::GetDlpConnectionInfos(std::vector<DlpConne
 
     return proxy->GetDlpConnectionInfos(infos);
 }
+#endif // WITH_DLP
 
 int32_t ConnectionObserverClientImpl::GetConnectionData(std::vector<ConnectionData> &connectionData)
 {
@@ -104,6 +105,7 @@ void ConnectionObserverClientImpl::HandleExtensionDisconnected(const ConnectionD
     }
 }
 
+#ifdef WITH_DLP
 void ConnectionObserverClientImpl::HandleDlpAbilityOpened(const DlpStateData &data)
 {
     auto observers = GetObservers();
@@ -125,6 +127,7 @@ void ConnectionObserverClientImpl::HandleDlpAbilityClosed(const DlpStateData &da
         }
     }
 }
+#endif // WITH_DLP
 
 bool ConnectionObserverClientImpl::RegisterObserverToServiceLocked(const std::shared_ptr<ServiceProxyAdapter> &proxy)
 {

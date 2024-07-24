@@ -16,13 +16,33 @@
 #include "cj_ability_stage.h"
 #include "cj_ability_stage_context.h"
 #include "cj_runtime.h"
-#include "cj_utils_ffi.h"
 #include "context_impl.h"
-#include "hilog_wrapper.h"
 #include "hilog_tag_wrapper.h"
-
+#include "securec.h"
 
 using namespace OHOS::AbilityRuntime;
+
+namespace {
+char* CreateCStringFromString(const std::string& source)
+{
+    if (source.size() == 0) {
+        return nullptr;
+    }
+    size_t length = source.size() + 1;
+    auto res = static_cast<char*>(malloc(length));
+    if (res == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "fail to mallc string.");
+        return nullptr;
+    }
+    if (strcpy_s(res, length, source.c_str()) != 0) {
+        free(res);
+        TAG_LOGE(AAFwkTag::APPKIT, "fail to strcpy source.");
+        return nullptr;
+    }
+    return res;
+}
+}
+
 extern "C" {
 CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapModuleInfo(int64_t id)
 {
@@ -80,34 +100,45 @@ std::shared_ptr<CJAbilityStage> CJAbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
     if (!runtime) {
-        HILOG_ERROR("Runtime does not exist.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Runtime does not exist.");
         return nullptr;
     }
     auto& cjRuntime = static_cast<CJRuntime&>(*runtime);
     // Load cj app library.
     if (!cjRuntime.IsAppLibLoaded()) {
-        HILOG_ERROR("Failed to create CJAbilityStage, applib not loaded.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to create CJAbilityStage, applib not loaded.");
         return nullptr;
     }
 
     auto cjAbilityStageObject = CJAbilityStageObject::LoadModule(hapModuleInfo.moduleName);
     if (cjAbilityStageObject == nullptr) {
         cjRuntime.UnLoadCJAppLibrary();
-        HILOG_ERROR("Failed to create CJAbilityStage.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to create CJAbilityStage.");
         return nullptr;
     }
 
     return std::make_shared<CJAbilityStage>(cjAbilityStageObject);
 }
 
+void CJAbilityStage::Init(const std::shared_ptr<Context> &context,
+    const std::weak_ptr<AppExecFwk::OHOSApplication> application)
+{
+    AbilityStage::Init(context, application);
+    if (!cjAbilityStageObject_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to create CJAbilityStage.");
+        return;
+    }
+    cjAbilityStageObject_->Init(this);
+}
+
 void CJAbilityStage::OnCreate(const AAFwk::Want& want) const
 {
     AbilityStage::OnCreate(want);
     if (!cjAbilityStageObject_) {
-        HILOG_ERROR("CJAbilityStage is not loaded.");
+        TAG_LOGE(AAFwkTag::APPKIT, "CJAbilityStage is not loaded.");
         return;
     }
-    HILOG_DEBUG("CJAbilityStage::OnCreate");
+    TAG_LOGD(AAFwkTag::APPKIT, "CJAbilityStage::OnCreate");
     cjAbilityStageObject_->OnCreate();
 }
 
@@ -115,7 +146,7 @@ std::string CJAbilityStage::OnAcceptWant(const AAFwk::Want& want)
 {
     AbilityStage::OnAcceptWant(want);
     if (!cjAbilityStageObject_) {
-        HILOG_ERROR("CJAbilityStage is not loaded.");
+        TAG_LOGE(AAFwkTag::APPKIT, "CJAbilityStage is not loaded.");
         return "";
     }
     return cjAbilityStageObject_->OnAcceptWant(want);
@@ -126,12 +157,12 @@ void CJAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& con
     AbilityStage::OnConfigurationUpdated(configuration);
     auto fullConfig = GetContext()->GetConfiguration();
     if (!fullConfig) {
-        HILOG_ERROR("configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "configuration is nullptr.");
         return;
     }
 
     if (!cjAbilityStageObject_) {
-        HILOG_ERROR("CJAbilityStage is not loaded.");
+        TAG_LOGE(AAFwkTag::APPKIT, "CJAbilityStage is not loaded.");
         return;
     }
     cjAbilityStageObject_->OnConfigurationUpdated(fullConfig);
@@ -141,7 +172,7 @@ void CJAbilityStage::OnMemoryLevel(int level)
 {
     AbilityStage::OnMemoryLevel(level);
     if (!cjAbilityStageObject_) {
-        HILOG_ERROR("CJAbilityStage is not loaded.");
+        TAG_LOGE(AAFwkTag::APPKIT, "CJAbilityStage is not loaded.");
         return;
     }
     cjAbilityStageObject_->OnMemoryLevel(level);

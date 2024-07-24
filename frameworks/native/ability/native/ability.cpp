@@ -33,7 +33,6 @@
 #include "data_uri_utils.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -72,7 +71,9 @@ const int Ability::DEFAULT_DMS_SESSION_ID(0);
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+#ifdef WITH_DLP
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
+#endif // WITH_DLP
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 
 Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
@@ -164,8 +165,10 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         return;
     }
 
+#ifdef WITH_DLP
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
+#endif // WITH_DLP
     SetWant(want);
 #ifdef SUPPORT_SCREEN
     if (sessionInfo != nullptr) {
@@ -446,6 +449,11 @@ ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStart
     ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
     TAG_LOGD(AAFwkTag::ABILITY, "end");
     return err;
+}
+
+ErrCode Ability::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> observer)
+{
+    return AbilityContext::AddFreeInstallObserver(observer);
 }
 
 std::string Ability::GetType(const Uri &uri)

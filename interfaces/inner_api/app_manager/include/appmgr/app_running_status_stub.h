@@ -32,9 +32,6 @@ public:
 
 private:
     ErrCode HandleAppRunningStatus(MessageParcel &data, MessageParcel &reply);
-
-    using AppRunningStatusListenerFunc = int32_t (AppRunningStatusStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AppRunningStatusListenerFunc> requestFuncMap_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

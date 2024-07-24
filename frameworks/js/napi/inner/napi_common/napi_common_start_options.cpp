@@ -16,7 +16,6 @@
 #include "napi_common_start_options.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "int_wrapper.h"
@@ -72,7 +71,7 @@ bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::
 
 bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);

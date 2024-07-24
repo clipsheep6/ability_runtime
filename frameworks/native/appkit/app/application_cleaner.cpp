@@ -25,7 +25,6 @@
 #include "directory_ex.h"
 #include "ffrt.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 namespace OHOS {
 namespace AppExecFwk {

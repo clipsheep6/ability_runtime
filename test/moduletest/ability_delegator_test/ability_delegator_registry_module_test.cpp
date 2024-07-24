@@ -19,7 +19,6 @@
 #include "ability_runtime/context/context_impl.h"
 #include "app_loader.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_delegator_stub.h"
 #include "ohos_application.h"
 

@@ -18,7 +18,6 @@
 #include "app_mgr_client.h"
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_configuration_observer.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"

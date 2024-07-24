@@ -27,26 +27,33 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
+constexpr uint8_t ENABLE = 2;
+constexpr size_t OFFSET_ZERO = 24;
+constexpr size_t OFFSET_ONE = 16;
+constexpr size_t OFFSET_TWO = 8;
+}
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
-        return false;
-    }
-
-    std::string bundleName(data, size);
-    abilitymgr->ClearUpApplicationData(bundleName);
-
     // fuzz for AppMgrClient
     std::shared_ptr<AppMgrClient> appMgrClient = std::make_shared<AppMgrClient>();
     if (!appMgrClient) {
         return false;
     }
 
-    appMgrClient->ClearUpApplicationData(bundleName);
+    std::string bundleName(data, size);
+    int32_t appCloneIndex = static_cast<int32_t>(GetU32Data(data));
+    appMgrClient->ClearUpApplicationData(bundleName, appCloneIndex);
 
     return true;
 }

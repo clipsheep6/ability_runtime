@@ -16,7 +16,6 @@
 #include "js_dialog_request_callback.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
@@ -34,7 +33,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "JsDialogRequestCallback::Finalizer is called.");
+        TAG_LOGD(AAFwkTag::DIALOG, "called");
         std::unique_ptr<JsDialogRequestCallback>(static_cast<JsDialogRequestCallback*>(data));
     }
 

@@ -106,6 +106,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionDisconnected_001, Test
     connectionObserverController->NotifyExtensionDisconnected(data);
 }
 
+#ifdef WITH_DLP
 /*
  * Feature: ConnectionObserverController
  * Function: NotifyDlpAbilityOpened
@@ -137,6 +138,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyDlpAbilityClosed_001, TestSize.
     DlpStateData data;
     connectionObserverController->NotifyDlpAbilityClosed(data);
 }
+#endif // WITH_DLP
 
 /*
  * Feature: ConnectionObserverController

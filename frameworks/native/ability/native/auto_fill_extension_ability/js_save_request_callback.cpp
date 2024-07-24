@@ -18,7 +18,6 @@
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_auto_fill_extension_util.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
@@ -39,7 +38,7 @@ JsSaveRequestCallback::JsSaveRequestCallback(
 
 void JsSaveRequestCallback::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Finalizer is called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     std::unique_ptr<JsSaveRequestCallback>(static_cast<JsSaveRequestCallback*>(data));
 }
 
@@ -55,21 +54,21 @@ napi_value JsSaveRequestCallback::SaveRequestFailed(napi_env env, napi_callback_
 
 napi_value JsSaveRequestCallback::OnSaveRequestSuccess(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS);
     return CreateJsUndefined(env);
 }
 
 napi_value JsSaveRequestCallback::OnSaveRequestFailed(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED);
     return CreateJsUndefined(env);
 }
 
 void JsSaveRequestCallback::SendResultCodeAndViewData(const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (uiWindow_ == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UI window is nullptr.");
         return;
@@ -91,7 +90,7 @@ void JsSaveRequestCallback::SendResultCodeAndViewData(const JsAutoFillExtensionU
 napi_value JsSaveRequestCallback::CreateJsSaveRequestCallback(napi_env env,
     const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {

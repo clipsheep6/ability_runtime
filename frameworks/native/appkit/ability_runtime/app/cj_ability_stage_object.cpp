@@ -15,7 +15,6 @@
 
 #include "cj_ability_stage_object.h"
 
-#include "hilog_wrapper.h"
 #include "hilog_tag_wrapper.h"
 
 using namespace OHOS::AbilityRuntime;
@@ -65,6 +64,15 @@ CJAbilityStageObject::~CJAbilityStageObject()
 {
     g_cjAbilityStageFuncs->ReleaseAbilityStage(id_);
     id_ = 0;
+}
+
+void CJAbilityStageObject::Init(AbilityStageHandle abilityStage) const
+{
+    if (g_cjAbilityStageFuncs == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
+        return;
+    }
+    g_cjAbilityStageFuncs->AbilityStageInit(id_, abilityStage);
 }
 
 void CJAbilityStageObject::OnCreate() const

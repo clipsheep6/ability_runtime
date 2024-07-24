@@ -136,7 +136,7 @@ bool CheckAbilityType(const AsyncJSCallbackInfo *asyncCallbackInfo)
 
 bool CheckAbilityType(const AsyncCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s asyncCallbackInfo == nullptr", __func__);
         return false;
@@ -386,7 +386,7 @@ void PrintDrawnCompletedExecuteCallback(napi_env, void *data)
 
 void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s. asyncCallbackInfo is nullptr.", __func__);
@@ -507,7 +507,7 @@ void GetExternalCacheDirExecuteCallback(napi_env, void *data)
  */
 AppTypeCB *CreateAppTypeCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -540,7 +540,7 @@ AppTypeCB *CreateAppTypeCBInfo(napi_env env)
  */
 AbilityInfoCB *CreateAbilityInfoCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -655,7 +655,7 @@ napi_value BuildJsAbilityInfoNamedPropertySecond(napi_env env, const AbilityInfo
 
 napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -724,7 +724,7 @@ napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
  */
 HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -791,7 +791,7 @@ napi_value BuildJsHapModuleInfoNamedProperty(napi_env env, const HapModuleInfoCB
 
 napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &cb)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -841,7 +841,7 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &cb)
  */
 AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -868,7 +868,7 @@ AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
 void SaveAppVersionInfo(AppVersionInfo &appVersionInfo, const std::string appName, const std::string versionName,
     const int32_t versionCode)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     appVersionInfo.appName = appName;
     appVersionInfo.versionName = versionName;
     appVersionInfo.versionCode = versionCode;
@@ -877,7 +877,7 @@ void SaveAppVersionInfo(AppVersionInfo &appVersionInfo, const std::string appNam
 
 napi_value WrapAppVersionInfo(napi_env env, const AppVersionInfoCB &appVersionInfoCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -905,7 +905,7 @@ napi_value WrapAppVersionInfo(napi_env env, const AppVersionInfoCB &appVersionIn
  */
 AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -931,7 +931,7 @@ AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
 
 napi_value WrapAbilityName(napi_env env, const AbilityNameCB *abilityNameCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (abilityNameCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, Invalid param(abilityNameCB == nullptr)", __func__);
         return nullptr;
@@ -974,7 +974,7 @@ void UnwrapAbilityStartSettingForNumber(
 
 bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilityStartSetting &setting)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         return false;

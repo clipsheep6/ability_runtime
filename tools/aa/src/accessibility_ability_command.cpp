@@ -26,7 +26,6 @@
 #include "accessibility_system_ability_client.h"
 #include "bool_wrapper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
 #include "sa_mgr_client.h"
@@ -326,6 +325,33 @@ ErrCode AccessibilityAbilityShellCommand::RunAsHelpCommand()
     return OHOS::ERR_OK;
 }
 
+void AccessibilityAbilityShellCommand::CheckEnableCommandOption(const int option,
+    AccessibilityCommandArgument& argument)
+{
+    switch (option) {
+        case 'a': {
+            argument.abilityName = optarg;
+            argument.abilityArgumentNum++;
+            break;
+        }
+        case 'b': {
+            argument.bundleName = optarg;
+            argument.bundleArgumentNum++;
+            break;
+        }
+        case 'c': {
+            argument.capabilityNames = optarg;
+            argument.capabilityNamesArgumentNum++;
+            break;
+        }
+        default: {
+            argument.unknownArgumentNum++;
+            argument.unknownArguments.push_back(argv_[optind - 1]);
+            break;
+        }
+    }
+}
+
 ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     int option = -1;
@@ -371,29 +397,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
                 }
             }
         }
-
-        switch (option) {
-            case 'a': {
-                argument.abilityName = optarg;
-                argument.abilityArgumentNum++;
-                break;
-            }
-            case 'b': {
-                argument.bundleName = optarg;
-                argument.bundleArgumentNum++;
-                break;
-            }
-            case 'c': {
-                argument.capabilityNames = optarg;
-                argument.capabilityNamesArgumentNum++;
-                break;
-            }
-            default: {
-                argument.unknownArgumentNum++;
-                argument.unknownArguments.push_back(argv_[optind - 1]);
-                break;
-            }
-        }
+        CheckEnableCommandOption(option, argument);
     }
     return CheckEnableCommandArgument(argument, resultReceiver_);
 }

@@ -23,13 +23,14 @@
 #include "js_dialog_session.h"
 #include "js_runtime_utils.h"
 #include "native_engine/native_engine.h"
-#include "dialog_session_record.h"
+#include "dialog_session_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 napi_value WrapArrayDialogAbilityInfoToJS(napi_env env, const std::vector<DialogAbilityInfo> &value);
 napi_value WrapDialogSessionInfo(napi_env env, const AAFwk::DialogSessionInfo &dialogSessionInfo);
 napi_value WrapDialogAbilityInfo(napi_env env, const AAFwk::DialogAbilityInfo &dialogAbilityInfo);
+napi_value WrapMultiAppModeData(napi_env env, const AppExecFwk::MultiAppModeData &multiAppMode);
 } // namespace AppExecFwk
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_DIALOG_SESSION_UTILS_H

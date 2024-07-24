@@ -17,7 +17,6 @@
 
 #include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "napi/native_api.h"
 #include "napi_common_ability.h"
@@ -56,7 +55,7 @@ public:
 private:
     napi_value OnGetDialogSessionInfo(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "argc = %{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < 1) {
             TAG_LOGE(AAFwkTag::DIALOG, "not enough params");
             ThrowTooFewParametersError(env);
@@ -83,7 +82,7 @@ private:
 
     napi_value OnSendDialogResult(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "argc = %{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < ARGC_THREE) {
             TAG_LOGE(AAFwkTag::DIALOG, "not enough params");
             ThrowTooFewParametersError(env);

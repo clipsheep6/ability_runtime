@@ -25,7 +25,6 @@
 #include "feature_ability_common.h"
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_napi_common_ability.h"
 #include "permission_list_state.h"
 #include "securec.h"
@@ -197,7 +196,7 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
 
 napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -228,7 +227,7 @@ napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info,
 
 void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "called. asyncCallbackInfo is null");
@@ -558,7 +557,7 @@ void VerifySelfPermissionExecuteCallbackWork(napi_env env, void *data)
 
 napi_value NAPI_VerifySelfPermissionWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -589,7 +588,7 @@ napi_value NAPI_VerifySelfPermissionWrap(napi_env env, napi_callback_info info, 
 
 napi_value NAPI_VerifySelfPermission(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
@@ -641,7 +640,7 @@ bool UnwrapRequestPermissionsFromUser(
 
 void RequestPermissionsFromUserExecuteCallbackWork(napi_env env, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "called. asyncCallbackInfo is null");
@@ -668,7 +667,7 @@ void RequestPermissionsFromUserExecuteCallbackWork(napi_env env, void *data)
 
 void RequestPermissionsFromUserCompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
@@ -703,7 +702,7 @@ void RequestPermissionsFromUserCompleteAsyncCallbackWork(napi_env env, napi_stat
 napi_value NAPI_RequestPermissionsFromUserWrap(
     napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -749,7 +748,7 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
 
 napi_value NAPI_RequestPermissionsFromUser(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called.");
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
@@ -787,7 +786,7 @@ struct OnRequestPermissionsData {
 
     static void AfterWorkCallback(uv_work_t* work, int status)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "OnRequestPermissionsFromUserResult called");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         if (work == nullptr) {
             TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, work is nullptr.", __func__);
             return;
@@ -857,55 +856,55 @@ EXTERN_C_END
 
 napi_value NAPI_GetFilesDir(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetFilesDirCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetOrCreateDistributedDir(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetOrCreateDistributedDirCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetCacheDir(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetCacheDirCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetCtxAppType(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetAppTypeCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetCtxHapModuleInfo(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetHapModuleInfoCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetAppVersionInfo(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetAppVersionInfoCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetApplicationContext(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetContextCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_GetCtxAbilityInfo(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_GetAbilityInfoCommon(env, info, AbilityType::PAGE);
 }
 
 bool UnwrapVerifyPermissionOptions(napi_env env, napi_value argv, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo is null", __func__);
         return false;
@@ -973,7 +972,7 @@ bool UnwrapParamVerifyPermission(napi_env env, size_t argc, napi_value *argv, As
 
 void VerifyPermissionExecuteCallback(napi_env env, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
@@ -1005,7 +1004,7 @@ void VerifyPermissionExecuteCallback(napi_env env, void *data)
 
 napi_value NAPI_VerifyPermissionWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -1038,7 +1037,7 @@ napi_value NAPI_VerifyPermissionWrap(napi_env env, napi_callback_info info, Asyn
 
 napi_value NAPI_VerifyPermission(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
@@ -1214,7 +1213,7 @@ napi_value GetApplicationInfoWrap(napi_env env, napi_callback_info info, AppInfo
 
 AppInfoCB *CreateAppInfoCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1242,7 +1241,7 @@ AppInfoCB *CreateAppInfoCBInfo(napi_env env)
 
 void GetBundleNameExecuteCallback(napi_env env, void *data)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s. asyncCallbackInfo is null", __func__);
@@ -1265,7 +1264,7 @@ void GetBundleNameExecuteCallback(napi_env env, void *data)
 
 napi_value NAPI_GetBundleNameWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -1305,7 +1304,7 @@ napi_value NAPI_GetBundleNameWrap(napi_env env, napi_callback_info info, AsyncJS
 
 napi_value WrapProcessInfo(napi_env env, ProcessInfoCB *processInfoCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (processInfoCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s Invalid param(processInfoCB == nullptr)", __func__);
         return nullptr;
@@ -1483,7 +1482,7 @@ napi_value GetProcessInfoWrap(napi_env env, napi_callback_info info, ProcessInfo
 
 ProcessInfoCB *CreateProcessInfoCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1509,7 +1508,7 @@ ProcessInfoCB *CreateProcessInfoCBInfo(napi_env env)
 
 ElementNameCB *CreateElementNameCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1535,7 +1534,7 @@ ElementNameCB *CreateElementNameCBInfo(napi_env env)
 
 napi_value WrapElementName(napi_env env, const ElementNameCB *elementNameCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (elementNameCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s,Invalid param(appInfoCB = nullptr)", __func__);
         return nullptr;
@@ -1728,7 +1727,7 @@ napi_value GetElementNameWrap(napi_env env, napi_callback_info info, ElementName
 
 ProcessNameCB *CreateProcessNameCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1774,7 +1773,7 @@ void GetProcessNameExecuteCB(napi_env env, void *data)
 
 napi_value WrapProcessName(napi_env env, const ProcessNameCB *processNameCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (processNameCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, Invalid param(processNameCB == nullptr)", __func__);
         return nullptr;
@@ -1919,7 +1918,7 @@ napi_value GetProcessNameWrap(napi_env env, napi_callback_info info, ProcessName
 
 CallingBundleCB *CreateCallingBundleCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1965,7 +1964,7 @@ void GetCallingBundleExecuteCB(napi_env env, void *data)
 
 napi_value WrapCallingBundle(napi_env env, const CallingBundleCB *callingBundleCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (callingBundleCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s,Invalid param(callingBundleCB == nullptr)", __func__);
         return nullptr;
@@ -2111,7 +2110,7 @@ napi_value GetCallingBundleWrap(napi_env env, napi_callback_info info, CallingBu
 
 GetOrCreateLocalDirCB *CreateGetOrCreateLocalDirCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -2165,7 +2164,7 @@ void GetOrCreateLocalDirExecuteCB(napi_env env, void *data)
 
 napi_value WrapGetOrCreateLocalDir(napi_env env, const GetOrCreateLocalDirCB *getOrCreateLocalDirCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (getOrCreateLocalDirCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s,Invalid param(getOrCreateLocalDirCB == nullptr)", __func__);
         return nullptr;
@@ -2312,7 +2311,7 @@ napi_value GetOrCreateLocalDirWrap(napi_env env, napi_callback_info info, GetOrC
 
 napi_value NAPI_GetBundleName(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
@@ -2352,7 +2351,7 @@ napi_value NAPI_GetApplicationInfo(napi_env env, napi_callback_info info)
 
 napi_value NAPI_GetProcessInfo(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     ProcessInfoCB *processInfoCB = CreateProcessInfoCBInfo(env);
     if (processInfoCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2374,7 +2373,7 @@ napi_value NAPI_GetProcessInfo(napi_env env, napi_callback_info info)
 
 napi_value NAPI_GetElementName(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     ElementNameCB *elementNameCB = CreateElementNameCBInfo(env);
     if (elementNameCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2396,7 +2395,7 @@ napi_value NAPI_GetElementName(napi_env env, napi_callback_info info)
 
 napi_value NAPI_GetProcessName(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     ProcessNameCB *processNameCB = CreateProcessNameCBInfo(env);
     if (processNameCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2418,7 +2417,7 @@ napi_value NAPI_GetProcessName(napi_env env, napi_callback_info info)
 
 napi_value NAPI_GetCallingBundle(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     CallingBundleCB *callingBundleCB = CreateCallingBundleCBInfo(env);
     if (callingBundleCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2440,7 +2439,7 @@ napi_value NAPI_GetCallingBundle(napi_env env, napi_callback_info info)
 
 napi_value NAPI_GetOrCreateLocalDir(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     GetOrCreateLocalDirCB *getOrCreateLocalDirCB = CreateGetOrCreateLocalDirCBInfo(env);
     if (getOrCreateLocalDirCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2462,7 +2461,7 @@ napi_value NAPI_GetOrCreateLocalDir(napi_env env, napi_callback_info info)
 
 DatabaseDirCB *CreateGetDatabaseDirCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -2488,7 +2487,7 @@ DatabaseDirCB *CreateGetDatabaseDirCBInfo(napi_env env)
 
 napi_value GetDatabaseDirWrap(napi_env env, napi_callback_info info, DatabaseDirCB *getDatabaseDirCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (getDatabaseDirCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, getDatabaseDirCB == nullptr.", __func__);
         return nullptr;
@@ -2538,7 +2537,7 @@ napi_value GetDatabaseDirWrap(napi_env env, napi_callback_info info, DatabaseDir
 
 napi_value NAPI_GetDatabaseDirSync(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     DatabaseDirCB *getDatabaseDirCB = CreateGetDatabaseDirCBInfo(env);
     if (getDatabaseDirCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2561,7 +2560,7 @@ napi_value NAPI_GetDatabaseDirSync(napi_env env, napi_callback_info info)
 
 PreferencesDirCB *CreateGetPreferencesDirCBInfo(napi_env env)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -2587,7 +2586,7 @@ PreferencesDirCB *CreateGetPreferencesDirCBInfo(napi_env env)
 
 napi_value GetPreferencesDirWrap(napi_env env, napi_callback_info info, PreferencesDirCB *getPreferencesDirCB)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (getPreferencesDirCB == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, getPreferencesDirCB == nullptr.", __func__);
         return nullptr;
@@ -2639,7 +2638,7 @@ napi_value GetPreferencesDirWrap(napi_env env, napi_callback_info info, Preferen
 
 napi_value NAPI_GetPreferencesDirSync(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     PreferencesDirCB *preferencesDirCB = CreateGetPreferencesDirCBInfo(env);
     if (preferencesDirCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2662,7 +2661,7 @@ napi_value NAPI_GetPreferencesDirSync(napi_env env, napi_callback_info info)
 
 napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_IsUpdatingConfigurationsCommon(env, info, AbilityType::PAGE);
 }
 
@@ -2674,14 +2673,14 @@ napi_value NAPI_GetExternalCacheDir(napi_env env, napi_callback_info info)
 
 napi_value NAPI_PrintDrawnCompleted(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
     return NAPI_PrintDrawnCompletedCommon(env, info, AbilityType::PAGE);
 }
 
 napi_value NAPI_SetDisplayOrientation(napi_env env, napi_callback_info info)
 {
 #ifdef SUPPORT_GRAPHICS
-    TAG_LOGD(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
@@ -2703,7 +2702,7 @@ napi_value NAPI_SetDisplayOrientation(napi_env env, napi_callback_info info)
 napi_value NAPI_GetDisplayOrientation(napi_env env, napi_callback_info info)
 {
 #ifdef SUPPORT_GRAPHICS
-    TAG_LOGD(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     return NAPI_GetDisplayOrientationCommon(env, info, AbilityType::PAGE);
 #else
    return 0;
@@ -2712,7 +2711,7 @@ napi_value NAPI_GetDisplayOrientation(napi_env env, napi_callback_info info)
 
 napi_value ContextPermissionInit(napi_env env, napi_value exports)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "Context::ContextPermissionInit called.");
+    TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("verifySelfPermission", NAPI_VerifySelfPermission),
@@ -2791,7 +2790,7 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        TAG_LOGD(AAFwkTag::JSNAPI, "called.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "called");
         std::unique_ptr<NapiJsContext>(static_cast<NapiJsContext*>(data));
     };
 

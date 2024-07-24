@@ -16,7 +16,6 @@
 #include "app_scheduler.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_util.h"
 #include "ability_manager_errors.h"
 #include "appmgr/app_mgr_constants.h"
@@ -110,7 +109,7 @@ void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject>& token, const 
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::OnAbilityRequestDone()");
 }
 
-int AppScheduler::KillApplication(const std::string& bundleName)
+int AppScheduler::KillApplication(const std::string& bundleName, const bool clearPageStack)
 {
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::KillApplication()");
     return ERR_OK;
@@ -121,7 +120,7 @@ void AppScheduler::AttachTimeOut(const sptr<IRemoteObject>& token)
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::AttachTimeOut()");
 }
 
-void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token)
+void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag)
 {
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::PrepareTerminate()");
 }
@@ -129,12 +128,6 @@ void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token)
 void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData& appData)
 {
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::OnAppStateChanged()");
-}
-
-int AppScheduler::ClearUpApplicationData(const std::string& bundleName, const int32_t userId)
-{
-    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::ClearUpApplicationData()");
-    return ERR_OK;
 }
 
 void AppScheduler::UpdateAbilityState(const sptr<IRemoteObject>& token, const AppExecFwk::AbilityState state)

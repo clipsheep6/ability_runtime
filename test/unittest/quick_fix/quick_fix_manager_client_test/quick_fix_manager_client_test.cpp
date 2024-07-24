@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
 #include "mock_quick_fix_manager_stub.h"
 #include "mock_quick_fix_util.h"

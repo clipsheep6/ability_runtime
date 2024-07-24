@@ -23,8 +23,11 @@ ohos_moduletest("ability_manager_client_test") {
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
+  defines = []
+
   deps = [
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:mission_list",
     "//third_party/googletest:gtest_main",
   ]
 

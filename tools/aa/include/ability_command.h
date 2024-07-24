@@ -70,8 +70,8 @@ const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] [-R]"
-    "  [--ps <key> <string-value>] "
+    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-p <perf-cmd>] [-D] [-E] [-S] [-N]"
+    "  [-R] [--ps <key> <string-value>] "
     "  [--pi <key> <integer-value>] "
     "  [--pb <key> <boolean-value>] "
     "  [--psn <key>] "
@@ -234,6 +234,7 @@ private:
 
     ErrCode RunAsHelpCommand();
     ErrCode RunAsScreenCommand();
+    void HandleInvalidScreenOptions(int& result);
     ErrCode RunAsStartAbility();
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();

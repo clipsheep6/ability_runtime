@@ -15,7 +15,6 @@
 
 #include "ability_window_configuration.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "launch_param.h"
 #include "mission_info.h"
 #include "napi/native_api.h"

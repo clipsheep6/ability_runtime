@@ -22,7 +22,7 @@
 #include "hichecker.h"
 #endif
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
+#include "ui_service_extension_connection_constants.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -88,10 +88,25 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
     }
 }
 
+void* ConnectionManager::GetUIServiceExtProxyPtr(const AAFwk::Want& want)
+{
+    sptr<IRemoteObject> uiServiceExtProxySptr = want.GetRemoteObject(UISERVICEHOSTPROXY_KEY);
+    void* uiServiceExtProxy = nullptr;
+    if (uiServiceExtProxySptr != nullptr) {
+        uiServiceExtProxy = uiServiceExtProxySptr.GetRefPtr();
+    }
+    return uiServiceExtProxy;
+}
+
 bool ConnectionManager::MatchConnection(
     const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver, int32_t accountId,
     const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& connection)
 {
+    void* uiServiceExtProxy = GetUIServiceExtProxyPtr(connectReceiver);
+    if (uiServiceExtProxy != connection.first.uiServiceExtProxy) {
+        return false;
+    }
+
     if (accountId != connection.first.userid) {
         return false;
     }
@@ -124,6 +139,8 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     if (ret == ERR_OK) {
         ConnectionInfo connectionInfo(connectCaller, want.GetOperation(), abilityConnection, accountId);
+        void* uiServiceExtProxy = GetUIServiceExtProxyPtr(want);
+        connectionInfo.SetUIServiceExtProxyPtr(uiServiceExtProxy);
         std::vector<sptr<AbilityConnectCallback>> callbacks;
         callbacks.push_back(connectCallback);
         abilityConnections_[connectionInfo] = callbacks;
@@ -250,19 +267,19 @@ bool ConnectionManager::DisconnectNonexistentService(
         std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
         abilityConnections = abilityConnections_;
     }
-    HILOG_DEBUG("abilityConnectionsSize: %{public}zu", abilityConnections.size());
+    TAG_LOGD(AAFwkTag::CONNECTION, "abilityConnectionsSize: %{public}zu", abilityConnections.size());
 
     for (auto &&abilityConnection : abilityConnections) {
         ConnectionInfo connectionInfo = abilityConnection.first;
         if (connectionInfo.abilityConnection == connection &&
             connectionInfo.connectReceiver.GetBundleName() == element.GetBundleName()) {
-            HILOG_DEBUG("find connection.");
+            TAG_LOGD(AAFwkTag::CONNECTION, "find connection.");
             exit = true;
             break;
         }
     }
     if (!exit) {
-        HILOG_ERROR("this service need disconnect");
+        TAG_LOGE(AAFwkTag::CONNECTION, "this service need disconnect");
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
         return true;
     }

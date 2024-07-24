@@ -16,7 +16,6 @@
 #include "app_debug_listener_proxy.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {
@@ -40,13 +39,13 @@ bool AppDebugListenerProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AppDebugListenerProxy::OnAppDebugStarted(const std::vector<AppDebugInfo> &debugInfos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     SendRequest(IAppDebugListener::Message::ON_APP_DEBUG_STARTED, debugInfos);
 }
 
 void AppDebugListenerProxy::OnAppDebugStoped(const std::vector<AppDebugInfo> &debugInfos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     SendRequest(IAppDebugListener::Message::ON_APP_DEBUG_STOPED, debugInfos);
 }
 

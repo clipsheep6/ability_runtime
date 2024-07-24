@@ -25,7 +25,6 @@
 #include "appspawn_util.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
@@ -677,7 +676,6 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
     BundleInfo info;
     std::string processName = "test_processName";
     auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
-    record->SetUpdateStateFromService(true);
     recordId_ += 1;
 
     appMgrServiceInner->ApplicationForegrounded(recordId_);
@@ -700,7 +698,6 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
     std::string processName = "test_processName";
     auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
-    record->SetUpdateStateFromService(true);
     auto record2 = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
     std::shared_ptr<PriorityObject> priorityObject = std::make_shared<PriorityObject>();
@@ -877,19 +874,19 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::string bundleName = "test_bundleName";
-    int result = appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
+    int result = appMgrServiceInner->KillApplicationByUserId(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
+    appMgrServiceInner->KillApplicationByUserId(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
-    appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
+    appMgrServiceInner->KillApplicationByUserId(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
+    appMgrServiceInner->KillApplicationByUserId(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUserId_001 end");
@@ -908,19 +905,19 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserIdLocked_001, TestSize.Lev
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::string bundleName = "test_bundleName";
-    int result = appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
+    int result = appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
+    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
-    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
+    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
+    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0, 0);
     EXPECT_EQ(result, 0);
 
     TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUserIdLocked_001 end");
@@ -939,7 +936,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationData_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::string bundleName = "test_bundleName";
-    appMgrServiceInner->ClearUpApplicationData(bundleName, 0, 0);
+    appMgrServiceInner->ClearUpApplicationData(bundleName, 0, 0, 0);
 
     TAG_LOGI(AAFwkTag::TEST, "ClearUpApplicationData_001 end");
 }
@@ -957,15 +954,15 @@ HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationDataByUserId_001, TestSize.Le
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::string bundleName = "test_bundleName";
-    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 0, 0, 0);
-    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 0, 0);
-    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
+    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 0, 0, 0, 0);
+    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 0, 0, 0);
+    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0, 0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
+    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0, 0);
 
     appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
+    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0, 0);
 
     TAG_LOGI(AAFwkTag::TEST, "ClearUpApplicationDataByUserId_001 end");
 }
@@ -2940,23 +2937,23 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppMgrRecordExitReason_001, TestSize.Leve
 }
 
 /**
- * @tc.name: VerifyProcessPermission_001
+ * @tc.name: VerifyKillProcessPermission_001
  * @tc.desc: verify process permission.
  * @tc.type: FUNC
  * @tc.require: issueI5W4S7
  */
-HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
+HWTEST_F(AppMgrServiceInnerTest, VerifyKillProcessPermission_001, TestSize.Level0)
 {
-    TAG_LOGI(AAFwkTag::TEST, "VerifyProcessPermission_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyKillProcessPermission_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->VerifyProcessPermission("");
+    appMgrServiceInner->VerifyKillProcessPermission("");
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->VerifyProcessPermission("");
+    appMgrServiceInner->VerifyKillProcessPermission("");
 
-    TAG_LOGI(AAFwkTag::TEST, "VerifyProcessPermission_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyKillProcessPermission_001 end");
 }
 
 /**
@@ -3152,6 +3149,7 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
     TAG_LOGI(AAFwkTag::TEST, "AttachRenderProcess_002 end");
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.name: BuildStartFlags_001
  * @tc.desc: build start flags.
@@ -3174,6 +3172,7 @@ HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
 
     TAG_LOGI(AAFwkTag::TEST, "BuildStartFlags_001 end");
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: RegisterFocusListener_001
@@ -3340,7 +3339,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     int32_t ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     BundleInfo bundleInfo;
     std::string processName = "test_processName";
@@ -3674,7 +3673,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetAppWaitingDebug_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::string bundleName("test");
     auto result = appMgrServiceInner->SetAppWaitingDebug(bundleName, false);
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
 }
 
 /**
@@ -3687,7 +3686,7 @@ HWTEST_F(AppMgrServiceInnerTest, CancelAppWaitingDebug_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     auto result = appMgrServiceInner->CancelAppWaitingDebug();
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
 }
 
 /**
@@ -3701,7 +3700,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetWaitingDebugApp_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::vector<std::string> debugInfoList;
     auto result = appMgrServiceInner->GetWaitingDebugApp(debugInfoList);
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
 }
 
 /**
@@ -3969,6 +3968,48 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: IsApplicationRunning_001
+ * @tc.desc: Obtain application running status through bundleName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->mainBundleName_ = "com.is.hiserice";
+    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
+    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(isRunning);
+}
+
+/**
+ * @tc.name: IsApplicationRunning_002
+ * @tc.desc: Not passing in bundleName, unable to obtain application running status.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_002, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
+    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_FALSE(isRunning);
+}
+
+
+/**
  * @tc.name: InitWindowVisibilityChangedListener_001
  * @tc.desc: init windowVisibilityChangedListener
  * @tc.type: FUNC
@@ -4018,47 +4059,6 @@ HWTEST_F(AppMgrServiceInnerTest, HandleWindowVisibilityChanged_001, TestSize.Lev
 }
 
 /**
- * @tc.name: IsApplicationRunning_001
- * @tc.desc: Obtain application running status through bundleName.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_001, TestSize.Level1)
-{
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    std::string bundleName = "com.is.hiserice";
-    std::string processName = "test_processName";
-    bool isRunning = false;
-    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
-    EXPECT_NE(appRecord, nullptr);
-    appRecord->mainBundleName_ = "com.is.hiserice";
-    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
-    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
-    EXPECT_EQ(ret, ERR_OK);
-    EXPECT_TRUE(isRunning);
-}
-
-/**
- * @tc.name: IsApplicationRunning_002
- * @tc.desc: Not passing in bundleName, unable to obtain application running status.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_002, TestSize.Level1)
-{
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    std::string bundleName = "com.is.hiserice";
-    std::string processName = "test_processName";
-    bool isRunning = false;
-    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
-    EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
-    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
-    EXPECT_EQ(ret, ERR_OK);
-    EXPECT_FALSE(isRunning);
-}
-
-/**
  * @tc.name: IsAppRunning_001
  * @tc.desc: Obtain application running status through bundleName.
  * @tc.type: FUNC
@@ -4102,7 +4102,6 @@ HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_002, TestSize.Level1)
     EXPECT_EQ(ret, AAFwk::ERR_APP_CLONE_INDEX_INVALID);
     EXPECT_FALSE(isRunning);
 }
-
 
 /**
  * @tc.name: RegisterAbilityForegroundStateObserver_0100
@@ -4303,7 +4302,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetSupportedProcessCacheSelf_001, TestSize.Leve
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     bool isSupported = false;
-    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), AAFwk::CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), ERR_INVALID_VALUE);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), ERR_NO_INIT);
@@ -4359,11 +4358,31 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_001, TestSiz
     int32_t ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
     EXPECT_NE(ret, ERR_OK);
 
-    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->remoteClientManager_ = nullptr;
     ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end");
+}
+
+/**
+ * @tc.name: GetRunningMultiAppInfoByBundleName_002
+ * @tc.desc: Get multiApp information list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI9HMAO
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "";
+    RunningMultiAppInfo info;
+    int32_t ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_EQ(ret, AAFwk::INVALID_PARAMETERS_ERR);
+
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_002 end");
 }
 
 /**
@@ -4387,6 +4406,56 @@ HWTEST_F(AppMgrServiceInnerTest, SendCreateAtomicServiceProcessEvent_001, TestSi
     bundleType = BundleType::APP;
     ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
     EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: AttachedToStatusBar_001
+ * @tc.desc: Attach one ability to status bar.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, AttachedToStatusBar_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->AttachedToStatusBar(nullptr);
+
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    appMgrServiceInner->AttachedToStatusBar(token);
+
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    std::shared_ptr<AAFwk::Want> want;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
+    EXPECT_NE(appRecord, nullptr);
+    appMgrServiceInner->AttachedToStatusBar(token);
+}
+
+/**
+ * @tc.name: BlockProcessCacheByPids_001
+ * @tc.desc: Block process cache feature using pids.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, BlockProcessCacheByPids_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    BundleInfo info;
+    std::string processName = "test_processName";
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    std::shared_ptr<PriorityObject> priorityObject = std::make_shared<PriorityObject>();
+    EXPECT_NE(priorityObject, nullptr);
+    std::string callerBundleName = "callerBundleName";
+    priorityObject->SetPid(2);
+    record->priorityObject_ = priorityObject;
+    record->mainBundleName_ = callerBundleName;
+    record->SetCallerPid(1);
+
+    std::vector<int32_t> pids{2};
+    appMgrServiceInner->BlockProcessCacheByPids(pids);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

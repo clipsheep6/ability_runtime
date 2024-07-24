@@ -17,7 +17,11 @@
 #define OHOS_ABILITYRUNTIME_ICONNECTION_OBSERVER_H
 
 #include "connection_data.h"
+
+#ifdef WITH_DLP
 #include "dlp_state_data.h"
+#endif // WITH_DLP
+
 #include "iremote_broker.h"
 
 namespace OHOS {
@@ -44,6 +48,7 @@ public:
      */
     virtual void OnExtensionDisconnected(const ConnectionData &data) = 0;
 
+#ifdef WITH_DLP
     /**
      * called when dlp ability was started.
      *
@@ -57,6 +62,7 @@ public:
      * @param data dlp state data.
      */
     virtual void OnDlpAbilityClosed(const DlpStateData &data) = 0;
+#endif // WITH_DLP
 
     enum ConnectionObserverCmd {
         // ipc id for OnExtensionConnected
@@ -65,11 +71,13 @@ public:
         // ipc id for OnExtensionDisconnected
         ON_EXTENSION_DISCONNECTED,
 
+#ifdef WITH_DLP
         // ipc id for OnDlpAbilityOpened
         ON_DLP_ABILITY_OPENED,
 
         // ipc id for OnExtensionDisconnected
         ON_DLP_ABILITY_CLOSED,
+#endif // WITH_DLP
 
         // maximum of enum
         CMD_MAX

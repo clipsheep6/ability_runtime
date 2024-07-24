@@ -276,7 +276,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckCallDataAbilityPermission_002, Te
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CheckCallDataAbilityPermission_002 start");
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityMs_->Init();
     EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_, false), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CheckCallDataAbilityPermission_002 end");
 }
@@ -1670,20 +1669,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, KillProcess_001, TestSize.Level1)
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     EXPECT_EQ(abilityMs_->KillProcess("test"), GET_BUNDLE_INFO_FAILED);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest KillProcess_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: ClearUpApplicationData
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService ClearUpApplicationData
- */
-HWTEST_F(AbilityManagerServiceSecondTest, ClearUpApplicationData_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ClearUpApplicationData_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->ClearUpApplicationData("test"), CLEAR_APPLICATION_DATA_FAIL);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ClearUpApplicationData_001 end");
 }
 
 /*

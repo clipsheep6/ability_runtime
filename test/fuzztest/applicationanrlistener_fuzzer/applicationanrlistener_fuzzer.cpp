@@ -117,7 +117,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for ApplicationAnrListener
     auto applicationAnrListener = std::make_shared<ApplicationAnrListener>();
-    applicationAnrListener->OnAnr(int32Param);
+    applicationAnrListener->OnAnr(int32Param, 0);
 
     // fuzz for FreeInstallManager
     auto abilityms = std::make_shared<AbilityManagerService>();

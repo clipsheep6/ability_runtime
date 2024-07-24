@@ -1,0 +1,110 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+ohos_unittest("cj_test_runner_test") {
+  module_out_path = "ability_runtime/cj_test_runner_test"
+  include_dirs = [
+    "native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/ability_delegator/include",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
+    "//third_party/json/include",
+    "${ability_base_kits_path}/configuration/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator",
+    "${global_path}/resource_management/interfaces/inner_api/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator",
+    "${ability_runtime_path}/cj_environment/interfaces/inner_api",
+  ]
+
+  sources = [
+    "${ability_runtime_native_path}/appkit/ability_delegator/ability_delegator.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/ability_delegator_args.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/ability_delegator_registry.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/delegator_thread.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/iability_monitor.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/iability_stage_monitor.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner_object.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/js_test_runner.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/shell_cmd_result.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/test_runner.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/runner_runtime/cj_test_runner.cpp",
+    "${ability_runtime_path}/tools/aa/src/shell_command_result.cpp",
+    "${ability_runtime_path}/tools/aa/src/test_observer_proxy.cpp",
+    "cj_test_runner_test.cpp",
+  ]
+  configs = [ "${c_utils_base_path}:utils_config" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:ability_thread",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_native_path}/appkit:delegator_mgmt",
+    "${ability_runtime_path}/frameworks/cj/ffi:cj_ability_ffi",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:extractortool",
+    "ability_base:want",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "napi:cj_bind_native",
+    "resource_management:global_resmgr",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ ":cj_test_runner_test" ]
+}

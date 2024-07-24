@@ -18,7 +18,6 @@
 #include "ability_impl.h"
 #include "ability_local_record.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ohos_application.h"
 
 namespace OHOS {

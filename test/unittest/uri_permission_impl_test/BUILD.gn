@@ -18,7 +18,13 @@ module_output_path = "ability_runtime/abilitymgr"
 
 ohos_unittest("uri_permission_impl_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_test_path}/mock/common/include",
@@ -59,6 +65,7 @@ ohos_unittest("uri_permission_impl_test") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "hilog:libhilog",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "storage_service:storage_manager_sa_proxy",

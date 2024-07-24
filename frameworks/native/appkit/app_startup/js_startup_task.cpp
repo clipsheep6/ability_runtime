@@ -16,7 +16,6 @@
 #include "js_startup_task.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
 namespace {
@@ -82,7 +81,7 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
 
 int32_t JsStartupTask::LoadJsAsyncTaskExcutor()
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
@@ -100,7 +99,7 @@ int32_t JsStartupTask::LoadJsAsyncTaskExcutor()
 
 void JsStartupTask::LoadJsAsyncTaskCallback()
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
@@ -122,7 +121,7 @@ void JsStartupTask::LoadJsAsyncTaskCallback()
 
 void JsStartupTask::OnAsyncTaskCompleted(const std::shared_ptr<StartupTaskResult>  &result)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     if (startupTaskResultCallback_ == nullptr) {
         TAG_LOGE(AAFwkTag::STARTUP, "Startup task result callback object is nullptr.");
         return;
@@ -188,7 +187,7 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
 
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     size_t argc = ARGC_TWO;
     napi_value argv[ARGC_TWO] = { nullptr };
     napi_value thisVar = nullptr;
@@ -223,7 +222,7 @@ napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_inf
 
 napi_value AsyncTaskCallBack::Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     return CreateJsUndefined(env);
 }
 } // namespace AbilityRuntime

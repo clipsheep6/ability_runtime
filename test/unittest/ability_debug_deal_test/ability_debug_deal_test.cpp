@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 
-#include "hilog_wrapper.h"
 #define private public
 #include "ability_debug_deal.h"
 #include "ability_record.h"

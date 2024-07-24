@@ -15,7 +15,6 @@
 
 #include "remote_client_manager.h"
 
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "singleton.h"
 #include "system_ability_definition.h"

@@ -19,7 +19,6 @@
 #include "extension_ability_info.h"
 #include "extension_manager_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"

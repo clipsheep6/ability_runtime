@@ -16,7 +16,6 @@
 #include "share_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_share_extension.h"
 #include "runtime.h"
 #include "ui_extension_context.h"
@@ -25,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 ShareExtension *ShareExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    TAG_LOGD(AAFwkTag::SHARE_EXT, "called.");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "called");
     if (!runtime) {
         return new ShareExtension();
     }

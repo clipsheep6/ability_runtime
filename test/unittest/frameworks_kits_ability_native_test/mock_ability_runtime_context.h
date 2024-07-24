@@ -20,7 +20,7 @@
 
 #define private public
 #define protected public
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
+#include "context.h"
 #undef private
 #undef protected
 

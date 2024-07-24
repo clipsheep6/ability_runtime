@@ -17,7 +17,6 @@
 
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "dataobs_mgr_errors.h"
 #include "common_utils.h"
 

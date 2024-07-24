@@ -16,7 +16,6 @@
 #include "js_quick_fix_manager.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_application_quick_fix_info.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
@@ -40,7 +39,7 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         std::unique_ptr<JsQuickFixManager>(static_cast<JsQuickFixManager*>(data));
     }
 
@@ -77,7 +76,7 @@ public:
 private:
     napi_value OnGetApplyedQuickFixInfo(napi_env env, NapiCallbackInfo &info)
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
@@ -112,7 +111,7 @@ private:
 
     napi_value OnApplyQuickFix(napi_env env, NapiCallbackInfo &info)
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
@@ -146,7 +145,7 @@ private:
 
     napi_value OnRevokeQuickFix(napi_env env, NapiCallbackInfo &info)
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "called.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (info.argc == ARGC_ZERO) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
@@ -174,7 +173,7 @@ private:
         };
 
         auto complete = [retval = errCode](napi_env env, NapiAsyncTask &task, int32_t status) {
-            TAG_LOGD(AAFwkTag::QUICKFIX, "Revoke quick fix complete called.");
+            TAG_LOGD(AAFwkTag::QUICKFIX, "Revoke quick fix complete called");
             if (*retval != AAFwk::ERR_OK) {
                 TAG_LOGE(AAFwkTag::QUICKFIX, "Revoke quick fix execution failed. retval is %{public}d", *retval);
                 task.Reject(env, CreateJsErrorByErrorCode(env, *retval));
@@ -195,7 +194,7 @@ private:
 
 napi_value CreateJsQuickFixManager(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Input parameter is invalid.");
         return nullptr;

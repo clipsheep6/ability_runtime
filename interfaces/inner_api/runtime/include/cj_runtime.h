@@ -21,6 +21,7 @@
 #include <string>
 
 #include "runtime.h"
+#include "cj_envsetup.h"
 
 using AppLibPathMap = std::map<std::string, std::vector<std::string>>;
 using AppLibPathVec = std::vector<std::string>;
@@ -33,6 +34,10 @@ class CJRuntime : public Runtime {
 public:
     static std::unique_ptr<CJRuntime> Create(const Options& options);
     static void SetAppLibPath(const AppLibPathMap& appLibPaths);
+    static bool IsCJAbility(const std::string& info);
+    static void SetAsanVersion();
+    static void SetTsanVersion();
+    static void SetHWAsanVersion();
     ~CJRuntime() override = default;
 
     Language GetLanguage() const override
@@ -61,7 +66,7 @@ public:
     void ForceFullGC() override {};
     void ForceFullGC(uint32_t tid) override {};
     void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {};
-    void DumpCpuProfile(bool isPrivate) override {};
+    void DumpCpuProfile() override {};
     void AllowCrossThreadExecution() override {};
     void GetHeapPrepare() override {};
     void RegisterUncaughtExceptionHandler(const CJUncaughtExceptionInfo& uncaughtExceptionInfo);

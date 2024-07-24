@@ -21,7 +21,6 @@
 #include "app_mgr_proxy.h"
 #include "app_record_id.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_application.h"
 #include "mock_app_mgr_service.h"
 #include "application_state_observer_stub.h"
@@ -155,9 +154,9 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, ClearUpApplicationData_008, TestSize.Level1)
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
 
-    EXPECT_CALL(*mockAppMgr, ClearUpApplicationData(_, _)).Times(1);
+    EXPECT_CALL(*mockAppMgr, ClearUpApplicationData(_, _, _)).Times(1);
 
-    appMgrClient->ClearUpApplicationData("PROCESS");
+    appMgrClient->ClearUpApplicationData("PROCESS", 0);
 
     TAG_LOGD(AAFwkTag::TEST, "ClearUpApplicationData_008 end");
 }

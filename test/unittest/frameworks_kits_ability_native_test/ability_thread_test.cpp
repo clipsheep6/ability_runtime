@@ -25,7 +25,6 @@
 #include "ability_impl.h"
 #include "ability_impl_factory.h"
 #include "context_deal.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_impl.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_ability_thread.h"

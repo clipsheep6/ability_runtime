@@ -39,6 +39,7 @@ class EventHandler;
 
 namespace AbilityBase {
 class Extractor;
+class FileMapper;
 } // namespace AbilityBase
 
 namespace JsEnv {
@@ -81,7 +82,7 @@ public:
     void PostSyncTask(const std::function<void()>& task, const std::string& name);
     void RemoveTask(const std::string& name);
     void DumpHeapSnapshot(bool isPrivate) override;
-    void DumpCpuProfile(bool isPrivate) override;
+    void DumpCpuProfile() override;
     void DestroyHeapProfiler() override;
     void ForceFullGC() override;
     void ForceFullGC(uint32_t tid) override;
@@ -98,6 +99,7 @@ public:
     void PreloadSystemModule(const std::string& moduleName) override;
 
     void StartDebugMode(const DebugOption debugOption) override;
+    void DebuggerConnectionHandler(bool isDebugApp, bool isStartWithDebug);
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
@@ -115,12 +117,14 @@ public:
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
     static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer,
                               bool isABC = true);
+    static std::shared_ptr<AbilityBase::FileMapper> GetSafeData(const std::string& path, std::string& fileFullName);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void InitSourceMap(const std::string hqfFilePath);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
     void StartProfiler(const DebugOption debugOption) override;
+    void DebuggerConnectionManager(bool isDebugApp, bool isStartWithDebug, const DebugOption dOption);
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;

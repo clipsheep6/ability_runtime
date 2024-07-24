@@ -19,7 +19,6 @@
 
 #include "ability_transaction_callback_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "insight_intent_constant.h"
 #include "insight_intent_execute_result.h"
 #include "js_insight_intent_context.h"

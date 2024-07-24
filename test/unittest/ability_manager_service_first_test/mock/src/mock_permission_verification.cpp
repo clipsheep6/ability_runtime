@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include "hilog_wrapper.h"
 #include "mock_permission_verification.h"
 
 namespace OHOS {
@@ -43,10 +42,12 @@ bool PermissionVerification::VerifyControllerPerm() const
 {
     return !!(MyFlag::flag_);
 }
+#ifdef WITH_DLP
 bool PermissionVerification::VerifyDlpPermission(Want &want) const
 {
     return !!(MyFlag::flag_);
 }
+#endif // WITH_DLP
 int PermissionVerification::VerifyAccountPermission() const
 {
     return MyFlag::flag_;

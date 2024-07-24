@@ -21,7 +21,6 @@
 #include "application_info.h"
 #include "app_running_record.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 
 using namespace testing::ext;
@@ -204,12 +203,15 @@ public:
         return 0;
     }
 
+    void ScheduleCacheProcess() override
+    {}
+
     int32_t ScheduleDumpFfrt(std::string& result) override
     {
         return 0;
     }
 
-    void ScheduleCacheProcess() override
+    void ScheduleClearPageStack() override
     {}
 
 private:

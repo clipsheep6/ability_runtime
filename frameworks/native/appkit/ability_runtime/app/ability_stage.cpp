@@ -17,7 +17,6 @@
 
 #include "ability_runtime/context/context.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #ifdef CJ_FRONTEND
 #include "cj_ability_stage.h"
@@ -113,12 +112,12 @@ std::string AbilityStage::OnNewProcessRequest(const AAFwk::Want &want)
 
 void AbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 }
 
 void AbilityStage::OnMemoryLevel(int level)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 }
 
 int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,

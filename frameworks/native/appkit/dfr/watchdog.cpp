@@ -23,7 +23,6 @@
 #include "appfreeze_inner.h"
 #include "hisysevent.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "xcollie/watchdog.h"
 
 namespace OHOS {
@@ -61,7 +60,7 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
         appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE, 0, EventQueue::Priority::HIGH);
     }
     lastWatchTime_ = 0;
-    auto watchdogTask = std::bind(&Watchdog::Timer, this);
+    auto watchdogTask = [this] { this->Timer(); };
     OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
         CHECK_INTERVAL_TIME, INI_TIMER_FIRST_SECOND);
 }

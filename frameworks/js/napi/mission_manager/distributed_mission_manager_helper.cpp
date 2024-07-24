@@ -20,7 +20,6 @@
 #include "ability_manager_client.h"
 #include "dms_sa_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "napi_common_data.h"
 #include "napi_common_util.h"

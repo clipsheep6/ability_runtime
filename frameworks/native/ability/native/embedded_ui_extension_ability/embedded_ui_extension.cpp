@@ -16,7 +16,6 @@
 #include "embedded_ui_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_embedded_ui_extension.h"
 #include "runtime.h"
 #include "ui_extension_context.h"
@@ -25,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 EmbeddedUIExtension *EmbeddedUIExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called");
     if (runtime == nullptr) {
         return new EmbeddedUIExtension();
     }

@@ -19,7 +19,8 @@
         "SystemCapability.Ability.AbilityRuntime.Mission",
         "SystemCapability.Ability.AbilityRuntime.QuickFix",
         "SystemCapability.Ability.AbilityTools.AbilityAssistant",
-        "SystemCapability.Ability.AppStartup"
+        "SystemCapability.Ability.AppStartup",
+        "SystemCapability.Ability.AppExtension.PhotoEditorExtension"
       ],
       "features": [
         "ability_runtime_auto_fill_ability",
@@ -41,6 +42,8 @@
             "accessibility",
             "access_token",
             "ace_engine",
+            "app_domain_verify",
+            "app_file_service",
             "appspawn",
             "background_task_mgr",
             "bundle_framework",
@@ -84,6 +87,7 @@
             "resource_management",
             "resource_schedule_service",
             "safwk",
+            "sandbox_manager",
             "samgr",
             "screenlock_mgr",
             "storage_service",
@@ -457,14 +461,6 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:dialog_request_callback"
-          },
-          {
-            "header": {
-              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
-              "header_files": [
-              ]
-            },
-            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager_base"
           }
         ],
         "test": [
@@ -475,6 +471,7 @@
           "//foundation/ability/ability_runtime/tools/test:moduletest",
           "//foundation/ability/ability_runtime/tools/test:systemtest",
           "//foundation/ability/ability_runtime/tools/test:unittest",
+          "//foundation/ability/ability_runtime/cj_environment/test/unittest:unittest",
           "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest",
           "//foundation/ability/ability_runtime/service_router_framework:test_target"
         ]

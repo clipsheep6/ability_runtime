@@ -17,7 +17,6 @@
 #include "ability.h"
 #include "ability_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
@@ -81,7 +80,7 @@ bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &
  */
 void AbilityWindow::OnPostAbilityBackground(uint32_t sceneFlag)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityBackground called.");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!isWindowAttached) {
         TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityBackground window not attached.");
         return;
@@ -103,7 +102,7 @@ void AbilityWindow::OnPostAbilityBackground(uint32_t sceneFlag)
  */
 void AbilityWindow::OnPostAbilityForeground(uint32_t sceneFlag)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityForeground called.");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!isWindowAttached) {
         TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityForeground window not attached.");
         return;
@@ -125,7 +124,7 @@ void AbilityWindow::OnPostAbilityForeground(uint32_t sceneFlag)
  */
 void AbilityWindow::OnPostAbilityStop()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityStop called.");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!isWindowAttached) {
         TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityStop window not attached.");
         return;

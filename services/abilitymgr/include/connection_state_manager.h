@@ -24,8 +24,10 @@
 #include "application_state_observer_stub.h"
 #include "connection_state_item.h"
 #include "connection_observer_controller.h"
+#ifdef WITH_DLP
 #include "dlp_connection_info.h"
 #include "dlp_state_item.h"
+#endif // WITH_DLP
 
 namespace OHOS {
 namespace AAFwk {
@@ -113,6 +115,7 @@ public:
      */
     void HandleDataAbilityCallerDied(int32_t callerPid);
 
+#ifdef WITH_DLP
     /**
      * add dlp manager to manager.
      *
@@ -140,6 +143,7 @@ public:
      * @param dlpAbility dlp manager record.
      */
     void RemoveDlpAbility(const std::shared_ptr<AbilityRecord> &dlpAbility);
+#endif // WITH_DLP
 
     /**
      * handle app process died.
@@ -148,12 +152,14 @@ public:
      */
     void HandleAppDied(int32_t pid);
 
+#ifdef WITH_DLP
     /**
      * get exist dlp connection infos.
      *
      * @param infos output dlp connection result.
      */
     void GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
+#endif // WITH_DLP
 
     /**
      * Get exist connection data including Extension and Data connection.
@@ -201,8 +207,12 @@ private:
     std::shared_ptr<ConnectionStateItem> RemoveDiedCaller(int32_t callerPid);
     void HandleDataAbilityDiedInner(const sptr<IRemoteObject> &abilityToken,
         std::vector<AbilityRuntime::ConnectionData> &allData);
+
+#ifdef WITH_DLP
     bool HandleDlpAbilityInner(const std::shared_ptr<AbilityRecord> &dlpAbility,
         bool isAdd, AbilityRuntime::DlpStateData &dlpData);
+#endif // WITH_DLP
+
     void InitAppStateObserver();
 
 private:
@@ -211,8 +221,10 @@ private:
     ffrt::mutex stateLock_;
     std::unordered_map<int32_t, std::shared_ptr<ConnectionStateItem>> connectionStates_;
 
+#ifdef WITH_DLP
     ffrt::mutex dlpLock_;
     std::unordered_map<int32_t, std::shared_ptr<DlpStateItem>> dlpItems_;
+#endif // WITH_DLP
 
     sptr<InnerAppStateObserver> appStateObserver_;
     std::shared_ptr<TaskHandlerWrap> handler_;

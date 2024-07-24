@@ -19,7 +19,6 @@
 
 #include "data_ability_predicates.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_want.h"
 #include "napi_data_ability_helper.h"
 #include "values_bucket.h"
@@ -52,7 +51,7 @@ napi_value DataAbilityOperationInit(napi_env env, napi_value exports)
 napi_value UnwrapDataAbilityOperation(
     std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         TAG_LOGE(AAFwkTag::FA, "%{public}s, Params is invalid.", __func__);
         return nullptr;
@@ -62,27 +61,36 @@ napi_value UnwrapDataAbilityOperation(
     return result;
 }
 
-napi_value BuildDataAbilityOperation(
-    std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param)
+bool ParseUriAndType(napi_env env, napi_value &param, std::shared_ptr<Uri> &uri, int &type)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s start.", __func__);
-
     // get uri property
     std::string uriStr("");
     if (!UnwrapStringByPropertyName(env, param, "uri", uriStr)) {
         TAG_LOGE(AAFwkTag::FA, "%{public}s, uri is not exist.", __func__);
-        return nullptr;
+        return false;
     }
     TAG_LOGI(AAFwkTag::FA, "%{public}s, uri:%{public}s", __func__, uriStr.c_str());
-    std::shared_ptr<Uri> uri = std::make_shared<Uri>(uriStr);
+    uri = std::make_shared<Uri>(uriStr);
 
     // get type property
-    int type = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "type", type)) {
         TAG_LOGE(AAFwkTag::FA, "%{public}s, type:%{public}d is not exist.", __func__, type);
-        return nullptr;
+        return false;
     }
     TAG_LOGI(AAFwkTag::FA, "%{public}s, type:%{public}d", __func__, type);
+
+    return true;
+}
+
+napi_value BuildDataAbilityOperation(
+    std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param)
+{
+    TAG_LOGI(AAFwkTag::FA, "%{public}s start.", __func__);
+    std::shared_ptr<Uri> uri = nullptr;
+    int type = 0;
+    if (!ParseUriAndType(env, param, uri, type)) {
+        return nullptr;
+    }
 
     std::shared_ptr<DataAbilityOperationBuilder> builder = nullptr;
     if (!GetDataAbilityOperationBuilder(builder, type, uri)) {
@@ -141,7 +149,7 @@ napi_value BuildDataAbilityOperation(
 bool GetDataAbilityOperationBuilder(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, const int type, const std::shared_ptr<Uri> &uri)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     switch (type) {
         case DataAbilityOperation::TYPE_INSERT:
             builder = DataAbilityOperation::NewInsertBuilder(uri);
@@ -165,7 +173,7 @@ bool GetDataAbilityOperationBuilder(
 napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env,
     napi_value valueBucketParam)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     napi_value result;
 
     if (param == nullptr) {
@@ -182,7 +190,7 @@ napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &pa
 napi_value UnwrapDataAbilityPredicatesBackReferences(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, napi_env env, napi_value predicatesBackReferencesParam)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "called");
 
     if (!IsTypeForNapiValue(env, predicatesBackReferencesParam, napi_object)) {
         TAG_LOGE(AAFwkTag::FA, "%{public}s, predicatesBackReferencesParam is invalid.", __func__);

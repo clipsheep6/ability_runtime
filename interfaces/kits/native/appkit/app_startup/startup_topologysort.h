@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-#include "hilog_wrapper.h"
 #include "startup_task.h"
 #include "startup_sort_result.h"
 #include "startup_utils.h"

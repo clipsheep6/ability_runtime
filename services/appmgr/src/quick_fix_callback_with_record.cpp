@@ -26,7 +26,7 @@ QuickFixCallbackWithRecord::~QuickFixCallbackWithRecord()
 
 void QuickFixCallbackWithRecord::OnLoadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ProcessCallback(resultCode, recordId);
     if (IsRecordListEmpty() && callback_ != nullptr) {
         callback_->OnLoadPatchDone(finalResult.load(), recordId);
@@ -35,7 +35,7 @@ void QuickFixCallbackWithRecord::OnLoadPatchDone(int32_t resultCode, int32_t rec
 
 void QuickFixCallbackWithRecord::OnUnloadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ProcessCallback(resultCode, recordId);
     if (IsRecordListEmpty() && callback_ != nullptr) {
         callback_->OnUnloadPatchDone(finalResult.load(), recordId);
@@ -44,7 +44,7 @@ void QuickFixCallbackWithRecord::OnUnloadPatchDone(int32_t resultCode, int32_t r
 
 void QuickFixCallbackWithRecord::OnReloadPageDone(int32_t resultCode, int32_t recordId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ProcessCallback(resultCode, recordId);
     if (IsRecordListEmpty() && callback_ != nullptr) {
         callback_->OnReloadPageDone(finalResult.load(), recordId);

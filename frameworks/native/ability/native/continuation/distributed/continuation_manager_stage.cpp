@@ -21,7 +21,6 @@
 #include "continuation_handler.h"
 #include "distributed_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "operation_builder.h"
 #include "string_ex.h"
 #include "string_wrapper.h"

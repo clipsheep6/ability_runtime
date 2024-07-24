@@ -17,7 +17,6 @@
 
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ui_extension_utils.h"
 #include "ui_extension_record.h"
 #include "ui_extension_record_factory.h"
@@ -123,7 +122,7 @@ bool ExtensionRecordManager::IsBelongToManager(const AppExecFwk::AbilityInfo &ab
 
 int32_t ExtensionRecordManager::GetActiveUIExtensionList(const int32_t pid, std::vector<std::string> &extensionList)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &it : extensionRecords_) {
         if (it.second == nullptr || it.second->abilityRecord_ == nullptr ||
@@ -140,7 +139,7 @@ int32_t ExtensionRecordManager::GetActiveUIExtensionList(const int32_t pid, std:
 int32_t ExtensionRecordManager::GetActiveUIExtensionList(
     const std::string &bundleName, std::vector<std::string> &extensionList)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &it : extensionRecords_) {
         if (it.second == nullptr || it.second->abilityRecord_ == nullptr ||
@@ -534,6 +533,8 @@ int32_t ExtensionRecordManager::CreateExtensionRecord(const AAFwk::AbilityReques
     extensionRecord->hostBundleName_ = hostBundleName;
     abilityRecord->SetOwnerMissionUserId(userId_);
     abilityRecord->SetUIExtensionAbilityId(extensionRecordId);
+    pid_t hostPid = IPCSkeleton::GetCallingPid();
+    extensionRecord->hostPid_ = hostPid;
     //add uiextension record register state observer object.
     if (abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
         auto ret = extensionRecord->RegisterStateObserver(hostBundleName);
@@ -589,6 +590,37 @@ std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetUIExtensionRoot
     return AAFwk::Token::GetAbilityRecordByToken(rootCallerToken);
 }
 
+int32_t ExtensionRecordManager::GetUIExtensionSessionInfo(
+    const sptr<IRemoteObject> token, UIExtensionSessionInfo &uiExtensionSessionInfo)
+{
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input param invalid.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto abilityRecord = AAFwk::Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get ability record failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    if (!AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Not ui extension ability.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    if (sessionInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "session info is null.");
+        return ERR_NULL_OBJECT;
+    }
+
+    uiExtensionSessionInfo.persistentId = sessionInfo->persistentId;
+    uiExtensionSessionInfo.hostWindowId = sessionInfo->hostWindowId;
+    uiExtensionSessionInfo.uiExtensionUsage = sessionInfo->uiExtensionUsage;
+    return ERR_OK;
+}
+
 std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(int32_t extensionRecordId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -607,7 +639,7 @@ std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(
 
 void ExtensionRecordManager::LoadTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
@@ -619,7 +651,7 @@ void ExtensionRecordManager::LoadTimeout(int32_t extensionRecordId)
 
 void ExtensionRecordManager::ForegroundTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
@@ -631,7 +663,7 @@ void ExtensionRecordManager::ForegroundTimeout(int32_t extensionRecordId)
 
 void ExtensionRecordManager::BackgroundTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
@@ -643,7 +675,7 @@ void ExtensionRecordManager::BackgroundTimeout(int32_t extensionRecordId)
 
 void ExtensionRecordManager::TerminateTimeout(int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");

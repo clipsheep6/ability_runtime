@@ -21,6 +21,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <utility>
 #include "cpp/mutex.h"
 #include "cpp/condition_variable.h"
 
@@ -54,8 +55,6 @@ using Closure = std::function<void()>;
 
 class AbilityRecord;
 class ConnectionRecord;
-class Mission;
-class MissionList;
 class CallContainer;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
@@ -251,13 +250,16 @@ struct AbilityRequest {
     sptr<SessionInfo> sessionInfo;
     uint32_t specifyTokenId = 0;
 
-    bool IsContinuation() const
+    std::pair<bool, LaunchReason> IsContinuation() const
     {
         auto flags = want.GetFlags();
         if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
-            return true;
+            return {true, LaunchReason::LAUNCHREASON_CONTINUATION};
         }
-        return false;
+        if ((flags & Want::FLAG_ABILITY_PREPARE_CONTINUATION) == Want::FLAG_ABILITY_PREPARE_CONTINUATION) {
+            return {true, LaunchReason::LAUNCHREASON_PREPARE_CONTINUATION};
+        }
+        return {false, LaunchReason::LAUNCHREASON_UNKNOWN};
     }
 
     bool IsAcquireShareData() const
@@ -624,10 +626,22 @@ public:
     void ConnectAbility();
 
     /**
+     * connect the ability.
+     *
+     */
+    void ConnectUIServiceExtAbility(const Want &want);
+
+    /**
      * disconnect the ability.
      *
      */
     void DisconnectAbility();
+
+    /**
+     * disconnect the ability with want
+     *
+     */
+    void DisconnectUIServiceExtAbility(const Want &want);
 
     /**
      * Command the ability.
@@ -673,7 +687,7 @@ public:
      *
      */
     void RemoveSpecifiedWantParam(const std::string &key);
-    
+
     /**
      * get request code of the ability to start.
      *
@@ -741,6 +755,11 @@ public:
      */
     std::list<std::shared_ptr<ConnectionRecord>> GetConnectingRecordList();
 
+    /**
+     * get the count of In Progress record.
+     *
+     */
+    uint32_t GetInProgressRecordCount();
     /**
      * remove the connect record from list.
      *
@@ -892,11 +911,8 @@ public:
     void SetLastExitReason(const ExitReason &exitReason);
     void ContinueAbility(const std::string &deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
-    std::shared_ptr<MissionList> GetOwnedMissionList() const;
 
-    void SetMission(const std::shared_ptr<Mission> &mission);
-    void SetMissionList(const std::shared_ptr<MissionList> &missionList);
-    std::shared_ptr<Mission> GetMission() const;
+    void SetMissionId(int32_t missionId);
     int32_t GetMissionId() const;
 
     void SetUid(int32_t uid);
@@ -1034,8 +1050,10 @@ private:
 
     bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken, uint32_t callingTokenId = 0);
 
+#ifdef WITH_DLP
     void HandleDlpAttached();
     void HandleDlpClosed();
+#endif // WITH_DLP
     void NotifyRemoveShellProcess(int32_t type);
     void NotifyAnimationAbilityDied();
     inline void SetCallerAccessTokenId(uint32_t callerAccessTokenId)
@@ -1061,6 +1079,8 @@ private:
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
     void PublishFileOpenEvent(const Want &want);
+
+    static void SetDebugAppByWaitingDebugFlag(Want &requestWant, const std::string &bundleName, bool isDebugApp);
 
 #ifdef SUPPORT_SCREEN
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -1151,9 +1171,6 @@ private:
     std::list<std::shared_ptr<CallerRecord>> callerList_ = {};
 
     bool isUninstall_ = false;
-    const static std::map<AbilityState, std::string> stateToStrMap;
-    const static std::map<AbilityLifeCycleState, AbilityState> convertStateMap;
-    const static std::map<AppState, std::string> appStateToStrMap_;
 
     bool isLauncherRoot_ = false;
 
@@ -1163,8 +1180,6 @@ private:
 
     int32_t uid_ = 0;
     int32_t pid_ = 0;
-    std::weak_ptr<MissionList> missionList_;
-    std::weak_ptr<Mission> mission_;
     int32_t missionId_ = -1;
     int32_t ownerMissionUserId_ = -1;
     bool isSwitchingPause_ = false;

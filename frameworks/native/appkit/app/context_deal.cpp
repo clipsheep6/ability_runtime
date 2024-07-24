@@ -25,7 +25,6 @@
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"
 #include "sys_mgr_client.h"

@@ -16,7 +16,6 @@
 #include "js_ability_stage_context.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_converter.h"
 #include "js_runtime_utils.h"
@@ -25,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 napi_value CreateJsAbilityStageContext(napi_env env, const std::shared_ptr<AbilityRuntime::Context> &context)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;
@@ -41,7 +40,7 @@ napi_value CreateJsAbilityStageContext(napi_env env, const std::shared_ptr<Abili
 void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     if (!jsContext || !config) {
         TAG_LOGE(AAFwkTag::ABILITY_SIM, "jsContext or config is nullptr.");
         return;

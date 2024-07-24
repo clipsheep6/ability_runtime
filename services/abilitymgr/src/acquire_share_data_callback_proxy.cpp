@@ -16,7 +16,6 @@
 #include "ability_manager_errors.h"
 #include "acquire_share_data_callback_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "message_parcel.h"
 #include "peer_holder.h"

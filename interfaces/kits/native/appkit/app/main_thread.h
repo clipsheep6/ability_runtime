@@ -19,28 +19,30 @@
 #include <string>
 #include <signal.h>
 #include <mutex>
+
+#include "ability_record_mgr.h"
+#include "app_jsheap_mem_info.h"
+#include "app_malloc_info.h"
+#include "app_mgr_interface.h"
+#include "app_scheduler_host.h"
+#include "application_impl.h"
+#include "assert_fault_task_thread.h"
+#include "common_event_subscriber.h"
 #include "event_handler.h"
 #include "extension_config_mgr.h"
 #include "idle_time.h"
 #include "inner_event.h"
-#include "app_scheduler_host.h"
-#include "app_mgr_interface.h"
-#include "ability_record_mgr.h"
-#include "application_impl.h"
-#include "assert_fault_task_thread.h"
-#include "common_event_subscriber.h"
-#include "resource_manager.h"
-#include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "ipc_singleton.h"
-#ifdef CJ_FRONTEND
-#include "cj_environment.h"
-#endif
 #include "js_runtime.h"
 #include "native_engine/native_engine.h"
 #include "overlay_event_subscriber.h"
+#include "resource_manager.h"
+#include "runtime.h"
 #include "watchdog.h"
-#include "app_malloc_info.h"
-#include "app_jsheap_mem_info.h"
+
+#ifdef CJ_FRONTEND
+#include "cj_envsetup.h"
+#endif
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -251,6 +253,8 @@ public:
      */
     static void Start();
 
+    static void StartChild(const std::map<std::string, int32_t> &fds);
+
     /**
      *
      * @brief Preload extensions in appspawn.
@@ -264,6 +268,8 @@ public:
      *
      */
     void ScheduleProcessSecurityExit() override;
+
+    void ScheduleClearPageStack() override;
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
@@ -611,6 +617,14 @@ private:
 
     bool IsBgWorkingThread(const AbilityInfo &info);
 
+    /**
+     * @brief parse app configuration params
+     *
+     * @param configuration input configuration
+     * @config the config of application
+     */
+    void ParseAppConfigurationParams(const std::string configuration, Configuration &config);
+
     class MainHandler : public EventHandler {
     public:
         MainHandler(const std::shared_ptr<EventRunner> &runner, const sptr<MainThread> &thread);
@@ -656,7 +670,8 @@ private:
      *
      */
     void LoadAbilityLibrary(const std::vector<std::string> &libraryPaths);
-
+    void LoadAceAbilityLibrary();
+    
     void CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
     void LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
 
@@ -688,7 +703,15 @@ private:
     bool CheckForHandleLaunchApplication(const AppLaunchData &appLaunchData);
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
-        bool multiProjects, const Configuration &config);
+        const Configuration &config, const ApplicationInfo &appInfo);
+    void OnStartAbility(const std::string& bundleName,
+        std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const bool isDebugApp);
+    std::vector<std::string> GetOverlayPaths(const std::string &bundleName,
+        const std::vector<OverlayModuleInfo> &overlayModuleInfos);
+    void SubscribeOverlayChange(const std::string &bundleName, const std::string &loadPath,
+        std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const AppExecFwk::HapModuleInfo &entryHapModuleInfo);
     void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
     void HandleCancelAssertFaultTask();
 
@@ -696,14 +719,6 @@ private:
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
     void SetAppDebug(uint32_t modeFlag, bool isDebug);
-
-    /**
-     * @brief Whether MainThread is started by ChildProcessManager.
-     *
-     * @param info The child process info to be set from appMgr.
-     * @return true if started by ChildProcessManager, false otherwise.
-     */
-    static bool IsStartChild(ChildProcessInfo &info);
 
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;

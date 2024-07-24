@@ -31,7 +31,7 @@ class FreeInstallManager;
  */
 class AtomicServiceStatusCallback : public AtomicServiceStatusCallbackStub {
 public:
-    AtomicServiceStatusCallback(const std::weak_ptr<FreeInstallManager> &server, bool isAsync);
+    AtomicServiceStatusCallback(const std::weak_ptr<FreeInstallManager> &server, bool isAsync, int32_t recordId);
     virtual ~AtomicServiceStatusCallback() = default;
 
     /**
@@ -52,16 +52,10 @@ public:
      */
     void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId) override;
 
-    /**
-     * OnRemoveTimeoutTask, BMS has connected AG.
-     *
-     * @param want, installed ability
-     */
-    void OnRemoveTimeoutTask(const Want &want) override;
-
 private:
     std::weak_ptr<FreeInstallManager> server_;
     bool isAsync_;
+    int32_t recordId_ = -1;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

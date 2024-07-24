@@ -17,7 +17,6 @@
 #include <gmock/gmock.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mission_listener_controller.h"
 #include "mission_listener_stub.h"
 

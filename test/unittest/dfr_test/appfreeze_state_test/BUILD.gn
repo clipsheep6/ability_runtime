@@ -50,7 +50,6 @@ ohos_unittest("appfreeze_state_test") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_path}/utils/global/time/include",
-    "//third_party/json/include",
   ]
 
   configs = [
@@ -101,6 +100,7 @@ ohos_unittest("appfreeze_state_test") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
 }

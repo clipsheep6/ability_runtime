@@ -17,7 +17,6 @@
 
 #include "ability_window_configuration.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_error_utils.h"
 #include "napi_common_want.h"
@@ -118,7 +117,7 @@ napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<Insi
     return contextObj;
 }
 
-bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want want)
+bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want)
 {
     if (info.argc == 0) {
         TAG_LOGE(AAFwkTag::INTENT, "not enough args");

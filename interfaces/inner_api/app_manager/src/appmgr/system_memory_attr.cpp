@@ -15,7 +15,6 @@
 
 #include "system_memory_attr.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

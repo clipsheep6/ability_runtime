@@ -16,7 +16,6 @@
 #include "idle_time.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #ifdef SUPPORT_SCREEN
 #include "transaction/rs_interfaces.h"
 #endif // SUPPORT_SCREEN

@@ -21,7 +21,6 @@
 #include <string>
 
 #include "ecmascript/napi/include/jsnapi.h"
-#include "hilog_wrapper.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 
@@ -235,7 +234,7 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
     std::string option = "ark:1234@Debugger";
     uint32_t socketFd = 10;
     bool isDebugApp = true;
-    bool result = jsEnv->StartDebugger(option, socketFd, isDebugApp, jsEnv->GetDebuggerPostTask());
+    bool result = jsEnv->StartDebugger(option, socketFd, isDebugApp);
     ASSERT_EQ(result, false);
 }
 
@@ -256,7 +255,7 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0200, TestSize.Level0)
     std::string option = "ark:1234@Debugger";
     uint32_t socketFd = 10;
     bool isDebugApp = true;
-    bool result = jsEnv->StartDebugger(option, socketFd, isDebugApp, jsEnv->GetDebuggerPostTask());
+    bool result = jsEnv->StartDebugger(option, socketFd, isDebugApp);
     ASSERT_EQ(result, false);
 }
 

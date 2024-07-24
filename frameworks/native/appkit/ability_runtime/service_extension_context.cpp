@@ -18,7 +18,6 @@
 #include "ability_connection.h"
 #include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {
@@ -132,6 +131,9 @@ ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want
     TAG_LOGI(AAFwkTag::APPKIT, "accountId: %{public}d, ability: %{public}s, caller: %{public}s",
         accountId, want.GetElement().GetURI().c_str(), callerName.c_str());
     (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
+    if (callerName == "com.ohos.callui.ServiceAbility") {
+        PrintTokenInfo();
+    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, token_, ILLEGAL_REQUEST_CODE, accountId);
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s. End calling StartAbilityWithAccount. ret=%{public}d", __func__, err);
@@ -160,6 +162,17 @@ ErrCode ServiceExtensionContext::StartServiceExtensionAbility(const AAFwk::Want 
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
         want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ServiceContext::StartServiceExtensionAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode ServiceExtensionContext::StartUIServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId) const
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPKIT, "ServiceContext::StartServiceExtensionAbility is failed %{public}d", err);
     }
@@ -231,6 +244,28 @@ AppExecFwk::AbilityType ServiceExtensionContext::GetAbilityInfoType() const
     }
 
     return info->type;
+}
+
+ErrCode ServiceExtensionContext::PreStartMission(const std::string& bundleName, const std::string& moduleName,
+    const std::string& abilityName, const std::string& startTime)
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "called");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->PreStartMission(
+        bundleName, moduleName, abilityName, startTime);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ServiceExtensionContext::PreStartMission is failed %{public}d", err);
+    }
+    TAG_LOGI(AAFwkTag::APPKIT, "End.");
+    return err;
+}
+
+ErrCode ServiceExtensionContext::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

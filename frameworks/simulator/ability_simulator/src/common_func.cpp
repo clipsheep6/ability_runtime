@@ -16,7 +16,6 @@
 
 #include <vector>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"

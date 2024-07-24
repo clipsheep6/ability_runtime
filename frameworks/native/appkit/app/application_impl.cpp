@@ -16,7 +16,6 @@
 #include "application_impl.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #include "uri_permission_manager_client.h"

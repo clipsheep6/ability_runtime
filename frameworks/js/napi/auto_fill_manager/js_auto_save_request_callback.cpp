@@ -16,7 +16,6 @@
 #include "js_auto_save_request_callback.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_auto_fill_manager.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -35,7 +34,7 @@ JsAutoSaveRequestCallback::~JsAutoSaveRequestCallback() {}
 
 void JsAutoSaveRequestCallback::OnSaveRequestSuccess()
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_SUCCESS);
     if (autoFillManagerFunc_ != nullptr) {
         autoFillManagerFunc_(instanceId_);
@@ -44,7 +43,7 @@ void JsAutoSaveRequestCallback::OnSaveRequestSuccess()
 
 void JsAutoSaveRequestCallback::OnSaveRequestFailed()
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_FAILED);
     if (autoFillManagerFunc_ != nullptr) {
         autoFillManagerFunc_(instanceId_);
@@ -53,7 +52,7 @@ void JsAutoSaveRequestCallback::OnSaveRequestFailed()
 
 void JsAutoSaveRequestCallback::Register(napi_value value)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (IsJsCallbackEquals(callback_, value)) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "The current callback already exists.");
         return;

@@ -14,7 +14,6 @@
  */
 #include "dialog_ui_extension_callback.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -23,10 +22,10 @@ DialogUIExtensionCallback::DialogUIExtensionCallback(const std::weak_ptr<AppExec
 {}
 void DialogUIExtensionCallback::OnRelease()
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::DIALOG, "Called");
     auto abilityCallback = abilityCallback_.lock();
     if (abilityCallback == nullptr) {
-        HILOG_ERROR("abilityCallback is nullptr");
+        TAG_LOGE(AAFwkTag::DIALOG, "abilityCallback is nullptr");
         return;
     }
 #ifdef SUPPORT_SCREEN

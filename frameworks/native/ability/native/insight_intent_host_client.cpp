@@ -14,31 +14,28 @@
  */
 #include "insight_intent_host_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 sptr<InsightIntentHostClient> InsightIntentHostClient::instance_ = nullptr;
 std::mutex InsightIntentHostClient::instanceMutex_;
+std::once_flag InsightIntentHostClient::singletonFlag_;
 
 sptr<InsightIntentHostClient> InsightIntentHostClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock_l(instanceMutex_);
+    std::call_once(singletonFlag_, []() {
+        instance_ = new (std::nothrow) InsightIntentHostClient();
         if (instance_ == nullptr) {
-            instance_ = new (std::nothrow) InsightIntentHostClient();
-            if (instance_ == nullptr) {
-                TAG_LOGE(AAFwkTag::INTENT, "failed to create InsightIntentHostClient.");
-            }
+            TAG_LOGE(AAFwkTag::INTENT, "failed to create InsightIntentHostClient.");
         }
-    }
+    });
     return instance_;
 }
 
 uint64_t InsightIntentHostClient::AddInsightIntentExecute(
     const std::shared_ptr<InsightIntentExecuteCallbackInterface> &callback)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
     callbackMap_.emplace(++key_, callback);
     return key_;
@@ -46,7 +43,7 @@ uint64_t InsightIntentHostClient::AddInsightIntentExecute(
 
 void InsightIntentHostClient::RemoveInsightIntentExecute(uint64_t key)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
     auto iter = callbackMap_.find(key);
     if (iter != callbackMap_.end()) {
@@ -57,7 +54,7 @@ void InsightIntentHostClient::RemoveInsightIntentExecute(uint64_t key)
 void InsightIntentHostClient::OnExecuteDone(uint64_t key, int32_t resultCode,
     const AppExecFwk::InsightIntentExecuteResult &executeResult)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
 
     std::shared_ptr<InsightIntentExecuteCallbackInterface> callback = nullptr;
     {

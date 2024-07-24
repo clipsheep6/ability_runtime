@@ -21,13 +21,12 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
-#include "common_event_manager.h"
 #include "distributed_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "permission_verification.h"
+#include "permission_constants.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -253,7 +252,7 @@ int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<Start
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
         if (!startOptions) {
             result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
-                want, callerToken, callerTokenId, requestCode, callerUid);
+                want, callerToken, callerTokenId, requestCode, callerUid, true);
         } else {
             TAG_LOGD(AAFwkTag::WANTAGENT, "StartOptions windowMode:%{public}d displayId:%{public}d \
                 withAnimation:%{public}d windowLeft:%{public}d windowTop:%{public}d windowWidth:%{public}d \
@@ -262,7 +261,7 @@ int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<Start
                 startOptions->GetWindowLeft(), startOptions->GetWindowTop(), startOptions->GetWindowWidth(),
                 startOptions->GetWindowHeight());
             result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
-                want, *startOptions, callerToken, requestCode, callerUid, callerTokenId);
+                want, *startOptions, callerToken, requestCode, callerUid, callerTokenId, true);
         }
 
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
@@ -293,6 +292,9 @@ int32_t PendingWantManager::PendingWantStartAbility(const Want &want, const sptr
     const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
+    if (!CheckCallerPermission()) {
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = DeviceIdDetermine(want, startOptions, callerToken, requestCode, callerUid, callerTokenId);
     return result;
 }
@@ -303,6 +305,9 @@ int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
 
+    if (!CheckCallerPermission()) {
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = ERR_OK;
     for (const auto &item : wantsInfo) {
         auto res = DeviceIdDetermine(item.want, startOptions, callerToken, requestCode, callerUid, callerTokenId);
@@ -335,15 +340,8 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
         eventPublishData.SetSubscriberPermissions(permissions);
     }
 
-    std::shared_ptr<PendingWantCommonEvent> pendingWantCommonEvent = nullptr;
-    if (senderInfo.finishedReceiver != nullptr) {
-        eventPublishData.SetOrdered(true);
-        pendingWantCommonEvent = std::make_shared<PendingWantCommonEvent>();
-        pendingWantCommonEvent->SetFinishedReceiver(senderInfo.finishedReceiver);
-        pendingWantCommonEvent->SetWantParams(senderInfo.want.GetParams());
-    }
-    bool result = IN_PROCESS_CALL(CommonEventManager::PublishCommonEvent(
-        eventData, eventPublishData, pendingWantCommonEvent, callerUid, callerTokenId));
+    bool result = IN_PROCESS_CALL(DelayedSingleton<EventFwk::CommonEvent>::GetInstance()->PublishCommonEvent(
+        eventData, eventPublishData, nullptr, callerUid, callerTokenId));
     return ((result == true) ? ERR_OK : (-1));
 }
 
@@ -619,6 +617,24 @@ void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleNam
             ++iter;
         }
     }
+}
+
+bool PendingWantManager::CheckCallerPermission()
+{
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+    if (!processInfo.isFocused && !processInfo.isAbilityForegrounding) {
+        TAG_LOGW(AAFwkTag::WANTAGENT, "caller is not focused.");
+        auto permission = DelayedSingleton<PermissionVerification>::GetInstance();
+        if (!permission->VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND) &&
+            !permission->VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILIIES_FROM_BACKGROUND) &&
+            !permission->IsSACall()) {
+            TAG_LOGW(AAFwkTag::WANTAGENT, "caller is PERMISSION_DENIED.");
+            return false;
+        }
+    }
+    return true;
 }
 
 void PendingWantManager::Dump(std::vector<std::string> &info)

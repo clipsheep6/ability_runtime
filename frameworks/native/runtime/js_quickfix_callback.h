@@ -31,7 +31,7 @@ public:
 
     bool operator()(std::string baseFileName,
                     std::string &patchFileName,
-                    void **patchBuffer,
+                    uint8_t **patchBuffer,
                     size_t &patchSize);
 
 private:

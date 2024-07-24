@@ -19,7 +19,6 @@
 #include <unistd.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
 using StartRegister = void (*)(const std::string& processName, const std::string& pkgName, bool isDebug,

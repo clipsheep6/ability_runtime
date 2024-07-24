@@ -18,7 +18,6 @@
 
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -27,23 +26,9 @@ WindowManagerServiceHandlerStub::WindowManagerServiceHandlerStub()
     Init();
 }
 
-WindowManagerServiceHandlerStub::~WindowManagerServiceHandlerStub()
-{
-    requestFuncMap_.clear();
-}
+WindowManagerServiceHandlerStub::~WindowManagerServiceHandlerStub() {}
 
-void WindowManagerServiceHandlerStub::Init()
-{
-    requestFuncMap_[ON_NOTIFY_WINDOW_TRANSITION] = &WindowManagerServiceHandlerStub::NotifyWindowTransitionInner;
-    requestFuncMap_[ON_GET_FOCUS_ABILITY] = &WindowManagerServiceHandlerStub::GetFocusWindowInner;
-    requestFuncMap_[ON_COLD_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowCold;
-    requestFuncMap_[ON_HOT_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowHot;
-    requestFuncMap_[ON_CANCEL_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
-    requestFuncMap_[ON_NOTIFY_ANIMATION_ABILITY_DIED] =
-        &WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner;
-    requestFuncMap_[ON_MOVE_MISSINONS_TO_FOREGROUND] = &WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner;
-    requestFuncMap_[ON_MOVE_MISSIONS_TO_BACKGROUND] = &WindowManagerServiceHandlerStub::MoveMissionsToBackgroundInner;
-}
+void WindowManagerServiceHandlerStub::Init() {}
 
 int WindowManagerServiceHandlerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -53,20 +38,32 @@ int WindowManagerServiceHandlerStub::OnRemoteRequest(
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    switch (code) {
+        case ON_NOTIFY_WINDOW_TRANSITION:
+            return NotifyWindowTransitionInner(data, reply);
+        case ON_GET_FOCUS_ABILITY:
+            return GetFocusWindowInner(data, reply);
+        case ON_COLD_STARTING_WINDOW:
+            return StartingWindowCold(data, reply);
+        case ON_HOT_STARTING_WINDOW:
+            return StartingWindowHot(data, reply);
+        case ON_CANCEL_STARTING_WINDOW:
+            return CancelStartingWindowInner(data, reply);
+        case ON_NOTIFY_ANIMATION_ABILITY_DIED:
+            return NotifyAnimationAbilityDiedInner(data, reply);
+        case ON_MOVE_MISSINONS_TO_FOREGROUND:
+            return MoveMissionsToForegroundInner(data, reply);
+        case ON_MOVE_MISSIONS_TO_BACKGROUND:
+            return MoveMissionsToBackgroundInner(data, reply);
     }
+
     TAG_LOGW(AAFwkTag::ABILITYMGR, "default case, it needs to be checked.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int WindowManagerServiceHandlerStub::NotifyWindowTransitionInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> fromInfo(data.ReadParcelable<AbilityTransitionInfo>());
     if (!fromInfo) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read fromInfo failed.");
@@ -85,7 +82,7 @@ int WindowManagerServiceHandlerStub::NotifyWindowTransitionInner(MessageParcel &
 
 int WindowManagerServiceHandlerStub::GetFocusWindowInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = nullptr;
     int32_t ret = GetFocusWindow(abilityToken);
     if (!reply.WriteInt32(ret)) {
@@ -112,7 +109,7 @@ int WindowManagerServiceHandlerStub::GetFocusWindowInner(MessageParcel &data, Me
 
 int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read info failed!");
@@ -131,7 +128,7 @@ int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, Mes
 
 int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read info failed.");
@@ -149,7 +146,7 @@ int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, Mess
 
 int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = nullptr;
     if (data.ReadBool()) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "abilityToken is valid.");
@@ -161,7 +158,7 @@ int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &da
 
 int WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "To read info failed.");
@@ -173,7 +170,7 @@ int WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner(MessageParc
 
 int WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     data.ReadInt32Vector(&missionIds);
     int32_t topMissionId = data.ReadInt32();
@@ -184,7 +181,7 @@ int WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner(MessageParcel
 
 int WindowManagerServiceHandlerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     std::vector<int32_t> result;
     data.ReadInt32Vector(&missionIds);

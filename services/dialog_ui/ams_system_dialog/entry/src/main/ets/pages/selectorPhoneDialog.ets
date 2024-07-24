@@ -83,6 +83,29 @@ struct SelectorPhoneDialog {
   @State private hapList: HapInfo[] = [];
   private TAG = 'SelectorDialog_Phone_Page';
 
+  @Builder
+  elementIconCombine(iconSrc: string, appIndex: string) {
+    RelativeContainer() {
+      Image(iconSrc)
+        .id('iconLab')
+        .height(60)
+        .width(60)
+        .alignSelf(ItemAlign.Center);
+      if (appIndex !== '0') {
+        Image($r('app.media.app_icon_clone_index_' + appIndex))
+          .height(18)
+          .width(18)
+          .alignRules({
+            end: { anchor: 'iconLab', align: HorizontalAlign.End },
+            bottom: { anchor: 'iconLab', align: VerticalAlign.Bottom }
+          })
+      }
+    }
+    .height(60)
+    .width(60)
+    .alignSelf(ItemAlign.Center);
+  } 
+
   aboutToAppear(): void {
     console.log(this.TAG, 'dialog page appears');
     this.hapList = globalThis.params.hapList;
@@ -99,6 +122,7 @@ struct SelectorPhoneDialog {
     globalThis.abilityWant.bundleName = item.split('#')[0];
     globalThis.abilityWant.abilityName = item.split('#')[1];
     globalThis.abilityWant.moduleName = item.split('#')[4];
+    globalThis.abilityWant.parameters['ohos.extra.param.key.appCloneIndex'] = Number(item.split('#')[7]);
     globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
         console.error(this.TAG + ' startAbility finish, error: ' + JSON.stringify(error));
@@ -139,8 +163,8 @@ struct SelectorPhoneDialog {
   }
 
   build() {
-    Flex({ direction: FlexDirection.Column }) {
-      Flex({ direction: FlexDirection.Column }) {
+    Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
+      Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start }) {
         Text($r('app.string.message_title_selector'))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
@@ -158,16 +182,11 @@ struct SelectorPhoneDialog {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
                     if (item.split('#')[3] != '') {
                       if (item.split('#')[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4] +
-                          ':' + item.split('#')[1]))
-                          .height(60)
-                          .width(60)
-                          .alignSelf(ItemAlign.Center);
+                        this.elementIconCombine(globalThis.jsonIconMap.get(item.split('#')[0] + ':' +
+                          item.split('#')[4] + ':' + item.split('#')[1] + ':' + item.split('#')[7]),
+                          item.split('#')[7]);
                       } else {
-                        Image(item.split('#')[3])
-                          .height(60)
-                          .width(60)
-                          .alignSelf(ItemAlign.Center);
+                        this.elementIconCombine(item.split('#')[3], item.split('#')[7]);
                       }
                     } else {
                       Image($r('app.media.app_icon'))
@@ -199,14 +218,15 @@ struct SelectorPhoneDialog {
                   })
                 }
                 .margin({ top: 10 })
+                .align(Alignment.Center)
               }, item => item)
             }
             .columnsTemplate(this.selector.swiper.gridColumns)
             .rowsTemplate(this.selector.swiper.gridRows)
             .columnsGap(12)
             .rowsGap(12)
-            .margin({ top: 30 })
-            .height(210)
+            .margin({ top: 10 })
+            .height(300)
           }, item => item)
         }
         .indicatorStyle({ color: '#bebdc0', selectedColor: '#ff326Ce9', size: 4 })
@@ -232,6 +252,7 @@ struct SelectorPhoneDialog {
     }
     .borderRadius(24)
     .borderWidth(1)
+    .align(Alignment.Center)
     .borderColor('#e9e9e9')
     .backgroundColor('#ffffff')
     .width('100%')

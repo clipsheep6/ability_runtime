@@ -20,7 +20,6 @@
 #include "data_ability_predicates.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #ifdef SUPPORT_SCREEN
@@ -823,7 +822,7 @@ void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::KeyE
 
 void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::DoPointerEvent called.");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     abilityImpl_->DoPointerEvent(pointerEvent);
 }
 #endif

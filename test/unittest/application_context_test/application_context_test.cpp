@@ -1316,5 +1316,208 @@ HWTEST_F(ApplicationContextTest, SetCurrentAppMode_0100, TestSize.Level1)
     int32_t res = context_->GetCurrentAppMode();
     EXPECT_EQ(res, appMode);
 }
+
+/**
+ * @tc.number:DispatchOnAbilityWillContinue_0100
+ * @tc.name: DispatchOnAbilityWillContinue
+ * @tc.desc: DispatchOnAbilityWillContinue fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityWillContinue_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillContinue_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityWillContinue(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillContinue_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnWindowStageWillRestore_0100
+ * @tc.name: DispatchOnWindowStageWillRestore
+ * @tc.desc: DispatchOnWindowStageWillRestore fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWindowStageWillRestore_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageWillRestore_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> winstage = nullptr;
+    context_->DispatchOnWindowStageWillRestore(ability, winstage);
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageWillRestore_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnWindowStageRestore_0100
+ * @tc.name: DispatchOnWindowStageRestore
+ * @tc.desc: DispatchOnWindowStageRestore fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWindowStageRestore_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageRestore_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> winstage = nullptr;
+    context_->DispatchOnWindowStageRestore(ability, winstage);
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageRestore_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnAbilityWillSaveState_0100
+ * @tc.name: DispatchOnAbilityWillSaveState
+ * @tc.desc: DispatchOnAbilityWillSaveState fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityWillSaveState_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillSaveState_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityWillSaveState(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillSaveState_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnAbilitySaveState_0100
+ * @tc.name: DispatchOnAbilitySaveState
+ * @tc.desc: DispatchOnAbilitySaveState fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilitySaveState_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilitySaveState_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilitySaveState(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilitySaveState_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnWillNewWant_0100
+ * @tc.name: DispatchOnWillNewWant
+ * @tc.desc: DispatchOnWillNewWant fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWillNewWant_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWillNewWant_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnWillNewWant(ability);
+    GTEST_LOG_(INFO) << "DispatchOnWillNewWant_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnNewWant_0100
+ * @tc.name: DispatchOnNewWant
+ * @tc.desc: DispatchOnNewWant fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnNewWant_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnNewWant_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnNewWant(ability);
+    GTEST_LOG_(INFO) << "DispatchOnNewWant_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnAbilityWillCreate_0100
+ * @tc.name: DispatchOnAbilityWillCreate
+ * @tc.desc: DispatchOnAbilityWillCreate fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityWillCreate_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillCreate_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityWillCreate(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillCreate_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnWindowStageWillCreate_0100
+ * @tc.name: DispatchOnWindowStageWillCreate
+ * @tc.desc: DispatchOnWindowStageWillCreate fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWindowStageWillCreate_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageWillCreate_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> winstage = nullptr;
+    context_->DispatchOnWindowStageWillCreate(ability, winstage);
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageWillCreate_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnWindowStageWillDestroy_0100
+ * @tc.name: DispatchOnWindowStageWillDestroy
+ * @tc.desc: DispatchOnWindowStageWillDestroy fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWindowStageWillDestroy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageWillDestroy_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> winstage = nullptr;
+    context_->DispatchOnWindowStageWillDestroy(ability, winstage);
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageWillDestroy_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnAbilityWillDestroy_0100
+ * @tc.name: DispatchOnAbilityWillDestroy
+ * @tc.desc: DispatchOnAbilityWillDestroy fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityWillDestroy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillDestroy_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityWillDestroy(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillDestroy_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnAbilityWillForeground_0100
+ * @tc.name: DispatchOnAbilityWillForeground
+ * @tc.desc: DispatchOnAbilityWillForeground fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityWillForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillForeground_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityWillForeground(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillForeground_0100 end";
+}
+
+/**
+ * @tc.number:DispatchOnAbilityWillBackground_0100
+ * @tc.name: DispatchOnAbilityWillBackground
+ * @tc.desc: DispatchOnAbilityWillBackground fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityWillBackground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillBackground_0100 start";
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityWillBackground(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityWillBackground_0100 end";
+}
+
+/**
+ * @tc.number:SetFont_0100
+ * @tc.name: SetFont
+ * @tc.desc: SetFont fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetFont_0100, TestSize.Level1)
+{
+    context_->SetFont("awk");
+}
+
+/**
+ * @tc.number:SetMcc_0100
+ * @tc.name: SetMcc
+ * @tc.desc: SetMcc fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetMcc_0100, TestSize.Level1)
+{
+    context_->SetMcc("mcc");
+}
+
+/**
+ * @tc.number:SetMnc_0100
+ * @tc.name: SetMnc
+ * @tc.desc: SetMnc fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetMnc_0100, TestSize.Level1)
+{
+    context_->SetMnc("mnc");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -16,7 +16,6 @@
 #include "freeze_util.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
 FreezeUtil& FreezeUtil::GetInstance()

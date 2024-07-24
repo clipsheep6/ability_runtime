@@ -17,12 +17,12 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <unistd.h>
 
 #include "accesstoken_kit.h"
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "os_account_manager_wrapper.h"
 
@@ -94,7 +94,7 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
     const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
 {
     auto accessTokenIdStr = std::to_string(accessTokenId);
-    if (bundleName.empty() || accessTokenIdStr.empty()) {
+    if (bundleName.empty() || accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value");
         return ERR_INVALID_VALUE;
     }
@@ -123,7 +123,8 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
     return ERR_OK;
 }
 
-int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, int32_t uid)
+
+int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, int32_t uid, int32_t appIndex)
 {
     int32_t userId;
     if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
@@ -131,9 +132,14 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
         return ERR_INVALID_VALUE;
     }
-    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
+    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
+    return DeleteAppExitReason(bundleName, accessTokenId);
+}
+
+int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, uint32_t accessTokenId)
+{
     auto accessTokenIdStr = std::to_string(accessTokenId);
-    if (bundleName.empty() || accessTokenIdStr.empty()) {
+    if (bundleName.empty() || accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value.");
         return ERR_INVALID_VALUE;
     }
@@ -177,7 +183,7 @@ int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName
     const std::string &abilityName, bool &isSetReason, AAFwk::ExitReason &exitReason)
 {
     auto accessTokenIdStr = std::to_string(accessTokenId);
-    if (bundleName.empty() || accessTokenIdStr.empty()) {
+    if (bundleName.empty() || accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value!");
         return ERR_INVALID_VALUE;
     }
@@ -369,6 +375,20 @@ int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(uint32_t accessTokenId,
     return ERR_OK;
 }
 
+int32_t AppExitReasonDataManager::DeleteAllRecoverInfoByTokenId(uint32_t tokenId)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "tokenId: %{private}u", tokenId);
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        if (!CheckKvStore()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "kvStore is nullptr!");
+            return ERR_NO_INIT;
+        }
+    }
+    InnerDeleteAbilityRecoverInfo(tokenId);
+    return ERR_OK;
+}
+
 int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
     uint32_t accessTokenId, const std::string &moduleName, const std::string &abilityName)
 {
@@ -492,7 +512,7 @@ int32_t AppExitReasonDataManager::GetAbilitySessionId(uint32_t accessTokenId,
 int32_t AppExitReasonDataManager::SetUIExtensionAbilityExitReason(
     const std::string &bundleName, const std::vector<std::string> &extensionList, const AAFwk::ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (bundleName.empty()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Invalid bundle name.");
         return ERR_INVALID_VALUE;
@@ -527,7 +547,7 @@ int32_t AppExitReasonDataManager::SetUIExtensionAbilityExitReason(
 bool AppExitReasonDataManager::GetUIExtensionAbilityExitReason(const std::string &keyEx,
     AAFwk::ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -655,7 +675,7 @@ DistributedKv::Key AppExitReasonDataManager::GetAbilityRecoverInfoKey(uint32_t a
 DistributedKv::Value AppExitReasonDataManager::ConvertAppExitReasonInfoToValueOfExtensionName(
     const std::string &extensionListName, const AAFwk::ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::chrono::milliseconds nowMs =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     nlohmann::json jsonObject = nlohmann::json {

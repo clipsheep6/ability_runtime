@@ -57,7 +57,7 @@ public:
 void AbilityInterceptorTest::SetUpTestCase()
 {
     GTEST_LOG_(INFO) << "AbilityInterceptorTest SetUpTestCase called";
-    DelayedSingleton<AbilityManagerService>::GetInstance()->CleanAllMissions();
+    AbilityManagerClient::GetInstance()->CleanAllMissions();
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
 
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
@@ -729,7 +729,8 @@ HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_002, TestSize.Level1)
     want.SetBundle(bundleName);
     int requestCode = 0;
     int userId = 100;
-    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    sptr<IRemoteObject> token;
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, token);
     ErrCode result = interceptor->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }

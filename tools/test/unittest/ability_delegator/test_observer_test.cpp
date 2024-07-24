@@ -20,7 +20,6 @@
 #include <unistd.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "system_time.h"
 
 #define private public

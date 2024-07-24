@@ -24,7 +24,6 @@
 #include "ability_handler.h"
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
 #include "ohos_application.h"

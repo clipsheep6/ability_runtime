@@ -21,7 +21,6 @@
 #include <iremote_stub.h>
 #include <gmock/gmock.h>
 #include "ability_scheduler_interface.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

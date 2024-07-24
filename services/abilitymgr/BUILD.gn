@@ -20,6 +20,7 @@ group("abilityms_target") {
   deps = [
     ":abilityms",
     ":ams_service_config",
+    ":mission_list",
   ]
 }
 
@@ -32,6 +33,7 @@ config("abilityms_config") {
     "include/",
     "include/rdb/",
     "include/screen_lock/",
+    "include/dialog_session/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_innerkits_path}/app_manager/include",
@@ -104,9 +106,12 @@ ohos_shared_library("abilityms") {
     ":abilityms_config",
     ":abilityms_exception_config",
   ]
-  include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
+  include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection",
+  ]
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_base",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
@@ -115,6 +120,214 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/session_handler:session_handler",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:auto_startup_callback",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
+    "${ability_runtime_services_path}/common:app_util",
+    "${ability_runtime_services_path}/common:event_report",
+    "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/common:res_sched_util",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:extractortool",
+    "ability_base:session_info",
+    "ability_base:view_data",
+    "ability_base:want",
+    "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
+    "dsoftbus:softbus_client",
+    "ffrt:libffrt",
+    "graphic_2d:color_manager",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "icu:shared_icuuc",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "json:nlohmann_json_static",
+    "kv_store:distributeddata_inner",
+    "os_account:os_account_innerkits",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "window_manager:libmodal_system_ui_extension_client",
+    "window_manager:libwsutils",
+    "window_manager:scene_session",
+    "window_manager:session_manager_lite",
+    "window_manager:sms",
+  ]
+  public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (resource_schedule_service_enable) {
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+  }
+
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
+
+  defines = []
+
+  if (ability_runtime_graphics) {
+    defines += [ "SUPPORT_GRAPHICS" ]
+    external_deps += [
+      "ability_base:session_info",
+      "i18n:intl_util",
+      "icu:shared_icuuc",
+      "image_framework:image_native",
+      "input:libmmi-client",
+      "resource_management:global_resmgr",
+      "screenlock_mgr:screenlock_client",
+      "window_manager:libdm",
+      "window_manager:libmodal_system_ui_extension_client",
+      "window_manager:libwm",
+      "window_manager:libwsutils",
+      "window_manager:scene_session",
+      "window_manager:sms",
+    ]
+  }
+
+  if (include_app_domain_verify) {
+    external_deps += [
+      "app_domain_verify:app_domain_verify_common",
+      "app_domain_verify:app_domain_verify_mgr_client",
+    ]
+    defines += [ "APP_DOMAIN_VERIFY_ENABLED" ]
+  }
+
+  if (ability_runtime_power) {
+    defines += [ "SUPPORT_POWER" ]
+    external_deps += [ "power_manager:powermgr_client" ]
+  }
+
+  version_script = "libabilityms.map"
+  subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("ams_service_config.json") {
+  source = "resource/ams_service_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("uiextension_picker_config.json") {
+  source = "resource/uiextension_picker_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("deeplink_reserve_config.json") {
+  source = "resource/deeplink_reserve_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("ams_extension_config.json") {
+  source = "resource/ams_extension_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("default_recovery_config.json") {
+  source = "resource/default_recovery_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("start_ability_without_caller_token.json") {
+  source = "resource/start_ability_without_caller_token.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("mission_list") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include/status_bar_delegate",
+    "${ability_runtime_innerkits_path}/connectionobs_manager/include",
+    "${ability_runtime_innerkits_path}/deps_wrapper/include",
+    "${ability_runtime_innerkits_path}/session_handler/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_services_path}/appdfr/include",
+    "${ability_runtime_utils_path}/global/constant",
+    "${ability_runtime_utils_path}/server/constant",
+  ]
+
+  defines = []
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
+
+  if (ability_runtime_graphics) {
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
+  }
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  sources = [
+    "src/mission.cpp",
+    "src/mission_data_storage.cpp",
+    "src/mission_info_mgr.cpp",
+    "src/mission_list.cpp",
+    "src/mission_list_manager.cpp",
+    "src/task_data_persistence_mgr.cpp",
+  ]
+
+  deps = [
+    ":abilityms",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
+    "${ability_runtime_innerkits_path}/ability_manager:mission_info",
+    "${ability_runtime_innerkits_path}/ability_manager:process_options",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
@@ -162,79 +375,30 @@ ohos_shared_library("abilityms") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:session_manager_lite",
   ]
-  public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
 
-  if (resource_schedule_service_enable) {
-    external_deps += [ "resource_schedule_service:ressched_client" ]
-  }
-
   if (os_dlp_part_enabled) {
-    cflags_cc += [ "-DWITH_DLP" ]
+    defines += [ "WITH_DLP" ]
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
   }
 
-  defines = []
-
   if (ability_runtime_graphics) {
-    defines += [ "SUPPORT_GRAPHICS" ]
     external_deps += [
       "ability_base:session_info",
       "i18n:intl_util",
       "image_framework:image_native",
-      "screenlock_mgr:screenlock_client",
+      "resource_management:global_resmgr",
       "window_manager:libdm",
-      "window_manager:libmodal_system_ui_extension_client",
       "window_manager:libwm",
-      "window_manager:libwsutils",
-      "window_manager:scene_session",
-      "window_manager:sms",
     ]
   }
 
-  if (ability_runtime_power) {
-    defines += [ "SUPPORT_POWER" ]
-    external_deps += [ "power_manager:powermgr_client" ]
-  }
-
-  version_script = "libabilityms.map"
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk_indirect" ]
-  part_name = "ability_runtime"
-}
-
-ohos_prebuilt_etc("ams_service_config.json") {
-  source = "resource/ams_service_config.json"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_prebuilt_etc("uiextension_picker_config.json") {
-  source = "resource/uiextension_picker_config.json"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_prebuilt_etc("deeplink_reserve_config.json") {
-  source = "resource/deeplink_reserve_config.json"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_prebuilt_etc("ams_extension_config.json") {
-  source = "resource/ams_extension_config.json"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_prebuilt_etc("default_recovery_config.json") {
-  source = "resource/default_recovery_config.json"
-  subsystem_name = "ability"
   part_name = "ability_runtime"
 }
 
@@ -243,6 +407,7 @@ group("ams_service_config") {
     ":ams_service_config.json",
     ":deeplink_reserve_config.json",
     ":default_recovery_config.json",
+    ":start_ability_without_caller_token.json",
     ":uiextension_picker_config.json",
   ]
 }

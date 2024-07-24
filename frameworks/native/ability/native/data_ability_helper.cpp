@@ -17,7 +17,6 @@
 #include "abs_shared_result_set.h"
 #include "datashare_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "rdb_data_ability_utils.h"
 
@@ -235,7 +234,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  */
 bool DataAbilityHelper::Release()
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Release called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     bool ret = false;
     if (dataAbilityHelperImpl_) {
         TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call DataAbilityHelperImpl Release.");
@@ -260,7 +259,7 @@ bool DataAbilityHelper::Release()
 std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "GetFileTypes called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     std::vector<std::string> matchedMIMEs;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -291,7 +290,7 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
  */
 int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "OpenFile Called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int fd = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -327,7 +326,7 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
  */
 int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "OpenRawFile called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int fd = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -356,7 +355,7 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
 int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Insert called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int index = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -379,7 +378,7 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelper::Call(
     const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
     std::shared_ptr<AppExecFwk::PacMap> result = nullptr;
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
         TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call DataAbilityHelperImpl Call.");
@@ -404,7 +403,7 @@ int DataAbilityHelper::Update(
     Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Update called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int index = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -435,7 +434,7 @@ int DataAbilityHelper::Update(
 int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Delete called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int index = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -467,7 +466,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Query called.");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -506,7 +505,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
 std::string DataAbilityHelper::GetType(Uri &uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "GetType called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     std::string type;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -536,7 +535,7 @@ std::string DataAbilityHelper::GetType(Uri &uri)
  */
 bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Reload called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     bool ret = false;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -560,7 +559,7 @@ bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
 int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "BatchInsert called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int ret = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -591,7 +590,7 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
  */
 void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "RegisterObserver called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
         TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call DataAbilityHelperImpl RegisterObserver.");
@@ -615,7 +614,7 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
  */
 void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "UnregisterObserver called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
         TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call DataAbilityHelperImpl UnregisterObserver.");
@@ -639,7 +638,7 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
 void DataAbilityHelper::NotifyChange(const Uri &uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "NotifyChange called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
         TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call DataAbilityHelperImpl NotifyChange.");
@@ -670,7 +669,7 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
 Uri DataAbilityHelper::NormalizeUri(Uri &uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "NormalizeUri called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     Uri urivalue("");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -701,7 +700,7 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
 Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DenormalizeUri called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     Uri urivalue("");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
@@ -722,7 +721,7 @@ Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
     const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "ExecuteBatch called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {

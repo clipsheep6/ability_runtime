@@ -25,7 +25,6 @@
 #include "ability_start_setting.h"
 #include "connection_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -731,7 +730,7 @@ void JsAbility::RequestFocus(const Want &want)
 
 void JsAbility::ContinuationRestore(const Want &want)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!IsRestoredInContinuation() || scene_ == nullptr) {
         return;
     }
@@ -742,7 +741,7 @@ void JsAbility::ContinuationRestore(const Want &want)
 
 std::shared_ptr<NativeReference> JsAbility::GetJsWindowStage()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (jsWindowStageObj_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "jsWindowSatge is nullptr");
     }
@@ -836,7 +835,7 @@ int32_t JsAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
     Ability::OnConfigurationUpdated(configuration);
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -855,7 +854,7 @@ void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
 void JsAbility::OnMemoryLevel(int level)
 {
     Ability::OnMemoryLevel(level);
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -878,7 +877,7 @@ void JsAbility::OnMemoryLevel(int level)
 
 void JsAbility::UpdateContextConfiguration()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     JsAbilityContext::ConfigurationUpdated(env, shellContextRef_, GetAbilityContext()->GetConfiguration());
@@ -1089,7 +1088,7 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegat
 void JsAbility::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     Ability::Dump(params, info);
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     HandleScope handleScope(jsRuntime_);
 
     if (!jsAbilityObj_) {
@@ -1147,7 +1146,7 @@ bool JsAbility::AddDumpInfo(napi_env env, napi_value obj, const std::vector<std:
 
 std::shared_ptr<NativeReference> JsAbility::GetJsAbility()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (jsAbilityObj_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "jsAbility object is nullptr");
     }

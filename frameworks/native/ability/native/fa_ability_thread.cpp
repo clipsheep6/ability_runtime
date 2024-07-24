@@ -33,7 +33,6 @@
 #endif // WITH_DLP
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #ifdef SUPPORT_GRAPHICS
@@ -1017,7 +1016,7 @@ std::vector<std::string> FAAbilityThread::GetFileTypes(const Uri &uri, const std
 
 int FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return -1;
@@ -1027,7 +1026,7 @@ int FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 
 int FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return -1;
@@ -1038,7 +1037,7 @@ int FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 
 int FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return -1;
@@ -1050,7 +1049,7 @@ int FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value
 std::shared_ptr<AppExecFwk::PacMap> FAAbilityThread::Call(
     const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return nullptr;
@@ -1062,7 +1061,7 @@ std::shared_ptr<AppExecFwk::PacMap> FAAbilityThread::Call(
 int FAAbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return -1;
@@ -1073,7 +1072,7 @@ int FAAbilityThread::Update(
 
 int FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return -1;
@@ -1084,7 +1083,7 @@ int FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicat
 std::shared_ptr<NativeRdb::AbsSharedResultSet> FAAbilityThread::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return nullptr;
@@ -1095,7 +1094,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> FAAbilityThread::Query(
 
 std::string FAAbilityThread::GetType(const Uri &uri)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     std::string type;
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
@@ -1107,7 +1106,7 @@ std::string FAAbilityThread::GetType(const Uri &uri)
 
 bool FAAbilityThread::Reload(const Uri &uri, const AppExecFwk::PacMap &extras)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return false;
@@ -1117,7 +1116,7 @@ bool FAAbilityThread::Reload(const Uri &uri, const AppExecFwk::PacMap &extras)
 
 int FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    TAG_LOGD(AAFwkTag::FA, "Called.");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (abilityImpl_ == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "abilityImpl_ is nullptr");
         return -1;

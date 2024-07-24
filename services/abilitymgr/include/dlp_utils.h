@@ -23,7 +23,6 @@
 #endif // WITH_DLP
 #include "global_constant.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
@@ -72,6 +71,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     return true;
 }
 
+#ifdef WITH_DLP
 [[maybe_unused]]static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
     int32_t dlpIndex = want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
@@ -89,6 +89,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 
     return PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want));
 }
+#endif // WITH_DLP_
 
 [[maybe_unused]]static bool SandboxAuthCheck(const AbilityRecord &callerRecord, const Want &want)
 {

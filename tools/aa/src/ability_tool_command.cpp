@@ -24,7 +24,6 @@
 #include "bool_wrapper.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
 
@@ -116,11 +115,11 @@ AbilityToolCommand::AbilityToolCommand(int argc, char* argv[]) : ShellCommand(ar
 ErrCode AbilityToolCommand::CreateCommandMap()
 {
     commandMap_ = {
-        {"help", std::bind(&AbilityToolCommand::RunAsHelpCommand, this)},
-        {"start", std::bind(&AbilityToolCommand::RunAsStartAbility, this)},
-        {"stop-service", std::bind(&AbilityToolCommand::RunAsStopService, this)},
-        {"force-stop", std::bind(&AbilityToolCommand::RunAsForceStop, this)},
-        {"test", std::bind(&AbilityToolCommand::RunAsTestCommand, this)},
+        {"help", [this]() { return this->RunAsHelpCommand(); }},
+        {"start", [this]() { return this->RunAsStartAbility(); }},
+        {"stop-service", [this]() { return this->RunAsStopService(); }},
+        {"force-stop", [this]() { return this->RunAsForceStop(); }},
+        {"test", [this]() { return this->RunAsTestCommand(); }},
     };
 
     return OHOS::ERR_OK;

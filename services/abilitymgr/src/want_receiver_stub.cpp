@@ -16,23 +16,15 @@
 #include "want_receiver_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 #include "pac_map.h"
 
 namespace OHOS {
 namespace AAFwk {
-WantReceiverStub::WantReceiverStub()
-{
-    requestFuncMap_[WANT_RECEIVER_SEND] = &WantReceiverStub::SendInner;
-    requestFuncMap_[WANT_RECEIVER_PERFORM_RECEIVE] = &WantReceiverStub::PerformReceiveInner;
-}
+WantReceiverStub::WantReceiverStub() {}
 
-WantReceiverStub::~WantReceiverStub()
-{
-    requestFuncMap_.clear();
-}
+WantReceiverStub::~WantReceiverStub() {}
 
 int WantReceiverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -44,12 +36,11 @@ int WantReceiverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    switch (code) {
+        case WANT_RECEIVER_SEND:
+            return SendInner(data, reply);
+        case WANT_RECEIVER_PERFORM_RECEIVE:
+            return PerformReceiveInner(data, reply);
     }
     TAG_LOGW(AAFwkTag::WANTAGENT, "WantReceiverStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

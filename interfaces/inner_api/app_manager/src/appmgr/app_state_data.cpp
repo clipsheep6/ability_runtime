@@ -16,7 +16,6 @@
 #include "app_state_data.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {

@@ -20,7 +20,6 @@
 #undef private
 #undef protected
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_native_token.h"
 #include "semaphore_ex.h"
 

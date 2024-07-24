@@ -15,17 +15,12 @@
 
 #include "acquire_share_data_callback_stub.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "message_parcel.h"
 
 namespace OHOS {
 namespace AAFwk {
 
-AcquireShareDataCallbackStub::AcquireShareDataCallbackStub()
-{
-    vecMemberFunc_.resize(IAcquireShareDataCallback::CODE_MAX);
-    vecMemberFunc_[ACQUIRE_SHARE_DATA_DONE] = &AcquireShareDataCallbackStub::AcquireShareDataDoneInner;
-}
+AcquireShareDataCallbackStub::AcquireShareDataCallbackStub() {}
 
 AcquireShareDataCallbackStub::~AcquireShareDataCallbackStub()
 {
@@ -43,8 +38,9 @@ int32_t AcquireShareDataCallbackStub::OnRemoteRequest(
     }
 
     if (code < IAcquireShareDataCallback::CODE_MAX) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        if (code == ACQUIRE_SHARE_DATA_DONE) {
+            return AcquireShareDataDoneInner(data, reply);
+        }
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

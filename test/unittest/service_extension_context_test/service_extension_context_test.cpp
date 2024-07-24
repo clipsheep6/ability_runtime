@@ -58,7 +58,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_001
     ServiceExtensionContext serviceExtensionContextTest;
     Want want;
     ErrCode result = serviceExtensionContextTest.StartAbility(want);
-    EXPECT_EQ(ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK, result);
+    EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
 }
 
 /*
@@ -75,7 +75,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_002
     Want want;
     StartOptions startOptions;
     ErrCode result = serviceExtensionContextTest.StartAbility(want, startOptions);
-    EXPECT_EQ(ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK, result);
+    EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
 }
 
 /*
@@ -91,8 +91,8 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityAsCa
     ServiceExtensionContext serviceExtensionContextTest;
     Want want;
     ErrCode result = serviceExtensionContextTest.StartAbilityAsCaller(want);
-    GTEST_LOG_(INFO) <<result;
-    EXPECT_EQ(ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK, result);
+    GTEST_LOG_(INFO) << result;
+    EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
 }
 
 /*
@@ -109,8 +109,8 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityAsCa
     Want want;
     StartOptions startOptions;
     ErrCode result = serviceExtensionContextTest.StartAbilityAsCaller(want, startOptions);
-    GTEST_LOG_(INFO) <<result;
-    EXPECT_EQ(ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK, result);
+    GTEST_LOG_(INFO) << result;
+    EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
 }
 
 /*

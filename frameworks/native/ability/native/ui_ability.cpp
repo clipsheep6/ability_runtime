@@ -20,7 +20,6 @@
 #include "configuration_convertor.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #ifdef CJ_FRONTEND
@@ -46,7 +45,9 @@ constexpr char LAUNCHER_ABILITY_NAME[] = "com.ohos.launcher.MainAbility";
 constexpr char SHOW_ON_LOCK_SCREEN[] = "ShowOnLockScreen";
 #endif
 
+#ifdef WITH_DLP
 constexpr char DLP_PARAMS_SECURITY_FLAG[] = "ohos.dlp.params.securityFlag";
+#endif // WITH_DLP
 constexpr char COMPONENT_STARTUP_NEW_RULES[] = "component.startup.newRules";
 #ifdef SUPPORT_SCREEN
 constexpr int32_t ERR_INVALID_VALUE = -1;
@@ -123,13 +124,13 @@ void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
 
 std::shared_ptr<OHOS::AppExecFwk::LifeCycle> UIAbility::GetLifecycle()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     return lifecycle_;
 }
 
 void UIAbility::RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "register UIAbility lifecycle observer failed, observer is nullptr.");
         return;
@@ -143,7 +144,7 @@ void UIAbility::RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFw
 
 void UIAbility::UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "unregister UIAbility lifecycle observer failed, observer is nullptr.");
         return;
@@ -168,8 +169,10 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
         return;
     }
 
+#ifdef WITH_DLP
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
+#endif // WITH_DLP
     SetWant(want);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_SCREEN
@@ -235,12 +238,12 @@ void UIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInf
 
 void UIAbility::OnStopCallback()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::DestroyInstance()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 bool UIAbility::IsRestoredInContinuation() const
@@ -297,7 +300,7 @@ bool UIAbility::ShouldDefaultRecoverState(const AAFwk::Want &want)
 
 void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
 
@@ -362,7 +365,7 @@ void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &cha
 
 void UIAbility::OnMemoryLevel(int level)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 #ifdef SUPPORT_SCREEN
     if (scene_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "WindowScene is null.");
@@ -393,17 +396,17 @@ std::string UIAbility::GetModuleName()
 
 void UIAbility::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnNewWant(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnRestoreAbilityState(const AppExecFwk::PacMap &inState)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::SetWant(const AAFwk::Want &want)
@@ -418,17 +421,17 @@ std::shared_ptr<AAFwk::Want> UIAbility::GetWant()
 
 void UIAbility::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 AppExecFwk::AbilityLifecycleExecutor::LifecycleState UIAbility::GetState()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityLifecycleExecutor_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return AppExecFwk::AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED;
@@ -477,7 +480,7 @@ int32_t UIAbility::OnSaveState(int32_t reason, AAFwk::WantParams &wantParams)
 
 void UIAbility::OnCompleteContinuation(int result)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (continuationManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Continuation manager is nullptr.");
         return;
@@ -488,7 +491,7 @@ void UIAbility::OnCompleteContinuation(int result)
 
 void UIAbility::OnRemoteTerminated()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::DispatchLifecycleOnForeground(const AAFwk::Want &want)
@@ -521,13 +524,13 @@ void UIAbility::HandleCreateAsRecovery(const AAFwk::Want &want)
 
 void UIAbility::SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     setting_ = setting;
 }
 
 void UIAbility::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     launchParam_ = launchParam;
 }
 
@@ -580,22 +583,22 @@ void UIAbility::SetIsSilentForeground(bool isSilentForeground)
 #ifdef SUPPORT_SCREEN
 void UIAbility::OnSceneCreated()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnSceneRestored()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnSceneWillDestroy()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::onSceneDestroyed()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnForeground(const AAFwk::Want &want)
@@ -664,13 +667,13 @@ void UIAbility::OnBackground()
 
 bool UIAbility::OnPrepareTerminate()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     return false;
 }
 
 const sptr<Rosen::Window> UIAbility::GetWindow()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     return nullptr;
 }
 
@@ -681,7 +684,7 @@ std::shared_ptr<Rosen::WindowScene> UIAbility::GetScene()
 
 void UIAbility::OnLeaveForeground()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 std::string UIAbility::GetContentInfo()
@@ -721,12 +724,12 @@ void UIAbility::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 
 void UIAbility::DoOnForeground(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 int32_t UIAbility::GetCurrentWindowMode()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     auto windowMode = static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED);
     if (scene_ == nullptr) {
         return windowMode;
@@ -740,7 +743,7 @@ int32_t UIAbility::GetCurrentWindowMode()
 
 ErrCode UIAbility::SetMissionLabel(const std::string &label)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Invalid ability info.");
         return ERR_INVALID_VALUE;
@@ -765,7 +768,7 @@ ErrCode UIAbility::SetMissionLabel(const std::string &label)
 
 ErrCode UIAbility::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityInfo_ is nullptr or not page type.");
         return ERR_INVALID_VALUE;
@@ -790,7 +793,7 @@ ErrCode UIAbility::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &
 
 void UIAbility::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (scene_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Scene is nullptr.");
         return;
@@ -810,7 +813,7 @@ void UIAbility::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32
 
 Ace::UIContent *UIAbility::GetUIContent()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (scene_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Get window scene failed.");
         return nullptr;
@@ -825,12 +828,12 @@ Ace::UIContent *UIAbility::GetUIContent()
 
 void UIAbility::OnCreate(Rosen::DisplayId displayId)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnDestroy(Rosen::DisplayId displayId)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
@@ -943,7 +946,11 @@ void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
                 "Density: %{public}f, Direction: %{public}d", resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
+        UpdateConfiguration(to, density, width, height);
+}
 
+void UIAbility::UpdateConfiguration(Rosen::DisplayId to, float density, int32_t width, int32_t height)
+{
     AppExecFwk::Configuration newConfig;
     newConfig.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(to));
     newConfig.AddItem(
@@ -978,12 +985,12 @@ void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 
 void UIAbility::RequestFocus(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 sptr<Rosen::WindowOption> UIAbility::GetWindowOption(const AAFwk::Want &want)
@@ -1021,7 +1028,7 @@ sptr<Rosen::WindowOption> UIAbility::GetWindowOption(const AAFwk::Want &want)
 
 void UIAbility::ContinuationRestore(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void UIAbility::OnStartForSupportGraphics(const AAFwk::Want &want)
@@ -1143,17 +1150,17 @@ void UIAbility::SetSessionToken(sptr<IRemoteObject> sessionToken)
 {
     std::lock_guard lock(sessionTokenMutex_);
     sessionToken_ = sessionToken;
-}
-
-void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
-{
-    SetSessionToken(sessionToken);
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext is nullptr");
         return;
     }
     abilityContextImpl->SetWeakSessionToken(sessionToken);
+}
+
+void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    SetSessionToken(sessionToken);
 }
 
 void UIAbility::EraseUIExtension(int32_t sessionId)

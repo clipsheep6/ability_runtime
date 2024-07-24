@@ -19,7 +19,6 @@
 #include "iservice_registry.h"
 #include "iremote_broker.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {
@@ -145,8 +144,8 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
     if (rule.replaceWant != nullptr) {
         rule.replaceWant->SetParam(ERMS_ORIGINAL_TARGET, want.ToString());
         TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE,
-            "queryStart finish: isAllow = %{public}d, sceneCode = %{public}s, replaceWant = %{public}s", rule.isAllow,
-            rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
+            "queryStart finish: resultCode = %{public}d, sceneCode = %{public}s, replaceWant = %{public}s",
+            rule.resultCode, rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
     }
     int64_t cost = GetCurrentTimeMicro() - start;
     TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE,

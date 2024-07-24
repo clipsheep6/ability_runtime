@@ -21,8 +21,10 @@
 
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
+#include "child_process_args.h"
 #include "child_process_info.h"
 #include "child_process_manager_error_utils.h"
+#include "child_process_options.h"
 #include "hap_module_info.h"
 #include "runtime.h"
 #include "iremote_object.h"
@@ -31,46 +33,50 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ChildProcessManager {
 public:
-    static ChildProcessManager &GetInstance()
-    {
-        static ChildProcessManager instance;
-        return instance;
-    }
+    static ChildProcessManager &GetInstance();
     ~ChildProcessManager();
 
     static void HandleSigChild(int32_t signo);
     bool IsChildProcess();
     ChildProcessManagerErrorCode StartChildProcessBySelfFork(const std::string &srcEntry, pid_t &pid);
     ChildProcessManagerErrorCode StartChildProcessByAppSpawnFork(const std::string &srcEntry, pid_t &pid);
+    ChildProcessManagerErrorCode StartArkChildProcess(const std::string &srcEntry, pid_t &pid, int32_t childProcessType,
+        const AppExecFwk::ChildProcessArgs &args, const AppExecFwk::ChildProcessOptions &options);
     ChildProcessManagerErrorCode StartNativeChildProcessByAppSpawnFork(
         const std::string &libName, const sptr<IRemoteObject> &callbackStub);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo);
-    bool GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
+    bool GetEntryHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
+    bool GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, const std::string &moduleName,
+        AppExecFwk::HapModuleInfo &hapModuleInfo);
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
         const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn, const bool jitEnabled);
     bool LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
-        std::unique_ptr<AbilityRuntime::Runtime> &runtime);
+        std::unique_ptr<AbilityRuntime::Runtime> &runtime,
+        std::shared_ptr<AppExecFwk::ChildProcessArgs> args = nullptr);
     bool LoadNativeLib(const std::string &moduleName, const std::string &libPath,
         const sptr<IRemoteObject> &mainProcessCb);
     void SetForkProcessJITEnabled(bool jitEnabled);
     void SetForkProcessDebugOption(const std::string bundleName, const bool isStartWithDebug, const bool isDebugApp,
         const bool isStartWithNative);
+    void SetAppSpawnForkDebugOption(Runtime::DebugOption &debugOption,
+        std::shared_ptr<AppExecFwk::ChildProcessInfo> processInfo);
+    std::string GetModuleNameFromSrcEntry(const std::string &srcEntry);
 
 private:
     ChildProcessManager();
 
-    ChildProcessManagerErrorCode PreCheck();
+    ChildProcessManagerErrorCode PreCheck(bool useNewErrorCode = false);
     ChildProcessManagerErrorCode PreCheckNativeProcess();
     void RegisterSignal();
     void HandleChildProcessBySelfFork(const std::string &srcEntry, const AppExecFwk::BundleInfo &bundleInfo);
-    bool hasChildProcessRecord();
+    bool HasChildProcessRecord();
     sptr<AppExecFwk::IAppMgr> GetAppMgr();
     void MakeProcessName(const std::string &srcEntry);
 
     static bool signalRegistered_;
     bool isChildProcessBySelfFork_ = false;
     int32_t childProcessCount_ = 0;
-    
+
     DISALLOW_COPY_AND_MOVE(ChildProcessManager);
 };
 } // namespace AAFwk

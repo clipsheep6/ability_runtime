@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+constexpr const int32_t DEFAULT_MAX_EXT_PER_PROC = 10;
+constexpr const int32_t DEFAULT_MAX_EXT_PER_DEV = 100;
 template<typename T>
 class DeviceConfiguration {
 public:
@@ -32,6 +34,7 @@ public:
 class AppUtils {
 public:
     static AppUtils &GetInstance();
+    ~AppUtils();
     bool IsLauncher(const std::string &bundleName) const;
     bool IsLauncherAbility(const std::string &abilityName) const;
     bool IsInheritWindowSplitScreenMode();
@@ -48,10 +51,16 @@ public:
     bool EnableMoveUIAbilityToBackgroundApi();
     bool IsLaunchEmbededUIAbility();
     bool IsSupportNativeChildProcess();
+    bool IsAllowResidentInExtremeMemory(const std::string& bundleName, const std::string& abilityName = "");
+    int32_t GetLimitMaximumExtensionsPerProc();
+    int32_t GetLimitMaximumExtensionsPerDevice();
+    std::string GetCacheExtensionTypeList();
+    bool IsAllowStartAbilityWithoutCallerToken(const std::string& bundleName, const std::string& abilityName);
 
 private:
+    void LoadResidentProcessInExtremeMemory();
+    void LoadStartAbilityWithoutCallerToken();
     AppUtils();
-    ~AppUtils();
     volatile bool isSceneBoard_ = false;
     volatile DeviceConfiguration<bool> isInheritWindowSplitScreenMode_ = {false, true};
     volatile DeviceConfiguration<bool> isSupportAncoApp_ = {false, false};
@@ -67,6 +76,12 @@ private:
     volatile DeviceConfiguration<bool> enableMoveUIAbilityToBackgroundApi_ = {false, true};
     volatile DeviceConfiguration<bool> isLaunchEmbededUIAbility_ = {false, false};
     volatile DeviceConfiguration<bool> isSupportNativeChildProcess_ = {false, false};
+    DeviceConfiguration<std::vector<std::pair<std::string, std::string>>>
+        residentProcessInExtremeMemory_ = {false, {}};
+    volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerProc_ = {false, DEFAULT_MAX_EXT_PER_PROC};
+    volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerDevice_ = {false, DEFAULT_MAX_EXT_PER_DEV};
+    DeviceConfiguration<std::vector<std::pair<std::string, std::string>>>
+        startAbilityWithoutCallerToken_ = {false, {}};
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk

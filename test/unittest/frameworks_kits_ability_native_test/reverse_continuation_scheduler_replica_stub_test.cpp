@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_reverse_continuation_scheduler_replica_stub.h"
 #include "reverse_continuation_scheduler_replica_stub.h"
 

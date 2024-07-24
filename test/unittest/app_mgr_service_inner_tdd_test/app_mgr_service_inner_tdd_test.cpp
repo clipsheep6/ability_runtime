@@ -24,7 +24,6 @@
 #include "app_scheduler.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
@@ -595,7 +594,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_002, TestSize.Level0)
     DataGroupInfo dataGroupInfo;
     dataGroupInfo.dataGroupId = "test3";
     dataGroupInfoList.emplace_back(dataGroupInfo);
-    bool strictMode = false;
+    bool strictMode = true;
     appMgrServiceInner->QueryExtensionSandBox(moduleName, extensionName, bundleInfo, startMsg, dataGroupInfoList,
         strictMode);
     EXPECT_EQ(startMsg.dataGroupInfoList.size(), 0);

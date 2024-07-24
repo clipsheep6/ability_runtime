@@ -16,7 +16,6 @@
 
 #include "extra_params.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {

@@ -16,22 +16,14 @@
 
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-AppRunningStatusStub::AppRunningStatusStub()
-{
-    requestFuncMap_[static_cast<uint32_t>(AppRunningStatusListenerInterface::MessageCode::APP_RUNNING_STATUS)] =
-        &AppRunningStatusStub::HandleAppRunningStatus;
-}
+AppRunningStatusStub::AppRunningStatusStub() {}
 
-AppRunningStatusStub::~AppRunningStatusStub()
-{
-    requestFuncMap_.clear();
-}
+AppRunningStatusStub::~AppRunningStatusStub() {}
 
 int AppRunningStatusStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -44,13 +36,10 @@ int AppRunningStatusStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    if (code == static_cast<uint32_t>(AppRunningStatusListenerInterface::MessageCode::APP_RUNNING_STATUS)) {
+        return HandleAppRunningStatus(data, reply);
     }
+
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

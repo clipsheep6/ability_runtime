@@ -18,7 +18,6 @@
 #include <thread>
 #include <chrono>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "child_process_manager_error_utils.h"
 
 namespace OHOS {

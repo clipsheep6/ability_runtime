@@ -18,7 +18,6 @@
 #include "hap_module_info.h"
 #include "ability_runtime/context/context.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

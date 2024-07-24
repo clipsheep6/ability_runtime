@@ -16,25 +16,13 @@
 #include "child_scheduler_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-ChildSchedulerStub::ChildSchedulerStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_LOAD_JS)] =
-        &ChildSchedulerStub::HandleScheduleLoadJs;
-    memberFuncMap_[static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_EXIT_PROCESS_SAFELY)] =
-        &ChildSchedulerStub::HandleScheduleExitProcessSafely;
-    memberFuncMap_[static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_RUN_NATIVE_PROC)] =
-        &ChildSchedulerStub::HandleScheduleRunNativeProc;
-}
+ChildSchedulerStub::ChildSchedulerStub() {}
 
-ChildSchedulerStub::~ChildSchedulerStub()
-{
-    memberFuncMap_.clear();
-}
+ChildSchedulerStub::~ChildSchedulerStub() {}
 
 int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
@@ -48,12 +36,13 @@ int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    switch (code) {
+        case static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_LOAD_JS):
+            return HandleScheduleLoadJs(data, reply);
+        case static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_EXIT_PROCESS_SAFELY):
+            return HandleScheduleExitProcessSafely(data, reply);
+        case static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_RUN_NATIVE_PROC):
+            return HandleScheduleRunNativeProc(data, reply);
     }
     TAG_LOGI(AAFwkTag::APPMGR, "ChildSchedulerStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

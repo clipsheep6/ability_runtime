@@ -16,7 +16,6 @@
 #include "js_embedded_ui_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_extension_base.h"
 
@@ -35,7 +34,7 @@ JsEmbeddedUIExtension::JsEmbeddedUIExtension(const std::unique_ptr<Runtime> &run
 
 JsEmbeddedUIExtension::~JsEmbeddedUIExtension()
 {
-    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "destructor.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "destructor");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

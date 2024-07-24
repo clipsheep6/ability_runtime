@@ -19,6 +19,7 @@
       *AbilityConnectionStub*;
       *AbilityConnectManager*;
       *AbilityEventHandler*;
+      *AbilityFirstFrameStateObserverManager*;
       *AbilityInterceptorExecuter*;
       *AbilityManagerService*;
       *AbilityManagerStub*;
@@ -27,6 +28,7 @@
       *AbilitySchedulerProxy*;
       *AbilitySchedulerStub*;
       *AmsConfigurationParameter*;
+      *AppExitReasonDataManager*;
       *ApplicationAnrListener*;
       *AppScheduler*;
       *AtomicServiceStatusCallback*;

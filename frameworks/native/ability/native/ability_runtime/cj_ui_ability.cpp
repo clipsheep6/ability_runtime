@@ -15,6 +15,7 @@
 
 #include "cj_ui_ability.h"
 
+#include <dlfcn.h>
 #include <regex>
 #include <cstdlib>
 
@@ -27,7 +28,6 @@
 #include "connection_manager.h"
 #include "context/context.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "insight_intent_executor_info.h"
@@ -55,6 +55,31 @@ const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
 #endif
+const char* CJWINDOW_FFI_LIBNAME = "libcj_window_ffi.z.so";
+const char* FUNC_CREATE_CJWINDOWSTAGE = "OHOS_CreateCJWindowStage";
+using CFFICreateCJWindowStage = int64_t (*)(std::shared_ptr<Rosen::WindowScene>&);
+
+sptr<Rosen::CJWindowStageImpl> CreateCJWindowStage(std::shared_ptr<Rosen::WindowScene> windowScene)
+{
+    static void* handle = nullptr;
+    if (handle == nullptr) {
+        handle = dlopen(CJWINDOW_FFI_LIBNAME, RTLD_LAZY);
+        if (handle == nullptr) {
+            TAG_LOGE(AAFwkTag::UIABILITY, "dlopen failed %{public}s, %{public}s", CJWINDOW_FFI_LIBNAME, dlerror());
+            return nullptr;
+        }
+    }
+    // get function
+    auto func = reinterpret_cast<CFFICreateCJWindowStage>(dlsym(handle, FUNC_CREATE_CJWINDOWSTAGE));
+    if (func == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "dlsym failed %{public}s, %{public}s", FUNC_CREATE_CJWINDOWSTAGE, dlerror());
+        dlclose(handle);
+        handle = nullptr;
+        return nullptr;
+    }
+    auto id = func(windowScene);
+    return OHOS::FFI::FFIData::GetData<Rosen::CJWindowStageImpl>(id);
+}
 }
 
 UIAbility *CJUIAbility::Create(const std::unique_ptr<Runtime> &runtime)
@@ -64,12 +89,12 @@ UIAbility *CJUIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 
 CJUIAbility::CJUIAbility(CJRuntime &cjRuntime) : cjRuntime_(cjRuntime)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 CJUIAbility::~CJUIAbility()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityContext_ != nullptr) {
         abilityContext_->Unbind();
     }
@@ -227,7 +252,7 @@ void CJUIAbility::OnSceneCreated()
         TAG_LOGE(AAFwkTag::UIABILITY, "CJAbility is not loaded.");
         return;
     }
-    cjWindowStage_ = OHOS::Rosen::CJWindowStageImpl::CreateCJWindowStage(GetScene());
+    cjWindowStage_ = CreateCJWindowStage(GetScene());
     if (!cjWindowStage_) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create CJWindowStage object.");
         return;
@@ -237,7 +262,7 @@ void CJUIAbility::OnSceneCreated()
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
         std::string methodName = "OnSceneCreated";
         AddLifecycleEventBeforeCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
-        cjAbilityObj_->OnSceneCreated(cjWindowStage_.get());
+        cjAbilityObj_->OnSceneCreated(cjWindowStage_.GetRefPtr());
         AddLifecycleEventAfterCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     }
 
@@ -253,7 +278,7 @@ void CJUIAbility::OnSceneCreated()
 void CJUIAbility::OnSceneRestored()
 {
     UIAbility::OnSceneRestored();
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 
     if (!cjAbilityObj_) {
         TAG_LOGE(AAFwkTag::UIABILITY, "CJAbility is not loaded.");
@@ -261,13 +286,13 @@ void CJUIAbility::OnSceneRestored()
     }
 
     if (!cjWindowStage_) {
-        cjWindowStage_ = OHOS::Rosen::CJWindowStageImpl::CreateCJWindowStage(scene_);
+        cjWindowStage_ = CreateCJWindowStage(scene_);
         if (!cjWindowStage_) {
             TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create CJWindowStage object.");
             return;
         }
     }
-    cjAbilityObj_->OnSceneRestored(cjWindowStage_.get());
+    cjAbilityObj_->OnSceneRestored(cjWindowStage_.GetRefPtr());
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
@@ -527,15 +552,6 @@ void CJUIAbility::ContinuationRestore(const Want &want)
     NotifyContinuationResult(want, true);
 }
 
-std::shared_ptr<Rosen::CJWindowStageImpl> CJUIAbility::GetCJWindowStage()
-{
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
-    if (cjWindowStage_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "CJWindowSatge is nullptr .");
-    }
-    return cjWindowStage_;
-}
-
 const CJRuntime &CJUIAbility::GetCJRuntime()
 {
     return cjRuntime_;
@@ -547,7 +563,7 @@ void CJUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called .");
     if (executeParam == nullptr) {
-        HILOG_WARN("Intention execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "Intention execute param invalid.");
         RequestFocus(want);
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;
@@ -578,9 +594,9 @@ void CJUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
-        HILOG_WARN("Intention execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "Intention execute param invalid.");
         OnForeground(want);
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;
@@ -613,7 +629,7 @@ bool CJUIAbility::GetInsightIntentExecutorInfo(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     InsightIntentExecutorInfo& executeInfo)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     auto context = GetAbilityContext();
     if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr || cjWindowStage_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Param invalid.");
@@ -651,7 +667,7 @@ int32_t CJUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 void CJUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
     UIAbility::OnConfigurationUpdated(configuration);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     auto fullConfig = GetAbilityContext()->GetConfiguration();
     if (!fullConfig) {
         TAG_LOGE(AAFwkTag::UIABILITY, "configuration is nullptr.");
@@ -670,12 +686,12 @@ void CJUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 void CJUIAbility::OnMemoryLevel(int level)
 {
     UIAbility::OnMemoryLevel(level);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void CJUIAbility::UpdateContextConfiguration()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void CJUIAbility::OnNewWant(const Want &want)
@@ -746,7 +762,7 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CJUIAbility::CreateADeleg
 void CJUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     UIAbility::Dump(params, info);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (!cjAbilityObj_) {
         TAG_LOGE(AAFwkTag::UIABILITY, "CJAbility is not loaded.");
         return;
@@ -757,7 +773,7 @@ void CJUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::
 
 std::shared_ptr<CJAbilityObject> CJUIAbility::GetCJAbility()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (cjAbilityObj_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "cjAbility object is nullptr.");
     }

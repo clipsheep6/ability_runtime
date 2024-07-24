@@ -20,8 +20,8 @@
 #include <unordered_set>
 
 #include "ability_config.h"
+#include "ability_manager_client.h"
 #include "ability_manager_errors.h"
-#include "ability_window_configuration.h"
 #include "app_jump_control_rule.h"
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
@@ -37,6 +37,8 @@ namespace AbilityUtil {
 constexpr const char* SYSTEM_BASIC = "system_basic";
 constexpr const char* SYSTEM_CORE = "system_core";
 constexpr const char* DEFAULT_DEVICE_ID = "";
+
+#ifdef WITH_DLP
 constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 constexpr const char* DLP_MODULE_NAME = "entry";
 constexpr const char* DLP_ABILITY_NAME = "ViewAbility";
@@ -44,6 +46,9 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
+#endif // WITH_DLP
+constexpr const char* MARKET_BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
+constexpr const char* MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
 constexpr const char* BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
 constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 
@@ -209,6 +214,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return ret == ERR_OK;
 }
 
+#ifdef WITH_DLP
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
     const std::unordered_set<std::string> whiteListDlpSet = { BUNDLE_NAME_SELECTOR_DIALOG };
@@ -230,6 +236,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
     return false;
 }
+#endif // WITH_DLP
 
 [[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {
@@ -315,9 +322,31 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY)) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
         TAG_LOGI(AAFwkTag::ABILITYMGR, "set parameter windownMode for inner application split-screen mode");
+    } else if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "set parameter windownMode for full screen mode");
     } else {
         RemoveWindowModeKey(want);
     }
+}
+
+[[maybe_unused]] static int StartAppgallery(const std::string &bundleName, const int requestCode, const int32_t userId,
+    const std::string &action)
+{
+    std::string appGalleryBundleName;
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr || !bundleMgrHelper->QueryAppGalleryBundleName(appGalleryBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed or QueryAppGalleryBundleName failed.");
+        appGalleryBundleName = MARKET_BUNDLE_NAME;
+    }
+
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "appGalleryBundleName:%{public}s", appGalleryBundleName.c_str());
+
+    Want want;
+    want.SetElementName(appGalleryBundleName, "");
+    want.SetAction(action);
+    want.SetParam(MARKET_CROWD_TEST_BUNDLE_PARAM, bundleName);
+    return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
 }
 
 inline ErrCode EdmErrorType(bool isEdm)

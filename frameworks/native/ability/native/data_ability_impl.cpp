@@ -20,7 +20,6 @@
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "values_bucket.h"
 

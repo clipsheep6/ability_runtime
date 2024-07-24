@@ -89,8 +89,7 @@ public:
         return true;
     }
     void DumpHeapSnapshot(bool isPrivate)
-    {
-    }
+    {}
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

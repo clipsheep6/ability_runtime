@@ -18,7 +18,6 @@
 
 #define private public
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "main_thread.h"

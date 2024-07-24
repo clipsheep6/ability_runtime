@@ -21,7 +21,6 @@
 #undef private
 #undef protected
 
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 #include "types.h"
 

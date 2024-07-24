@@ -26,7 +26,6 @@
 #include "bundle_constants.h"
 #include "bundle_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"
@@ -66,14 +65,15 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
 
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
     std::vector<std::string> abilityList;
+    auto uid = IPCSkeleton::GetCallingUid();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto uiAbilityManager = subManagersHelper_->GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
+        auto uiAbilityManager = subManagersHelper_->GetUIAbilityManagerByUid(uid);
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_NULL_OBJECT);
-        uiAbilityManager->GetActiveAbilityList(bundleName, abilityList);
+        uiAbilityManager->GetActiveAbilityList(uid, abilityList);
     } else {
-        auto missionListManager = subManagersHelper_->GetMissionListManagerByUid(IPCSkeleton::GetCallingUid());
+        auto missionListManager = subManagersHelper_->GetMissionListManagerByUid(uid);
         CHECK_POINTER_AND_RETURN(missionListManager, ERR_NULL_OBJECT);
-        missionListManager->GetActiveAbilityList(bundleName, abilityList);
+        missionListManager->GetActiveAbilityList(uid, abilityList);
     }
 
     ret = DelayedSingleton<AppScheduler>::GetInstance()->NotifyAppMgrRecordExitReason(pid, exitReason.reason,
@@ -109,7 +109,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
     return RecordProcessExitReason(pid, bundleName, application.uid, application.accessTokenId, exitReason);
 }
 
-int32_t AppExitReasonHelper::RecordProcessExitReason(const std::string &bundleName, int32_t uid,
+int32_t AppExitReasonHelper::RecordAppExitReason(const std::string &bundleName, int32_t uid, int32_t appIndex,
     const ExitReason &exitReason)
 {
     int32_t userId;
@@ -118,7 +118,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const std::string &bundleNa
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
         return ERR_INVALID_VALUE;
     }
-    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
+    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
     return RecordProcessExitReason(NO_PID, bundleName, uid, accessTokenId, exitReason);
 }
 
@@ -138,11 +138,9 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const st
     }
     std::vector<std::string> abilityLists;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        GetActiveAbilityListFromUIAabilityManager(bundleName, abilityLists, targetUserId, pid);
-    } else if (targetUserId == U0_USER_ID) {
-        GetActiveAbilityListByU0(bundleName, abilityLists, pid);
-    } else {
-        GetActiveAbilityListByUser(bundleName, abilityLists, targetUserId, pid);
+        GetActiveAbilityListFromUIAbilityManager(uid, abilityLists, pid);
+    } else  {
+        GetActiveAbilityList(uid, abilityLists, pid);
     }
 
     auto ret = DelayedSingleton<AppScheduler>::GetInstance()->NotifyAppMgrRecordExitReason(pid, exitReason.reason,
@@ -162,7 +160,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const st
 int32_t AppExitReasonHelper::RecordProcessExtensionExitReason(
     const int32_t pid, const std::string &bundleName, const ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
     auto connectManager = subManagersHelper_->GetCurrentConnectManager();
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NULL_OBJECT);
@@ -192,55 +190,66 @@ int32_t AppExitReasonHelper::RecordProcessExtensionExitReason(
     return appExitReasonDataMgr->SetUIExtensionAbilityExitReason(bundleName, extensionList, exitReason);
 }
 
-void AppExitReasonHelper::GetActiveAbilityListByU0(const std::string bundleName,
-    std::vector<std::string> &abilityLists, const int32_t pid)
+void AppExitReasonHelper::GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityLists,
+    const int32_t pid)
 {
-    CHECK_POINTER(subManagersHelper_);
-    auto missionListManagers = subManagersHelper_->GetMissionListManagers();
-    for (auto& item: missionListManagers) {
-        if (!item.second) {
-            continue;
-        }
-        std::vector<std::string> abilityList;
-        item.second->GetActiveAbilityList(bundleName, abilityList, pid);
-        if (!abilityList.empty()) {
-            abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
-        }
+    int32_t targetUserId;
+    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+        GetOsAccountLocalIdFromUid(uid, targetUserId) != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
+        return;
     }
+    CHECK_POINTER(subManagersHelper_);
+    if (targetUserId == U0_USER_ID) {
+        auto missionListManagers = subManagersHelper_->GetMissionListManagers();
+        for (auto& item: missionListManagers) {
+            CHECK_POINTER_CONTINUE(item.second);
+            std::vector<std::string> abilityList;
+            item.second->GetActiveAbilityList(uid, abilityList, pid);
+            if (!abilityList.empty()) {
+                abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
+            }
+        }
+        return;
+    }
+
+    auto listManager = subManagersHelper_->GetMissionListManagerByUserId(targetUserId);
+    CHECK_POINTER(listManager);
+    listManager->GetActiveAbilityList(uid, abilityLists, pid);
 }
 
-void AppExitReasonHelper::GetActiveAbilityListByUser(const std::string bundleName,
-    std::vector<std::string> &abilityLists, const int32_t targetUserId, const int32_t pid)
+void AppExitReasonHelper::GetActiveAbilityListFromUIAbilityManager(int32_t uid, std::vector<std::string> &abilityLists,
+    const int32_t pid)
 {
     CHECK_POINTER(subManagersHelper_);
-    auto listManager = subManagersHelper_->GetMissionListManagerByUserId(targetUserId);
-    if (listManager) {
-        listManager->GetActiveAbilityList(bundleName, abilityLists, pid);
+    int32_t targetUserId;
+    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+        GetOsAccountLocalIdFromUid(uid, targetUserId) != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
+        return;
     }
+    if (targetUserId == U0_USER_ID) {
+        auto uiAbilityManagers = subManagersHelper_->GetUIAbilityManagers();
+        for (auto& item: uiAbilityManagers) {
+            CHECK_POINTER_CONTINUE(item.second);
+            std::vector<std::string> abilityList;
+            item.second->GetActiveAbilityList(uid, abilityList, pid);
+            if (!abilityList.empty()) {
+                abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
+            }
+        }
+        return;
+    }
+
+    auto uiAbilityManager = subManagersHelper_->GetUIAbilityManagerByUserId(targetUserId);
+    CHECK_POINTER(uiAbilityManager);
+    uiAbilityManager->GetActiveAbilityList(uid, abilityLists, pid);
 }
 
 bool AppExitReasonHelper::IsExitReasonValid(const ExitReason &exitReason)
 {
     const Reason reason = exitReason.reason;
-    return reason >= REASON_MIN || reason <= REASON_MAX;
-}
-
-void AppExitReasonHelper::GetActiveAbilityListFromUIAabilityManager(const std::string bundleName,
-    std::vector<std::string> &abilityLists, const int32_t targetUserId, const int32_t pid)
-{
-    CHECK_POINTER(subManagersHelper_);
-    if (targetUserId == U0_USER_ID) {
-        auto uiAbilityManagers = subManagersHelper_->GetUIAbilityManagers();
-        for (auto& item: uiAbilityManagers) {
-            if (item.second) {
-                item.second->GetActiveAbilityList(bundleName, abilityLists, pid);
-            }
-        }
-    } else {
-        auto uiAbilityManager = subManagersHelper_->GetUIAbilityManagerByUserId(targetUserId);
-        CHECK_POINTER(uiAbilityManager);
-        uiAbilityManager->GetActiveAbilityList(bundleName, abilityLists, pid);
-    }
+    return reason >= REASON_MIN && reason <= REASON_MAX;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

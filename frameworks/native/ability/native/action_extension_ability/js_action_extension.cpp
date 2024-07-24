@@ -16,7 +16,6 @@
 #include "js_action_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_extension_base.h"
 
@@ -35,7 +34,7 @@ JsActionExtension::JsActionExtension(const std::unique_ptr<Runtime> &runtime)
 
 JsActionExtension::~JsActionExtension()
 {
-    TAG_LOGD(AAFwkTag::ACTION_EXT, "destructor.");
+    TAG_LOGD(AAFwkTag::ACTION_EXT, "destructor");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

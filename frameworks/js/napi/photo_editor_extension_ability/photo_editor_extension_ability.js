@@ -18,6 +18,6 @@ let UIExtensionAbility = requireNapi('app.ability.UIExtensionAbility');
 export default class PhotoEditorExtensionAbility extends UIExtensionAbility {
 
     onStartContentEditing(uri, want, session) {
-        console.log("onStartContentEditing: " + uri);
+        console.log('onStartContentEditing: ' + uri);
     }
 }

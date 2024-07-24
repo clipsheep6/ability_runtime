@@ -25,21 +25,14 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityFirstFrameStateObserverStub::AbilityFirstFrameStateObserverStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(IAbilityFirstFrameStateObserver::Message::ON_ABILITY_FIRST_FRAME_STATE)] =
-        &AbilityFirstFrameStateObserverStub::HandleOnAbilityFirstFrameStateChanged;
-}
+AbilityFirstFrameStateObserverStub::AbilityFirstFrameStateObserverStub() {}
 
-AbilityFirstFrameStateObserverStub::~AbilityFirstFrameStateObserverStub()
-{
-    memberFuncMap_.clear();
-}
+AbilityFirstFrameStateObserverStub::~AbilityFirstFrameStateObserverStub() {}
 
 int32_t AbilityFirstFrameStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::u16string descriptor = AbilityFirstFrameStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -47,12 +40,8 @@ int32_t AbilityFirstFrameStateObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == static_cast<uint32_t>(IAbilityFirstFrameStateObserver::Message::ON_ABILITY_FIRST_FRAME_STATE)) {
+        return HandleOnAbilityFirstFrameStateChanged(data, reply);
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_manager_client.h"
 #include "mock_ability_token.h"
 #include "mock_native_token.h"
@@ -96,7 +95,6 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0300, TestSize.L
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
         EXPECT_EQ(ret, ERR_OK);
-
         UIExtensionHostInfo hostInfo;
         ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
         // cause top ability isn't a uiextension ability.

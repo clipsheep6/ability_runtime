@@ -20,7 +20,6 @@
 #undef private
 #include "app_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"
@@ -102,7 +101,7 @@ HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
     auto appMgrServiceInner = GetAppMgrServiceInner();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    ErrCode result = appMgrServiceInner->KillApplicationByUserId(STRING_BUNDLE_NAME, ACCOUNT_ID);
+    ErrCode result = appMgrServiceInner->KillApplicationByUserId(STRING_BUNDLE_NAME, 0, ACCOUNT_ID);
     EXPECT_EQ(result, ERR_OK);
 }
 

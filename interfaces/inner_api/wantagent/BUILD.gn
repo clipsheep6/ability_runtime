@@ -38,6 +38,7 @@ config("wantagent_innerkits_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
   ]
 }
 
@@ -73,9 +74,7 @@ ohos_shared_library("wantagent_innerkits") {
   ]
 
   external_deps = [
-    "ability_base:session_info",
     "ability_base:want",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -86,6 +85,7 @@ ohos_shared_library("wantagent_innerkits") {
 
   public_external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",
