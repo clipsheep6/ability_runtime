@@ -75,6 +75,18 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_Name_0100, Function | MediumTest | Le
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
     ability_->Init(abilityRecord, application, handler, token);
     EXPECT_STREQ(abilityInfo->name.c_str(), ability_->GetAbilityName().c_str());
+
+    std::shared_ptr<AbilityLocalRecord> abilityRecord2 = std::make_shared<AbilityLocalRecord>(nullptr, abilityToken);
+    ability_->Init(abilityRecord2, application, handler, token);
+    EXPECT_EQ("", ability_->GetAbilityName());
+
+    ability_->Init(nullptr, application, handler, token);
+
+    auto  prevAbilityContext = ability_->GetAbilityContext();
+    auto abilityContextNew = std::make_shared<AbilityRuntime::AbilityContextImpl>();
+    ability_->AttachAbilityContext(abilityContextNew);
+    ability_->Init(abilityRecord, application, handler, token);
+    ability_->AttachAbilityContext(prevAbilityContext);
     GTEST_LOG_(INFO) << "AbilityRuntime_Name_0100 end";
 }
 
@@ -98,6 +110,31 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetAbilityName_0100, Function | Mediu
     ability_->Init(abilityRecord, application, handler, token);
     EXPECT_STREQ(ability_->GetAbilityName().c_str(), name.c_str());
     GTEST_LOG_(INFO) << "AbilityRuntime_GetAbilityName_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_GetModuleName_0100
+ * @tc.name: GetModuleName
+ * @tc.desc: Verify that the GetModuleName return value is correct.
+ */
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetModuleName_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    std::string name = "LOL";
+    abilityInfo->moduleName = name;
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(nullptr, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
+    EXPECT_EQ(ability_->GetModuleName(), "");
+
+    std::shared_ptr<AbilityLocalRecord> abilityRecord2 = std::make_shared<AbilityLocalRecord>(abilityInfo,
+        abilityToken);
+    ability_->Init(abilityRecord2, application, handler, token);
+    EXPECT_STREQ(ability_->GetModuleName().c_str(), name.c_str());
 }
 
 /**
@@ -429,7 +466,12 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0100, Function | MediumT
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
     ability_->Init(abilityRecord, application, handler, token);
     Want want;
+    bool prevSilentForground = ability_->CheckIsSilentForeground();
+    ability_->SetIsSilentForeground(true);
     ability_->OnForeground(want);
+    ability_->SetIsSilentForeground(prevSilentForground);
+    ability_->OnForeground(want);
+
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
@@ -661,6 +703,11 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0100, TestSize.Level1)
     // branch when contentStorage_ is nullptr
     ret = ability->IsRestoredInContinuation();
     EXPECT_EQ(ret, false);
+
+    launchParam.launchReason = LaunchReason::LAUNCHREASON_CONTINUATION;
+    ability->SetLaunchParam(launchParam);
+    ret = ability->IsRestoredInContinuation();
+    EXPECT_EQ(ret, true);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
@@ -689,6 +736,12 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     ability->HandleCreateAsRecovery(want);
     ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
+
+    ability->EnableAbilityRecovery(nullptr, false);
+    ret = ability->ShouldRecoverState(want);
+    EXPECT_EQ(ret, false);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
+
     auto abilityContext = std::make_shared<AbilityRuntime::AbilityContextImpl>();
     ability->AttachAbilityContext(abilityContext);
 
@@ -705,6 +758,22 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: ShouldDefaultRecoverState_0200
+ * @tc.desc: UIAbility ShouldDefaultRecoverState test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(UIAbilityBaseTest, ShouldDefaultRecoverState_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    ASSERT_NE(ability, nullptr);
+
+    // branch when abilityRecovery_ is nullptr
+    Want want;
+    ability->ShouldDefaultRecoverState(want);
 }
 
 /**
@@ -820,6 +889,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityVirtualFunc_0200, TestSize.Level1)
     bool ret = ability->OnStartContinuation();
     EXPECT_EQ(ret, false);
     WantParams data;
+    ability->OnContinue(data);
+    uint32_t verCode = 0;
+    ability->ContinueAbilityWithStack("", verCode);
     ret = ability->OnSaveData(data);
     EXPECT_EQ(ret, false);
     ret = ability->OnRestoreData(data);
@@ -836,6 +908,81 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityVirtualFunc_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.name: OnSceneWillDestroy_0200
+ * @tc.desc: UIAbility virtual function test, such as OnSceneWillDestroy.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(UIAbilityBaseTest, OnSceneWillDestroy_0200, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    ASSERT_NE(ability, nullptr);
+    ability->OnSceneWillDestroy();
+}
+
+/**
+ * @tc.name: GetWindowRect_0100
+ * @tc.desc: UIAbility virtual function test, such as GetWindowRect.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(UIAbilityBaseTest, GetWindowRect_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    ASSERT_NE(ability, nullptr);
+    int32_t left = 0;
+    int32_t top = 0;
+    int32_t width = 0;
+    int32_t height = 0;
+    ability->GetWindowRect(left, top, width, height);
+    ability->GetUIContent();
+    ability->scene_ = std::make_shared<Rosen::WindowScene>();
+    ability->GetWindowRect(left, top, width, height);
+    ability->GetUIContent();
+}
+
+/**
+ * @tc.name: OnDisplayInfoChange_0100
+ * @tc.desc: UIAbility virtual function test, such as OnDisplayInfoChange.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(UIAbilityBaseTest, OnDisplayInfoChange_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    ASSERT_NE(ability, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    Rosen::DisplayId toDisplayId = 0;
+    float density = 0.8;
+
+    ability->OnDisplayInfoChange(token, toDisplayId, density, Rosen::DisplayOrientation::PORTRAIT);
+    int32_t  displayId = 2;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability->InitWindow(displayId, option);
+}
+
+/**
+ * @tc.name: EraseUIExtension_0200
+ * @tc.desc: UIAbility EraseUIExtension test SetIdentityToken GetIdentityToken IsStartByScb etc.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(UIAbilityBaseTest, EraseUIExtension_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    ASSERT_NE(ability, nullptr);
+    int32_t  sessionId = 10008;
+    ability->EraseUIExtension(sessionId);
+    auto abilityContext = std::make_shared<AbilityRuntime::AbilityContextImpl>();
+    ability->AttachAbilityContext(abilityContext);
+    ability->EraseUIExtension(sessionId);
+    ability->SetIdentityToken("");
+    EXPECT_EQ("", ability->GetIdentityToken());
+    ability->CheckDefaultRecoveryEnabled();
+    ability->IsStartByScb();
+}
+
+/**
  * @tc.name: DispatchLifecycleOnForeground_0200
  * @tc.desc: UIAbility DispatchLifecycleOnForeground test.
  * @tc.type: FUNC
@@ -849,6 +996,11 @@ HWTEST_F(UIAbilityBaseTest, DispatchLifecycleOnForeground_0100, TestSize.Level1)
 
     // lifecycle executor is nullptr
     Want want;
+    ability->ContinuationRestore(want);
+    ability->CallOnForegroundFunc(want);
+    ability->ExecuteInsightIntentRepeateForeground(want, nullptr, nullptr);
+    ability->ExecuteInsightIntentMoveToForeground(want, nullptr, nullptr);
+    ability->ExecuteInsightIntentBackground(want, nullptr, nullptr);
     ability->DispatchLifecycleOnForeground(want);
 
     // lifecycle is nullptr and lifecycle executor is not nullptr
@@ -1163,6 +1315,18 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_OnConfigurationUpdatedNotify_0100, TestSiz
     Configuration configuration;
     ability_->OnConfigurationUpdatedNotify(configuration);
     EXPECT_NE(ability_, nullptr);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<AbilityHandler> handler = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
+    auto abilityContext = std::make_shared<AbilityRuntime::AbilityContextImpl>();
+    ability_->AttachAbilityContext(abilityContext);
+    ability_->OnConfigurationUpdatedNotify(configuration);
+
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
@@ -1324,6 +1488,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_RegisterAbilityLifecycleObserver_0100, Fun
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
     EXPECT_EQ(LifeCycle::Event::UNDEFINED, observer->GetLifecycleState());
     ability->RegisterAbilityLifecycleObserver(observer);
+    ability_->RegisterAbilityLifecycleObserver(nullptr);
 
     // mock UIAbility lifecycle events, expecting that observer can observe them.
     Want want;
@@ -1335,6 +1500,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_RegisterAbilityLifecycleObserver_0100, Fun
     // unregister lifecycle observer on UIAbility, expecting that observer remains in the previous state,
     // can not observe later lifecycle events anymore.
     ability->UnregisterAbilityLifecycleObserver(observer);
+    ability->UnregisterAbilityLifecycleObserver(nullptr);
     ability->OnStop();
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
     EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
