@@ -376,6 +376,7 @@ int DialogSessionManager::HandleErmsResult(AbilityRequest &abilityRequest, int32
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
         return INNER_ERR;
     }
+    (const_cast<Want &>(replaceWant)).RemoveParam("ecological_experience_original_target");
     return abilityMgr->CreateCloneSelectorDialog(abilityRequest, userId, replaceWant.ToString());
 }
 
