@@ -24,13 +24,14 @@
 #include "context.h"
 #include "context_impl.h"
 #include "environment_callback.h"
+#include "exit_reason.h"
 namespace OHOS {
 namespace AAFwk {
 class Want;
 }
 namespace AbilityRuntime {
 using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
-using AppProcessExitCallback = std::function<void()>;
+using AppProcessExitCallback = std::function<void(AAFwk::ExitReason exitReason)>;
 class ApplicationContext : public Context {
 public:
     ApplicationContext() = default;
@@ -141,7 +142,7 @@ public:
     void SetCurrentAppCloneIndex(int32_t appIndex);
     int32_t GetCurrentAppMode();
     void SetCurrentAppMode(int32_t appIndex);
-    void ProcessSecurityExit();
+    void ProcessSecurityExit(const AAFwk::ExitReason &exitReason);
 
     using SelfType = ApplicationContext;
     static const size_t CONTEXT_TYPE_ID;

@@ -823,10 +823,11 @@ void ApplicationContext::SetCurrentAppMode(int32_t appMode)
     appMode_ = appMode;
 }
 
-void ApplicationContext::ProcessSecurityExit()
+void ApplicationContext::ProcessSecurityExit(const AAFwk::ExitReason &exitReason)
 {
     if (appProcessExitCallback_ != nullptr) {
-        appProcessExitCallback_();
+        TAG_LOGI(AAFwkTag::APPKIT, "Process has securely exited as %{public}s", exitReason.exitMsg.c_str());
+        appProcessExitCallback_(exitReason);
     }
 }
 }  // namespace AbilityRuntime

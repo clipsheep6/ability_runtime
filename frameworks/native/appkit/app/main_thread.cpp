@@ -1595,7 +1595,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             uncaughtExceptionInfo.hapPath = hapPath;
             wptr<MainThread> weak = this;
             uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
-                pid, processName, applicationContext] (std::string summary, const JsEnv::ErrorObject errorObj) {
+                pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
                 auto appThread = weak.promote();
                 if (appThread == nullptr) {
                     TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
@@ -1637,12 +1637,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 TAG_LOGE(AAFwkTag::APPKIT,
                     "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                     bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-                applicationContext->RegisterProcessSecurityExit([appThread, errorObj] {
-                    AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
-                    TAG_LOGI(AAFwkTag::APPKIT, "Process has exited as %{public}s", exitReason.exitMsg.c_str());
-                    AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-                    appThread->ScheduleProcessSecurityExit();
-                });
+                AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
+                AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+                appThread->ScheduleProcessSecurityExit();
             };
             (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
 #ifdef CJ_FRONTEND
@@ -1651,7 +1648,14 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             (static_cast<AbilityRuntime::CJRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(expectionInfo);
         }
 #endif
-
+        wptr<MainThread> weak = this;
+        auto callback = [weak] (AAFwk::ExitReason exitReason) {
+            auto appThread = weak.promote();
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+            appThread->ScheduleProcessSecurityExit();
+        };
+        applicationContext->RegisterProcessSecurityExit(callback);
+        
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
