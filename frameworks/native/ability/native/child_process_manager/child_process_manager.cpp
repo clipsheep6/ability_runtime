@@ -326,6 +326,11 @@ std::unique_ptr<AbilityRuntime::Runtime> ChildProcessManager::CreateRuntime(cons
     options.loadAce = true;
     options.jitEnabled = jitEnabled;
 
+    for (auto moduleItem : bundleInfo.hapModuleInfos) {
+        options.pkgContextInfoJsonStringMap[moduleItem.moduleName] = moduleItem.hapPath;
+        options.packageNameList[moduleItem.moduleName] = moduleItem.packageName;
+    }
+
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner =
         fromAppSpawn ? AppExecFwk::EventRunner::GetMainEventRunner() : AppExecFwk::EventRunner::Create();
     options.eventRunner = eventRunner;
