@@ -1649,7 +1649,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         }
 #endif
         wptr<MainThread> weak = this;
-        auto callback = [weak] (AAFwk::ExitReason exitReason) {
+        auto callback = [weak] (const AAFwk::ExitReason &exitReason) {
             auto appThread = weak.promote();
             AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
             appThread->ScheduleProcessSecurityExit();

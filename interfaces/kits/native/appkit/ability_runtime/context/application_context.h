@@ -31,7 +31,7 @@ class Want;
 }
 namespace AbilityRuntime {
 using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
-using AppProcessExitCallback = std::function<void(AAFwk::ExitReason exitReason)>;
+using AppProcessExitCallback = std::function<void(const AAFwk::ExitReason &exitReason)>;
 class ApplicationContext : public Context {
 public:
     ApplicationContext() = default;

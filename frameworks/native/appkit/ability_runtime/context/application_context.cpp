@@ -22,6 +22,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "running_process_info.h"
+#include "exit_reason.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
