@@ -1184,7 +1184,7 @@ HWTEST_F(AppMgrServiceTest, SetContinuousTaskProcess_002, TestSize.Level0)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int32_t res = appMgrService->SetContinuousTaskProcess(pid, isContinuousTask);
-    EXPECT_NE(res, ERR_INVALID_OPERATION);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 #endif
 

@@ -121,7 +121,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_002, TestSize.Level1)
     const sptr<IRemoteObject> callerToken = nullptr;
     // NotTopAbility
     int res = freeInstallManager_->StartFreeInstall(want, userId, requestCode, callerToken);
-    EXPECT_EQ(res, 0x500001);
+    EXPECT_EQ(res, UNKNOWN_EXCEPTION);
 }
 
 /**
