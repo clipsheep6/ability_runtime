@@ -1021,6 +1021,12 @@ public:
 
     void SetSpecifyTokenId(const uint32_t specifyTokenId);
 
+    void SaveConnectWant(Want &want);
+
+    void UpdateConnectWant();
+
+    void RemoveConnectWant();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1203,6 +1209,7 @@ private:
     mutable ffrt::mutex dumpLock_;
     mutable ffrt::mutex resultLock_;
     mutable ffrt::mutex wantLock_;
+    mutable ffrt::mutex connectWantLock_;
     mutable ffrt::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
@@ -1239,6 +1246,8 @@ private:
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     uint32_t specifyTokenId_ = 0;
+
+    std::shared_ptr<Want> connectWant_ = nullptr;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
