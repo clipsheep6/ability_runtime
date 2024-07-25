@@ -33,12 +33,12 @@ public:
     virtual ~AutoFillExtensionContext() = default;
 
     void SetAutoFillExtensionCallback(const std::weak_ptr<IAutoFillExtensionCallback> &autoFillExtensionCallback);
-    void SetSessionInfo(const wptr<AAFwk::SessionInfo> &sessionInfo);
+    void SetSessionInfo(const sptr<AAFwk::SessionInfo> &sessionInfo);
     int32_t ReloadInModal(const CustomData &customData);
 
 private:
     std::weak_ptr<IAutoFillExtensionCallback> autoFillExtensionCallback_;
-    wptr<AAFwk::SessionInfo> sessionInfo_;
+    sptr<AAFwk::SessionInfo> sessionInfo_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
