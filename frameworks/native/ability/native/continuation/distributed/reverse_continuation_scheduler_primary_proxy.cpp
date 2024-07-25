@@ -29,28 +29,26 @@ ReverseContinuationSchedulerPrimaryProxy::ReverseContinuationSchedulerPrimaryPro
  */
 void ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerPrimaryProxy::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated write interface token failed");
+            "write interface token failed");
         return;
     }
     sptr<IRemoteObject> remoteObject = Remote();
     if (remoteObject == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated Remote() is nullptr");
+            "Remote is nullptr");
         return;
     }
     if (!remoteObject->SendRequest(
         IReverseContinuationSchedulerPrimary::NOTIFY_REPLICA_TERMINATED, data, reply, option)) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated SendRequest return false");
+            "SendRequest failed");
         return;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 /**
@@ -61,32 +59,30 @@ void ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated()
  */
 bool ReverseContinuationSchedulerPrimaryProxy::ContinuationBack(const AAFwk::Want &want)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerPrimaryProxy::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::ContinuationBack write interface token failed");
+            "write interface token failed");
         return false;
     }
     if (!data.WriteParcelable(&want)) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::ContinuationBack fail to WriteParcelable");
+            "failed to write want");
         return false;
     }
     sptr<IRemoteObject> remoteObject = Remote();
     if (remoteObject == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::ContinuationBack Remote() is nullptr");
+            "Remote is nullptr");
         return false;
     }
     if (!remoteObject->SendRequest(IReverseContinuationSchedulerPrimary::CONTINUATION_BACK, data, reply, option)) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimaryProxy::ContinuationBack SendRequest return false");
+            "SendRequest failed");
         return false;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return true;
 }
 }  // namespace AppExecFwk

@@ -60,9 +60,8 @@ ErrCode PendingWant::GetAbility(
     const std::shared_ptr<AAFwk::WantParams> &options,
     std::shared_ptr<PendingWant> &pendingWant)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::GetAbility invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -83,7 +82,6 @@ ErrCode PendingWant::GetAbility(
     sptr<IWantSender> target = nullptr;
     ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
     if (result != ERR_OK) {
-        TAG_LOGI(AAFwkTag::WANTAGENT, "PendingWant::GetWantSender failed.");
         return result;
     }
     pendingWant = std::make_shared<PendingWant>(target);
@@ -104,9 +102,8 @@ ErrCode PendingWant::GetAbilities(
     std::vector<std::shared_ptr<Want>> &wants, unsigned int flags, const std::shared_ptr<WantParams> &options,
     std::shared_ptr<PendingWant> &pendingWant)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::GetAbilities invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -130,7 +127,6 @@ ErrCode PendingWant::GetAbilities(
     sptr<IWantSender> target = nullptr;
     ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
     if (result != ERR_OK) {
-        TAG_LOGI(AAFwkTag::WANTAGENT, "PendingWant::GetWantSender failed.");
         return result;
     }
     pendingWant = std::make_shared<PendingWant>(target);
@@ -151,7 +147,7 @@ ErrCode PendingWant::GetCommonEventAsUser(
     std::shared_ptr<PendingWant> &pendingWant)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::GetCommonEventAsUser invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -171,7 +167,6 @@ ErrCode PendingWant::GetCommonEventAsUser(
     sptr<IWantSender> target = nullptr;
     ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
     if (result != ERR_OK) {
-        TAG_LOGI(AAFwkTag::WANTAGENT, "PendingWant::GetWantSender failed.");
         return result;
     }
     pendingWant = std::make_shared<PendingWant>(target);
@@ -204,7 +199,7 @@ ErrCode PendingWant::BuildServicePendingWant(
     std::shared_ptr<PendingWant> &pendingWant)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::BuildServicePendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -275,11 +270,9 @@ ErrCode PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const std::shared_ptr<WantParams> &options, const std::shared_ptr<StartOptions> &startOptions,
     const sptr<AAFwk::IWantSender> &target)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
     int result =
         SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, startOptions, target);
     if (result != 0) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::SendAndReturnResult failed.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY;
     }
     return result;
@@ -350,8 +343,6 @@ void PendingWant::CancelReceiver::PerformReceive(const AAFwk::Want &want, int re
 
 void PendingWant::CancelReceiver::Send(const int32_t resultCode)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
-
     if (outerInstance_.lock() != nullptr) {
         outerInstance_.lock()->NotifyCancelListeners(resultCode);
     }
@@ -360,10 +351,8 @@ void PendingWant::CancelReceiver::Send(const int32_t resultCode)
 void PendingWant::RegisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
-
     if (cancelListener == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::RegisterCancelListener invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
         return;
     }
     std::scoped_lock<std::mutex> lock(lock_object);
@@ -379,8 +368,6 @@ void PendingWant::RegisterCancelListener(
 
 void PendingWant::NotifyCancelListeners(int32_t resultCode)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
-
     std::vector<std::shared_ptr<CancelListener>> cancelListeners;
     {
         std::scoped_lock<std::mutex> lock(lock_object);
@@ -396,10 +383,8 @@ void PendingWant::NotifyCancelListeners(int32_t resultCode)
 void PendingWant::UnregisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
-
     if (cancelListener == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::UnregisterCancelListener invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
         return;
     }
 
@@ -440,7 +425,7 @@ std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &targe
 bool PendingWant::Marshalling(Parcel &parcel) const
 {
     if (target_ == nullptr || !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(target_->AsObject())) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "parcel WriteString failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "failed");
         return false;
     }
 

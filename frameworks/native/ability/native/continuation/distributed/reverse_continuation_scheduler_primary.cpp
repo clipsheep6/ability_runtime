@@ -30,24 +30,22 @@ ReverseContinuationSchedulerPrimary::ReverseContinuationSchedulerPrimary(
  */
 void ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerPrimary = this]() {
         reverseContinuationSchedulerPrimary->HandlerNotifyReplicaTerminated();
     };
 
     if (mainHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated mainHandler_ == nullptr");
+            "mainHandler_ is nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated PostTask error");
+            "PostTask error");
         return;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 /**
@@ -58,53 +56,47 @@ void ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated()
  */
 bool ReverseContinuationSchedulerPrimary::ContinuationBack(const AAFwk::Want &want)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerPrimary = this, want]() {
         reverseContinuationSchedulerPrimary->HandlerContinuationBack(want);
     };
 
     if (mainHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimary::ContinuationBack mainHandler_ == nullptr");
+            "mainHandler_ is nullptr");
         return false;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimary::ContinuationBack PostTask error");
+            "PostTask error");
         return false;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return true;
 }
 
 void ReverseContinuationSchedulerPrimary::HandlerNotifyReplicaTerminated()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;
     continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimary::HandlerNotifyReplicaTerminated get continuationHandler is nullptr");
+            "continuationHandler is nullptr");
         return;
     }
     continuationHandler->NotifyReplicaTerminated();
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 void ReverseContinuationSchedulerPrimary::HandlerContinuationBack(const AAFwk::Want &want)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;
     continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ReverseContinuationSchedulerPrimary::HandlerContinuationBack get continuationHandler is nullptr");
+            "continuationHandler is nullptr");
         return;
     }
     continuationHandler->ContinuationBack(want);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

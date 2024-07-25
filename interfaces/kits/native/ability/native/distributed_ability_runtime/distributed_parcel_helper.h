@@ -26,7 +26,7 @@ namespace AAFwk {
     do { \
         bool ret = parcel.Write##type((value)); \
         if (!ret) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "%{public}s write value failed!", __func__); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "write value failed"); \
             return ERR_FLATTEN_OBJECT; \
         } \
     } while (0)
@@ -35,7 +35,7 @@ namespace AAFwk {
     do { \
         bool ret = parcel.Write##type((value)); \
         if (!ret) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "write value failed!"); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "write value failed"); \
             return; \
         } \
     } while (0)
@@ -44,7 +44,7 @@ namespace AAFwk {
     do { \
         bool ret = parcel.Write##type((value)); \
         if (!ret) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "%{public}s write value failed!", __func__); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "write value failed"); \
             return failRet; \
         } \
     } while (0)
@@ -53,7 +53,7 @@ namespace AAFwk {
     do { \
         bool ret = parcel.Read##type((out)); \
         if (!ret) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "%{public}s read value failed!", __func__); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "read value failed"); \
             return ERR_FLATTEN_OBJECT; \
         } \
     } while (0)
@@ -62,7 +62,7 @@ namespace AAFwk {
     do { \
         bool ret = parcel.Read##type((out)); \
         if (!ret) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "%{public}s read value failed!", __func__); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "read value failed"); \
             return failRet; \
         } \
     } while (0)
@@ -71,7 +71,7 @@ namespace AAFwk {
     do { \
         bool ret = parcel.Read##type((out)); \
         if (!ret) { \
-            TAG_LOGW(AAFwkTag::DISTRIBUTED, "%{public}s read value failed!", __func__); \
+            TAG_LOGW(AAFwkTag::DISTRIBUTED, "read value failed"); \
         } \
     } while (0)
 
@@ -80,11 +80,10 @@ namespace AAFwk {
         MessageOption option; \
         int32_t error = remote->SendRequest(code, data, reply, option); \
         if (error != ERR_NONE) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "%{public}s transact failed, error: %{public}d", __func__, error); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "error: %{public}d", error); \
             return error; \
         } \
         int32_t result = reply.ReadInt32(); \
-        TAG_LOGI(AAFwkTag::DISTRIBUTED, "%{public}s get result from server data = %{public}d", __func__, result); \
         return result; \
     } while (0)
 
@@ -93,17 +92,16 @@ namespace AAFwk {
         MessageOption option; \
         int32_t result = remote->SendRequest(code, data, reply, option); \
         if (result != ERR_NONE) { \
-            TAG_LOGE(AAFwkTag::DISTRIBUTED, "%{public}s transact failed, result: %{public}d", __func__, result); \
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "result: %{public}d", result); \
             return; \
         } \
-        TAG_LOGD(AAFwkTag::DISTRIBUTED, "%{public}s transact success!", __func__); \
     } while (0)
 
 #define PARCEL_WRITE_REPLY_NOERROR(reply, type, result) \
     do { \
         bool ret = reply.Write##type(result); \
         if (!ret) { \
-            TAG_LOGW(AAFwkTag::DISTRIBUTED, "%{public}s write reply failed.", __func__); \
+            TAG_LOGW(AAFwkTag::DISTRIBUTED, "write reply failed"); \
         } \
         return ERR_NONE; \
     } while (0)

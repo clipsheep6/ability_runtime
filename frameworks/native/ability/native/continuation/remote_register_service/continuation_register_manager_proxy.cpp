@@ -34,16 +34,15 @@ ContinuationRequestRegister::ContinuationRequestRegister(const std::string &bund
 void ContinuationRequestRegister::Execute(void)
 {
     if (continuatinConnector_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, continuatinConnector is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "continuatinConnector is null");
         return;
     }
 
     int ret = continuatinConnector_->Register(context_, bundleName_, parameter_, deviceCallback_);
     if (requestCallback_ != nullptr) {
         requestCallback_->OnResult(ret);
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called, ret=%{public}d", __func__, ret);
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, requestCallback is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "requestCallback is null");
     }
 }
 
@@ -55,16 +54,15 @@ ContinuationRequestUnRegister::ContinuationRequestUnRegister(int token)
 void ContinuationRequestUnRegister::Execute(void)
 {
     if (continuatinConnector_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, continuatinConnector is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "continuatinConnector is null");
         return;
     }
 
     bool ret = continuatinConnector_->Unregister(token_);
     if (requestCallback_ != nullptr) {
         requestCallback_->OnResult(ret ? 0 : -1);
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called, ret=%{public}d", __func__, (ret ? 0 : -1));
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, requestCallback is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "requestCallback is null");
     }
 }
 
@@ -79,16 +77,15 @@ ContinuationRequestUpdateConnectStatus::ContinuationRequestUpdateConnectStatus(
 void ContinuationRequestUpdateConnectStatus::Execute(void)
 {
     if (continuatinConnector_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, continuatinConnector is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "continuatinConnector is null");
         return;
     }
 
     bool ret = continuatinConnector_->UpdateConnectStatus(token_, deviceId_, status_);
     if (requestCallback_ != nullptr) {
         requestCallback_->OnResult(ret ? 0 : -1);
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called, ret=%{public}d", __func__, (ret ? 0 : -1));
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, requestCallback is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "requestCallback is null");
     }
 }
 
@@ -101,16 +98,15 @@ ContinuationRequestShowDeviceList::ContinuationRequestShowDeviceList(int token, 
 void ContinuationRequestShowDeviceList::Execute(void)
 {
     if (continuatinConnector_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, continuatinConnector is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "continuatinConnector is null");
         return;
     }
 
     bool ret = continuatinConnector_->ShowDeviceList(token_, parameter_);
     if (requestCallback_ != nullptr) {
         requestCallback_->OnResult(ret ? 0 : -1);
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called, ret=%{public}d", __func__, (ret ? 0 : -1));
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, requestCallback is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "requestCallback is null");
     }
 }
 
@@ -141,10 +137,8 @@ void ContinuationRegisterManagerProxy::Register(const std::string &bundleName, c
     const std::shared_ptr<IContinuationDeviceCallback> &deviceCallback,
     const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
-
     if (context_.lock() == nullptr || applicationContext_.lock() == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s context or applicationContext is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "context or applicationContext is null");
         return;
     }
 
@@ -159,7 +153,7 @@ void ContinuationRegisterManagerProxy::Register(const std::string &bundleName, c
 
         SendRequest(applicationContext_, request);
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Create ContinuationRequestRegister failed", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationRequestRegister failed");
     }
 }
 
@@ -173,10 +167,8 @@ void ContinuationRegisterManagerProxy::Register(const std::string &bundleName, c
  */
 void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
-
     if (applicationContext_.lock() == nullptr) {
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s Context is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Context is null");
         return;
     }
 
@@ -190,7 +182,7 @@ void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_p
 
         SendRequest(applicationContext_, request);
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Create ContinuationRequestUnRegister failed", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationRequestUnRegister failed");
     }
 }
 
@@ -208,10 +200,8 @@ void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_p
 void ContinuationRegisterManagerProxy::UpdateConnectStatus(
     int token, const std::string &deviceId, int status, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
-
     if (applicationContext_.lock() == nullptr) {
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s Context is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Context is null");
         return;
     }
 
@@ -226,7 +216,7 @@ void ContinuationRegisterManagerProxy::UpdateConnectStatus(
 
         SendRequest(applicationContext_, request);
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Create ContinuationRequestUpdateConnectStatus failed", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationRequestUpdateConnectStatus failed");
     }
 }
 
@@ -242,10 +232,8 @@ void ContinuationRegisterManagerProxy::UpdateConnectStatus(
 void ContinuationRegisterManagerProxy::ShowDeviceList(
     int token, const ExtraParams &parameter, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
-
     if (applicationContext_.lock() == nullptr) {
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s Context is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Context is null");
         return;
     }
 
@@ -258,9 +246,8 @@ void ContinuationRegisterManagerProxy::ShowDeviceList(
         std::shared_ptr<ContinuationRequest> request(pContinuationRequestShowDeviceList);
 
         SendRequest(applicationContext_, request);
-        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     } else {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Create ContinuationRequestShowDeviceList failed", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationRequestShowDeviceList failed");
     }
 }
 
@@ -269,20 +256,16 @@ void ContinuationRegisterManagerProxy::ShowDeviceList(
  */
 void ContinuationRegisterManagerProxy::Disconnect(void)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
-
     if (continuatinConnector_ != nullptr && continuatinConnector_->IsAbilityConnected()) {
         continuatinConnector_->UnbindRemoteRegisterAbility();
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 void ContinuationRegisterManagerProxy::SendRequest(
     const std::weak_ptr<Context> &context, const std::shared_ptr<ContinuationRequest> &request)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     if (request == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s called, request is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "request is null");
         return;
     }
 
@@ -295,7 +278,6 @@ void ContinuationRegisterManagerProxy::SendRequest(
     } else {
         request->Execute();
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
