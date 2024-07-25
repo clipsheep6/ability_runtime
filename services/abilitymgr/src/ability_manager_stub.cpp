@@ -403,9 +403,6 @@ int AbilityManagerStub::OnRemoteRequestInnerTenth(uint32_t code, MessageParcel &
     if (interfaceCode == AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO) {
         return GetExtensionRunningInfosInner(data, reply);
     }
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO) {
-        return GetProcessRunningInfosInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER) {
         return SetAbilityControllerInner(data, reply);
     }
@@ -2340,22 +2337,6 @@ int AbilityManagerStub::GetExtensionRunningInfosInner(MessageParcel &data, Messa
         return ERR_INVALID_VALUE;
     }
     return result;
-}
-
-int AbilityManagerStub::GetProcessRunningInfosInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::vector<AppExecFwk::RunningProcessInfo> infos;
-    auto result = GetProcessRunningInfos(infos);
-    reply.WriteInt32(infos.size());
-    for (auto &it : infos) {
-        if (!reply.WriteParcelable(&it)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
 }
 
 int AbilityManagerStub::StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply)

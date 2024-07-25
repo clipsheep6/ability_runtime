@@ -1059,13 +1059,6 @@ ErrCode AbilityManagerClient::GetExtensionRunningInfos(int upperLimit, std::vect
     return abms->GetExtensionRunningInfos(upperLimit, info);
 }
 
-ErrCode AbilityManagerClient::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->GetProcessRunningInfos(info);
-}
-
 ErrCode AbilityManagerClient::RequestDialogService(
     const Want &want, sptr<IRemoteObject> callerToken)
 {

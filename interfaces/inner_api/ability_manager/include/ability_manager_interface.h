@@ -974,8 +974,6 @@ public:
 
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) = 0;
 
-    virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) = 0;
-
     /**
      * Start synchronizing remote device mission
      * @param devId, deviceId.

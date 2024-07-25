@@ -1063,7 +1063,6 @@ public:
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
-    virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
     int GetProcessRunningInfosByUserId(std::vector<AppExecFwk::RunningProcessInfo> &info, int32_t userId);
     void GetAbilityRunningInfo(std::vector<AbilityRunningInfo> &info, std::shared_ptr<AbilityRecord> &abilityRecord);
     void GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord, const int32_t userId,
@@ -2224,6 +2223,8 @@ private:
 
     int PreStartFreeInstall(const Want &want, sptr<IRemoteObject> callerToken,
         uint32_t specifyTokenId, bool isStartAsCaller, Want &localWant);
+
+    int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

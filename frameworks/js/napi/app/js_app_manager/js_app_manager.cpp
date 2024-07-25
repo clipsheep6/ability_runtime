@@ -1435,8 +1435,6 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "off", moduleName, JsAppManager::Off);
     BindNativeFunction(env, exportObj, "getForegroundApplications", moduleName,
         JsAppManager::GetForegroundApplications);
-    BindNativeFunction(env, exportObj, "getProcessRunningInfos", moduleName,
-        JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "getRunningProcessInformation", moduleName,
         JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "isRunningInStabilityTest", moduleName,
