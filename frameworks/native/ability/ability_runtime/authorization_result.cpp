@@ -23,7 +23,7 @@ void AuthorizationResult::GrantResultsCallback(const std::vector<std::string>& p
 {
     TAG_LOGI(AAFwkTag::DEFAULT, "called");
     if (task_) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s callback client function.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "call client func");
         task_(permissions, grantResults);
     }
 }

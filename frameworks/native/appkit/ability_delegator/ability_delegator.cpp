@@ -665,7 +665,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
         }
 
         if (token == it->token_) {
-            TAG_LOGI(AAFwkTag::DELEGATOR, "Property exists");
+            TAG_LOGI(AAFwkTag::DELEGATOR, "Property exist");
             return it;
         }
     }
@@ -689,7 +689,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(
         }
 
         if (name == it->fullName_) {
-            TAG_LOGI(AAFwkTag::DELEGATOR, "Property exists");
+            TAG_LOGI(AAFwkTag::DELEGATOR, "Property exist");
             return it;
         }
     }

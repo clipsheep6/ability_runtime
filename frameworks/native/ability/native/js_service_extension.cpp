@@ -404,9 +404,9 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     CallOnDisconnect(want, false);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end");
 }
 
 void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
@@ -415,7 +415,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s start.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     napi_value result = CallOnDisconnect(want, true);
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
@@ -430,7 +430,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
         isAsyncCallback = true;
     }
 
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end");
 }
 
 void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
@@ -474,7 +474,7 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
         executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);
     auto asyncCallback = [weak = weak_from_this(), intentId = executeParam->insightIntentId_]
         (AppExecFwk::InsightIntentExecuteResult result) {
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "intentId %{public}" PRIu64"", intentId);
         auto extension = weak.lock();
         if (extension == nullptr) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "extension is nullptr.");
@@ -539,7 +539,7 @@ bool JsServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
     }
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->ExecuteInsightIntentDone(token, intentId, result);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Notify execute done faild.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Notify execute done failed");
         return false;
     }
     return true;

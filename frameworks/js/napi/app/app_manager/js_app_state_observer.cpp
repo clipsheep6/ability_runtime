@@ -92,7 +92,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
         ([jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "null jsObserver");
                 return;
             }
             jsObserverSptr->HandleOnExtensionStateChanged(abilityStateData);
@@ -121,7 +121,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "null jsObserver");
                 return;
             }
             jsObserverSptr->HandleOnProcessCreated(processData);
@@ -206,14 +206,14 @@ void JSAppStateObserver::CallJsFunction(
 {
     TAG_LOGD(AAFwkTag::APPMGR, "CallJsFunction start, method:%{public}s", methodName);
     if (value == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::APPMGR, "null value");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Wrong to get from object");
+        TAG_LOGE(AAFwkTag::APPMGR, "null method");
         return;
     }
     napi_value callResult = nullptr;
@@ -223,7 +223,7 @@ void JSAppStateObserver::CallJsFunction(
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "AddJsObserverObject start.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsObserverObject, 1, &ref);
     jsObserverObjectMap_.emplace(observerId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
@@ -231,7 +231,7 @@ void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_valu
 
 bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "RemoveJsObserverObject start.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
     return result;
 }
@@ -245,7 +245,7 @@ bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
 
 size_t JSAppStateObserver::GetJsObserverMapSize()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "GetJsObserverMapSize start");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     size_t length = jsObserverObjectMap_.size();
     return length;
 }

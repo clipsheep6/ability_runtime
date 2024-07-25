@@ -74,7 +74,7 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
     TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "not napi_object");
         return false;
     }
 
@@ -129,7 +129,7 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
 bool UnwrapStartOptionsAndWant(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, AAFwk::Want &want)
 {
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "not napi_object");
         return false;
     }
     napi_value jsValue = GetPropertyValueByPropertyName(env, param, "parameters", napi_object);

@@ -46,9 +46,9 @@ public:
 
 void JsContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "JsContext finalizer.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "finalizer called");
     if (data == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Input data invalid.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null data");
         return;
     }
     std::unique_ptr<JsContext>(static_cast<JsContext*>(data));
@@ -79,14 +79,14 @@ napi_value CreateJsBaseContextFromSendable(napi_env env, void* wrapped)
 {
     JsContext *sendableContext = static_cast<JsContext*>(wrapped);
     if (sendableContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Get sendable context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null sendableContext");
         return nullptr;
     }
 
     auto weakContext = sendableContext->context_;
     std::shared_ptr<Context> context = weakContext.lock();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Context invalid.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
 
@@ -111,7 +111,7 @@ napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
 {
     JsContext *sendableContext = static_cast<JsContext*>(wrapped);
     if (sendableContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Get sendable context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null sendableContext");
         return nullptr;
     }
 
@@ -143,7 +143,7 @@ napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
 {
     JsContext *sendableContext = static_cast<JsContext*>(wrapped);
     if (sendableContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Get sendable context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null sendableContext");
         return nullptr;
     }
 
@@ -175,20 +175,20 @@ napi_value CreateJsUIAbilityContextFromSendable(napi_env env, void* wrapped)
 {
     JsContext *sendableContext = static_cast<JsContext*>(wrapped);
     if (sendableContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Get sendable context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null sendableContext");
         return nullptr;
     }
 
     auto weakContext = sendableContext->context_;
     std::shared_ptr<Context> context = weakContext.lock();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Context invalid.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null ontext");
         return nullptr;
     }
 
     auto uiAbilityContext = Context::ConvertTo<AbilityContext>(context);
     if (uiAbilityContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to UIAbility context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null uiAbilityContext");
         return nullptr;
     }
 
@@ -210,9 +210,9 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        TAG_LOGD(AAFwkTag::CONTEXT, "JsSendableContextManager finalizer.");
+        TAG_LOGD(AAFwkTag::CONTEXT, "finalizer called");
         if (data == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "Input data invalid.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "null data");
             return;
         }
         std::unique_ptr<JsSendableContextManager>(static_cast<JsSendableContextManager*>(data));
@@ -246,9 +246,9 @@ public:
 private:
     napi_value OnConvertFromContext(napi_env env, NapiCallbackInfo &info)
     {
-        TAG_LOGD(AAFwkTag::CONTEXT, "Convert from context.");
+        TAG_LOGD(AAFwkTag::CONTEXT, "called");
         if (info.argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }

@@ -1862,7 +1862,7 @@ void MainThread::CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::st
         TAG_LOGD(AAFwkTag::APPKIT, "native library path = %{public}s", libPath.c_str());
 
         if (!ScanDir(libPath, nativeFileEntries_)) {
-            TAG_LOGW(AAFwkTag::APPKIT, "%{public}s scanDir %{public}s not exits", __func__, libPath.c_str());
+            TAG_LOGW(AAFwkTag::APPKIT, "scanDir %{public}s not exits", libPath.c_str());
         }
     }
 
@@ -1887,21 +1887,21 @@ void MainThread::LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &n
         handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
         if (handleAbilityLib == nullptr) {
             if (fileEntry.find("libformrender.z.so") == std::string::npos) {
-                TAG_LOGE(AAFwkTag::APPKIT, "%{public}s Fail to dlopen %{public}s, [%{public}s]",
-                    __func__, fileEntry.c_str(), dlerror());
+                TAG_LOGE(AAFwkTag::APPKIT, "fail to dlopen %{public}s, [%{public}s]",
+                    fileEntry.c_str(), dlerror());
                 exit(-1);
             } else {
                 TAG_LOGD(AAFwkTag::APPKIT, "Load libformrender.z.so from native lib path.");
                 handleAbilityLib = dlopen(FORM_RENDER_LIB_PATH, RTLD_NOW | RTLD_GLOBAL);
                 if (handleAbilityLib == nullptr) {
-                    TAG_LOGE(AAFwkTag::APPKIT, "%{public}s Fail to dlopen %{public}s, [%{public}s]",
-                        __func__, FORM_RENDER_LIB_PATH, dlerror());
+                    TAG_LOGE(AAFwkTag::APPKIT, "fail to dlopen %{public}s, [%{public}s]",
+                        FORM_RENDER_LIB_PATH, dlerror());
                     exit(-1);
                 }
                 fileEntry = FORM_RENDER_LIB_PATH;
             }
         }
-        TAG_LOGD(AAFwkTag::APPKIT, "%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "success to dlopen %{public}s", fileEntry.c_str());
         handleAbilityLib_.emplace_back(handleAbilityLib);
     }
 }
@@ -2064,7 +2064,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
 void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
-    CHECK_POINTER_LOG(abilityRecord, "MainThread::HandleLaunchAbility parameter(abilityRecord) is null");
+    CHECK_POINTER_LOG(abilityRecord, "parameter(abilityRecord) is null");
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector;
     if (abilityRecord->GetWant() != nullptr) {
@@ -2073,11 +2073,11 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         TAG_LOGE(AAFwkTag::APPKIT, "Want is nullptr, cant not get abilityName.");
     }
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
-    CHECK_POINTER_LOG(applicationImpl_, "MainThread::HandleLaunchAbility applicationImpl_ is null");
-    CHECK_POINTER_LOG(abilityRecordMgr_, "MainThread::HandleLaunchAbility abilityRecordMgr_ is null");
+    CHECK_POINTER_LOG(applicationImpl_, "applicationImpl_ is null");
+    CHECK_POINTER_LOG(abilityRecordMgr_, "abilityRecordMgr_ is null");
 
     auto abilityToken = abilityRecord->GetToken();
-    CHECK_POINTER_LOG(abilityToken, "MainThread::HandleLaunchAbility failed. abilityRecord->GetToken failed");
+    CHECK_POINTER_LOG(abilityToken, "abilityRecord->GetToken failed");
     FreezeUtil::LifecycleFlow flow = { abilityToken, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
         "; MainThread::HandleLaunchAbility; the load lifecycle.";

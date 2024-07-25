@@ -64,7 +64,7 @@ void AbilityRecordMgr::SetEventRunner(const std::shared_ptr<EventRunner> &eventR
     if (abilityInstance != nullptr) {
         abilityInstance->SetEventRunner(eventRunner);
     } else {
-        TAG_LOGW(AAFwkTag::APPKIT, "ability record is not exists");
+        TAG_LOGW(AAFwkTag::APPKIT, "ability record not exist");
     }
 }
 

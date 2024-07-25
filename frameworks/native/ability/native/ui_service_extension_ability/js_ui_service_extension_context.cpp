@@ -82,7 +82,7 @@ private:
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         TAG_LOGI(AAFwkTag::UISERVC_EXT, "Call");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::UISERVC_EXT, "Start ability failed, not enough params.");
+            TAG_LOGE(AAFwkTag::UISERVC_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }

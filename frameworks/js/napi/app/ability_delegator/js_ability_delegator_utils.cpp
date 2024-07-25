@@ -30,7 +30,7 @@ napi_value CreateJsAbilityDelegator(napi_env env)
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null objValue");
         return nullptr;
     }
 
@@ -74,7 +74,7 @@ napi_value SetAbilityDelegatorArgumentsPara(napi_env env, const std::map<std::st
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null objValue");
         return nullptr;
     }
 
@@ -94,7 +94,7 @@ napi_value CreateJsAbilityDelegatorArguments(
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null objValue");
         return CreateJsNull(env);
     }
 
@@ -115,14 +115,14 @@ napi_value CreateJsShellCmdResult(napi_env env, std::unique_ptr<ShellCmdResult> 
     TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     if (!shellResult) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "shellResult is null");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null shellResult");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null objValue");
         return nullptr;
     }
 

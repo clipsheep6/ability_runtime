@@ -105,7 +105,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::FORM_EXT, "called");
         if (info.argc < UPDATE_FORM_PARAMS_SIZE) {
-            TAG_LOGE(AAFwkTag::FORM_EXT, "Not enough params, not enough params");
+            TAG_LOGE(AAFwkTag::FORM_EXT, "invalid argc");
             return CreateJsUndefined(env);
         }
 
@@ -257,7 +257,7 @@ private:
             return CreateJsUndefined(env);
         }
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::FORM_EXT, "Disconnect ability failed, not enough parameters.");
+            TAG_LOGE(AAFwkTag::FORM_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }

@@ -189,7 +189,7 @@ napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "OnStartAbility is called");
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Start ability failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -539,7 +539,7 @@ napi_value JsUIExtensionContext::OnConnectAbility(napi_env env, NapiCallbackInfo
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     // Check params count
     if (info.argc < ARGC_TWO) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Connect ability failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -581,7 +581,7 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, NapiCallbackI
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "DisconnectAbility start");
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Disconnect ability error, not enough params.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -631,7 +631,7 @@ napi_value JsUIExtensionContext::OnStartUIServiceExtension(napi_env env, NapiCal
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "OnStartUIServiceExtension is called");
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Start UIServiceExtension failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -673,7 +673,7 @@ napi_value JsUIExtensionContext::OnStartUIServiceExtension(napi_env env, NapiCal
 bool JsUIExtensionContext::UnwrapConnectUIServiceExtensionParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want)
 {
     if (info.argc < ARGC_TWO) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return false;
     }
@@ -789,7 +789,7 @@ void JsUIExtensionContext::DoConnectUIServiceExtension(napi_env env,
 napi_value JsUIExtensionContext::OnDisconnectUIServiceExtension(napi_env env, NapiCallbackInfo& info)
 {
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }

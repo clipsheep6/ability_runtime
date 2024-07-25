@@ -104,7 +104,7 @@ napi_value JsUIServiceHostProxy::OnSendData(napi_env env, NapiCallbackInfo& info
         return CreateJsUndefined(env);
     }
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }

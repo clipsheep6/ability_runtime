@@ -215,10 +215,10 @@ void LocalCallContainer::DumpCalls(std::vector<std::string>& info)
             tempstr += " uri[" + item.first + "]" + "\n";
             tempstr += "              callers #" + std::to_string(itemCall->GetCallers().size());
             if (IsCallBackCalled(itemCall->GetCallers())) {
-                TAG_LOGI(AAFwkTag::LOCAL_CALL, "%{public}s state is REQUESTEND.", __func__);
+                TAG_LOGI(AAFwkTag::LOCAL_CALL, "state: REQUESTEND");
                 tempstr += "  state #REQUESTEND";
             } else {
-                TAG_LOGI(AAFwkTag::LOCAL_CALL, "%{public}s state is REQUESTING.", __func__);
+                TAG_LOGI(AAFwkTag::LOCAL_CALL, "state: REQUESTING");
                 tempstr += "  state #REQUESTING";
             }
             info.emplace_back(tempstr);

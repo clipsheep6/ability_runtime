@@ -83,19 +83,19 @@ public:
 
     static napi_value IsRunningInStabilityTest(napi_env env, napi_callback_info info)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "IsRunningInStabilityTest start.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsRunningInStabilityTest);
     }
 
     static napi_value KillProcessWithAccount(napi_env env, napi_callback_info info)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "KillProcessWithAccount start.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessWithAccount);
     }
 
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "KillProcessesByBundleName start.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessByBundleName);
     }
 
@@ -123,11 +123,11 @@ private:
         TAG_LOGD(AAFwkTag::APPMGR, "called");
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             return CreateJsUndefined(env);
         }
         if (appManager_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "appManager nullptr");
+            TAG_LOGE(AAFwkTag::APPMGR, "null appManager");
             return CreateJsUndefined(env);
         }
         static int64_t serialNumber = 0;
@@ -141,7 +141,7 @@ private:
         }
         int32_t ret = appManager_->RegisterApplicationStateObserver(observer_, bundleNameList);
         if (ret == 0) {
-            TAG_LOGD(AAFwkTag::APPMGR, "success.");
+            TAG_LOGD(AAFwkTag::APPMGR, "success");
             int64_t observerId = serialNumber;
             observer_->AddJsObserverObject(observerId, argv[INDEX_ZERO]);
             if (serialNumber < INT32_MAX) {
@@ -151,7 +151,7 @@ private:
             }
             return CreateJsValue(env, observerId);
         } else {
-            TAG_LOGE(AAFwkTag::APPMGR, "failed error:%{public}d.", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "error:%{public}d", ret);
             return CreateJsUndefined(env);
         }
     }
@@ -164,7 +164,7 @@ private:
 
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         } else {
             // unwrap connectId
@@ -172,9 +172,9 @@ private:
             bool isExist = observer_->FindObserverByObserverId(observerId);
             if (isExist) {
                 // match id
-                TAG_LOGD(AAFwkTag::APPMGR, "find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
+                TAG_LOGD(AAFwkTag::APPMGR, "observer exist:%{public}d", static_cast<int32_t>(observerId));
             } else {
-                TAG_LOGD(AAFwkTag::APPMGR, "not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
+                TAG_LOGD(AAFwkTag::APPMGR, "observer not exist:%{public}d", static_cast<int32_t>(observerId));
                 errCode = ERR_NOT_OK;
             }
         }
@@ -215,7 +215,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -254,7 +254,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -286,7 +286,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -322,23 +322,23 @@ private:
         int32_t appIndex = 0;
         // only support 1 or 2 or 3 params
         if (argc != ARGC_ONE && argc != ARGC_TWO && argc != ARGC_THREE) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleName)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
+                TAG_LOGE(AAFwkTag::APPMGR, "convert bundleName failed");
                 errCode = ERR_NOT_OK;
             }
             if (argc > ARGC_ONE && ConvertFromJsValue(env, argv[INDEX_ONE], clearPageStack)) {
                 hasClearPageStack = true;
             }
             if (hasClearPageStack && argc == ARGC_THREE && !ConvertFromJsValue(env, argv[INDEX_TWO], appIndex)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "get appIndex failed!");
+                TAG_LOGE(AAFwkTag::APPMGR, "get appIndex failed");
                 errCode = ERR_NOT_OK;
             }
         }
         TAG_LOGI(AAFwkTag::APPMGR,
-            "kill [%{public}s], hasClearPageStack [%{public}d], clearPageStack [%{public}d],appIndex [%{public}d]",
+            "kill:%{public}s,hasClearPageStack:%{public}d,clearPageStack:%{public}d,appIndex:%{public}d",
             bundleName.c_str(), hasClearPageStack, clearPageStack, appIndex);
         NapiAsyncTask::CompleteCallback complete =
             [bundleName, clearPageStack, abilityManager = abilityManager_, errCode](napi_env env, NapiAsyncTask& task,
@@ -374,11 +374,11 @@ private:
 
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
+                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed");
                 errCode = ERR_NOT_OK;
             } else {
                 TAG_LOGI(AAFwkTag::APPMGR, "kill process [%{public}s]", bundleName.c_str());
@@ -393,7 +393,7 @@ private:
                 return;
             }
             if (appManager == nullptr) {
-                TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "null appManager");
                 task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "appManager nullptr"));
                 return;
             }
@@ -423,22 +423,22 @@ private:
         int32_t appIndex = 0;
         // only support 2 or 3 or 4 params
         if (argc != ARGC_TWO && argc != ARGC_THREE && argc != ARGC_FOUR) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleName)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "Parse bundleName failed");
+                TAG_LOGE(AAFwkTag::APPMGR, "convert bundleName failed");
                 errCode = ERR_NOT_OK;
             }
             if (!ConvertFromJsValue(env, argv[INDEX_ONE], accountId)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "Parse userId failed");
+                TAG_LOGE(AAFwkTag::APPMGR, "convert userId failed");
                 errCode = ERR_NOT_OK;
             }
             if (argc > ARGC_TWO && ConvertFromJsValue(env, argv[INDEX_TWO], clearPageStack)) {
                 hasClearPageStack = true;
             }
             if (hasClearPageStack && argc == ARGC_FOUR && !ConvertFromJsValue(env, argv[INDEX_THREE], appIndex)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "get appIndex failed!");
+                TAG_LOGE(AAFwkTag::APPMGR, "get appIndex failed");
                 errCode = ERR_NOT_OK;
             }
         }
@@ -473,7 +473,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Insufficient params");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         }
 
@@ -506,7 +506,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Not enough parameters");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid argc");
             errCode = ERR_NOT_OK;
         }
 
@@ -554,9 +554,9 @@ OHOS::sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerInstance()
 
 napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "JsAppManagerInit start");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGW(AAFwkTag::APPMGR, "env or exportObj null");
+        TAG_LOGW(AAFwkTag::APPMGR, "null env or exportObj");
         return nullptr;
     }
 

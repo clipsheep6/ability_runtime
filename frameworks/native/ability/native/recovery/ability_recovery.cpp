@@ -49,9 +49,9 @@ static std::string GetSaveAppCachePath(int32_t savedStateId)
     }
 
     std::string fileDir = context->GetFilesDir();
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery GetSaveAppCachePath fileDir %{public}s.", fileDir.c_str());
+    TAG_LOGD(AAFwkTag::RECOVERY, "fileDir %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery GetSaveAppCachePath fileDir is empty or fileDir is not exists.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "empty fileDir or fileDir not exist");
         return "";
     }
 

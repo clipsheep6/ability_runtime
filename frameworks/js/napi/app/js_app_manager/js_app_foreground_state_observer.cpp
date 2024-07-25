@@ -29,7 +29,7 @@ void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStat
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "The app manager may has destroyed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid appmgr");
         return;
     }
     wptr<JSAppForegroundStateObserver> self = this;
@@ -37,7 +37,7 @@ void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStat
         [self, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppForegroundStateObserver> jsObserver = self.promote();
             if (jsObserver == nullptr) {
-                TAG_LOGE(AAFwkTag::APPMGR, "Js Observer Sptr is nullptr.");
+                TAG_LOGE(AAFwkTag::APPMGR, "null observer");
                 return;
             }
             jsObserver->HandleOnAppStateChanged(appStateData);
@@ -61,30 +61,30 @@ void JSAppForegroundStateObserver::HandleOnAppStateChanged(const AppStateData &a
 void JSAppForegroundStateObserver::CallJsFunction(
     const napi_value value, const char *methodName, const napi_value *argv, const size_t argc)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Begin.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (value == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "value is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null value");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Get name from object Failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null method");
         return;
     }
     napi_value callResult = nullptr;
     napi_status status = napi_call_function(env_, value, method, argc, argv, &callResult);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Call Js Function failed %{public}d.", status);
+        TAG_LOGE(AAFwkTag::APPMGR, "call js func failed %{public}d.", status);
     }
-    TAG_LOGD(AAFwkTag::APPMGR, "End.");
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
 void JSAppForegroundStateObserver::AddJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null observer");
         return;
     }
 
@@ -94,7 +94,7 @@ void JSAppForegroundStateObserver::AddJsObserverObject(const napi_value &jsObser
         napi_create_reference(env_, jsObserverObject, 1, &ref);
         jsObserverObjectSet_.emplace(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference *>(ref)));
     } else {
-        TAG_LOGD(AAFwkTag::APPMGR, "Observer is exists.");
+        TAG_LOGD(AAFwkTag::APPMGR, "observer exist");
     }
 }
 
@@ -107,7 +107,7 @@ void JSAppForegroundStateObserver::RemoveAllJsObserverObjects()
 void JSAppForegroundStateObserver::RemoveJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null observer");
         return;
     }
 
@@ -121,20 +121,20 @@ void JSAppForegroundStateObserver::RemoveJsObserverObject(const napi_value &jsOb
 std::shared_ptr<NativeReference> JSAppForegroundStateObserver::GetObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null observer");
         return nullptr;
     }
 
     std::lock_guard<std::mutex> lock(jsObserverObjectSetLock_);
     for (auto &observer : jsObserverObjectSet_) {
         if (observer == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Invalid observer.");
+            TAG_LOGE(AAFwkTag::APPMGR, "null observer");
             continue;
         }
 
         napi_value value = observer->GetNapiValue();
         if (value == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Failed to get object.");
+            TAG_LOGE(AAFwkTag::APPMGR, "null value");
             continue;
         }
 

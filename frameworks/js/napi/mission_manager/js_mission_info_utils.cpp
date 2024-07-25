@@ -140,7 +140,7 @@ bool InnerWrapJsWantParamsWantParams(
 
 bool WrapJsWantParamsArray(napi_env env, napi_value object, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s start. key=%{public}s", __func__, key.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "key=%{public}s", key.c_str());
     if (AAFwk::Array::IsStringArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IString, AAFwk::String, std::string>(
             env, object, key, ao);

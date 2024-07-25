@@ -256,7 +256,7 @@ void ExtensionImpl::Stop(bool &isAsyncCallback, const Want &want, sptr<AAFwk::Se
         AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     }
     // else: callbackInfo will be destroyed after the async callback
-    TAG_LOGD(AAFwkTag::EXT, "%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "end");
 }
 
 void ExtensionImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
@@ -303,7 +303,7 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want, bool &isAs
         sptr<IRemoteObject> object = extension_->OnConnect(want);
         lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
         isAsyncCallback = false;
-        TAG_LOGI(AAFwkTag::EXT, "%{public}s end.", __func__);
+        TAG_LOGI(AAFwkTag::EXT, "end");
         return object;
     }
 
@@ -333,7 +333,7 @@ void ExtensionImpl::ConnectExtensionCallback(sptr<IRemoteObject> &service)
 {
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ScheduleConnectAbilityDone(token_, service);
     if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::EXT, "AbilityThread::HandleConnectExtension failed err = %{public}d", err);
+        TAG_LOGE(AAFwkTag::EXT, "failed err = %{public}d", err);
     }
 }
 
@@ -346,7 +346,7 @@ void ExtensionImpl::DisconnectExtension(const Want &want)
 {
     TAG_LOGD(AAFwkTag::EXT, "call");
     if (extension_ == nullptr) {
-        TAG_LOGE(AAFwkTag::EXT, "ExtensionImpl::DisconnectAbility extension_ is nullptr");
+        TAG_LOGE(AAFwkTag::EXT, "extension_ is nullptr");
         return;
     }
 
@@ -356,7 +356,7 @@ void ExtensionImpl::DisconnectExtension(const Want &want)
 
 void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
 {
-    TAG_LOGD(AAFwkTag::EXT, "%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "called");
     if (extension_ == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "Failed to disconnect, extension_ is nullptr");
         isAsyncCallback = false;
@@ -385,14 +385,14 @@ void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
         AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     }
     // else: callbackInfo will be destroyed after the async callback
-    TAG_LOGD(AAFwkTag::EXT, "%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "end");
 }
 
 void ExtensionImpl::DisconnectExtensionCallback()
 {
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ScheduleDisconnectAbilityDone(token_);
     if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::EXT, "ExtensionImpl::DisconnectExtensionCallback failed err = %{public}d", err);
+        TAG_LOGE(AAFwkTag::EXT, "failed err = %{public}d", err);
     }
 }
 

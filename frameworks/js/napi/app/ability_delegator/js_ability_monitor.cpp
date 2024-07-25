@@ -31,70 +31,56 @@ JSAbilityMonitor::JSAbilityMonitor(const std::string &abilityName, const std::st
 
 void JSAbilityMonitor::OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityCreate", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityForeground", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityBackground", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onAbilityDestroy", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onWindowStageCreate", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onWindowStageRestore", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
-
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     CallLifecycleCBFunction("onWindowStageDestroy", abilityObj);
-
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::SetJsAbilityMonitor(napi_value jsAbilityMonitor)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsAbilityMonitor, 1, &ref);
@@ -105,25 +91,25 @@ napi_value JSAbilityMonitor::CallLifecycleCBFunction(const std::string &function
     const std::weak_ptr<NativeReference> &abilityObj)
 {
     if (functionName.empty()) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid function name");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "empty funcName");
         return nullptr;
     }
 
     if (!jsAbilityMonitor_) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid jsAbilityMonitor");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null jsAbilityMonitor");
         return nullptr;
     }
 
     napi_value obj = jsAbilityMonitor_->GetNapiValue();
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null obj");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, obj, functionName.data(), &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get %{public}s from object", functionName.data());
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null method: %{public}s", functionName.data());
         return nullptr;
     }
 

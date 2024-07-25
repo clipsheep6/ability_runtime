@@ -676,7 +676,7 @@ std::string JsAbilityStage::GetHapModuleProp(const std::string &propName) const
 bool JsAbilityStage::IsFileExisted(const std::string &filePath)
 {
     if (filePath.empty()) {
-        TAG_LOGE(AAFwkTag::APPKIT, "the file is not existed due to empty file path.");
+        TAG_LOGE(AAFwkTag::APPKIT, "the file is not exist due to empty file path.");
         return false;
     }
 
@@ -690,7 +690,7 @@ bool JsAbilityStage::IsFileExisted(const std::string &filePath)
 bool JsAbilityStage::TransformFileToJsonString(const std::string &resPath, std::string &profile)
 {
     if (!IsFileExisted(resPath)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "the file is not existed.");
+        TAG_LOGE(AAFwkTag::APPKIT, "the file is not exist");
         return false;
     }
     std::fstream in;

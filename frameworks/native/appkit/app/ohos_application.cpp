@@ -798,7 +798,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     }
 
     if (abilityStages_.find(hapModuleInfo.moduleName) != abilityStages_.end()) {
-        TAG_LOGE(AAFwkTag::APPKIT, "object already exists ");
+        TAG_LOGE(AAFwkTag::APPKIT, "object exist");
         return false;
     }
 

@@ -99,30 +99,26 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s begin.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "called");
         if (data == nullptr) {
-            TAG_LOGE(
-                AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s is called, but input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "null data");
             return;
         }
 
         auto ptr = static_cast<JsCallerComplex*>(data);
         if (!FindJsCallerComplex(ptr)) {
-            TAG_LOGE(AAFwkTag::DEFAULT,
-                "JsCallerComplex::%{public}s is called, but input parameters does not found", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "input parameters does not found");
             return;
         }
 
         ReleaseObject(ptr);
-        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s end.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "end");
     }
 
     static napi_value JsReleaseCall(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            TAG_LOGE(AAFwkTag::DEFAULT,
-                "JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr", __func__,
-                ((env == nullptr) ? "env" : "info"));
+            TAG_LOGE(AAFwkTag::DEFAULT, "null %{public}s", ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
         GET_NAPI_INFO_AND_CALL(env, info, JsCallerComplex, ReleaseCallInner);
@@ -131,9 +127,7 @@ public:
     static napi_value JsSetOnReleaseCallBack(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            TAG_LOGE(AAFwkTag::DEFAULT,
-                "JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr", __func__,
-                ((env == nullptr) ? "env" : "info"));
+            TAG_LOGE(AAFwkTag::DEFAULT, "null %{public}s", ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
         GET_NAPI_INFO_AND_CALL(env, info, JsCallerComplex, SetOnReleaseCallBackInner);
@@ -142,9 +136,7 @@ public:
     static napi_value JsSetOnRemoteStateChanged(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            TAG_LOGE(AAFwkTag::DEFAULT,
-                "JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr", __func__,
-                ((env == nullptr) ? "env" : "info"));
+            TAG_LOGE(AAFwkTag::DEFAULT, "null %{public}s", ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
         GET_NAPI_INFO_AND_CALL(env, info, JsCallerComplex, SetOnRemoteStateChangedInner);
@@ -153,39 +145,38 @@ public:
     static bool AddJsCallerComplex(JsCallerComplex* ptr)
     {
         if (ptr == nullptr) {
-            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "null ptr");
             return false;
         }
 
         std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter != jsCallerComplexManagerList.end()) {
-            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, address exists", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "address exist");
             return false;
         }
 
         auto iterRet = jsCallerComplexManagerList.emplace(ptr);
-        TAG_LOGD(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, execution ends and retval is %{public}s", __func__,
-            iterRet.second ? "true" : "false");
+        TAG_LOGD(AAFwkTag::DEFAULT, "retval: %{public}s", iterRet.second ? "true" : "false");
         return iterRet.second;
     }
 
     static bool RemoveJsCallerComplex(JsCallerComplex* ptr)
     {
         if (ptr == nullptr) {
-            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "null ptr");
             return false;
         }
 
         std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter == jsCallerComplexManagerList.end()) {
-            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters not found", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "input parameters not found");
             return false;
         }
 
         jsCallerComplexManagerList.erase(ptr);
-        TAG_LOGD(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, called", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "end");
         return true;
     }
 

@@ -35,7 +35,7 @@ void JSAbilityFirstFrameStateObserver::OnAbilityFirstFrameState(
         [self, abilityFirstFrameStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAbilityFirstFrameStateObserver> jsObserver = self.promote();
             if (jsObserver == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "Js Observer Sptr is nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "null js observer");
                 return;
             }
             jsObserver->HandleOnAbilityFirstFrameState(abilityFirstFrameStateData);
@@ -59,27 +59,27 @@ void JSAbilityFirstFrameStateObserver::CallJsFunction(
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (value == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null value");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get name from object Failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null method");
         return;
     }
     napi_value callResult = nullptr;
     napi_status status = napi_call_function(env_, value, method, argc, argv, &callResult);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Call Js Function failed %{public}d.", status);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "call js func failed %{public}d", status);
     }
 }
 
 void JSAbilityFirstFrameStateObserver::SetJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return;
     }
     napi_ref ref = nullptr;
@@ -108,7 +108,7 @@ void JSAbilityFirstFrameStateObserverManager::AddJSAbilityFirstFrameStateObserve
     const sptr<JSAbilityFirstFrameStateObserver> observer)
 {
     if (observer == nullptr || observer->GetNativeReference() == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return;
     }
     std::lock_guard<std::mutex> lock(observerListLock_);
@@ -118,10 +118,10 @@ void JSAbilityFirstFrameStateObserverManager::AddJSAbilityFirstFrameStateObserve
 bool JSAbilityFirstFrameStateObserverManager::IsObserverObjectExist(const napi_value &jsObserverObject)
 {
     if (GetObserverObject(jsObserverObject) == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "null observer");
         return false;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Observer is exists.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "observer exist");
     return true;
 }
 
@@ -130,7 +130,7 @@ void JSAbilityFirstFrameStateObserverManager::RemoveAllJsObserverObjects(
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (abilityManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManager is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityManager");
         return;
     }
     std::lock_guard<std::mutex> lock(observerListLock_);
@@ -146,7 +146,7 @@ void JSAbilityFirstFrameStateObserverManager::RemoveJsObserverObject(
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (abilityManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManager is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityManager");
         return;
     }
     std::lock_guard<std::mutex> lock(observerListLock_);
@@ -155,7 +155,7 @@ void JSAbilityFirstFrameStateObserverManager::RemoveJsObserverObject(
         std::shared_ptr<NativeReference> tmpObject = (*it)->GetNativeReference();
         napi_value value = tmpObject->GetNapiValue();
         if (value == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get object.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null value");
             continue;
         }
         bool isEqual = false;
@@ -173,19 +173,19 @@ std::shared_ptr<NativeReference> JSAbilityFirstFrameStateObserverManager::GetObs
     const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return nullptr;
     }
     std::lock_guard<std::mutex> lock(observerListLock_);
     for (auto &observer : jsAbilityFirstFrameStateObserverList_) {
         if (observer == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid observer.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
             continue;
         }
         std::shared_ptr<NativeReference> tmpObject = observer->GetNativeReference();
         napi_value value = tmpObject->GetNapiValue();
         if (value == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get object.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null value");
             continue;
         }
 

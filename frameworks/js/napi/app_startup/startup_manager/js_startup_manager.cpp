@@ -66,7 +66,7 @@ napi_value JsStartupManager::OnRun(napi_env env, NapiCallbackInfo &info)
 {
     TAG_LOGD(AAFwkTag::STARTUP, "called");
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
+        TAG_LOGE(AAFwkTag::STARTUP, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -114,7 +114,7 @@ napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
 {
     TAG_LOGD(AAFwkTag::STARTUP, "called");
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
+        TAG_LOGE(AAFwkTag::STARTUP, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -139,7 +139,7 @@ napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
     }
     std::shared_ptr<JsStartupTaskResult> jsResult = std::static_pointer_cast<JsStartupTaskResult>(result);
     if (jsResult == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to convert to js result.", startupTask.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "null jsResult: %{public}s", startupTask.c_str());
         ThrowInvalidParamError(env, "%{public}s, failed to convert to js result.");
         return CreateJsUndefined(env);
     }

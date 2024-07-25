@@ -32,23 +32,23 @@ JsAbilityAutoStartupCallBack::~JsAbilityAutoStartupCallBack() {}
 
 void JsAbilityAutoStartupCallBack::OnAutoStartupOn(const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     JSCallFunction(info, METHOD_ON);
 }
 
 void JsAbilityAutoStartupCallBack::OnAutoStartupOff(const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     JSCallFunction(info, METHOD_OFF);
 }
 
 void JsAbilityAutoStartupCallBack::Register(napi_value value)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     std::lock_guard<std::mutex> lock(mutexlock_);
     for (const auto &callback : callbacks_) {
         if (IsJsCallbackEquals(callback, value)) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The current callback already exists.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "callback exist");
             return;
         }
     }
@@ -60,12 +60,12 @@ void JsAbilityAutoStartupCallBack::Register(napi_value value)
 
 void JsAbilityAutoStartupCallBack::UnRegister(napi_value value)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     napi_valuetype type = napi_undefined;
     napi_typeof(env_, value, &type);
     std::lock_guard<std::mutex> lock(mutexlock_);
     if (type == napi_undefined || type == napi_null) {
-        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "jsCallback is nullptr, delete all callback.");
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "invalid callback, clear all callback");
         callbacks_.clear();
         return;
     }
@@ -91,7 +91,7 @@ void JsAbilityAutoStartupCallBack::JSCallFunction(const AutoStartupInfo &info, c
                                                    napi_env env, NapiAsyncTask &task, int32_t status) {
         sptr<JsAbilityAutoStartupCallBack> obj = stub.promote();
         if (obj == nullptr) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Callback object is nullptr");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null obj");
             return;
         }
 
@@ -107,19 +107,19 @@ void JsAbilityAutoStartupCallBack::JSCallFunctionWorker(const AutoStartupInfo &i
     std::lock_guard<std::mutex> lock(mutexlock_);
     for (auto callback : callbacks_) {
         if (callback == nullptr) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "callback is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null callback");
             continue;
         }
 
         auto obj = callback->GetNapiValue();
         if (obj == nullptr) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get value.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null obj");
             continue;
         }
 
         napi_value funcObject;
         if (napi_get_named_property(env_, obj, methodName.c_str(), &funcObject) != napi_ok) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get function by name failed.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "get func failed");
             continue;
         }
 
@@ -132,19 +132,19 @@ bool JsAbilityAutoStartupCallBack::IsJsCallbackEquals(const std::shared_ptr<Nati
     napi_value value)
 {
     if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Invalid jsCallback.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null callback");
         return false;
     }
 
     auto object = callback->GetNapiValue();
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get object.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null object");
         return false;
     }
 
     bool result = false;
     if (napi_strict_equals(env_, object, value, &result) != napi_ok) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Object does not match value.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "objects not match");
         return false;
     }
 

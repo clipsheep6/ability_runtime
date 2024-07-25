@@ -28,7 +28,7 @@ const std::string RESULT_DATA_TAG = "resultData";
 
 void JsFeatureAbility::Finalizer(napi_env env, void* data, void* hint)
 {
-    TAG_LOGI(AAFwkTag::FA, "JsFeatureAbility::Finalizer is called");
+    TAG_LOGI(AAFwkTag::FA, "finalizer called");
     std::unique_ptr<JsFeatureAbility>(static_cast<JsFeatureAbility*>(data));
 }
 
@@ -89,7 +89,7 @@ napi_value JsFeatureAbility::UnsubscribeMsg(napi_env env, napi_callback_info inf
 
 napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     if (info.argc != 1) {
         TAG_LOGE(AAFwkTag::FA, "arguments not match");
         return CreateJsUndefined(env);
@@ -97,7 +97,7 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
 
     Ability* ability = GetAbility(env);
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "ability is null");
+        TAG_LOGE(AAFwkTag::FA, "ability null");
         return CreateJsUndefined(env);
     }
 
@@ -123,14 +123,14 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
 
 napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     if (info.argc != 1) {
         TAG_LOGE(AAFwkTag::FA, "Params not match");
         return CreateJsUndefined(env);
     }
     Ability* ability = GetAbility(env);
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "ability null");
         return CreateJsUndefined(env);
     }
 
@@ -168,7 +168,7 @@ napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackI
 
 napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     if (info.argc != 1) {
         TAG_LOGE(AAFwkTag::FA, "Params not match");
         return CreateJsUndefined(env);
@@ -227,49 +227,49 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
 
 napi_value JsFeatureAbility::OnGetDeviceList(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnCallAbility(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnContinueAbility(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnUnsubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSendMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSubscribeMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnUnsubscribeMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "called");
     return CreateJsUndefined(env);
 }
 
@@ -281,8 +281,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        TAG_LOGE(AAFwkTag::FA, "JsFeatureAbility::GetAbility, get_global=%{public}d err:%{public}s",
-            ret, errorInfo->error_message);
+        TAG_LOGE(AAFwkTag::FA, "get_global=%{public}d err:%{public}s", ret, errorInfo->error_message);
         return nullptr;
     }
 
@@ -290,7 +289,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        TAG_LOGE(AAFwkTag::FA, "JsFeatureAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
+        TAG_LOGE(AAFwkTag::FA, "get_named_property=%{public}d err:%{public}s",
             ret, errorInfo->error_message);
         return nullptr;
     }
@@ -299,7 +298,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        TAG_LOGE(AAFwkTag::FA, "JsFeatureAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
+        TAG_LOGE(AAFwkTag::FA, "get_value_external=%{public}d err:%{public}s",
             ret, errorInfo->error_message);
     return nullptr;
     }
@@ -392,7 +391,7 @@ bool JsFeatureAbility::UnWrapRequestParams(napi_env env, napi_value param, Distr
     TAG_LOGI(AAFwkTag::FA, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        TAG_LOGI(AAFwkTag::FA, "%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::FA, "invalid params");
         return false;
     }
 
@@ -489,7 +488,7 @@ napi_value JsFeatureAbilityInit(napi_env env, napi_value exports)
 {
     TAG_LOGD(AAFwkTag::FA, "called");
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "env nullptr.");
+        TAG_LOGE(AAFwkTag::FA, "null env");
         return nullptr;
     }
 

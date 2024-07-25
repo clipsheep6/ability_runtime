@@ -512,7 +512,7 @@ napi_value JsAbilityContext::OnStartUIServiceExtension(napi_env env, NapiCallbac
 bool JsAbilityContext::UnwrapConnectUIServiceExtensionParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want)
 {
     if (info.argc < ARGC_TWO) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return false;
     }
@@ -628,7 +628,7 @@ void JsAbilityContext::DoConnectUIServiceExtension(napi_env env,
 napi_value JsAbilityContext::OnDisconnectUIServiceExtension(napi_env env, NapiCallbackInfo& info)
 {
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "failed, not enough params.");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -1002,7 +1002,7 @@ bool JsAbilityContext::CheckStartAbilityByCallParams(napi_env env, NapiCallbackI
 
 napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "JsAbilityContext::%{public}s, called", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     // 1. check params
     napi_value lastParam = nullptr;
     int32_t userId = DEFAULT_INVAL_VALUE;
@@ -1381,7 +1381,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
     int resultCode = 0;
     AAFwk::Want want;
     if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "%s Failed to parse ability result!", __func__);
+        TAG_LOGE(AAFwkTag::CONTEXT, "failed to parse ability result");
         ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
@@ -1413,7 +1413,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnTerminateSelfWithResult",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
-    TAG_LOGD(AAFwkTag::CONTEXT, "OnTerminateSelfWithResult is called end");
+    TAG_LOGD(AAFwkTag::CONTEXT, "end");
     return result;
 }
 
@@ -1422,7 +1422,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // only support two params
     if (info.argc < ARGC_TWO) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Connect ability failed, not enough params.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }

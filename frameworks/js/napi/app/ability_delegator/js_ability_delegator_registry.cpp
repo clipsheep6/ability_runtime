@@ -56,7 +56,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::DELEGATOR, "called");
         if (!AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator()) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get delegator object");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "get delegator failed");
             return CreateJsNull(env);
         }
 
@@ -77,7 +77,7 @@ private:
         std::shared_ptr<AppExecFwk::AbilityDelegatorArgs> abilityDelegatorArgs =
             AppExecFwk::AbilityDelegatorRegistry::GetArguments();
         if (!abilityDelegatorArgs) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get delegator args object");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "get delegator args object failed");
             return CreateJsNull(env);
         }
         return CreateJsAbilityDelegatorArguments(env, abilityDelegatorArgs);
@@ -89,7 +89,7 @@ napi_value JsAbilityDelegatorRegistryInit(napi_env env, napi_value exportObj)
 {
     TAG_LOGI(AAFwkTag::DELEGATOR, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid input parameters");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null env or exportObj");
         return nullptr;
     }
 
@@ -112,14 +112,14 @@ napi_value AbilityLifecycleStateInit(napi_env env)
     TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid input arguments");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null env");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "null objValue");
         return nullptr;
     }
     napi_set_named_property(env, objValue, "UNINITIALIZED",

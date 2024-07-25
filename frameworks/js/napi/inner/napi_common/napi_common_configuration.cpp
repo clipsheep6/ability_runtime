@@ -34,8 +34,7 @@ bool InnerWrapConfigurationString(
     napi_env env, napi_value jsObject, const std::string &key, const std::string &value)
 {
     if (!value.empty()) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. key=%{public}s, value=%{private}s",
-            __func__, key.c_str(), value.c_str());
+        TAG_LOGI(AAFwkTag::JSNAPI, "key=%{public}s, value=%{private}s", key.c_str(), value.c_str());
         napi_value jsValue = WrapStringToJS(env, value);
         if (jsValue != nullptr) {
             NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
@@ -98,7 +97,7 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
     TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "not napi_object");
         return false;
     }
 

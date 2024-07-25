@@ -34,7 +34,7 @@ AbilityWindow::~AbilityWindow()
  */
 void AbilityWindow::Init(std::shared_ptr<AbilityHandler>& handler, std::shared_ptr<Ability> ability)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s come.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     handler_ = handler;
     ability_ = std::weak_ptr<IAbilityEvent>(ability);
     windowScene_ = std::make_shared<Rosen::WindowScene>();
@@ -43,7 +43,7 @@ void AbilityWindow::Init(std::shared_ptr<AbilityHandler>& handler, std::shared_p
 bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
     sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option, bool isPrivacy)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (windowScene_ == nullptr) {
         windowScene_ = std::make_shared<Rosen::WindowScene>();
     }
@@ -55,13 +55,13 @@ bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &
         ret = windowScene_->Init(displayId, abilityContext, listener, option);
     }
     if (ret != OHOS::Rosen::WMError::WM_OK) {
-        TAG_LOGE(AAFwkTag::ABILITY, "%{public}s error. failed to init window scene!", __func__);
+        TAG_LOGE(AAFwkTag::ABILITY, "init window scene failed");
         return false;
     }
 
     auto window = windowScene_->GetMainWindow();
     if (!window) {
-        TAG_LOGE(AAFwkTag::ABILITY, "%{public}s window is nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITY, "null window");
         return false;
     }
 
@@ -70,7 +70,7 @@ bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &
     }
 
     isWindowAttached = true;
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return true;
 }
 
@@ -82,18 +82,17 @@ void AbilityWindow::OnPostAbilityBackground(uint32_t sceneFlag)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!isWindowAttached) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityBackground window not attached.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window not attached");
         return;
     }
 
     if (windowScene_) {
-        TAG_LOGD(AAFwkTag::ABILITY, "%{public}s begin windowScene_->GoBackground, sceneFlag:%{public}d.",
-            __func__, sceneFlag);
+        TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag:%{public}d", sceneFlag);
         windowScene_->GoBackground(sceneFlag);
-        TAG_LOGD(AAFwkTag::ABILITY, "%{public}s end windowScene_->GoBackground.", __func__);
+        TAG_LOGD(AAFwkTag::ABILITY, "go back end");
     }
 
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityBackground end.");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 /**
@@ -104,18 +103,17 @@ void AbilityWindow::OnPostAbilityForeground(uint32_t sceneFlag)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!isWindowAttached) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityForeground window not attached.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window not attached");
         return;
     }
 
     if (windowScene_) {
-        TAG_LOGD(AAFwkTag::ABILITY, "%{public}s begin windowScene_->GoForeground, sceneFlag:%{public}d.",
-            __func__, sceneFlag);
+        TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag:%{public}d", sceneFlag);
         windowScene_->GoForeground(sceneFlag);
-        TAG_LOGD(AAFwkTag::ABILITY, "%{public}s end windowScene_->GoForeground.", __func__);
+        TAG_LOGD(AAFwkTag::ABILITY, "go fore end");
     }
 
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityForeground end.");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 /**
@@ -126,7 +124,7 @@ void AbilityWindow::OnPostAbilityStop()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!isWindowAttached) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityStop window not attached.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window not attached");
         return;
     }
 
@@ -134,7 +132,7 @@ void AbilityWindow::OnPostAbilityStop()
         windowScene_->GoDestroy();
     }
     isWindowAttached = false;
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityWindow::OnPostAbilityStop end.");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 /**
@@ -145,7 +143,7 @@ void AbilityWindow::OnPostAbilityStop()
 const sptr<Rosen::Window> AbilityWindow::GetWindow()
 {
     if (!isWindowAttached) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityWindow::GetWindow window not attached.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window not attached");
         return nullptr;
     }
     return windowScene_ ? windowScene_->GetMainWindow() : nullptr;
@@ -154,16 +152,16 @@ const sptr<Rosen::Window> AbilityWindow::GetWindow()
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityWindow::SetMissionLabel(const std::string &label)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s start", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     auto window = GetWindow();
     if (!window) {
-        TAG_LOGE(AAFwkTag::ABILITY, "get window failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window failed");
         return -1;
     }
 
     auto ret = window->SetAPPWindowLabel(label);
     if (ret != OHOS::Rosen::WMError::WM_OK) {
-        TAG_LOGE(AAFwkTag::ABILITY, "SetAPPWindowLabel failed, errCode:%{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITY, "errCode:%{public}d", ret);
         return -1;
     }
 
@@ -172,7 +170,7 @@ ErrCode AbilityWindow::SetMissionLabel(const std::string &label)
 
 ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "%{public}s start", __func__);
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     auto window = GetWindow();
     if (!window) {
         TAG_LOGE(AAFwkTag::ABILITY, "get window failed, will not set mission icon.");

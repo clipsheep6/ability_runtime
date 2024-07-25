@@ -27,18 +27,18 @@ void NAPIDataAbilityObserver::ReleaseJSCallback()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (ref_ == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "NAPIDataAbilityObserver::ReleaseJSCallback, ref_ is null.");
+        TAG_LOGE(AAFwkTag::FA, "null ref_");
         return;
     }
 
     if (isCallingback_) {
         needRelease_ = true;
-        TAG_LOGW(AAFwkTag::FA, "%{public}s, ref_ is calling back.", __func__);
+        TAG_LOGW(AAFwkTag::FA, "calling back");
         return;
     }
 
     SafeReleaseJSCallback();
-    TAG_LOGI(AAFwkTag::FA, "NAPIDataAbilityObserver::%{public}s, called. end", __func__);
+    TAG_LOGI(AAFwkTag::FA, "end");
 }
 
 void NAPIDataAbilityObserver::SafeReleaseJSCallback()
@@ -46,7 +46,7 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
     uv_loop_s* loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "%{public}s, loop == nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "null loop");
         return;
     }
 
@@ -67,12 +67,12 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
         [](uv_work_t* work, int status) {
             // JS Thread
             if (work == nullptr) {
-                TAG_LOGE(AAFwkTag::FA, "uv_queue_work input work is nullptr");
+                TAG_LOGE(AAFwkTag::FA, "null work");
                 return;
             }
             auto delRefCallbackInfo =  reinterpret_cast<DelRefCallbackInfo*>(work->data);
             if (delRefCallbackInfo == nullptr) {
-                TAG_LOGE(AAFwkTag::FA, "uv_queue_work delRefCallbackInfo is nullptr");
+                TAG_LOGE(AAFwkTag::FA, "null delRefCallbackInfo");
                 delete work;
                 work = nullptr;
                 return;
@@ -100,25 +100,25 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
 void NAPIDataAbilityObserver::SetEnv(const napi_env &env)
 {
     env_ = env;
-    TAG_LOGI(AAFwkTag::FA, "NAPIDataAbilityObserver::%{public}s, called. end", __func__);
+    TAG_LOGI(AAFwkTag::FA, "end");
 }
 
 void NAPIDataAbilityObserver::SetCallbackRef(const napi_ref &ref)
 {
     ref_ = ref;
-    TAG_LOGI(AAFwkTag::FA, "NAPIDataAbilityObserver::%{public}s, called. end", __func__);
+    TAG_LOGI(AAFwkTag::FA, "end");
 }
 
 static void OnChangeJSThreadWorker(uv_work_t *work, int status)
 {
-    TAG_LOGI(AAFwkTag::FA, "OnChange, uv_queue_work");
+    TAG_LOGI(AAFwkTag::FA, "called");
     if (work == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "OnChange, uv_queue_work input work is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "null work");
         return;
     }
     DAHelperOnOffCB *onCB = (DAHelperOnOffCB *)work->data;
     if (onCB == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "OnChange, uv_queue_work onCB is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "null onCB");
         delete work;
         work = nullptr;
         return;
@@ -132,7 +132,7 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     onCB = nullptr;
     delete work;
     work = nullptr;
-    TAG_LOGI(AAFwkTag::FA, "OnChange, uv_queue_work. end");
+    TAG_LOGI(AAFwkTag::FA, "end");
 }
 
 void NAPIDataAbilityObserver::CallJsMethod()
@@ -140,7 +140,7 @@ void NAPIDataAbilityObserver::CallJsMethod()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (ref_ == nullptr || env_ == nullptr) {
-            TAG_LOGW(AAFwkTag::FA, "%{public}s observer is invalid.", __func__);
+            TAG_LOGW(AAFwkTag::FA, "invalid observer");
             return;
         }
         isCallingback_ = true;
@@ -198,7 +198,7 @@ void NAPIDataAbilityObserver::OnChange()
             work = nullptr;
         }
     }
-    TAG_LOGI(AAFwkTag::FA, "%{public}s, called. end", __func__);
+    TAG_LOGI(AAFwkTag::FA, "end");
 }
 
 }  // namespace AppExecFwk

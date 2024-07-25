@@ -228,7 +228,7 @@ private:
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "StartAbility");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -371,7 +371,7 @@ private:
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityAsCaller");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability as caller failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -436,7 +436,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityByCall");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability by call failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -587,7 +587,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability with account failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -684,7 +684,7 @@ private:
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
         // Check params count
         if (info.argc < ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Connect ability error, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -728,7 +728,7 @@ private:
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "ConnectAbilityWithAccount");
         // Check params count
         if (info.argc < ARGC_THREE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Connect ability failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -801,7 +801,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "DisconnectAbility start");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Disconnect ability error, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -871,7 +871,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartExtensionAbility");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start extension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -908,7 +908,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnStartUIServiceExtension is enter");
         if (info.argc <ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartUIServiceExtension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -947,7 +947,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Stop extension error, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -985,7 +985,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StopExtensionAbility");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start extension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -1022,7 +1022,7 @@ private:
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StopExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Stop extension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }

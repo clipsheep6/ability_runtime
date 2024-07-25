@@ -393,7 +393,7 @@ napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
     napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
 
     StopSyncRemoteMissionsAsyncWork(env, resourceName, syncContext);
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s, end.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "end");
     return result;
 }
 
@@ -402,14 +402,14 @@ RegisterMissionCB *CreateRegisterMissionCBCBInfo(napi_env &env)
     TAG_LOGI(AAFwkTag::MISSION, "called");
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
-        TAG_LOGE(AAFwkTag::MISSION, "%{public}s registerMissionCB == nullptr", __func__);
+        TAG_LOGE(AAFwkTag::MISSION, "null registerMissionCB");
         return nullptr;
     }
     registerMissionCB->cbBase.cbInfo.env = env;
     registerMissionCB->cbBase.asyncWork = nullptr;
     registerMissionCB->cbBase.deferred = nullptr;
     registerMissionCB->callbackRef = nullptr;
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "end");
     return registerMissionCB;
 }
 
@@ -418,14 +418,14 @@ OnCB *CreateOnCBCBInfo(napi_env &env)
     TAG_LOGI(AAFwkTag::MISSION, "called");
     auto onCB = new (std::nothrow) OnCB;
     if (onCB == nullptr) {
-        TAG_LOGE(AAFwkTag::MISSION, "%{public}s onCB == nullptr", __func__);
+        TAG_LOGE(AAFwkTag::MISSION, "null onCB");
         return nullptr;
     }
     onCB->cbBase.cbInfo.env = env;
     onCB->cbBase.asyncWork = nullptr;
     onCB->cbBase.deferred = nullptr;
     onCB->callbackRef = nullptr;
-    TAG_LOGI(AAFwkTag::MISSION, "%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "end");
     return onCB;
 }
 

@@ -29,7 +29,7 @@ void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateD
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "The app manager may has destroyed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid appms");
         return;
     }
     wptr<JSAbilityForegroundStateObserver> jsObserver = this;
@@ -37,7 +37,7 @@ void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateD
         [jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAbilityForegroundStateObserver> jsObserverSptr = jsObserver.promote();
             if (jsObserverSptr == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "Js Observer Sptr is nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
                 return;
             }
             jsObserverSptr->HandleOnAbilityStateChanged(abilityStateData);
@@ -63,35 +63,35 @@ void JSAbilityForegroundStateObserver::HandleOnAbilityStateChanged(const Ability
 void JSAbilityForegroundStateObserver::CallJsFunction(
     const napi_value &value, const char *methodName, const napi_value *argv, const size_t argc)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Begin.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (value == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null value");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get name from object Failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null method");
         return;
     }
     napi_value callResult = nullptr;
     napi_status status = napi_call_function(env_, value, method, argc, argv, &callResult);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Call Js Function failed %{public}d.", status);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "call js func failed: %{public}d", status);
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "End.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "end");
 }
 
 bool JSAbilityForegroundStateObserver::IsObserverObjectExsit(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return false;
     }
 
     if (GetObserverObject(jsObserverObject) == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Observer is not exists.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "observer not exist");
         return false;
     }
     return true;
@@ -100,12 +100,12 @@ bool JSAbilityForegroundStateObserver::IsObserverObjectExsit(const napi_value &j
 void JSAbilityForegroundStateObserver::AddJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return;
     }
 
     if (IsObserverObjectExsit(jsObserverObject)) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Observer is exists.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "observer not exist");
         return;
     }
     napi_ref ref = nullptr;
@@ -116,7 +116,7 @@ void JSAbilityForegroundStateObserver::AddJsObserverObject(const napi_value &jsO
 void JSAbilityForegroundStateObserver::RemoveJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return;
     }
 
@@ -136,18 +136,18 @@ void JSAbilityForegroundStateObserver::RemoveAllJsObserverObject()
 std::shared_ptr<NativeReference> JSAbilityForegroundStateObserver::GetObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
         return nullptr;
     }
     for (auto &observer : jsObserverObjectSet_) {
         if (observer == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid observer.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null observer");
             continue;
         }
 
         napi_value value = observer->GetNapiValue();
         if (value == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get object.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "get object failed");
             continue;
         }
 

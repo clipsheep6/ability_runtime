@@ -54,7 +54,7 @@ void JsAutoSaveRequestCallback::Register(napi_value value)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (IsJsCallbackEquals(callback_, value)) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "The current callback already exists.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "callback exist");
         return;
     }
 
@@ -81,7 +81,7 @@ void JsAutoSaveRequestCallback::JSCallFunction(const std::string &methodName)
 void JsAutoSaveRequestCallback::JSCallFunctionWorker(const std::string &methodName)
 {
     if (callback_ == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null callback_");
         return;
     }
 
@@ -109,7 +109,7 @@ bool JsAutoSaveRequestCallback::IsJsCallbackEquals(std::shared_ptr<NativeReferen
 
     auto object = callback->GetNapiValue();
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Failed to get object.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null obj");
         return false;
     }
 
