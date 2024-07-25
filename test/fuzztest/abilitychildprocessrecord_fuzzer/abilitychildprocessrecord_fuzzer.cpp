@@ -40,18 +40,17 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     int32_t hostPid = static_cast<int32_t>(GetU32Data(data));
     ChildProcessRequest request;
     std::shared_ptr<AppRunningRecord> hostRecord;
-    ChildProcessRecord::CreateChildProcessRecord(hostPid,request,hostRecord);
+    ChildProcessRecord::CreateChildProcessRecord(hostPid, request, hostRecord);
     std::string stringParam(data, size);
-    sptr<IRemoteObject> mainProcessCb;
-    int32_t childProcessCount =static_cast<int32_t>(GetU32Data(data));
-    bool isStartWithDebug = *data % ENABLE;
-    ChildProcessRecord::CreateNativeChildProcessRecord(hostPid,stringParam,hostRecord,mainProcessCb,childProcessCount,isStartWithDebug);
+    sptr<IRemoteObject> mP;
+    int32_t cd = static_cast<int32_t>(GetU32Data(data));
+    bool flag = *data % ENABLE;
+    ChildProcessRecord::CreateNativeChildProcessRecord(hostPid, stringParam, hostRecord, mP, cd, flag);
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     int32_t RECORD_ID = static_cast<int32_t>(GetU32Data(data));
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, stringParam);
