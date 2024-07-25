@@ -412,7 +412,7 @@ void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbil
     }
 }
 
-void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformSceneCreated(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
     TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
 
@@ -440,7 +440,7 @@ void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegator
     }
 }
 
-void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformSceneRestored(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
     TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
 
@@ -468,7 +468,7 @@ void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegato
     }
 }
 
-void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformSceneDestroyed(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
     TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
 

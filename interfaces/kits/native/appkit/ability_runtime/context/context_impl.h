@@ -332,7 +332,7 @@ public:
     void KillProcessBySelf(const bool clearPageStack = true);
 
     /**
-     * @brief Get running informationfor cuirrent process
+     * @brief Get running information for current process
      *
      * @return error code
      */

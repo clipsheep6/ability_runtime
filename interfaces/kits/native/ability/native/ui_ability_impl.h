@@ -141,7 +141,7 @@ public:
 
     /**
      * @brief Notify continuation result to ability.
-     * @param result Continuaton result.
+     * @param result Continuation result.
      */
     void NotifyContinuationResult(int32_t result);
 

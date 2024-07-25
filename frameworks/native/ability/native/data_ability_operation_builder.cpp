@@ -84,7 +84,6 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPr
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithExpectedCount(int count)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount start");
     TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount expectedCount:%{public}d", count);
     if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
@@ -102,7 +101,6 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithEx
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPredicatesBackReference(
     int requestArgIndex, int previousResult)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicatesBackReference start");
     TAG_LOGI(AAFwkTag::DATA_ABILITY,
         "DataAbilityOperationBuilder::WithPredicatesBackReference requestArgIndex:%{public}d, "
         "previousResult:%{public}d",
@@ -137,7 +135,6 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithVa
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithInterruptionAllowed(bool interrupted)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed start");
     TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed  interrupted=%{public}d",
         interrupted);
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&

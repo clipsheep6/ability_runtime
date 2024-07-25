@@ -575,7 +575,7 @@ void AbilityImpl::AfterFocused()
 
 void AbilityImpl::AfterFocusedCommon(bool isFocused)
 {
-    auto task = [abilityImpl = weak_from_this(), focuseMode = isFocused]() {
+    auto task = [abilityImpl = weak_from_this(), focusMode = isFocused]() {
         auto impl = abilityImpl.lock();
         if (impl == nullptr) {
             return;
@@ -583,7 +583,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
 
         if (!impl->ability_ || !impl->ability_->GetAbilityInfo()) {
             TAG_LOGW(AAFwkTag::ABILITY,
-                "AbilityImpl::%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
+                "AbilityImpl::%{public}s failed", focusMode ? "AfterFocused" : "AfterUnFocused");
             return;
         }
         TAG_LOGI(AAFwkTag::ABILITY, "isStageBasedModel: %{public}d",
@@ -599,7 +599,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
                 return;
             }
             auto& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*(impl->ability_));
-            if (focuseMode) {
+            if (focusMode) {
                 applicationContext->DispatchWindowStageFocus(jsAbility.GetJsAbility(),  jsAbility.GetJsWindowStage());
             } else {
                 applicationContext->DispatchWindowStageUnfocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
@@ -612,7 +612,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
             return;
         }
         auto info = impl->ability_->GetLifeCycleStateInfo();
-        if (focuseMode) {
+        if (focusMode) {
             info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
         } else {
             info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;

@@ -229,7 +229,7 @@ int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, boo
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "StartSyncRemoteMissions called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is nullptr");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is nullptr");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -249,7 +249,7 @@ int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "StopSyncRemoteMissions called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -267,7 +267,7 @@ int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "RegisterMissionListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is nullptr.");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is nullptr.");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -286,7 +286,7 @@ int32_t DistributedClient::RegisterOnListener(const std::string& type,
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "RegisterOnListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is nullptr");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is nullptr");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -305,7 +305,7 @@ int32_t DistributedClient::RegisterOffListener(const std::string& type,
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "RegisterOffListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -325,7 +325,7 @@ int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -344,7 +344,7 @@ int32_t DistributedClient::GetMissionInfos(const std::string& deviceId, int32_t 
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is null");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -548,7 +548,7 @@ int32_t DistributedClient::SetMissionContinueState(int32_t missionId, const AAFw
         "SetMissionContinueState called. Mission id: %{public}d, state: %{public}d", missionId, state);
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ability is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;

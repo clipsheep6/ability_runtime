@@ -425,7 +425,7 @@ void AppRecovery::DeleteInValidMissionFiles()
     std::vector<MissionValidResult> results;
 
     if (!GetMissionIds(fileDir, missionIds)) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery get mssion file id error.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery get mission file id error.");
         return;
     }
     if (missionIds.empty()) {

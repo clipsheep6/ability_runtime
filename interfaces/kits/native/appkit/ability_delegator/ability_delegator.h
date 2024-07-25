@@ -265,25 +265,25 @@ public:
     void PostPerformStageStart(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage);
 
     /**
-     * Saves ability properties when scence is created and notify monitors of state changes.
+     * Saves ability properties when scene is created and notify monitors of state changes.
      *
      * @param ability, Indicates the ability properties.
      */
-    void PostPerformScenceCreated(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
+    void PostPerformSceneCreated(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
     /**
-     * Saves ability properties when scence is restored and notify monitors of state changes.
+     * Saves ability properties when scene is restored and notify monitors of state changes.
      *
      * @param ability, Indicates the ability properties.
      */
-    void PostPerformScenceRestored(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
+    void PostPerformSceneRestored(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
     /**
-     * Saves ability properties when scence is destroyed and notify monitors of state changes.
+     * Saves ability properties when scene is destroyed and notify monitors of state changes.
      *
      * @param ability, Indicates the ability properties.
      */
-    void PostPerformScenceDestroyed(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
+    void PostPerformSceneDestroyed(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
     /**
      * Saves ability properties when ability is in the foreground and notify monitors of state changes.

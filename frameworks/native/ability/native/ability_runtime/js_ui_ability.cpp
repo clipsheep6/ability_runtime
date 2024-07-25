@@ -494,8 +494,8 @@ void JsUIAbility::OnSceneCreated()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceCreated.");
-        delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
+        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformSceneCreated.");
+        delegator->PostPerformSceneCreated(CreateADelegatorAbilityProperty());
     }
 
     applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -531,8 +531,8 @@ void JsUIAbility::OnSceneRestored()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceRestored.");
-        delegator->PostPerformScenceRestored(CreateADelegatorAbilityProperty());
+        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformSceneRestored.");
+        delegator->PostPerformSceneRestored(CreateADelegatorAbilityProperty());
     }
 }
 
@@ -575,8 +575,8 @@ void JsUIAbility::onSceneDestroyed()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceDestroyed.");
-        delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
+        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformSceneDestroyed.");
+        delegator->PostPerformSceneDestroyed(CreateADelegatorAbilityProperty());
     }
 
     applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -721,7 +721,7 @@ std::unique_ptr<NativeReference> JsUIAbility::CreateAppWindowStage()
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsWindowStage = Rosen::CreateJsWindowStage(env, GetScene());
     if (jsWindowStage == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create jsWindowSatge object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create jsWindowStage object.");
         return nullptr;
     }
     return JsRuntime::LoadSystemModuleByEngine(env, "application.WindowStage", &jsWindowStage, 1);
@@ -906,7 +906,7 @@ std::shared_ptr<NativeReference> JsUIAbility::GetJsWindowStage()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (jsWindowStageObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsWindowSatge is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "JsWindowStage is nullptr.");
     }
     return jsWindowStageObj_;
 }

@@ -88,7 +88,7 @@ private:
      * @param dataUri indicates Uri object
      * @return Uri return is the URI after path is updated
      */
-    static Uri UriUpateLastPath(const Uri &dataUri, const string &updateLastPath);
+    static Uri UriUpdateLastPath(const Uri &dataUri, const string &updateLastPath);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

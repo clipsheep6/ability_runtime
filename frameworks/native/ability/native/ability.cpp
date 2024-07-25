@@ -176,8 +176,8 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
     TAG_LOGD(AAFwkTag::ABILITY, "AbilityName is %{public}s.", abilityInfo_->name.c_str());
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
-        int32_t displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        int32_t defaultDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        int32_t displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defaultDisplayId);
         TAG_LOGD(AAFwkTag::ABILITY, "abilityName:%{public}s, displayId:%{public}d",
             abilityInfo_->name.c_str(), displayId);
         InitFAWindow(want, displayId);
@@ -512,7 +512,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
         }
         resourceManager->UpdateResConfig(*resConfig);
         TAG_LOGI(AAFwkTag::ABILITY,
-            "Notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{publis}d.",
+            "Notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{public}d.",
             resConfig->GetColorMode(), resConfig->GetInputDevice());
     }
 
@@ -2149,7 +2149,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
 {
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (!display) {
-        TAG_LOGI(AAFwkTag::ABILITY, "The display is invliad.");
+        TAG_LOGI(AAFwkTag::ABILITY, "The display is invalid.");
         return true;
     }
     float density = display->GetVirtualPixelRatio();

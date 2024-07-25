@@ -600,7 +600,7 @@ HWTEST_F(FaAbilityThreadTest, AaFwk_AbilityThread_SchedulePrepareTerminateAbilit
 
     abilitythread->abilityImpl_ = nullptr;
     bool ret = abilitythread->SchedulePrepareTerminateAbility();
-    abilitythread->HandlePrepareTermianteAbility();
+    abilitythread->HandlePrepareTerminateAbility();
     EXPECT_EQ(ret, false);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SchedulePrepareTerminateAbility_0100 end";
 }
@@ -640,7 +640,7 @@ HWTEST_F(FaAbilityThreadTest, AaFwk_AbilityThread_SchedulePrepareTerminateAbilit
     EXPECT_NE(abilitythread->abilityImpl_, nullptr);
     abilitythread->abilityHandler_ = nullptr;
     bool ret = abilitythread->SchedulePrepareTerminateAbility();
-    abilitythread->HandlePrepareTermianteAbility();
+    abilitythread->HandlePrepareTerminateAbility();
     EXPECT_EQ(ret, false);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SchedulePrepareTerminateAbility_0300 end";
 }

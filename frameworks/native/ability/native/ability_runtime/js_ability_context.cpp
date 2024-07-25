@@ -1022,7 +1022,7 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
     };
 
     // 3. StartAbilityByCall
-    napi_value retsult = nullptr;
+    napi_value result = nullptr;
     auto context = context_.lock();
     if (context == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall context is nullptr");
@@ -1040,15 +1040,15 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
     if (calls->remoteCallee == nullptr) {
         TAG_LOGI(AAFwkTag::CONTEXT, "OnStartAbilityByCall async wait execute");
         NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByCall", env,
-            CreateAsyncTaskWithLastParam(env, lastParam, std::move(callExecute), std::move(callComplete), &retsult));
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(callExecute), std::move(callComplete), &result));
     } else {
-        TAG_LOGI(AAFwkTag::CONTEXT, "OnStartAbilityByCall promiss return result execute");
+        TAG_LOGI(AAFwkTag::CONTEXT, "OnStartAbilityByCall promise return result execute");
         NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByCall", env,
-            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(callComplete), &retsult));
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(callComplete), &result));
     }
 
     TAG_LOGD(AAFwkTag::CONTEXT, "JsAbilityContext, called end");
-    return retsult;
+    return result;
 }
 
 napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info)
@@ -1434,7 +1434,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
-    // unwarp connection
+    // unwrap connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_ONE]);
     int64_t connectId = InsertConnection(connection, want);
@@ -1489,7 +1489,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
         return CreateJsUndefined(env);
     }
 
-    // unwarp connection
+    // unwrap connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_TWO]);
     int64_t connectId = InsertConnection(connection, want, accountId);

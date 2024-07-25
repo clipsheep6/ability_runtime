@@ -94,7 +94,7 @@ int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callb
     if (localCallRecord->IsExistCallBack()) {
         // just release callback.
         TAG_LOGD(AAFwkTag::LOCAL_CALL,
-            "LocalCallContainer::ReleaseCall, The callee has onther callers, just release this callback.");
+            "LocalCallContainer::ReleaseCall, The callee has other callers, just release this callback.");
         return ERR_OK;
     }
     auto connect = iface_cast<CallerConnection>(localCallRecord->GetConnection());

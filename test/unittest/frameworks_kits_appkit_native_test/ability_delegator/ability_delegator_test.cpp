@@ -944,8 +944,8 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2200, Function | MediumTes
 
 /**
  * @tc.number: Ability_Delegator_Test_2300
- * @tc.name: PostPerformScenceCreated
- * @tc.desc: Verify the PostPerformScenceCreated is invalid.
+ * @tc.name: PostPerformSceneCreated
+ * @tc.desc: Verify the PostPerformSceneCreated is invalid.
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_23400, Function | MediumTest | Level1)
 {
@@ -970,15 +970,15 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_23400, Function | MediumTe
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
-    abilityDelegator.PostPerformScenceCreated(nullptr);
+    abilityDelegator.PostPerformSceneCreated(nullptr);
 
     EXPECT_FALSE(mockMonitor->windowStageCreate_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Test_2400
- * @tc.name: PostPerformScenceCreated
- * @tc.desc: Verify the PostPerformScenceCreated is valid.
+ * @tc.name: PostPerformSceneCreated
+ * @tc.desc: Verify the PostPerformSceneCreated is valid.
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2400, Function | MediumTest | Level1)
 {
@@ -1010,15 +1010,15 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2400, Function | MediumTes
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
     ability->object_ = std::shared_ptr<NativeReference>();
-    abilityDelegator.PostPerformScenceCreated(ability);
+    abilityDelegator.PostPerformSceneCreated(ability);
 
     EXPECT_TRUE(mockMonitor->windowStageCreate_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Test_2500
- * @tc.name: PostPerformScenceRestored
- * @tc.desc: Verify the PostPerformScenceRestored is invalid.
+ * @tc.name: PostPerformSceneRestored
+ * @tc.desc: Verify the PostPerformSceneRestored is invalid.
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2500, Function | MediumTest | Level1)
 {
@@ -1043,15 +1043,15 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2500, Function | MediumTes
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
-    abilityDelegator.PostPerformScenceRestored(nullptr);
+    abilityDelegator.PostPerformSceneRestored(nullptr);
 
     EXPECT_FALSE(mockMonitor->windowStageRestore_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Test_2600
- * @tc.name: PostPerformScenceRestored
- * @tc.desc: Verify the PostPerformScenceRestored is valid.
+ * @tc.name: PostPerformSceneRestored
+ * @tc.desc: Verify the PostPerformSceneRestored is valid.
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2600, Function | MediumTest | Level1)
 {
@@ -1083,15 +1083,15 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2600, Function | MediumTes
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
     ability->object_ = std::shared_ptr<NativeReference>();
-    abilityDelegator.PostPerformScenceRestored(ability);
+    abilityDelegator.PostPerformSceneRestored(ability);
 
     EXPECT_TRUE(mockMonitor->windowStageRestore_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Test_2700
- * @tc.name: PostPerformScenceDestroyed
- * @tc.desc: Verify the PostPerformScenceDestroyed is invalid.
+ * @tc.name: PostPerformSceneDestroyed
+ * @tc.desc: Verify the PostPerformSceneDestroyed is invalid.
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2700, Function | MediumTest | Level1)
 {
@@ -1116,15 +1116,15 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2700, Function | MediumTes
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
-    abilityDelegator.PostPerformScenceDestroyed(nullptr);
+    abilityDelegator.PostPerformSceneDestroyed(nullptr);
 
     EXPECT_FALSE(mockMonitor->windowStageDestroy_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Test_2800
- * @tc.name: PostPerformScenceDestroyed
- * @tc.desc: Verify the PostPerformScenceDestroyed is valid.
+ * @tc.name: PostPerformSceneDestroyed
+ * @tc.desc: Verify the PostPerformSceneDestroyed is valid.
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2800, Function | MediumTest | Level1)
 {
@@ -1156,7 +1156,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2800, Function | MediumTes
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
     ability->object_ = std::shared_ptr<NativeReference>();
-    abilityDelegator.PostPerformScenceDestroyed(ability);
+    abilityDelegator.PostPerformSceneDestroyed(ability);
 
     EXPECT_TRUE(mockMonitor->windowStageDestroy_);
 }
@@ -1871,9 +1871,9 @@ HWTEST_F(AbilityDelegatorTest, AbilityMonitorEmptyTest_0100, TestSize.Level1)
     abilityProperty->name_ = ABILITY_NAME;
     abilityProperty->fullName_ = ABILITY_NAME;
     commonDelegator_->PostPerformStart(abilityProperty);
-    commonDelegator_->PostPerformScenceCreated(abilityProperty);
-    commonDelegator_->PostPerformScenceRestored(abilityProperty);
-    commonDelegator_->PostPerformScenceDestroyed(abilityProperty);
+    commonDelegator_->PostPerformSceneCreated(abilityProperty);
+    commonDelegator_->PostPerformSceneRestored(abilityProperty);
+    commonDelegator_->PostPerformSceneDestroyed(abilityProperty);
     commonDelegator_->PostPerformForeground(abilityProperty);
     commonDelegator_->PostPerformBackground(abilityProperty);
     commonDelegator_->PostPerformStop(abilityProperty);

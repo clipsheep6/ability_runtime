@@ -206,7 +206,7 @@ HWTEST_F(DataUriUtilsTest, DataUriUtilsTest_0300, Level1)
 /**
  * @tc.number: DataUriUtilsTest_0400
  * @tc.name: DataUriUtilsTest
- * @tc.desc: Test Function DataUriUtils::UriUpateLastPath
+ * @tc.desc: Test Function DataUriUtils::UriUpdateLastPath
  */
 HWTEST_F(DataUriUtilsTest, DataUriUtilsTest_0400, Level1)
 {
@@ -216,17 +216,17 @@ HWTEST_F(DataUriUtilsTest, DataUriUtilsTest_0400, Level1)
     Uri uri1("");
     string path = const_cast<Uri &>(uri1).GetPath();
     EXPECT_TRUE(path.empty());
-    dataUriUtils.UriUpateLastPath(uri1, empty);
+    dataUriUtils.UriUpdateLastPath(uri1, empty);
     Uri uri2("scheme://authority/");
     std::vector<string> pathVector;
     const_cast<Uri &>(uri2).GetPathSegments(pathVector);
     EXPECT_TRUE(pathVector.empty());
-    dataUriUtils.UriUpateLastPath(uri2, empty);
+    dataUriUtils.UriUpdateLastPath(uri2, empty);
     Uri uri3("scheme://authority/path1/path2/");
     const_cast<Uri &>(uri3).GetPathSegments(pathVector);
     string lastPath = pathVector[pathVector.size() - 1];
     EXPECT_TRUE(!(dataUriUtils.IsNumber(lastPath)));
-    dataUriUtils.UriUpateLastPath(uri3, empty);
+    dataUriUtils.UriUpdateLastPath(uri3, empty);
     GTEST_LOG_(INFO) << "DataUriUtilsTest_0400 end";
 }
 }  // namespace AppExecFwk

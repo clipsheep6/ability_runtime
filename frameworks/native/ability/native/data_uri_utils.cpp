@@ -116,13 +116,13 @@ long long DataUriUtils::GetId(const Uri &dataUri)
  */
 Uri DataUriUtils::DeleteId(const Uri &dataUri)
 {
-    return UriUpateLastPath(dataUri, EMPTY);
+    return UriUpdateLastPath(dataUri, EMPTY);
 }
 
 /**
  * @brief Updates the ID in the specified dataUri
  * @param dataUri based on RFC 2396( Uniform Resource Identifier ).
- * @param id indiates Update attached to the end of the path component of the given URI
+ * @param id indicates Update attached to the end of the path component of the given URI
  * @return Uri return is the URI after path is updated
  */
 Uri DataUriUtils::UpdateId(const Uri &dataUri, long long id)
@@ -136,7 +136,7 @@ Uri DataUriUtils::UpdateId(const Uri &dataUri, long long id)
     string newLastPath("");
     newLastPath = string(longBuffer);
 
-    return UriUpateLastPath(dataUri, newLastPath);
+    return UriUpdateLastPath(dataUri, newLastPath);
 }
 
 /**
@@ -178,7 +178,7 @@ bool DataUriUtils::IsNumber(const string &str)
    scheme://authority/path/aaa?query/#fragment
  * @return Uri return is the URI after path is updated
  */
-Uri DataUriUtils::UriUpateLastPath(const Uri &dataUri, const string &updateLastPath)
+Uri DataUriUtils::UriUpdateLastPath(const Uri &dataUri, const string &updateLastPath)
 {
     std::string strUpdateLastPath;
 
