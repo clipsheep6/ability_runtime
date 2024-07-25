@@ -24,7 +24,7 @@ const ERROR_CODE_INNER_ERROR = 16000050;
 
 const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
 const ERROR_MSG_CALLER_RELEASED = 'Caller released. The caller has been released.';
-const ERROR_MSG_CLAAEE_INVALID = 'Callee invalid. The callee does not exist.';
+const ERROR_MSG_CLAAEE_INVALID = 'The callee does not exist.';
 const ERROR_MSG_INNER_ERROR = 'Inner Error.';
 
 let errMap = new Map();

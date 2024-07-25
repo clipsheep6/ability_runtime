@@ -63,15 +63,15 @@ const std::map<int32_t, std::string> EXTERNAL_ERR_MSG_MAP = {
     { ERR_QUICKFIX_PERMISSION_DENIED,   "The application does not have permission to call the interface." },
     { ERR_QUICKFIX_NOT_SYSTEM_APP,   "The application is not system-app, can not use system-api." },
     { ERR_QUICKFIX_PARAM_INVALID,       "Invalid input parameter." },
-    { ERR_QUICKFIX_BUNDLE_NAME_INVALID, "The specified bundleName is invalid." },
+    { ERR_QUICKFIX_BUNDLE_NAME_INVALID, "The bundle does not exist or no patch has been applied." },
     { ERR_QUICKFIX_HQF_INVALID,         "The specified hqf is invalid. Hqf may not exist or inaccessible." },
     { ERR_QUICKFIX_HQF_DEPLOY_FAILED,   "Deploy hqf failed." },
     { ERR_QUICKFIX_HQF_SWITCH_FAILED,   "Switch hqf failed." },
-    { ERR_QUICKFIX_HQF_DELETE_FAILED,   "Delete hqf failed." },
+    { ERR_QUICKFIX_HQF_DELETE_FAILED,   "Failed to remove the patch package." },
     { ERR_QUICKFIX_LOAD_PATCH_FAILED,   "Load patch failed." },
     { ERR_QUICKFIX_UNLOAD_PATCH_FAILED, "Unload patch failed." },
     { ERR_QUICKFIX_INTERNAL_ERROR,      "Internal error." },
-    { ERR_QUICKFIX_DEPLOYING_TASK,      "The application has a apply quick fix task that is being processed." },
+    { ERR_QUICKFIX_DEPLOYING_TASK,      "The application has an ongoing quick fix task." },
 };
 } // namespace
 
