@@ -41,7 +41,6 @@ class AbilityManagerClient {
 public:
     virtual ~AbilityManagerClient();
     static std::shared_ptr<AbilityManagerClient> GetInstance();
-
     void RemoveDeathRecipient();
 
     /**
@@ -1408,6 +1407,13 @@ public:
         std::vector<int32_t> &sessionIds);
 
     /**
+     * @brief Restart app self.
+     * @param want The ability type must be UIAbility.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RestartApp(const AAFwk::Want &want);
+
+    /**
      * @brief Get host info of root caller.
      *
      * @param token The ability token.
@@ -1428,13 +1434,6 @@ public:
      */
     ErrCode GetUIExtensionSessionInfo(const sptr<IRemoteObject> token, UIExtensionSessionInfo &uiExtensionSessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE);
-
-    /**
-     * @brief Restart app self.
-     * @param want The ability type must be UIAbility.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t RestartApp(const AAFwk::Want &want);
 
     /**
      * Pop-up launch of full-screen atomic service.

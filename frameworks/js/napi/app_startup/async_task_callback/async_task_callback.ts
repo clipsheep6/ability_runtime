@@ -20,7 +20,7 @@ class AsyncTaskCallback {
     this.__impl__ = object;
   }
 
-  onAsyncTaskCompleted(startupName, startupResult) {
+  onAsyncTaskCompleted(startupName, startupResult): void {
     console.log('AsyncTaskCallback onAsyncTaskCompleted called, startupName: ' + startupName);
     this.__impl__.onAsyncTaskCompleted(startupName, startupResult);
   }

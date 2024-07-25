@@ -607,8 +607,6 @@ public:
      */
     virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
-    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
-
     /**
      * Set application assertion pause state.
      *
@@ -616,15 +614,7 @@ public:
      */
     void SetAppAssertionPauseState(bool flag) override;
 
-    /**
-     * Start native child process, callde by ChildProcessManager.
-     * @param libName lib file name to be load in child process
-     * @param childProcessCount current started child process count
-     * @param callback callback for notify start result
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
-        const sptr<IRemoteObject> &callback) override;
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 
     virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
 
@@ -635,6 +625,16 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest) override;
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) override;
 
     virtual int32_t NotifyProcessDependedOnWeb() override;
 

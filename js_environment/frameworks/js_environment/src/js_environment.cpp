@@ -307,12 +307,6 @@ void JsEnvironment::GetHeapPrepare()
     panda::DFXJSNApi::GetHeapPrepare(vm_);
 }
 
-void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
-{
-    TAG_LOGD(AAFwkTag::JSENV, "ReInit jsenv impl.");
-    impl_ = std::move(impl);
-}
-
 void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate)
 {
     if (engine_ == nullptr) {
@@ -321,6 +315,12 @@ void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDele
     }
 
     engine_->SetModuleLoadChecker(moduleCheckerDelegate);
+}
+
+void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
+{
+    TAG_LOGD(AAFwkTag::JSENV, "ReInit jsenv impl.");
+    impl_ = std::move(impl);
 }
 
 void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)

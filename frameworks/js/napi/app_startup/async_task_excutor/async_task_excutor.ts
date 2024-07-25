@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-async function concurrentFunc(startup, asyncCallback, context, startupName) {
+async function concurrentFunc(startup, asyncCallback, context, startupName): void {
   'use concurrent';
   console.log('concurrentFunc start.');
   let startupResult;
   await startup.init(context).then((result: Object) => {
-    startupResult = result
+    startupResult = result;
     let taskPool = requireNapi('taskpool');
     taskPool.Task.sendData(asyncCallback, startupName, startupResult);
   });
   console.log('concurrentFunc end.');
 }
 
-function receiveResult(asyncCallback, startupName, startupResult) {
+function receiveResult(asyncCallback, startupName, startupResult): void {
   console.log('receiveResult called.');
   asyncCallback.onAsyncTaskCompleted(startupName, startupResult);
   console.log('receiveResult end.');

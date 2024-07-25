@@ -462,7 +462,7 @@ enum {
      * Native error(2097240) for memory size state unchanged.
      */
     ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
-    
+
     /**
      * Native error(2097241) for target bundle not exist.
      */

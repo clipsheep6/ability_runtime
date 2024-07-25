@@ -1506,6 +1506,16 @@ public:
     }
 
     /**
+     * @brief Restart app self.
+     * @param want The ability type must be UIAbility.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RestartApp(const AAFwk::Want &want)
+    {
+        return 0;
+    }
+
+    /**
      * @brief Get host info of root caller.
      *
      * @param token The ability token.
@@ -1529,16 +1539,6 @@ public:
      */
     virtual int32_t GetUIExtensionSessionInfo(const sptr<IRemoteObject> token,
         UIExtensionSessionInfo &uiExtensionSessionInfo, int32_t userId = DEFAULT_INVAL_VALUE)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Restart app self.
-     * @param want The ability type must be UIAbility.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t RestartApp(const AAFwk::Want &want)
     {
         return 0;
     }

@@ -566,6 +566,11 @@ std::string ApplicationContext::GetTempDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetTempDir() : "";
 }
 
+std::string ApplicationContext::GetResourceDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
+}
+
 void ApplicationContext::GetAllTempDir(std::vector<std::string> &tempPaths)
 {
     if (contextImpl_ == nullptr) {
@@ -573,11 +578,6 @@ void ApplicationContext::GetAllTempDir(std::vector<std::string> &tempPaths)
         return;
     }
     contextImpl_->GetAllTempDir(tempPaths);
-}
-
-std::string ApplicationContext::GetResourceDir()
-{
-    return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
 }
 
 std::string ApplicationContext::GetFilesDir()

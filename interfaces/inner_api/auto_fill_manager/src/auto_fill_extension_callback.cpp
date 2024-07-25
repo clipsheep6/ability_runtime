@@ -28,7 +28,7 @@ namespace {
 #ifdef SUPPORT_GRAPHICS
 constexpr const char* WANT_PARAMS_VIEW_DATA_KEY = "ohos.ability.params.viewData";
 constexpr const char* WANT_PARAMS_AUTO_FILL_CMD_KEY = "ohos.ability.params.autoFillCmd";
-constexpr const char*  WANT_PARAMS_FILL_CONTENT = "ohos.ability.params.fillContent";
+constexpr const char* WANT_PARAMS_FILL_CONTENT = "ohos.ability.params.fillContent";
 constexpr const char* WANT_PARAMS_CUSTOM_DATA_KEY = "ohos.ability.params.customData";
 constexpr const char* WANT_PARAMS_AUTO_FILL_EVENT_KEY = "ability.want.params.AutoFillEvent";
 constexpr const char* WANT_PARAMS_UPDATE_POPUP_WIDTH = "ohos.ability.params.popupWidth";

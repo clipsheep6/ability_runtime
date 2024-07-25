@@ -28,7 +28,6 @@ AppSchedulerHost::AppSchedulerHost()
     InitMemberFuncMap();
 }
 
-
 void AppSchedulerHost::InitMemberFuncMap() {}
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -480,6 +479,13 @@ int32_t AppSchedulerHost::HandleScheduleDumpIpcStat(MessageParcel &data, Message
     return NO_ERROR;
 }
 
+int32_t AppSchedulerHost::HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleCacheProcess();
+    return NO_ERROR;
+}
+
 int32_t AppSchedulerHost::HandleScheduleDumpFfrt(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
@@ -489,13 +495,6 @@ int32_t AppSchedulerHost::HandleScheduleDumpFfrt(MessageParcel &data, MessagePar
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpFfrt result");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int32_t AppSchedulerHost::HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER(HITRACE_TAG_APP);
-    ScheduleCacheProcess();
     return NO_ERROR;
 }
 }  // namespace AppExecFwk
