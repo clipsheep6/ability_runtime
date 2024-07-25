@@ -1021,6 +1021,12 @@ public:
 
     void SetSpecifyTokenId(const uint32_t specifyTokenId);
 
+    void SaveConnectWant(const Want &want);
+
+    void UpdateConnectWant();
+
+    void RemoveConnectWant();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1239,6 +1245,9 @@ private:
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     uint32_t specifyTokenId_ = 0;
+
+    std::shared_ptr<Want> connectWant_ = nullptr;
+    ffrt::mutex connectWantLock_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
