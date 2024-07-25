@@ -684,7 +684,8 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
         targetService->SetWant(abilityRequest.want);
         HandleActiveAbility(targetService, connectRecord);
     } else {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Target service is activating, wait for callback");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Target service is activating, wait for callback");
+        targetService->SetConnectWant(abilityRequest.want);
     }
 
     auto token = targetService->GetToken();
@@ -1027,6 +1028,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
             abilityRecord->GetAbilityState());
         return INVALID_CONNECTION_STATE;
     }
+    abilityRecord->RemoveConnectWant();
 
     if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
         DelayedSingleton<AppScheduler>::GetInstance()->UpdateAbilityState(
@@ -1695,6 +1697,7 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
         CommandAbility(abilityRecord);
         if (abilityRecord->GetConnectRecordList().size() > 0) {
             // It means someone called connectAbility when service was loading
+            abilityRecord->UpdateConnectWant();
             ConnectAbility(abilityRecord);
         }
     }
