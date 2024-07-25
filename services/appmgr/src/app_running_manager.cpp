@@ -1610,7 +1610,7 @@ int32_t AppRunningManager::UpdateConfigurationDelayed(const std::shared_ptr<AppR
     std::lock_guard guard(updateConfigurationDelayedLock_);
     int32_t result = ERR_OK;
     auto it = updateConfigurationDelayedMap_.find(appRecord->GetRecordId());
-    if (it != updateConfigurationDelayedMap_.end()) {
+    if (it != updateConfigurationDelayedMap_.end() && it->second) {
         result = appRecord->UpdateConfiguration(*configuration_);
         it->second = false;
     }
