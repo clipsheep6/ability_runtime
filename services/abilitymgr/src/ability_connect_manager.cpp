@@ -685,7 +685,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
         HandleActiveAbility(targetService, connectRecord);
     } else {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Target service is activating, wait for callback");
-        targetService->SetConnectWant(abilityRequest.want);
+        targetService->SaveConnectWant(abilityRequest.want);
     }
 
     auto token = targetService->GetToken();
