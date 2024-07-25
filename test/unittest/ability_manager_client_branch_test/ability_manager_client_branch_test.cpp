@@ -888,24 +888,6 @@ HWTEST_F(AbilityManagerClientBranchTest, GetExtensionRunningInfos_0100, TestSize
 }
 
 /**
- * @tc.name: AbilityManagerClient_GetProcessRunningInfos_0100
- * @tc.desc: GetProcessRunningInfos
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetProcessRunningInfos_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetProcessRunningInfos_0100 start";
-    EXPECT_CALL(*mock_, GetProcessRunningInfos(_))
-        .Times(1)
-        .WillOnce(Return(0));
-    std::vector<RunningProcessInfo> info;
-    auto result = client_->GetProcessRunningInfos(info);
-
-    EXPECT_EQ(result, ERR_OK);
-    GTEST_LOG_(INFO) << "GetProcessRunningInfos_0100 end";
-}
-
-/**
  * @tc.name: AbilityManagerClient_StartSyncRemoteMissions_0100
  * @tc.desc: StartSyncRemoteMissions
  * @tc.type: FUNC

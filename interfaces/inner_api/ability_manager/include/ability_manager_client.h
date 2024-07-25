@@ -861,14 +861,6 @@ public:
     ErrCode GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info);
 
     /**
-     * @brief Get running process information.
-     *
-     * @param info Running process information.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
-
-    /**
      * Start synchronizing remote device mission
      * @param devId, deviceId.
      * @param fixConflict, resolve synchronizing conflicts flag.

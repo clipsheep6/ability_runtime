@@ -253,11 +253,6 @@ public:
         return 0;
     }
 
-    int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo>& info) override
-    {
-        return 0;
-    }
-
     int SetAbilityController(
         const sptr<AppExecFwk::IAbilityController>& abilityController, bool imAStabilityTest) override
     {

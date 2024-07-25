@@ -3236,29 +3236,6 @@ int AbilityManagerProxy::GetExtensionRunningInfos(int upperLimit, std::vector<Ex
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-
-    auto error = SendRequest(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO, data, reply, option);
-    if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get process running info, error: %{public}d", error);
-        return error;
-    }
-    error = GetParcelableInfos<AppExecFwk::RunningProcessInfo>(reply, info);
-    if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetParcelableInfos fail, error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "called");

@@ -1691,25 +1691,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetExtensionRunningInfos_0
 
 /*
  * Feature: AbilityManagerService
- * Function: GetProcessRunningInfos
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetProcessRunningInfos
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of GetProcessRunningInfos
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetProcessRunningInfos_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    std::vector<AppExecFwk::RunningProcessInfo> info;
-    auto res = proxy_->GetProcessRunningInfos(info);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: StartSyncRemoteMissions
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartSyncRemoteMissions
