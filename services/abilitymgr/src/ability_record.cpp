@@ -1635,9 +1635,7 @@ void AbilityRecord::ConnectAbility()
     if (isConnected) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "connect state error.");
     }
-#ifdef SUPPORT_SCREEN
     GrantUriPermissionForServiceExtension();
-#endif // SUPPORT_SCREEN
     lifecycleDeal_->ConnectAbility(GetWant());
     isConnected = true;
 }
@@ -1649,9 +1647,7 @@ void AbilityRecord::ConnectUIServiceExtAbility(const Want &want)
     if (isConnected) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "connect state error.");
     }
-#ifdef SUPPORT_SCREEN
     GrantUriPermissionForServiceExtension();
-#endif // SUPPORT_SCREEN
     lifecycleDeal_->ConnectAbility(want);
     isConnected = true;
 }
@@ -1682,7 +1678,6 @@ void AbilityRecord::DisconnectUIServiceExtAbility(const Want &want)
     }
 }
 
-#ifdef SUPPORT_SCREEN
 bool AbilityRecord::GrantUriPermissionForServiceExtension()
 {
     if (abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
@@ -1696,14 +1691,11 @@ bool AbilityRecord::GrantUriPermissionForServiceExtension()
     }
     return false;
 }
-#endif // SUPPORT_SCREEN
+
 void AbilityRecord::CommandAbility()
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
-#ifdef SUPPORT_SCREEN
-    GrantUriPermissionForServiceExtension();
-#endif // SUPPORT_SCREEN
     lifecycleDeal_->CommandAbility(GetWant(), false, startId_);
 }
 

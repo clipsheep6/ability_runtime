@@ -70,6 +70,9 @@
 #include "render_state_observer_manager.h"
 #include "startup_util.h"
 #include "string_ex.h"
+#ifdef ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER
+#include "sandbox_manager_kit.h"
+#endif
 #include "system_ability_definition.h"
 #include "time_util.h"
 #include "ui_extension_utils.h"
@@ -134,6 +137,8 @@ constexpr int REGISTER_VISIBILITY_DELAY = 5000;
 // Max render process number limitation for phone device.
 constexpr int PHONE_MAX_RENDER_PROCESS_NUM = 40;
 constexpr int PROCESS_RESTART_MARGIN_MICRO_SECONDS = 2000;
+constexpr const int32_t API10 = 10;
+constexpr const int32_t API_VERSION_MOD = 100;
 constexpr const char* CLASS_NAME = "ohos.app.MainThread";
 constexpr const char* FUNC_NAME = "main";
 constexpr const char* RENDER_PARAM = "invalidparam";
@@ -170,6 +175,7 @@ constexpr const char* GPU_PROCESS_NAME = ":gpu";
 constexpr const char* GPU_PROCESS_TYPE = "gpu";
 constexpr const char* FONT_WGHT_SCALE = "persist.sys.font_wght_scale_for_user0";
 constexpr const char* FONT_SCALE = "persist.sys.font_scale_for_user0";
+const std::string TOKEN_ID = "TOKEN_ID";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -1494,7 +1500,7 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(const std::string &bu
         TAG_LOGW(
             AAFwkTag::APPMGR, "Distributeddata clear app storage failed, bundleName:%{public}s", bundleName.c_str());
     }
-    NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
+    NotifyAppStatusByCallerUid(bundleName, tokenId, userId, callerUid,
         EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
     return ERR_OK;
 }
@@ -2920,6 +2926,17 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
+    
+    #ifdef ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER
+    bool checkApiVersion = (appInfo && (appInfo->apiTargetVersion % API_VERSION_MOD == API10));
+    TAG_LOGD(AAFwkTag::APPMGR, "version of api is %{public}d", appInfo->apiTargetVersion % API_VERSION_MOD);
+    if (checkApiVersion && AAFwk::AppUtils::GetInstance().IsGrantPersistUriPermission()) {
+        uint32_t tokenId = appInfo->accessTokenId;
+        auto sandboxRet = AccessControl::SandboxManager::SandboxManagerKit::StartAccessingByTokenId(tokenId);
+        TAG_LOGI(AAFwkTag::APPMGR, "tokenId = %{public}u, ret = %{public}d", tokenId, sandboxRet);
+    }
+    #endif
+    
     TAG_LOGI(AAFwkTag::APPMGR, "Start process success, pid: %{public}d, processName: %{public}s.",
         pid, processName.c_str());
     SetRunningSharedBundleList(bundleName, startMsg.hspList);
@@ -3613,17 +3630,18 @@ void AppMgrServiceInner::NotifyAppStatus(const std::string &bundleName, const st
     EventFwk::CommonEventManager::PublishCommonEvent(commonData);
 }
 
-void AppMgrServiceInner::NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId,
-    const int32_t callerUid, const std::string &eventData)
+void AppMgrServiceInner::NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t tokenId,
+    const int32_t userId, const int32_t callerUid, const std::string &eventData)
 {
     TAG_LOGI(AAFwkTag::APPMGR,
-        "%{public}s called, bundle name is %{public}s, , userId is %{public}d, event is %{public}s", __func__,
+        "%{public}s called, bundle name is %{public}s, userId is %{public}d, event is %{public}s", __func__,
         bundleName.c_str(), userId, eventData.c_str());
     Want want;
     want.SetAction(eventData);
     ElementName element;
     element.SetBundleName(bundleName);
     want.SetElement(element);
+    want.SetParam(TOKEN_ID, tokenId);
     want.SetParam(Constants::USER_ID, userId);
     want.SetParam(Constants::UID, callerUid);
     EventFwk::CommonEventData commonData {want};

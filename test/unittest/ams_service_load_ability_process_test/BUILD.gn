@@ -107,6 +107,11 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
       "window_manager:libwsutils",
     ]
   }
+
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+    defines = [ "ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER" ]
+  }
 }
 
 group("unittest") {

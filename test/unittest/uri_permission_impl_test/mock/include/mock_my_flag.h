@@ -51,10 +51,9 @@ public:
     enum FLAG {
         IS_SA_CALL = 1,
         IS_SHELL_CALL,
-        IS_SA_AND_SHELL_CALL
+        IS_SA_AND_SHELL_CALL,
     };
     static int flag_;
-    static bool isSACall_;
     static bool permissionFileAccessManager_;
     static bool permissionWriteImageVideo_;
     static bool permissionReadImageVideo_;

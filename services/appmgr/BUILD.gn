@@ -142,6 +142,11 @@ ohos_shared_library("libappms") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]
   }
 
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+    defines += [ "ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER" ]
+  }
+
   if (ability_runtime_graphics) {
     defines += [
       "SUPPORT_GRAPHICS",

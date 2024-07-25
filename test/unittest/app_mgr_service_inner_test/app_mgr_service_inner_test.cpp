@@ -2293,7 +2293,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppStatusByCallerUid_001, TestSize.Level0
 
     std::string bundleName = "test_bundle_name";
     std::string eventData = "test_event_data";
-    appMgrServiceInner->NotifyAppStatusByCallerUid(bundleName, 0, 0, eventData);
+    appMgrServiceInner->NotifyAppStatusByCallerUid(bundleName, 0, 0, 0, eventData);
 
     TAG_LOGI(AAFwkTag::TEST, "NotifyAppStatusByCallerUid_001 end");
 }
