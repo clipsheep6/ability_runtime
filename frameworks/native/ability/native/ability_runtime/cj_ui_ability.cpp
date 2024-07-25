@@ -573,7 +573,7 @@ void CJUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
         TAG_LOGD(AAFwkTag::UIABILITY, "Begin request focus .");
         auto ability = weak.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr .");
+            TAG_LOGE(AAFwkTag::UIABILITY, "null ability");
             return;
         }
         ability->RequestFocus(want);
@@ -608,7 +608,7 @@ void CJUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
         TAG_LOGD(AAFwkTag::UIABILITY, "Begin call onForeground.");
         auto ability = weak.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "null ability");
             return;
         }
         ability->CallOnForegroundFunc(want);

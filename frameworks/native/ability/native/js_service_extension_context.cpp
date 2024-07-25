@@ -92,7 +92,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "JsAbilityContext::Finalizer is called");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "finalizer called");
         std::unique_ptr<JsServiceExtensionContext>(static_cast<JsServiceExtensionContext*>(data));
     }
 
@@ -190,7 +190,7 @@ private:
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
         auto context = serviceContext.lock();
         if (context == nullptr || callback == nullptr) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "clear failed call of startup input param is nullptr.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context or callback");
             return;
         }
 
@@ -205,14 +205,14 @@ private:
             freeInstallObserver_ = new JsFreeInstallObserver(env);
             auto context = context_.lock();
             if (!context) {
-                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
+                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context released");
                 return;
             }
             ret = context->AddFreeInstallObserver(freeInstallObserver_);
         }
 
         if (ret != ERR_OK) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "AddFreeInstallObserver failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "AddFreeInstallObserver failed");
         } else {
             // build a callback observer with last param
             std::string bundleName = want.GetElement().GetBundleName();
@@ -241,7 +241,7 @@ private:
         }
 
         if (isStartRecent) {
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartRecentAbility is called");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "start recent");
             want.SetParam(Want::PARAM_RESV_START_RECENT, true);
         }
 
@@ -286,24 +286,24 @@ private:
         AAFwk::OpenLinkOptions &openLinkOptions, AAFwk::Want &want)
     {
         if (info.argc != ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "wrong arguments num");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
             return false;
         }
 
         if (!CheckTypeForNapiValue(env, info.argv[ARGC_ZERO], napi_string)) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "link must be string");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "link not string");
             ThrowInvalidParamError(env, "Parse param link failed, must be a string.");
             return false;
         }
         if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], linkValue) || !CheckUrl(linkValue)) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "link parameter invalid");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid link");
             ThrowInvalidParamError(env, "link parameter invalid.");
             return false;
         }
 
         if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OpenLinkOptions is used.");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OpenLinkOptions is used");
             if (!AppExecFwk::UnwrapOpenLinkOptions(env, info.argv[INDEX_ONE], openLinkOptions, want)) {
                 TAG_LOGE(AAFwkTag::SERVICE_EXT, "OpenLinkOptions parse failed");
                 ThrowInvalidParamError(env, "Parse param options failed, must be a OpenLinkOptions.");
@@ -337,7 +337,7 @@ private:
         NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, innerErrorCode]() {
             auto context = weak.lock();
             if (!context) {
-                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
+                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context released");
                 *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
                 return;
             }
@@ -346,10 +346,10 @@ private:
 
         NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
             if (*innerErrorCode == 0) {
-                TAG_LOGI(AAFwkTag::SERVICE_EXT, "OpenLink success.");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "OpenLink success");
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
-                TAG_LOGI(AAFwkTag::SERVICE_EXT, "OpenLink failed.");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "OpenLink failed");
                 task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
             }
         };
@@ -420,7 +420,7 @@ private:
         unwrapArgc = ARGC_ZERO;
         // Check input want
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
-            ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
+            ThrowInvalidParamError(env, "unwrap want failed");
             return false;
         }
         ++unwrapArgc;
@@ -454,20 +454,20 @@ private:
 
         auto context = context_.lock();
         if (context == nullptr) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall context is nullptr");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
 
         auto ret = context->StartAbilityByCall(want, calls->callerCallBack, accountId);
         if (ret) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall is failed");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall failed");
             ThrowErrorByNativeErr(env, ret);
             return CreateJsUndefined(env);
         }
 
         if (calls->remoteCallee == nullptr) {
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall async wait execute");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "null remoteCallee");
             NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByCall", env,
                 CreateAsyncTaskWithLastParam(
                     env, nullptr, GetCallExecute(calls), GetCallComplete(calls), &retsult));
@@ -500,8 +500,7 @@ private:
             }
         }
 
-        TAG_LOGI(AAFwkTag::SERVICE_EXT, "CheckStartAbilityByCallInputParam, callee:%{public}s.%{public}s.",
-            want.GetBundle().c_str(),
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "callee:%{public}s.%{public}s", want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());
         return true;
     }
@@ -511,7 +510,7 @@ private:
         auto callComplete = [weak = context_, calldata = calls] (
             napi_env env, NapiAsyncTask& task, int32_t) {
             if (calldata->err != 0) {
-                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "calldata err: %{public}d", calldata->err);
                 ClearFailedCallConnection(weak, calldata->callerCallBack);
                 task.Reject(env, CreateJsError(env, calldata->err, "callComplete err."));
                 return;
@@ -523,7 +522,7 @@ private:
                     const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
                     auto contextForRelease = weak.lock();
                     if (contextForRelease == nullptr) {
-                        TAG_LOGE(AAFwkTag::SERVICE_EXT, "releaseCallFunction, context is nullptr");
+                        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
                         return -1;
                     }
                     return contextForRelease->ReleaseCall(callback);
@@ -532,13 +531,12 @@ private:
                     CreateJsCallerComplex(
                         env, releaseCallFunc, calldata->remoteCallee, calldata->callerCallBack));
             } else {
-                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callComplete params error %{public}s is nullptr",
-                    context == nullptr ? "context" :
-                        (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "null %{public}s", context == nullptr ? "context" :
+                    (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
                 task.Reject(env, CreateJsError(env, -1, "Create Call Failed."));
             }
 
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callComplete end");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "end");
         };
         return callComplete;
     }
@@ -549,15 +547,15 @@ private:
             constexpr int callerTimeOut = 10; // 10s
             std::unique_lock<std::mutex> lock(calldata->mutexlock);
             if (calldata->remoteCallee != nullptr) {
-                TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callExecute callee isn`t null");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "callee not null");
                 return;
             }
 
             if (calldata->condition.wait_for(lock, std::chrono::seconds(callerTimeOut)) == std::cv_status::timeout) {
-                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callExecute waiting callee timeout");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "waiting callee timeout");
                 calldata->err = -1;
             }
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callExecute exit");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "exit");
         };
         return callExecute;
     }
@@ -565,12 +563,11 @@ private:
     CallerCallBack::CallBackClosure GetCallBackDone(std::shared_ptr<StartAbilityByCallParameters> calls)
     {
         auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callBackDone mutexlock");
             std::unique_lock<std::mutex> lock(calldata->mutexlock);
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callBackDone remoteCallee assignment");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
             calldata->remoteCallee = obj;
             calldata->condition.notify_all();
-            TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callBackDone is called end");
+            TAG_LOGI(AAFwkTag::SERVICE_EXT, "end");
         };
         return callBackDone;
     }
@@ -578,14 +575,14 @@ private:
     CallerCallBack::OnReleaseClosure GetReleaseListen()
     {
         auto releaseListen = [](const std::string &str) {
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "called %{public}s", str.c_str());
         };
         return releaseListen;
     }
 
     napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityWithAccount");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "called");
         if (info.argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid argc");
             ThrowTooFewParametersError(env);
@@ -639,7 +636,7 @@ private:
         unwrapArgc = ARGC_ZERO;
         // Check input want
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
-            ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
+            ThrowInvalidParamError(env, "unwrap want failed");
             return false;
         }
         ++unwrapArgc;

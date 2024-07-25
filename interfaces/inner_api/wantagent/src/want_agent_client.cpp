@@ -101,6 +101,10 @@ ErrCode WantAgentClient::SendWantSender(sptr<IWantSender> target, const SenderIn
     auto error = abms->SendRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER),
         data, reply, option);
     if (error != NO_ERROR) {
+<<<<<<< HEAD
+=======
+        TAG_LOGE(AAFwkTag::WANTAGENT, "send request error: %{public}d", error);
+>>>>>>> 58a062f20 (IssueNo:modify log)
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     return reply.ReadInt32();
@@ -291,7 +295,7 @@ ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, 
 
     sptr<IRemoteObject> obj = target->AsObject();
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "Input Param target is invalid");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "null obj");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 

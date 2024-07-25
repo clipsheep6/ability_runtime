@@ -50,7 +50,7 @@ public:
 private:
     napi_value OnSetRequestResult(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "function called");
+        TAG_LOGI(AAFwkTag::DIALOG, "called");
         if (info.argc < 1) {
             TAG_LOGE(AAFwkTag::DIALOG, "Params not match");
             ThrowTooFewParametersError(env);
@@ -98,7 +98,7 @@ private:
 
 napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequestCallback> &remoteObj)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "CreateJsDialogRequestCallback");
+    TAG_LOGI(AAFwkTag::DIALOG, "called");
     if (!remoteObj) {
         TAG_LOGE(AAFwkTag::DIALOG, "remoteObj is invalid.");
         return CreateJsUndefined(env);
@@ -116,7 +116,7 @@ napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequest
     const char *moduleName = "JsDialogRequestCallback";
     BindNativeFunction(env, objValue, "setRequestResult", moduleName, JsDialogRequestCallback::SetRequestResult);
 
-    TAG_LOGI(AAFwkTag::DIALOG, "CreateJsDialogRequestCallback end");
+    TAG_LOGI(AAFwkTag::DIALOG, "end");
     return objValue;
 }
 } // AbilityRuntime

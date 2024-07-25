@@ -52,25 +52,25 @@ constexpr const char *TASKPOOL_LOWER = "taskpool";
 
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "AttachAbilityStageContext");
+    TAG_LOGD(AAFwkTag::APPKIT, "attach");
     if (env == nullptr || value == nullptr) {
-        TAG_LOGW(AAFwkTag::APPKIT, "invalid parameter, env or value is nullptr");
+        TAG_LOGW(AAFwkTag::APPKIT, "null env or value");
         return nullptr;
     }
     auto ptr = reinterpret_cast<std::weak_ptr<AbilityContext> *>(value)->lock();
     if (ptr == nullptr) {
-        TAG_LOGW(AAFwkTag::APPKIT, "invalid context");
+        TAG_LOGW(AAFwkTag::APPKIT, "null context");
         return nullptr;
     }
     napi_value object = CreateJsAbilityStageContext(env, ptr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &object, 1);
     if (systemModule == nullptr) {
-        TAG_LOGW(AAFwkTag::APPKIT, "invalid systemModule");
+        TAG_LOGW(AAFwkTag::APPKIT, "null systemModule");
         return nullptr;
     }
     auto contextObj = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGW(AAFwkTag::APPKIT, "LoadSystemModuleByEngine or ConvertNativeValueTo failed");
+        TAG_LOGW(AAFwkTag::APPKIT, "contextObj not napi_object");
         return nullptr;
     }
     napi_coerce_to_native_binding_object(
@@ -78,7 +78,7 @@ napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::APPKIT, "Finalizer context is called");
+            TAG_LOGD(AAFwkTag::APPKIT, "Finalizer context called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
         },
         nullptr, nullptr);
@@ -103,7 +103,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
     if (runtime == nullptr) {
-        TAG_LOGW(AAFwkTag::APPKIT, "runtime is nullptr");
+        TAG_LOGW(AAFwkTag::APPKIT, "null runtime");
         return nullptr;
     }
     auto& jsRuntime = static_cast<JsRuntime&>(*runtime);
@@ -159,12 +159,12 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context,
     AbilityStage::Init(context, application);
 
     if (!context) {
-        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null context");
         return;
     }
 
     if (!jsAbilityStageObj_) {
-        TAG_LOGE(AAFwkTag::APPKIT, "stage is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null stage");
         return;
     }
 
@@ -185,14 +185,14 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
 
     napi_value obj = jsAbilityStageObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get AbilityStage object");
+        TAG_LOGE(AAFwkTag::APPKIT, "not napi_object");
         return;
     }
 
     napi_value methodOnCreate = nullptr;
     napi_get_named_property(env, obj, "onCreate", &methodOnCreate);
     if (methodOnCreate == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get 'onCreate' from AbilityStage object");
+        TAG_LOGE(AAFwkTag::APPKIT, "get 'onCreate' failed");
         return;
     }
     napi_call_function(env, obj, methodOnCreate, 0, nullptr, nullptr);
@@ -225,7 +225,7 @@ void JsAbilityStage::OnDestroy() const
     napi_value methodOnDestroy = nullptr;
     napi_get_named_property(env, obj, "onDestroy", &methodOnDestroy);
     if (methodOnDestroy == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get 'onDestroy' from AbilityStage object");
+        TAG_LOGE(AAFwkTag::APPKIT, "get 'onDestroy' failed");
         return;
     }
     napi_call_function(env, obj, methodOnDestroy, 0, nullptr, nullptr);
@@ -288,7 +288,7 @@ std::string JsAbilityStage::OnNewProcessRequest(const AAFwk::Want &want)
     napi_value methodOnNewProcessRequest = nullptr;
     napi_get_named_property(env, obj, "onNewProcessRequest", &methodOnNewProcessRequest);
     if (methodOnNewProcessRequest == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get 'onNewProcessRequest' from AbilityStage object");
+        TAG_LOGE(AAFwkTag::APPKIT, "get 'onNewProcessRequest' failed");
         return "";
     }
 
@@ -424,7 +424,7 @@ bool JsAbilityStage::GetProfileInfoFromResourceManager(std::vector<std::string> 
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto context = GetContext();
     if (!context) {
-        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null context");
         return false;
     }
 
@@ -465,7 +465,7 @@ std::unique_ptr<NativeReference> JsAbilityStage::LoadJsSrcEntry(const std::strin
     }
     auto context = GetContext();
     if (!context) {
-        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null context");
         return nullptr;
     }
     auto hapModuleInfo = context->GetHapModuleInfo();
@@ -771,7 +771,7 @@ bool JsAbilityStage::GetResFromResMgr(
 void JsAbilityStage::SetJsAbilityStage(const std::shared_ptr<Context> &context)
 {
     if (!context) {
-        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null context");
         return;
     }
 

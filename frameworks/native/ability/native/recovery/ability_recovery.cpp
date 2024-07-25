@@ -109,7 +109,7 @@ bool AbilityRecovery::SaveAbilityState()
     auto ability = ability_.lock();
     auto abilityInfo = abilityInfo_.lock();
     if (ability == nullptr || abilityInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::RECOVERY, "null ability");
         return false;
     }
 
@@ -143,23 +143,39 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string file = GetSaveAppCachePath(savedStateId);
     if (file.empty()) {
+<<<<<<< HEAD
         TAG_LOGE(AAFwkTag::RECOVERY, "failed to persisted file path");
+=======
+        TAG_LOGE(AAFwkTag::RECOVERY, "empty file");
+>>>>>>> 58a062f20 (IssueNo:modify log)
         return false;
     }
     Parcel parcel;
     if (!params.Marshalling(parcel)) {
+<<<<<<< HEAD
         TAG_LOGE(AAFwkTag::RECOVERY, "failed to Marshalling want param");
+=======
+        TAG_LOGE(AAFwkTag::RECOVERY, "marshalling want failed");
+>>>>>>> 58a062f20 (IssueNo:modify log)
         return false;
     }
     int fd = open(file.c_str(), O_RDWR | O_CREAT, (mode_t)0600);
     if (fd <= 0) {
+<<<<<<< HEAD
         TAG_LOGE(AAFwkTag::RECOVERY, "failed to open %{public}s", file.c_str());
+=======
+        TAG_LOGE(AAFwkTag::RECOVERY, "open %{public}s failed", file.c_str());
+>>>>>>> 58a062f20 (IssueNo:modify log)
         return false;
     }
     size_t sz = parcel.GetDataSize();
     uintptr_t buf = parcel.GetData();
     if (sz == 0 || buf == 0) {
+<<<<<<< HEAD
         TAG_LOGE(AAFwkTag::RECOVERY, "failed to get parcel data");
+=======
+        TAG_LOGE(AAFwkTag::RECOVERY, "get parcel data failed");
+>>>>>>> 58a062f20 (IssueNo:modify log)
         close(fd);
         return false;
     }
@@ -184,7 +200,11 @@ bool AbilityRecovery::ReadSerializeDataFromFile(int32_t savedStateId, WantParams
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string file = GetSaveAppCachePath(savedStateId);
     if (file.empty()) {
+<<<<<<< HEAD
         TAG_LOGE(AAFwkTag::RECOVERY, "failed to persisted file path");
+=======
+        TAG_LOGE(AAFwkTag::RECOVERY, "empty file");
+>>>>>>> 58a062f20 (IssueNo:modify log)
         return false;
     }
 
@@ -307,7 +327,7 @@ bool AbilityRecovery::PersistState()
 {
     auto abilityInfo = abilityInfo_.lock();
     if (abilityInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::RECOVERY, "abilityInfo is nullptr");
         return false;
     }
     if (missionId_ <= 0) {

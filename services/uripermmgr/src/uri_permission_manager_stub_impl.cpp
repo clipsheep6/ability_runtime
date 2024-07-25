@@ -645,8 +645,7 @@ int32_t UriPermissionManagerStubImpl::DeleteShareFile(uint32_t targetTokenId, co
 std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std::vector<std::string> &uriVec,
     uint32_t flag, uint32_t tokenId)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR,
-        "tokenId is %{public}u, tokenName is %{public}s, flag is %{public}u, size of uris is %{public}zu",
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "tokenId:%{public}u,tokenName:%{public}s,flag:%{public}u,uri size:%{public}zu",
         tokenId, UPMSUtils::GetCallerNameByTokenId(tokenId).c_str(), flag, uriVec.size());
     std::vector<bool> result(uriVec.size(), false);
     if (!UPMSUtils::IsSAOrSystemAppCall()) {
@@ -654,7 +653,7 @@ std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std:
         return result;
     }
     if ((flag & FLAG_READ_WRITE_URI) == 0) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is invalid.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "invalid flag");
         return result;
     }
 
@@ -662,12 +661,12 @@ std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std:
     for (size_t i = 0; i < uriVec.size(); i++) {
         Uri uri(uriVec[i]);
         if (!CheckUriTypeIsValid(uri)) {
-            TAG_LOGW(AAFwkTag::URIPERMMGR, "uri is invalid, uri is %{private}s.", uriVec[i].c_str());
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "invalid uri:%{private}s", uriVec[i].c_str());
             continue;
         }
         result[i] = CheckUriPermission(uri, flag, tokenIdPermission);
         if (!result[i]) {
-            TAG_LOGW(AAFwkTag::URIPERMMGR, "Check uri permission failed, uri is %{private}s.", uriVec[i].c_str());
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "uri %{private}s permission denied", uriVec[i].c_str());
         }
     }
     return result;
@@ -676,19 +675,19 @@ std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std:
 template<typename T>
 void UriPermissionManagerStubImpl::ConnectManager(sptr<T> &mgr, int32_t serviceId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Call.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Call");
     std::lock_guard<std::mutex> lock(mgrMutex_);
     if (mgr == nullptr) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "mgr is nullptr.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "null mgr");
         auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Failed to get SystemAbilityManager.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "null SAMgr");
             return;
         }
 
         auto remoteObj = systemAbilityMgr->GetSystemAbility(serviceId);
         if (remoteObj == nullptr) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Failed to get mgr.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "null remoteObj");
             return;
         }
         TAG_LOGE(AAFwkTag::URIPERMMGR, "to cast.");
@@ -864,23 +863,23 @@ bool UriPermissionManagerStubImpl::AccessMediaUriPermission(TokenIdPermission &t
 bool UriPermissionManagerStubImpl::AccessDocsUriPermission(TokenIdPermission &tokenIdPermission,
     const Uri &uri, uint32_t flag)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Call AccessDocsUriPermission.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     if (tokenIdPermission.VerifyFileAccessManagerPermission()) {
         return true;
     }
-    TAG_LOGW(AAFwkTag::URIPERMMGR, "Do not have FILE_ACCESS_MANAGER Permission.");
+    TAG_LOGW(AAFwkTag::URIPERMMGR, "permission denied");
     return CheckProxyUriPermission(tokenIdPermission, uri, flag);
 }
 
 int32_t UriPermissionManagerStubImpl::CheckProxyUriPermission(TokenIdPermission &tokenIdPermission,
     const Uri &uri, uint32_t flag)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "Call CheckProxyUriPermission.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "call");
     auto tokenId = tokenIdPermission.GetTokenId();
     if (tokenIdPermission.VerifyProxyAuthorizationUriPermission() && VerifyUriPermission(uri, flag, tokenId)) {
         return true;
     }
-    TAG_LOGW(AAFwkTag::URIPERMMGR, "Check proxy uri permission failed.");
+    TAG_LOGW(AAFwkTag::URIPERMMGR, "permission denied");
     return false;
 }
 
@@ -888,7 +887,7 @@ bool UriPermissionManagerStubImpl::CheckUriTypeIsValid(Uri uri)
 {
     auto &&scheme = uri.GetScheme();
     if (scheme != "file" && scheme != "content") {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Type of uri is invalid, Scheme is %{public}s", scheme.c_str());
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "invalid uri type.Scheme:%{public}s", scheme.c_str());
         return false;
     }
     return true;

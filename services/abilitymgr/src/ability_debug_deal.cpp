@@ -26,7 +26,7 @@ void AbilityDebugDeal::RegisterAbilityDebugResponse()
 {
     abilityDebugResponse_ = new (std::nothrow) AbilityDebugResponse(weak_from_this());
     if (abilityDebugResponse_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability debug response is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null response");
         return;
     }
 
@@ -40,7 +40,7 @@ void AbilityDebugDeal::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObje
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability record is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityRecord");
             continue;
         }
         abilityRecord->SetAttachDebug(true);
@@ -53,7 +53,7 @@ void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObjec
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability record is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityRecord");
             continue;
         }
         abilityRecord->SetAttachDebug(false);
@@ -62,12 +62,12 @@ void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObjec
 
 void AbilityDebugDeal::OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called. %{public}s", isAssertDebug ? "start assert debug" : "stop assert debug");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "isAssertDebug: %{public}s", isAssertDebug);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     for (const auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability record is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityRecord");
             continue;
         }
         abilityRecord->SetAssertDebug(isAssertDebug);
@@ -83,7 +83,7 @@ void AbilityDebugResponse::OnAbilitysDebugStarted(const std::vector<sptr<IRemote
 
     auto deal = abilityDebugDeal_.lock();
     if (deal == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability debug deal object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "empty deal");
         return;
     }
     deal->OnAbilitysDebugStarted(tokens);
@@ -98,7 +98,7 @@ void AbilityDebugResponse::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteO
 
     auto deal = abilityDebugDeal_.lock();
     if (deal == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability debug deal object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "empty deal");
         return;
     }
     deal->OnAbilitysDebugStoped(tokens);
@@ -114,7 +114,7 @@ void AbilityDebugResponse::OnAbilitysAssertDebugChange(
 
     auto deal = abilityDebugDeal_.lock();
     if (deal == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Ability debug deal object is nullptr.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "empty deal");
         return;
     }
     deal->OnAbilitysAssertDebugChange(tokens, isAssertDebug);

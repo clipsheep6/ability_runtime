@@ -795,26 +795,26 @@ bool AbilitySchedulerProxy::ScheduleRegisterObserver(const Uri &uri, const sptr<
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s WriteInterfaceToken(data) return false", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interfaceToken failed");
         return false;
     }
 
     if (!data.WriteParcelable(&uri)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable uri ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write uri failed");
         return false;
     }
 
     if (!data.WriteRemoteObject(dataObserver->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable dataObserver ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write dataObserver failed");
         return false;
     }
 
     int32_t result = SendTransactCmd(IAbilityScheduler::SCHEDULE_REGISTEROBSERVER, data, reply, option);
     if (result == ERR_NONE) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "sendRequest ok, retval: %{public}d", reply.ReadInt32());
         return true;
     } else {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", result);
         return false;
     }
 }
@@ -832,26 +832,26 @@ bool AbilitySchedulerProxy::ScheduleUnregisterObserver(const Uri &uri, const spt
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s WriteInterfaceToken(data) return false", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interfaceToken failed");
         return false;
     }
 
     if (!data.WriteParcelable(&uri)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable uri ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write uri failed");
         return false;
     }
 
     if (!data.WriteRemoteObject(dataObserver->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable dataObserver ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write dataObserver failed");
         return false;
     }
 
     int32_t result = SendTransactCmd(IAbilityScheduler::SCHEDULE_UNREGISTEROBSERVER, data, reply, option);
     if (result == ERR_NONE) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "sendRequest ok, retval: %{public}d", reply.ReadInt32());
         return true;
     } else {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", result);
         return false;
     }
 }
@@ -868,21 +868,21 @@ bool AbilitySchedulerProxy::ScheduleNotifyChange(const Uri &uri)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s WriteInterfaceToken(data) return false", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interfaceToken failed");
         return false;
     }
 
     if (!data.WriteParcelable(&uri)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable uri ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write uri failed");
         return false;
     }
 
     int32_t result = SendTransactCmd(IAbilityScheduler::SCHEDULE_NOTIFYCHANGE, data, reply, option);
     if (result == ERR_NONE) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "sendRequest ok, retval: %{public}d", reply.ReadInt32());
         return true;
     } else {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", result);
         return false;
     }
 }

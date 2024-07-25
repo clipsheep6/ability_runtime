@@ -258,7 +258,7 @@ napi_value JSAbilityDelegator::OnAddAbilityMonitor(napi_env env, NapiCallbackInf
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, false)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse param monitor failed, monitor must be Monitor.");
     }
@@ -287,7 +287,7 @@ napi_value JSAbilityDelegator::OnAddAbilityMonitorSync(napi_env env, NapiCallbac
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, true)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse param monitor failed, monitor must be Monitor.");
     }
@@ -307,7 +307,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitor(napi_env env, NapiCallba
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
     if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, false)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse parameters failed, monitor must be Monitor and isExited must be boolean.");
     }
@@ -341,7 +341,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitorSync(napi_env env, NapiCa
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
     if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, true)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse param monitor failed, monitor must be Monitor.");
     }
@@ -363,7 +363,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityMonitor(napi_env env, NapiCallback
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, false)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse monitor failed, removeAbilityMonitor must be Monitor.");
     }
@@ -407,7 +407,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityMonitorSync(napi_env env, NapiCall
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(env, info, monitor, true)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse monitor failed, removeAbilityMonitor must be Monitor.");
     }
@@ -436,7 +436,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitor(napi_env env, NapiCal
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
     if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, false)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse monitor failed, removeAbilityMonitor must be Monitor.");
     }
@@ -472,7 +472,7 @@ napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(napi_env env, Nap
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
     if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, true)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityStageMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse monitor failed, removeAbilityMonitor must be Monitor.");
     }
@@ -497,7 +497,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityMonitor(napi_env env, NapiCallbackIn
     TimeoutCallback opt {false, false};
     int64_t timeout = 0;
     if (!ParseWaitAbilityMonitorPara(env, info, monitor, opt, timeout)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse waitAbilityMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse waitAbilityMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse monitor want failed, removeAbilityMonitor must be Monitor.");
     }
@@ -506,8 +506,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityMonitor(napi_env env, NapiCallbackIn
     NapiAsyncTask::ExecuteCallback execute = [monitor, timeout, opt, abilityObjectBox]() {
         TAG_LOGI(AAFwkTag::DELEGATOR, "execute called");
         if (!abilityObjectBox) {
-            TAG_LOGE(
-                AAFwkTag::DELEGATOR, "null abilityObjectBox");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "null abilityObjectBox");
             return;
         }
 
@@ -557,7 +556,7 @@ napi_value JSAbilityDelegator::OnWaitAbilityStageMonitor(napi_env env, NapiCallb
     TimeoutCallback opt {false, false};
     int64_t timeout = 0;
     if (!ParseWaitAbilityStageMonitorPara(env, info, monitor, opt, timeout)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse waitAbilityStageMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse waitAbilityStageMonitor failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse monitor failed, removeAbilityMonitor must be Monitor.");
     }
@@ -660,7 +659,7 @@ napi_value JSAbilityDelegator::OnExecuteShellCommand(napi_env env, NapiCallbackI
     TimeoutCallback opt {false, false};
     int64_t timeoutSecs = 0;
     if (!ParseExecuteShellCommandPara(env, info, cmd, opt, timeoutSecs)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse executeShellCommand param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse executeShellCommand failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse parameters failed, cmd must be string and timeout must be number.");
     }
@@ -749,7 +748,7 @@ napi_value JSAbilityDelegator::OnGetAbilityState(napi_env env, NapiCallbackInfo&
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityPara(env, info.argv[INDEX_ZERO], remoteObject)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse ability param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse ability failed");
         return CreateJsUndefined(env);
     }
 
@@ -769,7 +768,7 @@ napi_value JSAbilityDelegator::OnGetCurrentTopAbility(napi_env env, NapiCallback
     TAG_LOGI(AAFwkTag::DELEGATOR, "argc: %{public}d", static_cast<int32_t>(info.argc));
 
     if (info.argc >= ARGC_ONE && !AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS, "Parse callback failed, callback must be function");
     }
 
@@ -808,7 +807,7 @@ napi_value JSAbilityDelegator::OnStartAbility(napi_env env, NapiCallbackInfo& in
 
     AAFwk::Want want;
     if (!ParseStartAbilityPara(env, info, want)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse startAbility param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse startAbility failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse want failed, want must be Want.");
     }
@@ -841,7 +840,7 @@ napi_value JSAbilityDelegator::OnDoAbilityForeground(napi_env env, NapiCallbackI
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityCommonPara(env, info, remoteObject)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityCommon param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityCommon failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse remoteObject failed, remoteObject must be RemoteObject.");
     }
@@ -873,7 +872,7 @@ napi_value JSAbilityDelegator::OnDoAbilityBackground(napi_env env, NapiCallbackI
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityCommonPara(env, info, remoteObject)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityCommon param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse abilityCommon failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse remoteObject failed, remoteObject must be RemoteObject.");
     }
@@ -906,7 +905,7 @@ napi_value JSAbilityDelegator::OnFinishTest(napi_env env, NapiCallbackInfo& info
     std::string msg;
     int64_t code = 0;
     if (!ParseFinishTestPara(env, info, msg, code)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse finishTest param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse finishTest failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse parameters failed, msg must be string and code must be number.");
     }
@@ -934,7 +933,7 @@ napi_value JSAbilityDelegator::OnSetMockList(napi_env env, NapiCallbackInfo& inf
 
     std::map<std::string, std::string> mockList;
     if (!ParseMockListPara(env, info, mockList)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse mockList param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse mockList failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
             "Parse mockList failed, mockList must be MockList.");
     }
@@ -1132,7 +1131,7 @@ napi_value JSAbilityDelegator::ParseAbilityMonitorPara(
     }
 
     if (!ParseMonitorPara(env, info.argv[INDEX_ZERO], monitor)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse monitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse monitor failed");
         return nullptr;
     }
 
@@ -1142,7 +1141,7 @@ napi_value JSAbilityDelegator::ParseAbilityMonitorPara(
 
     if (info.argc > ARGC_ONE) {
         if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
             return nullptr;
         }
     }
@@ -1159,7 +1158,7 @@ napi_value JSAbilityDelegator::ParseAbilityStageMonitorPara(napi_env env, NapiCa
     }
 
     if (!ParseStageMonitorPara(env, info.argv[INDEX_ZERO], monitor, isExisted)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse stage monitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse stage monitor failed");
         return nullptr;
     }
 
@@ -1169,7 +1168,7 @@ napi_value JSAbilityDelegator::ParseAbilityStageMonitorPara(napi_env env, NapiCa
 
     if (info.argc > ARGC_ONE) {
         if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
             return nullptr;
         }
     }
@@ -1186,12 +1185,12 @@ napi_value JSAbilityDelegator::ParseWaitAbilityMonitorPara(napi_env env, NapiCal
     }
 
     if (!ParseMonitorPara(env, info.argv[INDEX_ZERO], monitor)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "monitor parse param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "monitor parse failed");
         return nullptr;
     }
 
     if (!ParseTimeoutCallbackPara(env, info, opt, timeout)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
         return nullptr;
     }
     return CreateJsNull(env);
@@ -1208,11 +1207,11 @@ napi_value JSAbilityDelegator::ParseWaitAbilityStageMonitorPara(napi_env env, Na
 
     bool isExisted = false;
     if (!ParseStageMonitorPara(env, info.argv[INDEX_ZERO], monitor, isExisted)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse stageMonitor param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse stageMonitor failed");
         return nullptr;
     }
     if (!ParseTimeoutCallbackPara(env, info, opt, timeout)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
         return nullptr;
     }
     if (!isExisted) {
@@ -1272,7 +1271,7 @@ napi_value JSAbilityDelegator::ParsePrintPara(napi_env env, NapiCallbackInfo& in
 
     if (info.argc > ARGC_ONE) {
         if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
             return nullptr;
         }
     }
@@ -1293,7 +1292,7 @@ napi_value JSAbilityDelegator::ParseExecuteShellCommandPara(
         return nullptr;
     }
     if (!ParseTimeoutCallbackPara(env, info, opt, timeout)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
         return nullptr;
     }
     return CreateJsNull(env);
@@ -1309,13 +1308,13 @@ napi_value JSAbilityDelegator::ParseAbilityCommonPara(
     }
 
     if (!ParseAbilityPara(env, info.argv[INDEX_ZERO], remoteObject)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse ability param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse ability failed");
         return nullptr;
     }
 
     if (info.argc > ARGC_ONE) {
         if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
             return nullptr;
         }
     }
@@ -1332,13 +1331,13 @@ napi_value JSAbilityDelegator::ParseStartAbilityPara(
     }
 
     if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "parse want param failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "parse want failed");
         return nullptr;
     }
 
     if (info.argc > ARGC_ONE) {
         if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
             return nullptr;
         }
     }
@@ -1366,7 +1365,7 @@ napi_value JSAbilityDelegator::ParseFinishTestPara(
 
     if (info.argc > ARGC_TWO) {
         if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback param failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "parse callback failed");
             return nullptr;
         }
     }
@@ -1475,7 +1474,7 @@ void JSAbilityDelegator::AddStageMonitorRecord(
         std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
         g_stageMonitorRecord.emplace(reference, monitor);
     }
-    TAG_LOGI(AAFwkTag::DELEGATOR, "end, size: %{public}zu", g_stageMonitorRecord.size());
+    TAG_LOGI(AAFwkTag::DELEGATOR, "size: %{public}zu", g_stageMonitorRecord.size());
 }
 
 void JSAbilityDelegator::RemoveStageMonitorRecord(napi_env env, napi_value value)
@@ -1495,7 +1494,7 @@ void JSAbilityDelegator::RemoveStageMonitorRecord(napi_env env, napi_value value
         napi_strict_equals(env, value, jsMonitor->GetNapiValue(), &isEquals);
         if (isEquals) {
             g_stageMonitorRecord.erase(iter);
-            TAG_LOGI(AAFwkTag::DELEGATOR, "end, size: %{public}zu", g_stageMonitorRecord.size());
+            TAG_LOGI(AAFwkTag::DELEGATOR, "size: %{public}zu", g_stageMonitorRecord.size());
             break;
         }
     }

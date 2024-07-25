@@ -22,14 +22,12 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    TAG_LOGD(AAFwkTag::ABILITY,
-        "ServiceAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
-        "isNewWant: %{public}d",
+    TAG_LOGD(AAFwkTag::ABILITY, "sourceState:%{public}d;targetState: %{public}d;isNewWant: %{public}d",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant);
     if (lifecycleState_ == targetState.state) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Org lifeCycleState equals to Dst lifeCycleState.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifeCycleState_ match state");
         return;
     }
 
@@ -55,7 +53,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
         }
         default: {
             ret = false;
-            TAG_LOGE(AAFwkTag::ABILITY, "ServiceAbilityImpl::HandleAbilityTransaction state is error");
+            TAG_LOGE(AAFwkTag::ABILITY, "invalid state");
             break;
         }
     }

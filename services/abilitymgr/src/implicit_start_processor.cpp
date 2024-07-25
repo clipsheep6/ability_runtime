@@ -201,7 +201,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         auto info = dialogAppInfos.front();
         // Compatible with the action's sunset scene
         if (!IsActionImplicitStart(request.want, findDefaultApp)) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, target ability: %{public}s",
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, target ability:%{public}s",
                 info.abilityName.data());
             return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
         }
@@ -352,7 +352,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList, bool &findDefaultApp)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     // get abilityinfos from bms
     auto bundleMgrHelper = GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);

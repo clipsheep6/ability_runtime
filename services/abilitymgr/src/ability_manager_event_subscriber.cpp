@@ -31,7 +31,7 @@ void AbilityManagerEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventDa
 {
     const AAFwk::Want &want = data.GetWant();
     std::string action = want.GetAction();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "The action: %{public}s.", action.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "action: %{public}s.", action.c_str());
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
         if (callback_ != nullptr) {
             callback_();

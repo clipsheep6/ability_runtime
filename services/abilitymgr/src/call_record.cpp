@@ -146,7 +146,7 @@ bool CallRecord::SchedulerConnectDone()
 
 bool CallRecord::SchedulerDisconnectDone()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Scheduler disconnect Done by callback. id:%{public}d", recordId_);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "id:%{public}d", recordId_);
     std::shared_ptr<AbilityRecord> tmpService = service_.lock();
     auto callback = connCallback_;
     if (!callback || !tmpService) {
@@ -183,7 +183,7 @@ void CallRecord::OnCallStubDied(const wptr<IRemoteObject> &remote)
 
 void CallRecord::Dump(std::vector<std::string> &info) const
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "CallRecord::Dump is called");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
 
     std::string tempstr = "            CallRecord";
     tempstr += " ID #" + std::to_string (recordId_) + "\n";

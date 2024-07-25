@@ -38,7 +38,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "JsDialogSession::Finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "Finalizer called");
         std::unique_ptr<JsDialogSession>(static_cast<JsDialogSession*>(data));
     }
 
@@ -127,7 +127,7 @@ private:
 
 napi_value JsDialogSessionInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "JsDialogSessionInit is called");
+    TAG_LOGI(AAFwkTag::DIALOG, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGI(AAFwkTag::DIALOG, "Invalid input parameters");
         return nullptr;

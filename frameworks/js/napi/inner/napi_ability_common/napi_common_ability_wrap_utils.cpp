@@ -130,7 +130,6 @@ bool CheckAbilityType(const AsyncJSCallbackInfo *asyncCallbackInfo)
         TAG_LOGE(AAFwkTag::JSNAPI, "null info");
         return false;
     }
-
     return CheckAbilityType((AbilityType)info->type, asyncCallbackInfo->abilityType);
 }
 
@@ -173,7 +172,6 @@ napi_value GetContinueAbilityOptionsInfoCommon(
     }
 
     napi_get_null(env, &result);
-
     return result;
 }
 
@@ -197,7 +195,6 @@ napi_value GetContinueAbilityOptionsReversible(
         napi_get_value_bool(env, result, &reversible);
         info.reversible = reversible;
     }
-
     return result;
 }
 
@@ -222,7 +219,6 @@ napi_value GetContinueAbilityOptionsDeviceID(
         NAPI_CALL(env, napi_get_value_string_utf8(env, result, str, STR_MAX_SIZE - 1, &strLen));
         info.deviceId = str;
     }
-
     return result;
 }
 
@@ -263,7 +259,6 @@ napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
     (void)WrapModuleInfos(env, appInfo, result);
     NAPI_CALL(env, napi_create_string_utf8(env, appInfo.entryDir.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "entryDir", proValue));
-
     return result;
 }
 
@@ -314,8 +309,7 @@ void GetFilesDirExecuteCallback(napi_env, void *data)
         return;
     }
     asyncCallbackInfo->native_data.str_value = abilityContext->GetFilesDir();
-    TAG_LOGI(AAFwkTag::JSNAPI, "end filesDir=%{public}s",
-             asyncCallbackInfo->native_data.str_value.c_str());
+    TAG_LOGI(AAFwkTag::JSNAPI, "filesDir=%{public}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 void IsUpdatingConfigurationsExecuteCallback(napi_env, void *data)
@@ -399,7 +393,7 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "wrong type of ability");
+        TAG_LOGE(AAFwkTag::JSNAPI, "wrong type ability");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -413,8 +407,7 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
         return;
     }
     asyncCallbackInfo->native_data.str_value = abilityContext->GetDistributedFilesDir();
-    TAG_LOGI(AAFwkTag::JSNAPI, "end filesDir=%{public}s",
-             asyncCallbackInfo->native_data.str_value.c_str());
+    TAG_LOGI(AAFwkTag::JSNAPI, "filesDir=%{public}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 /**
@@ -441,7 +434,7 @@ void GetCacheDirExecuteCallback(napi_env, void *data)
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "error type of ability");
+        TAG_LOGE(AAFwkTag::JSNAPI, "error type ability");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -455,8 +448,7 @@ void GetCacheDirExecuteCallback(napi_env, void *data)
         return;
     }
     asyncCallbackInfo->native_data.str_value = abilityContext->GetCacheDir();
-    TAG_LOGI(AAFwkTag::JSNAPI, "end CacheDir=%{public}s",
-             asyncCallbackInfo->native_data.str_value.c_str());
+    TAG_LOGI(AAFwkTag::JSNAPI, "CacheDir=%{public}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 /**
@@ -491,8 +483,7 @@ void GetExternalCacheDirExecuteCallback(napi_env, void *data)
 
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetExternalCacheDir();
-    TAG_LOGI(AAFwkTag::JSNAPI, "end ExternalCacheDir=%{private}s",
-             asyncCallbackInfo->native_data.str_value.c_str());
+    TAG_LOGI(AAFwkTag::JSNAPI, "ExternalCacheDir=%{private}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 /**
@@ -663,7 +654,6 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
     napi_value applicationInfo = nullptr;
     applicationInfo = WrapAppInfo(env, abilityInfo.applicationInfo);
     NAPI_CALL(env, napi_set_named_property(env, result, "applicationInfo", applicationInfo));
-
     return result;
 }
 
@@ -822,7 +812,6 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &cb)
         NAPI_CALL(env, napi_set_element(env, abilityInfos, i, abilityInfo));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfo", abilityInfos));
-
     return result;
 }
 
@@ -928,7 +917,6 @@ napi_value WrapAbilityName(napi_env env, const AbilityNameCB *abilityNameCB)
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, abilityNameCB->name.c_str(), NAPI_AUTO_LENGTH, &result));
-
     return result;
 }
 
@@ -940,7 +928,7 @@ void UnwrapAbilityStartSettingForNumber(
     bool isReadValue32 = false;
     bool isReadDouble = false;
     if (napi_get_value_int32(env, param, &natValue32) == napi_ok) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "Property value=%{private}d.", natValue32);
+        TAG_LOGI(AAFwkTag::JSNAPI, "Property value=%{private}d", natValue32);
         isReadValue32 = true;
     }
 
@@ -976,7 +964,7 @@ bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilitySta
 
     NAPI_CALL_BASE(env, napi_get_property_names(env, param, &jsProNameList), false);
     NAPI_CALL_BASE(env, napi_get_array_length(env, jsProNameList, &jsProCount), false);
-    TAG_LOGI(AAFwkTag::JSNAPI, "Property size: %{public}d", jsProCount);
+    TAG_LOGI(AAFwkTag::JSNAPI, "Property size:%{public}d", jsProCount);
 
     napi_value jsProName = nullptr;
     napi_value jsProValue = nullptr;
@@ -991,16 +979,14 @@ bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilitySta
         switch (jsValueType) {
             case napi_string: {
                 std::string natValue = UnwrapStringFromJS(env, jsProValue);
-                TAG_LOGI(AAFwkTag::JSNAPI, "Property value=%{private}s",
-                         natValue.c_str());
+                TAG_LOGI(AAFwkTag::JSNAPI, "Property value=%{private}s", natValue.c_str());
                 setting.AddProperty(strProName, natValue);
                 break;
             }
             case napi_boolean: {
                 bool natValue = false;
                 NAPI_CALL_BASE(env, napi_get_value_bool(env, jsProValue, &natValue), false);
-                TAG_LOGI(AAFwkTag::JSNAPI, "Property value=%{public}s",
-                         natValue ? "true" : "false");
+                TAG_LOGI(AAFwkTag::JSNAPI, "Property value=%{public}s", natValue ? "true" : "false");
                 setting.AddProperty(strProName, std::to_string(natValue));
                 break;
             }
@@ -1038,7 +1024,7 @@ napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRunti
 {
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    NAPI_ASSERT(env, valuetype == napi_object, "Wrong argument type. Object expected.");
+    NAPI_ASSERT(env, valuetype == napi_object, "object expected");
     napi_value wantAgentParam = nullptr;
     napi_value result = nullptr;
 
@@ -1047,7 +1033,7 @@ napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRunti
     if (hasProperty) {
         napi_get_named_property(env, args, "wantAgent", &wantAgentParam);
         NAPI_CALL(env, napi_typeof(env, wantAgentParam, &valuetype));
-        NAPI_ASSERT(env, valuetype == napi_object, "Wrong argument type. Object expected.");
+        NAPI_ASSERT(env, valuetype == napi_object, "object expected");
         napi_unwrap(env, wantAgentParam, reinterpret_cast<void **>(&wantAgent));
     }
 

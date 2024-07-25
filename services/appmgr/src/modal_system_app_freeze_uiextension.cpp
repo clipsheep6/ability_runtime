@@ -154,7 +154,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnec
     uint32_t code = !Rosen::SceneBoardJudgement::IsSceneBoardEnabled() ?
         COMMAND_START_DIALOG :
         AAFwk::IAbilityConnection::ON_ABILITY_CONNECT_DONE;
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AppFreezeDialogConnection::OnAbilityConnectDone Show dialog");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Show dialog");
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Show dialog is failed");

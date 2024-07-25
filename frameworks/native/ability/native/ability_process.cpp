@@ -67,7 +67,7 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
 {
     TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability");
         return ERR_NULL_OBJECT;
     }
 #ifdef SUPPORT_SCREEN
@@ -82,11 +82,11 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     ErrCode err = ERR_OK;
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
-            TAG_LOGI(AAFwkTag::ABILITY, "param.setting == nullptr call StartAbilityForResult.");
+            TAG_LOGI(AAFwkTag::ABILITY, "null param.setting");
             param.want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
             err = ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
-            TAG_LOGI(AAFwkTag::ABILITY, "param.setting != nullptr call StartAbilityForResult.");
+            TAG_LOGI(AAFwkTag::ABILITY, "not null param.setting");
             err = ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
         }
 
@@ -95,9 +95,9 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         std::map<int, CallbackInfo> map;
         auto it = abilityResultMap_.find(ability);
         if (it == abilityResultMap_.end()) {
-            TAG_LOGI(AAFwkTag::ABILITY, "ability is not in the abilityResultMap_");
+            TAG_LOGI(AAFwkTag::ABILITY, "not in abilityResultMap_");
         } else {
-            TAG_LOGI(AAFwkTag::ABILITY, "ability is in the abilityResultMap_");
+            TAG_LOGI(AAFwkTag::ABILITY, "in abilityResultMap_");
             map = it->second;
         }
         callback.errCode = err;
@@ -186,25 +186,25 @@ void AbilityProcess::RequestPermissionsFromUser(
 {
     TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability");
         return;
     }
 
     std::vector<PermissionListState> permList;
     for (auto permission : param.permission_list) {
-        TAG_LOGD(AAFwkTag::ABILITY, "permission: %{public}s.", permission.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "permission: %{public}s", permission.c_str());
         PermissionListState permState;
         permState.permissionName = permission;
         permState.state = Security::AccessToken::SETTING_OPER;
         permList.emplace_back(permState);
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "permList size: %{public}zu, permissions size: %{public}zu.",
+    TAG_LOGD(AAFwkTag::ABILITY, "permList size: %{public}zu, permissions size: %{public}zu",
         permList.size(), param.permission_list.size());
 
     Security::AccessToken::PermissionGrantInfo grantInfo;
     auto ret = AccessTokenKit::GetSelfPermissionsState(permList, grantInfo);
     if (permList.size() != param.permission_list.size()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Returned permList size: %{public}zu.", permList.size());
+        TAG_LOGE(AAFwkTag::ABILITY, "Returned permList size: %{public}zu", permList.size());
         return;
     }
 
@@ -219,7 +219,7 @@ void AbilityProcess::RequestPermissionsFromUser(
 
     auto requestCode = param.requestCode;
     if (ret != TypePermissionOper::DYNAMIC_OPER) {
-        TAG_LOGD(AAFwkTag::ABILITY, "No dynamic popup required.");
+        TAG_LOGD(AAFwkTag::ABILITY, "No dynamic popup required");
         (void)CaullFunc(requestCode, param.permission_list, permissionsState, callbackInfo);
         return;
     }
@@ -227,11 +227,11 @@ void AbilityProcess::RequestPermissionsFromUser(
     auto task = [self = GetInstance(), requestCode, callbackInfo]
         (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) mutable {
         if (!self) {
-            TAG_LOGE(AAFwkTag::ABILITY, "self is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY, "self is nullptr");
             return;
         }
         if (!self->CaullFunc(requestCode, permissions, grantResults, callbackInfo)) {
-            TAG_LOGE(AAFwkTag::ABILITY, "call function failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "call function failed");
             return;
         }
     };

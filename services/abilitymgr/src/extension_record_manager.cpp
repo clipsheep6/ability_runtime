@@ -31,12 +31,12 @@ std::atomic_int32_t ExtensionRecordManager::extensionRecordId_ = INVALID_EXTENSI
 
 ExtensionRecordManager::ExtensionRecordManager(const int32_t userId) : userId_(userId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "constructor.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "constructor");
 }
 
 ExtensionRecordManager::~ExtensionRecordManager()
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "deconstructor.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "deconstructor");
 }
 
 int32_t ExtensionRecordManager::GenerateExtensionRecordId(const int32_t extensionRecordId)
@@ -71,7 +71,7 @@ void ExtensionRecordManager::AddExtensionRecord(const int32_t extensionRecordId,
 
 void ExtensionRecordManager::RemoveExtensionRecord(const int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "extensionRecordId %{public}d.", extensionRecordId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "extensionRecordId %{public}d", extensionRecordId);
     std::lock_guard<std::mutex> lock(mutex_);
     extensionRecords_.erase(extensionRecordId);
     terminateRecords_.erase(extensionRecordId);
@@ -79,7 +79,7 @@ void ExtensionRecordManager::RemoveExtensionRecord(const int32_t extensionRecord
 
 void ExtensionRecordManager::AddExtensionRecordToTerminatedList(const int32_t extensionRecordId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "extensionRecordId %{public}d.", extensionRecordId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "extensionRecordId %{public}d", extensionRecordId);
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto findRecord = extensionRecords_.find(extensionRecordId);

@@ -27,7 +27,7 @@ ChildSchedulerStub::~ChildSchedulerStub() {}
 int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "ChildSchedulerStub::OnReceived, code = %{public}u, flags= %{public}d.", code,
+    TAG_LOGI(AAFwkTag::APPMGR, "code=%{public}u, flags=%{public}d.", code,
         option.GetFlags());
     std::u16string descriptor = ChildSchedulerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
@@ -44,7 +44,7 @@ int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
         case static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_RUN_NATIVE_PROC):
             return HandleScheduleRunNativeProc(data, reply);
     }
-    TAG_LOGI(AAFwkTag::APPMGR, "ChildSchedulerStub::OnRemoteRequest end");
+    TAG_LOGI(AAFwkTag::APPMGR, "end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

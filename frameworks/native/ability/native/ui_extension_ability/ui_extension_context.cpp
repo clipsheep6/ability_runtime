@@ -89,7 +89,7 @@ ErrCode UIExtensionContext::ConnectAbility(
         want.GetElement().GetAbilityName().c_str());
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
-    TAG_LOGD(AAFwkTag::UI_EXT, "UIExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
+    TAG_LOGD(AAFwkTag::UI_EXT, "connect ret: %{public}d", ret);
     return ret;
 }
 
@@ -100,7 +100,7 @@ ErrCode UIExtensionContext::DisconnectAbility(
     ErrCode ret =
         ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "DisconnectAbility error, ret=%{public}d", ret);
+        TAG_LOGE(AAFwkTag::UI_EXT, "disconnect failed:%{public}d", ret);
     }
     TAG_LOGD(AAFwkTag::UI_EXT, "end");
     return ret;

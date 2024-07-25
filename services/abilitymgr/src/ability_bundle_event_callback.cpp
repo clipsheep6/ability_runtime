@@ -38,7 +38,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
 {
     // env check
     if (taskHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, taskHandler is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null taskHandler");
         return;
     }
     const Want& want = eventData.GetWant();
@@ -49,17 +49,17 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
     int uid = want.GetIntParam(KEY_UID, 0);
     // verify data
     if (action.empty() || bundleName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, empty action/bundleName");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "empty action/bundleName");
         return;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "OnReceiveEvent, action:%{public}s.", action.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "action:%{public}s", action.c_str());
 
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         // uninstall bundle
         HandleRemoveUriPermission(tokenId);
         HandleUpdatedModuleInfo(bundleName, uid);
         if (abilityAutoStartupService_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, abilityAutoStartupService is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityAutoStartupService");
             return;
         }
         abilityAutoStartupService_->DeleteAutoStartupData(bundleName, uid);
@@ -74,7 +74,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
         HandleUpdatedModuleInfo(bundleName, uid);
         HandleAppUpgradeCompleted(bundleName, uid);
         if (abilityAutoStartupService_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, abilityAutoStartupService is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityAutoStartupService");
             return;
         }
         abilityAutoStartupService_->CheckAutoStartupData(bundleName, uid);
@@ -83,10 +83,10 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
 
 void AbilityBundleEventCallback::HandleRemoveUriPermission(uint32_t tokenId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleRemoveUriPermission: %{public}i", tokenId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "tokenId: %{public}i", tokenId);
     auto ret = IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId));
     if (!ret) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Revoke all uri permissions failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Revoke all uri permissions failed");
     }
 }
 
@@ -116,7 +116,7 @@ void AbilityBundleEventCallback::HandleAppUpgradeCompleted(const std::string &bu
 
         auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         if (abilityMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityMgr");
             return;
         }
         abilityMgr->AppUpgradeCompleted(bundleName, uid);
@@ -129,7 +129,7 @@ void AbilityBundleEventCallback::HandleRestartResidentProcessDependedOnWeb()
     auto task = []() {
         auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         if (abilityMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityMgr");
             return;
         }
         abilityMgr->HandleRestartResidentProcessDependedOnWeb();

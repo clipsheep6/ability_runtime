@@ -29,12 +29,12 @@ void DataAbilityCallerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 
 DataAbilityCallerRecipient::DataAbilityCallerRecipient(RemoteDiedHandler handler) : handler_(handler)
 {
-    TAG_LOGE(AAFwkTag::DATA_ABILITY, "%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
 }
 
 DataAbilityCallerRecipient::~DataAbilityCallerRecipient()
 {
-    TAG_LOGE(AAFwkTag::DATA_ABILITY, "%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

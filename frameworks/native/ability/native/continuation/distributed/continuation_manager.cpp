@@ -50,7 +50,7 @@ bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sp
 {
     TAG_LOGD(AAFwkTag::CONTINUATION, "begin");
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
     ability_ = ability;
@@ -58,7 +58,7 @@ bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sp
     std::shared_ptr<Ability> abilityTmp = nullptr;
     abilityTmp = ability_.lock();
     if (abilityTmp == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 
@@ -123,7 +123,7 @@ int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return ERR_INVALID_VALUE;
     }
 
@@ -153,7 +153,7 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return ERR_INVALID_VALUE;
     }
 
@@ -202,7 +202,7 @@ bool ContinuationManager::GetContentInfo(WantParams &wantParams)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 
@@ -327,7 +327,7 @@ void ContinuationManager::CompleteContinuation(int result)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return;
     }
 
@@ -366,7 +366,7 @@ bool ContinuationManager::NotifyRemoteTerminated()
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 
@@ -379,7 +379,7 @@ bool ContinuationManager::CheckContinuationIllegal()
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 
@@ -490,7 +490,7 @@ bool ContinuationManager::DoScheduleStartContinuation()
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
     if (!ability->OnStartContinuation()) {
@@ -510,7 +510,7 @@ bool ContinuationManager::DoScheduleSaveData(WantParams &saveData)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 
@@ -536,7 +536,7 @@ bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 
@@ -558,7 +558,7 @@ bool ContinuationManager::DoRestoreFromRemote(const WantParams &restoreData)
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
         return false;
     }
 

@@ -33,7 +33,7 @@ std::set<std::string> ShellCommandConfigLoader::commands_ = {};
 
 bool ShellCommandConfigLoader::ReadConfig(const std::string &filePath)
 {
-    TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::AA_TOOL, "called");
     if (configState_) {
         TAG_LOGI(AAFwkTag::AA_TOOL, "config has been read");
         return true;

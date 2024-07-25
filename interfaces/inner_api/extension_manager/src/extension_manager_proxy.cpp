@@ -64,11 +64,11 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
         }
     }
     if (!data.WriteInt32(userId)) {
-        TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, userId write failed.", __func__);
+        TAG_LOGE(AAFwkTag::EXTMGR, "userId write failed");
         return INNER_ERR;
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, extensionType write failed.", __func__);
+        TAG_LOGE(AAFwkTag::EXTMGR, "extensionType write failed");
         return INNER_ERR;
     }
     if (!data.WriteBool(isQueryExtensionOnly)) {
@@ -80,7 +80,7 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
     MessageOption option;
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, Send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::EXTMGR, "send request failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();

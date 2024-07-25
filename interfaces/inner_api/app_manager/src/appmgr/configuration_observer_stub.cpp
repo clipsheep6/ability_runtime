@@ -30,7 +30,7 @@ ConfigurationObserverStub::~ConfigurationObserverStub() {}
 int ConfigurationObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "ConfigurationObserverStub::OnRemoteRequest, code = %{public}u, flags= %{public}d.",
+    TAG_LOGI(AAFwkTag::APPMGR, "code=%{public}u, flags=%{public}d.",
         code, option.GetFlags());
     std::u16string descriptor = ConfigurationObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();

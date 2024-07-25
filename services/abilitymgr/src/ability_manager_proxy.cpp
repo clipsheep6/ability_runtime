@@ -49,7 +49,7 @@ constexpr int32_t MAX_AUTO_STARTUP_COUNT = 100;
 bool AbilityManagerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityManagerProxy::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return false;
     }
     return true;
@@ -82,7 +82,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
 
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -103,7 +103,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDevic
 
     int error = SendRequest(AbilityManagerInterfaceCode::GET_TOP_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return {};
     }
     std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
@@ -132,7 +132,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(sptr<IRemoteO
     }
     int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return {};
     }
     std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
@@ -183,7 +183,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSettin
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_SETTINGS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -225,7 +225,7 @@ int AbilityManagerProxy::StartAbility(
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -271,7 +271,7 @@ int AbilityManagerProxy::StartAbilityWithSpecifyTokenId(
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -360,7 +360,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -392,7 +392,7 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const sptr<IRemo
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, requestCode);
     int error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -428,7 +428,7 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
 
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -455,7 +455,7 @@ int AbilityManagerProxy::StartAbilityForResultAsCaller(
     MessageOption option;
     int error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -484,7 +484,7 @@ int AbilityManagerProxy::StartAbilityForResultAsCaller(const Want &want, const S
     int error =
         SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -546,7 +546,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want,
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -576,7 +576,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -690,7 +690,7 @@ int AbilityManagerProxy::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -714,7 +714,7 @@ int AbilityManagerProxy::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessio
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -785,7 +785,7 @@ int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     isColdStart = reply.ReadBool();
@@ -827,7 +827,7 @@ int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemo
     }
     error = SendRequest(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -870,7 +870,7 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     }
     error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -909,7 +909,7 @@ int AbilityManagerProxy::TerminateUIExtensionAbility(const sptr<SessionInfo> &ex
 
     error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -966,7 +966,7 @@ int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t result
     }
     error = SendRequest(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1061,7 +1061,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, isQueryExtensionOnly);
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, Send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1102,7 +1102,7 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
 
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     if (connectInfo != nullptr) {
@@ -1135,7 +1135,7 @@ int AbilityManagerProxy::DisconnectAbility(sptr<IAbilityConnection> connect)
 
     error = SendRequest(AbilityManagerInterfaceCode::DISCONNECT_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1163,7 +1163,7 @@ sptr<IAbilityScheduler> AbilityManagerProxy::AcquireDataAbility(
 
     error = SendRequest(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return nullptr;
     }
 
@@ -1191,7 +1191,7 @@ int AbilityManagerProxy::ReleaseDataAbility(
 
     error = SendRequest(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1216,7 +1216,7 @@ int AbilityManagerProxy::AttachAbilityThread(const sptr<IAbilityScheduler> &sche
 
     error = SendRequest(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1243,7 +1243,7 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1315,7 +1315,7 @@ int AbilityManagerProxy::ScheduleConnectAbilityDone(
 
     error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1338,7 +1338,7 @@ int AbilityManagerProxy::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject>
 
     error = SendRequest(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1361,7 +1361,7 @@ int AbilityManagerProxy::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &t
 
     error = SendRequest(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1400,7 +1400,7 @@ int AbilityManagerProxy::ScheduleCommandAbilityWindowDone(
 
     error = SendRequest(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1489,7 +1489,7 @@ int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool 
 
     error = SendRequest(AbilityManagerInterfaceCode::MINIMIZE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1526,7 +1526,7 @@ int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &ext
 
     error = SendRequest(AbilityManagerInterfaceCode::MINIMIZE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1597,7 +1597,7 @@ int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId, co
     }
     error = SendRequest(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1648,7 +1648,7 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     }
     error = SendRequest(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     std::unique_ptr<MissionSnapshot> info(reply.ReadParcelable<MissionSnapshot>());
@@ -1682,7 +1682,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
     auto error = SendRequest(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
     }
 }
 #endif // SUPPORT_SCREEN
@@ -1694,18 +1694,18 @@ void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeRemoteObject failed");
         return;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
     return;
@@ -1719,25 +1719,25 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeRemoteObject failed");
         return;
     }
 
     data.WriteInt32(reason);
 
     if (!data.WriteParcelable(want)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery write want failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write want failed");
         return;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_RECOVERY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
     return;
@@ -1751,18 +1751,18 @@ void AbilityManagerProxy::SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& toke
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeRemoteObject failed");
         return;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_RECOVERY_SUBMITINFO, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
     return;
@@ -1778,16 +1778,16 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName, const bool c
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteBool(clearPageStack)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "clearPageStack write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "clearPageStack write failed");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::KILL_PROCESS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1800,13 +1800,13 @@ void AbilityManagerProxy::ScheduleClearRecoveryPageStack()
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleClearRecoveryPageStack WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
 
     int error = SendRequest(AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
     return;
@@ -1823,16 +1823,16 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(abilityName))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName write failed");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString16(Str8ToStr16(state))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName write failed");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::FORCE_TIMEOUT, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1854,20 +1854,20 @@ int32_t AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(uid)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(appIndex)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "appIndex write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appIndex write failed");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::UNINSTALL_APP, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1889,7 +1889,7 @@ int32_t AbilityManagerProxy::UpgradeApp(const std::string &bundleName, const int
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, appIndex);
     int error = SendRequest(AbilityManagerInterfaceCode::UPGRADE_APP, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1905,7 +1905,7 @@ sptr<IWantSender> AbilityManagerProxy::GetWantSender(
         return nullptr;
     }
     if (!data.WriteParcelable(&wantSenderInfo)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantSenderInfo write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantSenderInfo write failed");
         return nullptr;
     }
     if (callerToken) {
@@ -1921,7 +1921,7 @@ sptr<IWantSender> AbilityManagerProxy::GetWantSender(
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return nullptr;
     }
     sptr<IWantSender> wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
@@ -1940,16 +1940,16 @@ int AbilityManagerProxy::SendWantSender(sptr<IWantSender> target, const SenderIn
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&senderInfo)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "senderInfo write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "senderInfo write failed");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1969,7 +1969,7 @@ void AbilityManagerProxy::CancelWantSender(const sptr<IWantSender> &sender)
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
 }
@@ -1983,12 +1983,12 @@ int AbilityManagerProxy::GetPendingWantUid(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_UID, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -2003,12 +2003,12 @@ int AbilityManagerProxy::GetPendingWantUserId(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -2023,12 +2023,12 @@ std::string AbilityManagerProxy::GetPendingWantBundleName(const sptr<IWantSender
         return "";
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return "";
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return "";
     }
     return Str16ToStr8(reply.ReadString16());
@@ -2043,12 +2043,12 @@ int AbilityManagerProxy::GetPendingWantCode(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -2063,12 +2063,12 @@ int AbilityManagerProxy::GetPendingWantType(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -2092,7 +2092,7 @@ void AbilityManagerProxy::RegisterCancelListener(const sptr<IWantSender> &sender
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
 }
@@ -2115,7 +2115,7 @@ void AbilityManagerProxy::UnregisterCancelListener(const sptr<IWantSender> &send
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
 }
@@ -2129,7 +2129,7 @@ int AbilityManagerProxy::GetPendingRequestWant(const sptr<IWantSender> &target, 
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return INNER_ERR;
     }
     if (want == nullptr || !data.WriteParcelable(want.get())) {
@@ -2138,7 +2138,7 @@ int AbilityManagerProxy::GetPendingRequestWant(const sptr<IWantSender> &target, 
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     std::unique_ptr<Want> wantInfo(reply.ReadParcelable<Want>());
@@ -2160,7 +2160,7 @@ int AbilityManagerProxy::GetWantSenderInfo(const sptr<IWantSender> &target, std:
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed");
         return INNER_ERR;
     }
     if (info == nullptr || !data.WriteParcelable(info.get())) {
@@ -2169,7 +2169,7 @@ int AbilityManagerProxy::GetWantSenderInfo(const sptr<IWantSender> &target, std:
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     std::unique_ptr<WantSenderInfo> wantSenderInfo(reply.ReadParcelable<WantSenderInfo>());
@@ -2193,7 +2193,7 @@ int AbilityManagerProxy::GetAppMemorySize()
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2210,7 +2210,7 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -2249,7 +2249,7 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2294,7 +2294,7 @@ int AbilityManagerProxy::ContinueMission(AAFwk::ContinueMissionInfo continueMiss
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2323,7 +2323,7 @@ int AbilityManagerProxy::ContinueAbility(const std::string &deviceId, int32_t mi
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2352,7 +2352,7 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
 
     auto error = SendRequest(AbilityManagerInterfaceCode::START_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2380,7 +2380,7 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
 }
@@ -2404,7 +2404,7 @@ int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, int32_t res
 
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2505,7 +2505,7 @@ int AbilityManagerProxy::RegisterMissionListener(const sptr<IMissionListener> &l
 
     error = SendRequest(AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2529,7 +2529,7 @@ int AbilityManagerProxy::RegisterSessionHandler(const sptr<IRemoteObject> &objec
     }
     int error = SendRequest(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2556,7 +2556,7 @@ int AbilityManagerProxy::RegisterMissionListener(const std::string &deviceId,
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_REMOTE_MISSION_LISTENER,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2582,7 +2582,7 @@ int AbilityManagerProxy::RegisterOnListener(const std::string &type,
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_REMOTE_ON_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2608,7 +2608,7 @@ int AbilityManagerProxy::RegisterOffListener(const std::string &type,
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_REMOTE_OFF_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2635,7 +2635,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
 
     error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3020,16 +3020,16 @@ int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowM
     bool animationEnabled)
 {
     if (!handler) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: handler is nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null handler");
         return INNER_ERR;
     }
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: write interface token failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(handler->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: handler write failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write failed");
         return INNER_ERR;
     }
     if (!data.WriteBool(animationEnabled)) {
@@ -3040,7 +3040,7 @@ int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowM
     MessageParcel reply;
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3050,18 +3050,18 @@ void AbilityManagerProxy::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &a
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: write interface token failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed");
         return;
     }
     if (!data.WriteRemoteObject(abilityToken)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: abilityToken write failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write abilityToken failed");
         return;
     }
     MessageOption option;
     MessageParcel reply;
     auto error = SendRequest(AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
     }
 }
 
@@ -3069,7 +3069,7 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
     sptr<IPrepareTerminateCallback> &callback)
 {
     if (!callback) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr");
         return INNER_ERR;
     }
     int error = 0;
@@ -3077,12 +3077,12 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed");
         return INNER_ERR;
     }
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed");
             return INNER_ERR;
         }
     } else {
@@ -3092,13 +3092,13 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
         }
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "weite callback failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write callback faile");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "send request failed. error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "send request failed: %{public}d", error);
         return error;
     }
 
@@ -3218,7 +3218,7 @@ void AbilityManagerProxy::CompleteFirstFrameDrawing(int32_t sessionId)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, writeInterfaceToken failed");
         return;
     }
     if (!data.WriteInt32(sessionId)) {
@@ -3336,7 +3336,7 @@ int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool 
 
     auto error = SendRequest(AbilityManagerInterfaceCode::START_SYNC_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3359,7 +3359,7 @@ int32_t AbilityManagerProxy::StopSyncRemoteMissions(const std::string& devId)
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3386,7 +3386,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
     auto error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_REMOTE_MISSION_LISTENER,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3395,7 +3395,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
 int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
     const sptr<IRemoteObject> &callerToken, int32_t accountId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::StartAbilityByCall begin.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -3435,7 +3435,7 @@ int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilit
     TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::StartAbilityByCall SendRequest Call.");
     error = SendRequest(AbilityManagerInterfaceCode::START_CALL_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::StartAbilityByCall end.");
@@ -3470,7 +3470,7 @@ void AbilityManagerProxy::CallRequestDone(const sptr<IRemoteObject> &token, cons
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CALL_REQUEST_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
 }
@@ -3483,7 +3483,7 @@ int AbilityManagerProxy::ReleaseCall(
     MessageParcel reply;
     MessageOption option;
     if (connect == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "release calll ability fail, connect is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null connect");
         return ERR_INVALID_VALUE;
     }
     if (!WriteInterfaceToken(data)) {
@@ -3500,7 +3500,7 @@ int AbilityManagerProxy::ReleaseCall(
 
     error = SendRequest(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3521,7 +3521,7 @@ void AbilityManagerProxy::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
     token = sptr<IRemoteObject>(reply.ReadRemoteObject());
@@ -3570,7 +3570,7 @@ int AbilityManagerProxy::SetAbilityController(const sptr<AppExecFwk::IAbilityCon
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3586,7 +3586,7 @@ bool AbilityManagerProxy::IsRunningInStabilityTest()
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -3611,7 +3611,7 @@ int AbilityManagerProxy::StartUserTest(const Want &want, const sptr<IRemoteObjec
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::START_USER_TEST, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3642,7 +3642,7 @@ int AbilityManagerProxy::FinishUserTest(
 
     auto error = SendRequest(AbilityManagerInterfaceCode::FINISH_USER_TEST, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3660,7 +3660,7 @@ int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3690,7 +3690,7 @@ int AbilityManagerProxy::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, 
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3716,7 +3716,7 @@ int AbilityManagerProxy::DelegatorDoAbilityForeground(const sptr<IRemoteObject> 
     auto error = SendRequest(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3741,7 +3741,7 @@ int AbilityManagerProxy::DelegatorDoAbilityBackground(const sptr<IRemoteObject> 
     auto error = SendRequest(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3770,7 +3770,7 @@ int AbilityManagerProxy::DoAbilityForeground(const sptr<IRemoteObject> &token, u
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3799,7 +3799,7 @@ int AbilityManagerProxy::DoAbilityBackground(const sptr<IRemoteObject> &token, u
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3829,7 +3829,7 @@ int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &toke
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return -1;
     }
 
@@ -3899,7 +3899,7 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -3926,7 +3926,7 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     auto error = SendRequest(AbilityManagerInterfaceCode::FREE_INSTALL_ABILITY_FROM_REMOTE,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -3945,7 +3945,7 @@ int AbilityManagerProxy::AddFreeInstallObserver(const sptr<IRemoteObject> &calle
     }
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -3968,7 +3968,7 @@ int AbilityManagerProxy::AddFreeInstallObserver(const sptr<IRemoteObject> &calle
 
     auto error = SendRequest(AbilityManagerInterfaceCode::ADD_FREE_INSTALL_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3980,7 +3980,7 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -3996,7 +3996,7 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4006,12 +4006,12 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
 int32_t AbilityManagerProxy::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "IsValidMissionIds Call. Quert size is %{public}zu", missionIds.size());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "missionIds: %{public}zu", missionIds.size());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -4024,7 +4024,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
     auto error = SendRequest(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4049,12 +4049,12 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
 int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "VerifyPermission Call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -4075,7 +4075,7 @@ int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid
 
     auto error = SendRequest(AbilityManagerInterfaceCode::VERIFY_PERMISSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4084,7 +4084,7 @@ int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid
 
 int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "RequestDialogService Call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     if (!callerToken) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is invalid.");
         return ERR_INVALID_CALLER;
@@ -4137,7 +4137,7 @@ int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &cal
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -4146,13 +4146,13 @@ int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &cal
 int32_t AbilityManagerProxy::AcquireShareData(
     const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::AcquireShareData start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -4171,20 +4171,20 @@ int32_t AbilityManagerProxy::AcquireShareData(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AcquireShareData fail to Send request, err: %{public}d.", error);
         return INNER_ERR;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::AcquireShareData end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::ShareDataDone(
     const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::ShareDataDone start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -4213,19 +4213,19 @@ int32_t AbilityManagerProxy::ShareDataDone(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ShareDataDone fail to SendRequest, err: %{public}d.", error);
         return error;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::ShareDataDone end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
@@ -4233,7 +4233,7 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &e
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::FORCE_EXIT_APP, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4249,14 +4249,14 @@ int32_t AbilityManagerProxy::RecordAppExitReason(const ExitReason &exitReason)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4272,7 +4272,7 @@ int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const Ex
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
@@ -4280,7 +4280,7 @@ int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const Ex
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4292,7 +4292,7 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
     if (!data.WriteRemoteObject(rootSceneSession)) {
@@ -4304,7 +4304,7 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
     }
 }
 
@@ -4312,7 +4312,7 @@ void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
     if (sessionInfo) {
@@ -4331,7 +4331,7 @@ void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return;
     }
     isColdStart = reply.ReadBool();
@@ -4341,7 +4341,7 @@ void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return;
     }
 
@@ -4354,7 +4354,7 @@ void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
     }
 }
 
@@ -4362,7 +4362,7 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
@@ -4384,7 +4384,7 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_SAVE_AS_RESULT, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
     }
 
     return reply.ReadInt32();
@@ -4392,13 +4392,13 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
 
 int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::SetSessionManagerService start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "writeInterfaceToken failed");
         return INNER_ERR;
     }
 
@@ -4409,10 +4409,10 @@ int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> 
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::SetSessionManagerService end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return reply.ReadInt32();
 }
 
@@ -4679,7 +4679,7 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
     auto error = SendRequest(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -4837,7 +4837,7 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START,
         data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return true;
     }
     return reply.ReadBool();
@@ -5130,7 +5130,7 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -5171,7 +5171,7 @@ int32_t AbilityManagerProxy::GetUIExtensionSessionInfo(const sptr<IRemoteObject>
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_UI_EXTENSION_SESSION_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
 
@@ -5304,7 +5304,7 @@ bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken,
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -5329,7 +5329,7 @@ int32_t AbilityManagerProxy::StartShortcut(const Want &want, const StartOptions 
 
     auto error = SendRequest(AbilityManagerInterfaceCode::START_SHORTCUT, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -5349,7 +5349,7 @@ int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId,
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     state = reply.ReadBool();
@@ -5380,7 +5380,7 @@ int32_t AbilityManagerProxy::TransferAbilityResultForExtension(const sptr<IRemot
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return NO_ERROR;
@@ -5468,7 +5468,7 @@ int32_t AbilityManagerProxy::PreStartMission(const std::string& bundleName, cons
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::PRE_START_MISSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -5505,7 +5505,7 @@ ErrCode AbilityManagerProxy::OpenLink(const Want& want, sptr<IRemoteObject> call
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::OPEN_LINK, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sendRequest failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();

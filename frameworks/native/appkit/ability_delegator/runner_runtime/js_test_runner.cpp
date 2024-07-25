@@ -167,7 +167,7 @@ void JsTestRunner::Run()
 
 void JsTestRunner::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "JsTestRunner::CallObjectMethod(%{public}s)", name);
+    TAG_LOGI(AAFwkTag::DELEGATOR, "call (%{public}s)", name);
     auto env = jsRuntime_.GetNapiEnv();
     if (isFaJsModel_) {
         napi_value global = nullptr;

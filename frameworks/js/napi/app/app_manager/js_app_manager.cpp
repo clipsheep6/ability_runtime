@@ -187,7 +187,7 @@ private:
                     return;
                 }
                 if (observer == nullptr || appManager == nullptr) {
-                    TAG_LOGE(AAFwkTag::APPMGR, "observer or appManager nullptr");
+                    TAG_LOGE(AAFwkTag::APPMGR, "null observer or appManager");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "observer or appManager nullptr"));
                     return;
                 }

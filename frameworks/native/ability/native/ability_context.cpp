@@ -168,7 +168,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
         return false;
     }
 
-    TAG_LOGI(AAFwkTag::CONTEXT, "called, ability:%{public}s.", abilityInfo->name.c_str());
+    TAG_LOGI(AAFwkTag::CONTEXT, "called, ability:%{public}s", abilityInfo->name.c_str());
 
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
@@ -179,7 +179,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
     TAG_LOGD(AAFwkTag::CONTEXT, "ret=%{public}d", ret);
     bool value = ((ret == ERR_OK) ? true : false);
     if (!value) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "errorCode = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::CONTEXT, "errCode=%{public}d", ret);
     }
     TAG_LOGD(AAFwkTag::CONTEXT, "end");
     return value;
@@ -194,7 +194,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType=%{public}d", type);
         return ERR_INVALID_VALUE;
     }
 
@@ -247,9 +247,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
         return nullptr;
     }
 
-    TAG_LOGD(AAFwkTag::CONTEXT, "before getResourceManager");
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appContext->GetResourceManager();
-    TAG_LOGD(AAFwkTag::CONTEXT, "after getResourceManager");
     if (resourceManager == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "null resourceManager");
         return nullptr;

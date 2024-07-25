@@ -157,7 +157,7 @@ void NAPIDataAbilityObserver::CallJsMethod()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (needRelease_ && ref_ != nullptr) {
-            TAG_LOGI(AAFwkTag::FA, "to delete callback");
+            TAG_LOGI(AAFwkTag::FA, "delete callback");
             napi_delete_reference(env_, ref_);
             ref_ = nullptr;
             needRelease_ = false;

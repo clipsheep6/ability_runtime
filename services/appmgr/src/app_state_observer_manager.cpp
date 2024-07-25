@@ -35,12 +35,12 @@ constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 } // namespace
 AppStateObserverManager::AppStateObserverManager()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "AppStateObserverManager instance is created");
+    TAG_LOGD(AAFwkTag::APPMGR, "created");
 }
 
 AppStateObserverManager::~AppStateObserverManager()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "AppStateObserverManager instance is destroyed");
+    TAG_LOGD(AAFwkTag::APPMGR, "destroyed");
 }
 
 void AppStateObserverManager::Init()
@@ -107,11 +107,11 @@ int32_t AppStateObserverManager::RegisterAppForegroundStateObserver(const sptr<I
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (observer == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null observer");
         return ERR_INVALID_VALUE;
     }
     if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "permission denied");
         return ERR_PERMISSION_DENIED;
     }
     if (IsAppForegroundObserverExist(observer)) {
@@ -154,7 +154,7 @@ int32_t AppStateObserverManager::RegisterAbilityForegroundStateObserver(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (observer == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null observer");
         return ERR_INVALID_VALUE;
     }
     if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
@@ -281,7 +281,7 @@ void AppStateObserverManager::OnProcessDied(const std::shared_ptr<AppRunningReco
 void AppStateObserverManager::OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord)
 {
     if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnRenderProcessDied failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null handler");
         return;
     }
 

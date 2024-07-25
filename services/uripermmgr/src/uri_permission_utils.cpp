@@ -123,7 +123,7 @@ bool UPMSUtils::IsFoundationCall()
     TAG_LOGD(AAFwkTag::ABILITYMGR, "callerTokenId is %{public}u", callerTokenId);
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Is not native call");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "not native call");
         return false;
     }
     Security::AccessToken::NativeTokenInfo nativeInfo;

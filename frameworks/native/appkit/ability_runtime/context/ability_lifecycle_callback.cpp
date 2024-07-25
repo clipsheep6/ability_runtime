@@ -78,7 +78,7 @@ void JsAbilityLifecycleCallback::CallJsMethod(
 {
     TAG_LOGD(AAFwkTag::APPKIT, "methodName = %{public}s", methodName.c_str());
     if (!ability) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
     HandleScope handleScope(env_);

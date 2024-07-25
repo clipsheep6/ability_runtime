@@ -343,7 +343,7 @@ void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInf
     auto asyncCallback = [abilityWeakPtr = weakPtr]() {
         auto ability = abilityWeakPtr.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY, "null ability");
             return;
         }
         ability->OnStopCallback();

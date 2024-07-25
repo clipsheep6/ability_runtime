@@ -132,20 +132,20 @@ bool PermissionVerification::CheckObserverCallerPermission() const
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_RUNNING_INFO)) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification succeeded.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "permission allowed");
         return true;
     }
-    TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s: Permission verification failed.", __func__);
+    TAG_LOGE(AAFwkTag::DEFAULT, "permission denied");
     return false;
 }
 
 bool PermissionVerification::VerifyControllerPerm() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_ABILITY_CONTROLLER)) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification succeeded.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "permission allowed");
         return true;
     }
-    TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s: Permission verification failed.", __func__);
+    TAG_LOGE(AAFwkTag::DEFAULT, "permission denied");
     return false;
 }
 
@@ -159,7 +159,7 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_ACCESS_DLP)) {
         return true;
     }
-    TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s: Permission verification failed", __func__);
+    TAG_LOGE(AAFwkTag::DEFAULT, "permission denied");
     return false;
 }
 
@@ -168,7 +168,7 @@ int PermissionVerification::VerifyAccountPermission() const
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
         return ERR_OK;
     }
-    TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s: Permission verification failed", __func__);
+    TAG_LOGE(AAFwkTag::DEFAULT, "permission denied");
     return CHECK_PERMISSION_FAILED;
 }
 
@@ -176,20 +176,20 @@ bool PermissionVerification::VerifyMissionPermission() const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification succeeded.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "permission allowed");
         return true;
     }
-    TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s: Permission verification failed", __func__);
+    TAG_LOGE(AAFwkTag::DEFAULT, "permission denied");
     return false;
 }
 
 int PermissionVerification::VerifyAppStateObserverPermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "Permission verification succeeded.");
+        TAG_LOGD(AAFwkTag::DEFAULT, "permission allowed");
         return ERR_OK;
     }
-    TAG_LOGE(AAFwkTag::DEFAULT, "Permission verification failed.");
+    TAG_LOGE(AAFwkTag::DEFAULT, "permission denied");
     return ERR_PERMISSION_DENIED;
 }
 
@@ -440,10 +440,10 @@ bool PermissionVerification::IsSystemAppCall() const
 bool PermissionVerification::VerifyPrepareTerminatePermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification succeeded.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "permission allowed");
         return true;
     }
-    TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification failed", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "permission denied");
     return false;
 }
 
@@ -452,7 +452,7 @@ bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId,
         PermissionConstants::PERMISSION_PREPARE_TERMINATE, false);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        TAG_LOGD(AAFwkTag::DEFAULT, "permission denied.");
+        TAG_LOGD(AAFwkTag::DEFAULT, "permission denied");
         return false;
     }
     TAG_LOGD(AAFwkTag::DEFAULT, "verify AccessToken success");

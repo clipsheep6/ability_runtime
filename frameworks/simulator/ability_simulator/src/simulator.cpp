@@ -226,7 +226,7 @@ bool SimulatorImpl::Initialize(const Options &options)
 void CallObjectMethod(napi_env env, napi_value obj, const char *name, napi_value const *argv, size_t argc)
 {
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "%{public}s, Failed to get Ability object", __func__);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null obj");
         return;
     }
     napi_value methodOnCreate = nullptr;
@@ -529,7 +529,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
     for (auto iter = abilities_.begin(); iter != abilities_.end(); iter++) {
         auto ability = iter->second->GetNapiValue();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "ability is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "null ability");
             continue;
         }
 

@@ -176,13 +176,13 @@ template<typename T>
 bool ParseInfoFromJsonStr(const char *data, T &t)
 {
     if (data == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s failed due to data is nullptr", __func__);
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "null data");
         return false;
     }
 
     nlohmann::json jsonObject = nlohmann::json::parse(data, nullptr, false);
     if (jsonObject.is_discarded()) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s failed due to data is discarded", __func__);
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "jsonObject discarded");
         return false;
     }
 

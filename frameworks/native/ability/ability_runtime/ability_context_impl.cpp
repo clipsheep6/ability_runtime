@@ -311,7 +311,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult");
+    TAG_LOGI(AAFwkTag::CONTEXT, "called");
     isTerminating_.store(true);
 #ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -324,16 +324,16 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
         info->resultCode = resultCode;
         auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken);
         auto err = ifaceSessionToken->TerminateSession(info);
-        TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult. ret=%{public}d", err);
+        TAG_LOGI(AAFwkTag::CONTEXT, "SCB.ret=%{public}d", err);
         return static_cast<int32_t>(err);
     } else {
         ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
-        TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult. ret=%{public}d", err);
+        TAG_LOGI(AAFwkTag::CONTEXT, "no SCB.ret=%{public}d", err);
         return err;
     }
 #else
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
-    TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult. ret=%{public}d", err);
+    TAG_LOGI(AAFwkTag::CONTEXT, "ret=%{public}d", err);
     return err;
 #endif
 }
@@ -365,7 +365,7 @@ int32_t AbilityContextImpl::GetAbilityRecordId()
 
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "Start calling OnAbilityResult.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {
         if (callback->second) {
@@ -373,7 +373,7 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
         }
         resultCallbacks_.erase(requestCode);
     }
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnAbilityResult");
+    TAG_LOGI(AAFwkTag::CONTEXT, "end");
 }
 
 void AbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want& resultData)
@@ -386,7 +386,7 @@ void AbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, c
         }
         resultCallbacks_.erase(requestCode);
     }
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnAbilityResult");
+    TAG_LOGI(AAFwkTag::CONTEXT, "end");
 }
 
 ErrCode AbilityContextImpl::ConnectAbility(const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)

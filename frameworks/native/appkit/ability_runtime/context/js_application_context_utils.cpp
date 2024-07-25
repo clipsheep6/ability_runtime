@@ -66,7 +66,7 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
     }
 
     if (info.argc == 0) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Not enough arguments");
+        TAG_LOGE(AAFwkTag::APPKIT, "invalid argc");
         ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }

@@ -43,7 +43,7 @@ bool RestartAppManager::IsRestartAppFrequent(const RestartAppKeyType &key, time_
 void RestartAppManager::AddRestartAppHistory(const RestartAppKeyType &key, time_t time)
 {
     std::lock_guard<ffrt::mutex> lock(restartAppMapLock_);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Refresh history, bundleName=%{public}s, userId=%{public}d", key.bundleName.c_str(),
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName=%{public}s, userId=%{public}d", key.bundleName.c_str(),
         key.userId);
     restartAppHistory_[key] = time;
 }
@@ -57,7 +57,7 @@ bool RestartAppManager::IsForegroundToRestartApp() const
     if (processInfo.isFocused || processInfo.isAbilityForegrounding) {
         return true;
     }
-    TAG_LOGE(AAFwkTag::ABILITYMGR, "IsForegroundToRestartApp, app stae is not foreground.");
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "not foreground");
     return false;
 }
 }  // namespace AAFwk

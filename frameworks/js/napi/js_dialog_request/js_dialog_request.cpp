@@ -59,7 +59,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "JsDialogRequest::Finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "Finalizer called");
         std::unique_ptr<JsDialogRequest>(static_cast<JsDialogRequest*>(data));
     }
 
@@ -76,7 +76,7 @@ public:
 private:
     napi_value OnGetRequestInfo(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::DIALOG, "called");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::DIALOG, "Params not match");
             ThrowTooFewParametersError(env);
@@ -114,7 +114,7 @@ private:
 
     napi_value OnGetRequestCallback(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::DIALOG, "called");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::DIALOG, "Params is not match");
             ThrowTooFewParametersError(env);
@@ -150,7 +150,7 @@ napi_value JsDialogRequestInit(napi_env env, napi_value exportObj)
 {
     TAG_LOGD(AAFwkTag::DIALOG, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input parameters");
+        TAG_LOGE(AAFwkTag::DIALOG, "Invalid input params");
         return nullptr;
     }
 

@@ -170,10 +170,10 @@ RenderStateData RenderStateObserverManager::WrapRenderStateData(const std::share
 
 void RenderStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "OnObserverDied begin.");
+    TAG_LOGI(AAFwkTag::APPMGR, "begin");
     auto remoteObj = remote.promote();
     if (remoteObj == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null observer");
         return;
     }
     remoteObj->RemoveDeathRecipient(deathRecipient_);
@@ -190,7 +190,7 @@ RenderStateObserverRecipient::~RenderStateObserverRecipient()
 
 void RenderStateObserverRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    TAG_LOGE(AAFwkTag::APPMGR, "RenderStateObserverRecipient On remote died.");
+    TAG_LOGE(AAFwkTag::APPMGR, "remote dead");
     if (handler_) {
         handler_(remote);
     }

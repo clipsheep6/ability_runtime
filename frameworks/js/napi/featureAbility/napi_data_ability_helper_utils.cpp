@@ -1653,8 +1653,7 @@ void ExecuteBatchExecuteCB(napi_env env, void *data)
     if (dataAbilityHelper != nullptr) {
         OHOS::Uri uri(executeBatchCB->uri);
         executeBatchCB->result = dataAbilityHelper->ExecuteBatch(uri, executeBatchCB->operations);
-        TAG_LOGI(AAFwkTag::FA, "%{public}s, dataAbilityHelper is not nullptr. %{public}zu",
-            __func__, executeBatchCB->result.size());
+        TAG_LOGI(AAFwkTag::FA, "resultSize: %{public}zu", executeBatchCB->result.size());
     }
     TAG_LOGI(AAFwkTag::FA, "end");
 }

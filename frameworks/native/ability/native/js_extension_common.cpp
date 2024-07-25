@@ -51,7 +51,7 @@ void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk:
 {
     TAG_LOGI(AAFwkTag::EXT, "called");
     if (!fullConfig) {
-        TAG_LOGE(AAFwkTag::EXT, "invalid configuration.");
+        TAG_LOGE(AAFwkTag::EXT, "invalid config");
         return;
     }
 

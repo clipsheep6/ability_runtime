@@ -120,12 +120,12 @@ bool ServiceRouterMgrService::InitEventRunnerAndHandler()
     std::lock_guard<std::mutex> lock(mutex_);
     runner_ = EventRunner::Create(NAME_SERVICE_ROUTER_MGR_SERVICE);
     if (runner_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s fail, Failed to init due to create runner error", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null runner");
         return false;
     }
     handler_ = std::make_shared<EventHandler>(runner_);
     if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s fail, Failed to init due to create handler error", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null handler");
         return false;
     }
     return true;

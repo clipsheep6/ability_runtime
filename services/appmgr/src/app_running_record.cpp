@@ -471,12 +471,12 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
 void AppRunningRecord::UpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
     if (!isStageBasedModel_) {
-        TAG_LOGI(AAFwkTag::APPMGR, "Current version than supports !");
+        TAG_LOGI(AAFwkTag::APPMGR, "not stageMode");
         return;
     }
 
     if (appLifeCycleDeal_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "null appLifeCycleDeal_");
         return;
     }
     appLifeCycleDeal_->UpdateApplicationInfoInstalled(appInfo);
@@ -485,7 +485,7 @@ void AppRunningRecord::UpdateApplicationInfoInstalled(const ApplicationInfo &app
 void AppRunningRecord::AddAbilityStage()
 {
     if (!isStageBasedModel_) {
-        TAG_LOGI(AAFwkTag::APPMGR, "Current version than supports !");
+        TAG_LOGI(AAFwkTag::APPMGR, "");
         return;
     }
     HapModuleInfo abilityStage;
@@ -504,15 +504,14 @@ void AppRunningRecord::AddAbilityStage()
 void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bundleName)
 {
     if (!eventHandler_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "eventHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "null eventHandler_");
         return;
     }
 
     HapModuleInfo hapModuleInfo;
     if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
         if (startProcessSpecifiedAbilityEventId_ == 0) {
-            TAG_LOGI(
-                AAFwkTag::APPMGR, "%{public}s START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG is not exist.", __func__);
+            TAG_LOGI(AAFwkTag::APPMGR, "START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG not exist");
             SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
                 AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
         }

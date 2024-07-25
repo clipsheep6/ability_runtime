@@ -27,18 +27,18 @@ AbilityLoader &AbilityLoader::GetInstance()
 void AbilityLoader::RegisterAbility(const std::string &abilityName, const CreateAblity &createFunc)
 {
     abilities_.insert_or_assign(abilityName, createFunc);
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityLoader::RegisterAbility:%{public}s", abilityName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "reg ability:%{public}s", abilityName.c_str());
 }
 
 void AbilityLoader::RegisterExtension(const std::string &abilityName, const CreateExtension &createFunc)
 {
     extensions_.emplace(abilityName, createFunc);
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityLoader::RegisterExtension:%{public}s", abilityName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "reg extension:%{public}s", abilityName.c_str());
 }
 
 void AbilityLoader::RegisterUIAbility(const std::string &abilityName, const CreateUIAbility &createFunc)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "RegisterUIAbility: %{public}s", abilityName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "reg UIAbility:%{public}s", abilityName.c_str());
     uiAbilities_.emplace(abilityName, createFunc);
 }
 
@@ -48,7 +48,7 @@ Ability *AbilityLoader::GetAbilityByName(const std::string &abilityName)
     if (it != abilities_.end()) {
         return it->second();
     }
-    TAG_LOGE(AAFwkTag::ABILITY, "AbilityLoader::GetAbilityByName failed:%{public}s", abilityName.c_str());
+    TAG_LOGE(AAFwkTag::ABILITY, "get ability failed:%{public}s", abilityName.c_str());
     return nullptr;
 }
 
@@ -58,7 +58,7 @@ AbilityRuntime::Extension *AbilityLoader::GetExtensionByName(const std::string &
     if (it != extensions_.end()) {
         return it->second();
     }
-    TAG_LOGE(AAFwkTag::ABILITY, "AbilityLoader::GetExtensionByName failed:%{public}s", abilityName.c_str());
+    TAG_LOGE(AAFwkTag::ABILITY, "getExtension failed:%{public}s", abilityName.c_str());
     return nullptr;
 }
 
@@ -68,7 +68,7 @@ AbilityRuntime::UIAbility *AbilityLoader::GetUIAbilityByName(const std::string &
     if (it != uiAbilities_.end()) {
         return it->second();
     }
-    TAG_LOGE(AAFwkTag::ABILITY, "GetAbilityByName failed: %{public}s", abilityName.c_str());
+    TAG_LOGE(AAFwkTag::ABILITY, "getAbility failed: %{public}s", abilityName.c_str());
     return nullptr;
 }
 

@@ -287,7 +287,7 @@ int AbilitySchedulerStub::GetFileTypesInner(MessageParcel &data, MessageParcel &
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::string mimeTypeFilter = data.ReadString();
@@ -307,7 +307,7 @@ int AbilitySchedulerStub::OpenFileInner(MessageParcel &data, MessageParcel &repl
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::string mode = data.ReadString();
@@ -331,7 +331,7 @@ int AbilitySchedulerStub::OpenRawFileInner(MessageParcel &data, MessageParcel &r
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::string mode = data.ReadString();
@@ -351,7 +351,7 @@ int AbilitySchedulerStub::InsertInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     int index = Insert(*uri, NativeRdb::ValuesBucket::Unmarshalling(data));
@@ -359,7 +359,7 @@ int AbilitySchedulerStub::InsertInner(MessageParcel &data, MessageParcel &reply)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::InsertInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return NO_ERROR;
 }
 
@@ -367,7 +367,7 @@ int AbilitySchedulerStub::CallInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::string method = data.ReadString();
@@ -391,7 +391,7 @@ int AbilitySchedulerStub::CallInner(MessageParcel &data, MessageParcel &reply)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable pacMap error");
         return ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::CallInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return NO_ERROR;
 }
 
@@ -399,7 +399,7 @@ int AbilitySchedulerStub::UpdatetInner(MessageParcel &data, MessageParcel &reply
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     auto value = NativeRdb::ValuesBucket::Unmarshalling(data);
@@ -421,7 +421,7 @@ int AbilitySchedulerStub::DeleteInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates(
@@ -442,7 +442,7 @@ int AbilitySchedulerStub::QueryInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::vector<std::string> columns;
@@ -466,7 +466,7 @@ int AbilitySchedulerStub::QueryInner(MessageParcel &data, MessageParcel &reply)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "!resultSet->Marshalling(reply)");
         return ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::QueryInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return NO_ERROR;
 }
 
@@ -474,7 +474,7 @@ int AbilitySchedulerStub::GetTypeInner(MessageParcel &data, MessageParcel &reply
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     std::string type = GetType(*uri);
@@ -489,7 +489,7 @@ int AbilitySchedulerStub::ReloadInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
 
@@ -510,7 +510,7 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
 
@@ -541,7 +541,7 @@ int AbilitySchedulerStub::RegisterObserverInner(MessageParcel &data, MessageParc
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     auto obServer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
@@ -562,7 +562,7 @@ int AbilitySchedulerStub::UnregisterObserverInner(MessageParcel &data, MessagePa
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri");
         return ERR_INVALID_VALUE;
     }
     auto obServer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
@@ -583,7 +583,7 @@ int AbilitySchedulerStub::NotifyChangeInner(MessageParcel &data, MessageParcel &
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri ");
         return ERR_INVALID_VALUE;
     }
 
@@ -599,7 +599,7 @@ int AbilitySchedulerStub::NormalizeUriInner(MessageParcel &data, MessageParcel &
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri ");
         return ERR_INVALID_VALUE;
     }
 
@@ -616,7 +616,7 @@ int AbilitySchedulerStub::DenormalizeUriInner(MessageParcel &data, MessageParcel
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null uri ");
         return ERR_INVALID_VALUE;
     }
 
@@ -631,13 +631,13 @@ int AbilitySchedulerStub::DenormalizeUriInner(MessageParcel &data, MessageParcel
 
 int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start");
     int count = 0;
     if (!data.ReadInt32(count)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner fail to ReadInt32 count");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 count");
         return ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner count:%{public}d", count);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "count:%{public}d", count);
     if (count > CYCLE_LIMIT) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "count is too large");
         return ERR_INVALID_VALUE;
@@ -647,8 +647,7 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
         std::shared_ptr<AppExecFwk::DataAbilityOperation> dataAbilityOperation(
             data.ReadParcelable<AppExecFwk::DataAbilityOperation>());
         if (dataAbilityOperation == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner dataAbilityOperation is nullptr, "
-                "index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null dataAbilityOperation index=%{public}d", i);
             return ERR_INVALID_VALUE;
         }
         operations.push_back(dataAbilityOperation);
@@ -657,23 +656,21 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> results = ExecuteBatch(operations);
     int total = (int)results.size();
     if (!reply.WriteInt32(total)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner total:%{public}d", total);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "total:%{public}d", total);
     for (int i = 0; i < total; i++) {
         if (results[i] == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR,
-                "AbilitySchedulerStub::ExecuteBatchInner results[i] is nullptr, index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "null results[i], index=%{public}d", i);
             return ERR_INVALID_VALUE;
         }
         if (!reply.WriteParcelable(results[i].get())) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR,
-                "AbilitySchedulerStub::ExecuteBatchInner fail to WriteParcelable operation, index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR,"WriteParcelable operation failed, index=%{public}d", i);
             return ERR_INVALID_VALUE;
         }
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return NO_ERROR;
 }
 
@@ -714,7 +711,7 @@ int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &r
 
 int AbilitySchedulerStub::OnExecuteIntentInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::OnExecuteIntentInner start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start");
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
@@ -749,7 +746,7 @@ int AbilitySchedulerStub::UpdateSessionTokenInner(MessageParcel &data, MessagePa
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::BlockAbilityInner start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start");
 
     auto result = BlockAbility();
     if (!reply.WriteInt32(result)) {

@@ -374,7 +374,7 @@ void AbilityAutoStartupDataManager::ConvertAutoStartupStatusFromValue(
 {
     nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "discarded json");
         return;
     }
     if (jsonObject.contains(JSON_KEY_IS_AUTO_STARTUP) && jsonObject[JSON_KEY_IS_AUTO_STARTUP].is_boolean()) {
@@ -474,7 +474,7 @@ bool AbilityAutoStartupDataManager::IsEqual(const DistributedKv::Key &key, const
 {
     nlohmann::json jsonObject = nlohmann::json::parse(key.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "discarded json");
         return false;
     }
 
@@ -493,7 +493,7 @@ bool AbilityAutoStartupDataManager::IsEqual(const DistributedKv::Key &key, const
 {
     nlohmann::json jsonObject = nlohmann::json::parse(key.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "discarded json");
         return false;
     }
 
@@ -509,7 +509,7 @@ bool AbilityAutoStartupDataManager::IsEqual(const DistributedKv::Key &key, int32
 {
     nlohmann::json jsonObject = nlohmann::json::parse(key.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "discarded json");
         return false;
     }
 

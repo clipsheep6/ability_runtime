@@ -33,11 +33,11 @@ const int32_t UID_TRANSFORM_DIVISOR = 200000;
 ErrCode OsAccountManagerWrapper::QueryActiveOsAccountIds(std::vector<int32_t>& ids)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s without os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account disabled");
     ids.emplace_back(DEFAULT_OS_ACCOUNT_ID);
     return ERR_OK;
 #else
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s with os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account enabled");
     return AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -45,11 +45,11 @@ ErrCode OsAccountManagerWrapper::QueryActiveOsAccountIds(std::vector<int32_t>& i
 ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromUid(const int32_t uid, int32_t &id)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s without os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account disabled");
     id = uid / UID_TRANSFORM_DIVISOR;
     return ERR_OK;
 #else
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s with os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account enabled");
     return AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, id);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -57,11 +57,11 @@ ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromUid(const int32_t uid, i
 ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromProcess(int &id)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s without os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account disabled");
     id = DEFAULT_OS_ACCOUNT_ID;
     return ERR_OK;
 #else
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s with os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account enabled");
     return AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(id);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -69,11 +69,11 @@ ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromProcess(int &id)
 ErrCode OsAccountManagerWrapper::IsOsAccountExists(const int id, bool &isOsAccountExists)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s without os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account disabled");
     isOsAccountExists = (id == DEFAULT_OS_ACCOUNT_ID);
     return ERR_OK;
 #else // OS_ACCOUNT_PART_ENABLED
-    TAG_LOGD(AAFwkTag::DEFAULT, "execute %{public}s with os account subsystem.", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "os account enabled");
     return AccountSA::OsAccountManager::IsOsAccountExists(id, isOsAccountExists);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -81,11 +81,11 @@ ErrCode OsAccountManagerWrapper::IsOsAccountExists(const int id, bool &isOsAccou
 ErrCode OsAccountManagerWrapper::CreateOsAccount(const std::string &name, int32_t &osAccountUserId)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    TAG_LOGI(AAFwkTag::DEFAULT, "execute %{public}s without os account subsystem.", __func__);
+    TAG_LOGI(AAFwkTag::DEFAULT, "os account disabled");
     osAccountUserId = USER_ID_U100;
     return ERR_OK;
 #else // OS_ACCOUNT_PART_ENABLED
-    TAG_LOGI(AAFwkTag::DEFAULT, "execute %{public}s with os account subsystem.", __func__);
+    TAG_LOGI(AAFwkTag::DEFAULT, "os account enabled");
     AccountSA::OsAccountInfo osAccountInfo;
     ErrCode errCode = AccountSA::OsAccountManager::CreateOsAccount(name,
         AccountSA::OsAccountType::NORMAL, osAccountInfo);
@@ -97,10 +97,10 @@ ErrCode OsAccountManagerWrapper::CreateOsAccount(const std::string &name, int32_
 ErrCode OsAccountManagerWrapper::RemoveOsAccount(const int id)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    TAG_LOGI(AAFwkTag::DEFAULT, "execute %{public}s without os account subsystem.", __func__);
+    TAG_LOGI(AAFwkTag::DEFAULT, "os account disabled");
     return ERR_OK;
 #else // OS_ACCOUNT_PART_ENABLED
-    TAG_LOGI(AAFwkTag::DEFAULT, "execute %{public}s with os account subsystem.", __func__);
+    TAG_LOGI(AAFwkTag::DEFAULT, "os account enabled");
     return AccountSA::OsAccountManager::RemoveOsAccount(id);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -110,7 +110,7 @@ int32_t OsAccountManagerWrapper::GetCurrentActiveAccountId()
     std::vector<int32_t> accountIds;
     auto instance = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance();
     if (instance == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "Failed to get OsAccountManager instance.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "null instance");
         return 0;
     }
 
