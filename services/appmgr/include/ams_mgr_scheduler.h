@@ -317,6 +317,12 @@ public:
      */
     virtual bool IsKilledForUpgradeWeb(const std::string &bundleName) override;
 
+    /**
+     * whether the abilities of process specified by pid type only UIAbility.
+     * @return Returns true is only UIAbility, otherwise return false
+     */
+    virtual bool IsProcessContainsOnlyUIAbility(const pid_t pid) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

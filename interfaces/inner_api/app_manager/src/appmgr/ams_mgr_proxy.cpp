@@ -29,6 +29,27 @@ constexpr int32_t MAX_APP_DEBUG_COUNT = 100;
 AmsMgrProxy::AmsMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAmsMgr>(impl)
 {}
 
+bool AmsMgrProxy::IsProcessContainsOnlyUIAbility(const pid_t pid)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "IsProcessContainsOnlyUIAbility start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return false;
+    }
+    data.WriteInt32(static_cast<int32_t>(pid));
+    int32_t ret =
+        SendTransactCmd(static_cast<uint32_t>(
+            IAmsMgr::Message::IS_PROCESS_CONTAINS_ONLY_UI_EXTENSION), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "IsProcessContainsOnlyUIAbility end");
+    return reply.ReadBool();
+}
+
 bool AmsMgrProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AmsMgrProxy::GetDescriptor())) {

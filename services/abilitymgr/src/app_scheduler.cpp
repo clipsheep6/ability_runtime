@@ -630,5 +630,13 @@ bool AppScheduler::IsKilledForUpgradeWeb(const std::string &bundleName)
     }
     return appMgrClient_->IsKilledForUpgradeWeb(bundleName);
 }
-}  // namespace AAFwk
+bool AppScheduler::IsProcessContainsOnlyUIAbility(const pid_t pid)
+{
+    if (!appMgrClient_) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appMgrClient is nullptr");
+        return false;
+    }
+    return appMgrClient_->IsProcessContainsOnlyUIAbility(pid);
+}
+} // namespace AAFwk
 }  // namespace OHOS

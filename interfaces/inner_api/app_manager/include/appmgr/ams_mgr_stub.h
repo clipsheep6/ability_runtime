@@ -95,6 +95,7 @@ private:
         MessageParcel &reply, MessageOption &option);
     int32_t HandleBlockProcessCacheByPids(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsKilledForUpgradeWeb(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsProcessContainsOnlyUIAbility(MessageParcel &data, MessageParcel &reply);
     DISALLOW_COPY_AND_MOVE(AmsMgrStub);
 };
 }  // namespace AppExecFwk
