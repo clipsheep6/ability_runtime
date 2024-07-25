@@ -17,7 +17,6 @@
 
 #include <cstddef>
 #include <cstdint>
-
 #define private public
 #define protected public
 #include "app_jsheap_mem_info.h"
@@ -27,9 +26,7 @@
 #include <iostream>
 #include "securec.h"
 #include "configuration.h"
-
 using namespace OHOS::AppExecFwk;
-
 namespace OHOS {
 namespace {
 constexpr int INPUT_ZERO = 0;
@@ -49,8 +46,6 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[INPUT_TWO] << OFFSET_TWO) |
         ptr[INPUT_THREE];
 }
-
-
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
@@ -81,7 +76,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     (void)memset_s(ch, size + 1, 0x00, size + 1);
-    if (memcpy_s(ch, size, data, size) != EOK) {
+    if (memcpy_s(ch, size+1, data, size) != EOK) {
         std::cout << "copy failed." << std::endl;
         free(ch);
         ch = nullptr;
