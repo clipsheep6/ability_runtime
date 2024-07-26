@@ -81,6 +81,7 @@ ohos_shared_library("wantagent_innerkits") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "hicollie:libhicollie",
   ]
 
   public_external_deps = [
