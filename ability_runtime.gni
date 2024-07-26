@@ -107,6 +107,7 @@ declare_args() {
       "com.ohos.textautofill/entry/TextAutoFillAbility"
   cj_frontend = true
   ability_runtime_app_no_response_dialog = false
+  ability_runtime_app_no_response_bundlename = "com.ohos.taskmanager"
   include_app_domain_verify = true
 
   if (!defined(global_parts_info) ||

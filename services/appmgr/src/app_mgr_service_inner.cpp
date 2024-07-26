@@ -5364,6 +5364,14 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
             .processName = bundleName,
         };
         AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
+#ifdef APP_NO_RESPONSE_DIALOG
+        bool isDialogExist = appRunningManager_ ?
+            appRunningManager_->CheckAppRunningRecordIsExist(APP_NO_RESPONSE_BUNDLENAME, APP_NO_RESPONSE_ABILITY) :
+            false;
+        auto killFaultApp = std::bind(&AppMgrServiceInner::KillFaultApp, this, pid, bundleName, faultData);
+        ModalSystemAppFreezeUIExtension::GetInstance().ProcessAppFreeze(true, faultData, std::to_string(pid),
+            bundleName, killFaultApp, isDialogExist);
+#endif
     }
 }
 
