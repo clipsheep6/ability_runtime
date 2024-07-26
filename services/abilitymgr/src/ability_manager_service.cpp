@@ -118,6 +118,7 @@
 #include "xcollie/watchdog.h"
 #include "config_policy_utils.h"
 #include "running_multi_info.h"
+#include "utils/ability_permission_util.h"
 #include "utils/dump_utils.h"
 #include "utils/extension_permissions_util.h"
 #include "utils/window_options_utils.h"
@@ -978,20 +979,20 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     bool isForegroundToRestartApp, bool isImplicit, bool isPendingWantCaller)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::string dialogSessionId = want.GetStringParam("dialogSessionId");
+    bool isSendDialogResult = false;
+#ifdef SUPPORT_SCREEN
+    if (!dialogSessionId.empty() &&
+        DialogSessionManager::GetInstance().GetDialogCallerInfo(dialogSessionId) != nullptr) {
+        isSendDialogResult = true;
+    }
+#endif // SUPPORT_SCREEN
+
     // prevent the app from dominating the screen
-    if (callerToken == nullptr && !IsCallerSceneBoard() && !isForegroundToRestartApp &&
-        !PermissionVerification::GetInstance()->IsSACall() && !PermissionVerification::GetInstance()->IsShellCall()) {
-        auto callerPid = IPCSkeleton::GetCallingPid();
-        AppExecFwk::RunningProcessInfo processInfo;
-        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
-        bool isDelegatorCall = processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false);
-        std::string bundleName = want.GetElement().GetBundleName();
-        std::string abilityName = want.GetElement().GetAbilityName();
-        if (!isDelegatorCall && !InsightIntentExecuteParam::IsInsightIntentExecute(want) &&
-            !AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
-            return ERR_INVALID_CALLER;
-        }
+    if (callerToken == nullptr && !IsCallerSceneBoard() && !isSendDialogResult && !isForegroundToRestartApp &&
+        AbilityPermissionUtil::GetInstance().IsDominateScreen(want, isPendingWantCaller)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
+        return ERR_INVALID_CALLER;
     }
     {
 #ifdef WITH_DLP
@@ -1012,14 +1013,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     AbilityUtil::RemoveWindowModeKey(const_cast<Want &>(want));
-    std::string dialogSessionId = want.GetStringParam("dialogSessionId");
-    bool isSendDialogResult = false;
-#ifdef SUPPORT_SCREEN
-    if (!dialogSessionId.empty() &&
-        DialogSessionManager::GetInstance().GetDialogCallerInfo(dialogSessionId) != nullptr) {
-        isSendDialogResult = true;
-    }
-#endif // SUPPORT_SCREEN
     if (callerToken != nullptr && !VerificationAllToken(callerToken) && !isSendDialogResult) {
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
@@ -1571,6 +1564,13 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     uint32_t specifyTokenId, bool isImplicit, bool isCallByShortcut, bool isPendingWantCaller)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    // prevent the app from dominating the screen
+    if (callerToken == nullptr && !IsCallerSceneBoard() &&
+        AbilityPermissionUtil::GetInstance().IsDominateScreen(want, isPendingWantCaller)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
+        return ERR_INVALID_CALLER;
+    }
+
     bool startWithAccount = want.GetBoolParam(START_ABILITY_TYPE, false);
     if (startWithAccount || IsCrossUserCall(userId)) {
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
