@@ -47,6 +47,8 @@ public:
     static constexpr char THREAD_BLOCK_3S[] = "THREAD_BLOCK_3S";
     static constexpr char THREAD_BLOCK_6S[] = "THREAD_BLOCK_6S";
     static constexpr char APP_INPUT_BLOCK[] = "APP_INPUT_BLOCK";
+    static constexpr char BUSSINESS_THREAD_BLOCK_3S[] = "BUSSINESS_THREAD_BLOCK_3S";
+    static constexpr char BUSSINESS_THREAD_BLOCK_6S[] = "BUSSINESS_THREAD_BLOCK_6S";
 };
 /**
  * @struct FaultData

@@ -114,7 +114,7 @@ int AppfreezeInner::AppfreezeHandle(const FaultData& faultData, bool onlyMainThr
 bool AppfreezeInner::IsExitApp(const std::string& name)
 {
     if (name == AppFreezeType::THREAD_BLOCK_6S || name == AppFreezeType::APP_INPUT_BLOCK ||
-        name == AppFreezeType::LIFECYCLE_TIMEOUT) {
+        name == AppFreezeType::LIFECYCLE_TIMEOUT || name == AppFreezeType::BUSSINESS_THREAD_BLOCK_6S) {
         return true;
     }
     return false;
