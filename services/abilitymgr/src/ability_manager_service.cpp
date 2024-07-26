@@ -2486,6 +2486,9 @@ void AbilityManagerService::ReportEventToRSS(const AppExecFwk::AbilityInfo &abil
     } else if (abilityInfo.type == AppExecFwk::AbilityType::EXTENSION &&
                abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
         reason = "THAW_BY_START_SERVICE_EXTENSION";
+    } else if (abilityInfo.type == AppExecFwk::AbilityType::EXTENSION &&
+               AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo.extensionAbilityType)) {
+        reason = "THAW_BY_START_UI_EXTENSION";
     } else {
         reason = "THAW_BY_START_NOT_PAGE_ABILITY";
     }
@@ -2656,7 +2659,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     }
     EventInfo eventInfo = BuildEventInfo(want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
-    
+
     int result;
 #ifdef WITH_DLP
     result = CheckDlpForExtension(want, callerToken, userId, eventInfo, EventName::START_EXTENSION_ERROR);
@@ -3035,6 +3038,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+    ReportEventToRSS(abilityRequest.abilityInfo, abilityRequest.callerToken);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
     eventInfo.errCode = connectManager->StartAbility(abilityRequest);
     if (eventInfo.errCode != ERR_OK) {
@@ -3054,7 +3058,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     }
     EventInfo eventInfo = BuildEventInfo(want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
-    
+
     int result;
 #ifdef WITH_DLP
     result = CheckDlpForExtension(want, callerToken, userId, eventInfo, EventName::STOP_EXTENSION_ERROR);
@@ -3657,7 +3661,7 @@ int AbilityManagerService::ConnectAbilityCommon(
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     EventInfo eventInfo = BuildEventInfo(want, userId);
-    
+
     int result;
 #ifdef WITH_DLP
     result = CheckDlpForExtension(want, callerToken, userId, eventInfo, EventName::CONNECT_SERVICE_ERROR);
@@ -3772,7 +3776,7 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CALLER;
     }
-    
+
     int result;
 #ifdef WITH_DLP
     result = CheckDlpForExtension(want, callerToken, userId, eventInfo, EventName::CONNECT_SERVICE_ERROR);
@@ -9079,7 +9083,7 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
             return CHECK_PERMISSION_FAILED;
         }
     }
-    
+
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start ServiceExtension or DataShareExtension");
@@ -10906,7 +10910,7 @@ void AbilityManagerService::PrintStartAbilityInfo(AppExecFwk::AbilityInfo caller
         static_cast<int32_t>(calledInfo.extensionAbilityType),
         calledInfo.moduleName.c_str(),
         calledInfo.applicationName.c_str());
-    
+
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "callerAbilityInfo toString: "
         "callerUid is: %{public}d, "
@@ -10916,7 +10920,7 @@ void AbilityManagerService::PrintStartAbilityInfo(AppExecFwk::AbilityInfo caller
         "type is: %{public}d, "
         "extensionAbilityType is: %{public}d, "
         "moduleName is: %{public}s, "
-        "applicationName is: %{public}s", 
+        "applicationName is: %{public}s",
         IPCSkeleton::GetCallingUid(),
         IPCSkeleton::GetCallingPid(),
         callerInfo.name.c_str(),
