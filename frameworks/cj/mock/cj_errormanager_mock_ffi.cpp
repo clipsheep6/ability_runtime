@@ -14,8 +14,9 @@
  */
 
 #include <cstdint>
+#define FFI_EXPORT __attribute__((visibility("default")))
 
 extern "C" {
-int FfiOHOSErrorManagerOn();
-int FfiOHOSErrorManagerOff();
+FFI_EXPORT int FfiOHOSErrorManagerOn();
+FFI_EXPORT int FfiOHOSErrorManagerOff();
 }

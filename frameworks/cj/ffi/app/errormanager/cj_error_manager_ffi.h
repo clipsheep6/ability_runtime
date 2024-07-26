@@ -21,8 +21,8 @@
 #include <cstdint>
 
 extern "C" {
-    RetDataI32 FfiOHOSErrorManagerOn(char* onType, CErrorObserver observer);
-    int FfiOHOSErrorManagerOff(char* offType, int observerId);
+    FFI_EXPORT RetDataI32 FfiOHOSErrorManagerOn(char* onType, CErrorObserver observer);
+    FFI_EXPORT int FfiOHOSErrorManagerOff(char* offType, int observerId);
 }
 
 #endif
