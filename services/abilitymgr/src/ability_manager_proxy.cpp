@@ -5456,5 +5456,28 @@ ErrCode AbilityManagerProxy::OpenLink(const Want& want, sptr<IRemoteObject> call
     }
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::TerminateMission(int32_t missionId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appCloneIndex write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_MISSION,
+        data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
 } // namespace AAFwk
 } // namespace OHOS

@@ -1944,5 +1944,35 @@ ErrCode AbilityManagerClient::OpenLink(const Want& want, sptr<IRemoteObject> cal
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->OpenLink(want, callerToken, userId, requestCode);
 }
+
+ErrCode AbilityManagerClient::TerminateMission(int32_t missionId)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "TerminateMission begin.");
+#ifdef SUPPORT_SCREEN
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
+        auto err = sceneSessionManager->TerminateSessionByPersistentId(missionId);
+        if (err != OHOS::Rosen::WMError::WM_OK) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "TerminateMission failed, err: %{public}d.", static_cast<int32_t>(err));
+        }
+        if (err == Rosen::WMError::WM_ERROR_INVALID_PERMISSION) {
+            return CHECK_PERMISSION_FAILED;
+        }
+        if (err == Rosen::WMError::WM_ERROR_NOT_SYSTEM_APP) {
+            return ERR_NOT_SYSTEM_APP;
+        }
+        return static_cast<int32_t>(err);
+    }
+#endif //SUPPORT_SCREEN
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    int32_t ret = abms->TerminateMission(missionId);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "TerminateMission failed, err: %{public}d.", ret);
+    }
+    return ret;
+}
 } // namespace AAFwk
 } // namespace OHOS

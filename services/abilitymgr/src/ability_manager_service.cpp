@@ -11580,5 +11580,22 @@ void AbilityManagerService::SetAbilityRequestSessionInfo(AbilityRequest &ability
     IPCSkeleton::GetCallingTokenID()));
     abilityRequest.sessionInfo = sessionInfo;
 }
+
+int32_t AbilityManagerService::TerminateMission(int32_t missionId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "TerminateMission call");
+    auto missionListManager = GetCurrentMissionListManager();
+    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
+    CHECK_CALLER_IS_SYSTEM_APP;
+
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_KILL_APP_PROCESSES)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    return missionListManager->ClearMission(missionId);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

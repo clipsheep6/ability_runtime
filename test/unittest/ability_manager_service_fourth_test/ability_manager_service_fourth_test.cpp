@@ -1227,6 +1227,5 @@ HWTEST_F(AbilityManagerServiceFourthTest, ChangeUIAbilityVisibilityBySCB_001, Te
     abilityMs_->ChangeUIAbilityVisibilityBySCB(MockSessionInfo(0), true);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ChangeUIAbilityVisibilityBySCB_001 end");
 }
-
 } // namespace AAFwk
 } // namespace OHOS

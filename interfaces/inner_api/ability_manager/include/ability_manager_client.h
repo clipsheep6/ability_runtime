@@ -1541,6 +1541,14 @@ public:
     */
     int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken, int32_t userId, int requestCode);
 
+    /**
+     * Terminate process by bundleName.
+     *
+     * @param missionId, The mission id of the UIAbility need to be terminated.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode TerminateMission(int32_t missionId);
+
 private:
     AbilityManagerClient();
     DISALLOW_COPY_AND_MOVE(AbilityManagerClient);

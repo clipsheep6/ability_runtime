@@ -140,6 +140,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnClearUpAppData);
     }
 
+    static napi_value TerminateMission(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnTerminateMission);
+    }
+
     static napi_value IsSharedBundleRunning(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsSharedBundleRunning);
@@ -658,7 +663,7 @@ private:
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
         auto asyncTask = [appManager = appManager_, env, task = napiAsyncTask.get()]() {
             if (appManager == nullptr) {
-                TAG_LOGW(AAFwkTag::APPMGR, "abilityManager nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
                 task->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 delete task;
                 return;
@@ -950,6 +955,46 @@ private:
         if (napi_status::napi_ok != napi_send_event(env, asyncTask, napi_eprio_high)) {
             napiAsyncTask->Reject(env, CreateJsErrorByNativeErr(env,
                 static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), "send event failed!"));
+        } else {
+            napiAsyncTask.release();
+        }
+        return result;
+    }
+
+    napi_value OnTerminateMission(napi_env env, size_t argc, napi_value* argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "OnTerminateMission call.");
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Params not match");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        
+        int32_t missionId = 0;
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], missionId)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "get missionId wrong!");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
+            return CreateJsUndefined(env);
+        }
+
+        napi_value result = nullptr;
+        std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, nullptr, &result);
+        auto asyncTask = [missionId, env, task = napiAsyncTask.get()]() {
+            auto amsClient = AAFwk::AbilityManagerClient::GetInstance();
+            if (amsClient == nullptr) {
+                TAG_LOGW(AAFwkTag::APPMGR, "amsClient nullptr");
+                task->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                delete task;
+                return;
+            }
+            auto ret = amsClient->TerminateMission(missionId);
+            (ret == ERR_OK) ? task->ResolveWithNoError(env, CreateJsUndefined(env)) :
+                task->Reject(env, CreateJsErrorByNativeErr(env, ret, "Terminate mission failed."));
+            delete task;
+        };
+        if (napi_status::napi_ok != napi_send_event(env, asyncTask, napi_eprio_high)) {
+            napiAsyncTask->Reject(env, CreateJsErrorByNativeErr(env,
+                static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), "Terminate mission failed."));
         } else {
             napiAsyncTask.release();
         }
@@ -1446,6 +1491,7 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::KillProcessesByBundleName);
     BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName, JsAppManager::ClearUpApplicationData);
     BindNativeFunction(env, exportObj, "clearUpAppData", moduleName, JsAppManager::ClearUpAppData);
+    BindNativeFunction(env, exportObj, "terminateMission", moduleName, JsAppManager::TerminateMission);
     BindNativeFunction(env, exportObj, "getAppMemorySize", moduleName, JsAppManager::GetAppMemorySize);
     BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName, JsAppManager::IsRamConstrainedDevice);
     BindNativeFunction(env, exportObj, "isSharedBundleRunning", moduleName, JsAppManager::IsSharedBundleRunning);

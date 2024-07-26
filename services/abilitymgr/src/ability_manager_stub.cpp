@@ -757,6 +757,9 @@ int AbilityManagerStub::OnRemoteRequestInnerNineteenth(uint32_t code, MessagePar
     if (interfaceCode == AbilityManagerInterfaceCode::OPEN_LINK) {
         return OpenLinkInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::TERMINATE_MISSION) {
+        return TerminateMissionInner(data, reply);
+    }
     return ERR_CODE_NOT_EXIST;
 }
 
@@ -3978,6 +3981,17 @@ int32_t AbilityManagerStub::OpenLinkInner(MessageParcel &data, MessageParcel &re
     int requestCode = data.ReadInt32();
 
     int32_t result = OpenLink(*want, callerToken, userId, requestCode);
+    if (result != NO_ERROR && result != ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenLink failed.");
+    }
+    reply.WriteInt32(result);
+    return result;
+}
+
+int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t missionId = data.ReadInt32();
+    int32_t result = TerminateMission(missionId);
     if (result != NO_ERROR && result != ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenLink failed.");
     }

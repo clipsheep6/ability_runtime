@@ -1303,6 +1303,14 @@ public:
     virtual int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
 
+    /**
+     * Terminate the mission.
+     *
+     * @param missionId, The mission id of the UIAbility need to be terminated.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TerminateMission(int32_t missionId) override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

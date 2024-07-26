@@ -1680,6 +1680,17 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Terminate the mission.
+     *
+     * @param missionId, The mission id of the UIAbility need to be terminated.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TerminateMission(int32_t missionId)
+    {
+        return 0;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS
