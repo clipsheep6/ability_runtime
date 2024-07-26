@@ -28,18 +28,31 @@ bool PageStateData::ReadFromParcel(Parcel &parcel)
     pageName = parcel.ReadString();
     targetBundleName = parcel.ReadString();
     targetModuleName = parcel.ReadString();
+    if (parcel.ReadBool()) {
+        token = static_cast<MessageParcel*>(&parcel)->ReadRemoteObject();
+    }
 
     return true;
 }
 
 bool PageStateData::Marshalling(Parcel &parcel) const
 {
-    return (parcel.WriteString(bundleName) &&
-        parcel.WriteString(moduleName) &&
-        parcel.WriteString(abilityName) &&
-        parcel.WriteString(pageName) &&
-        parcel.WriteString(targetBundleName) &&
-        parcel.WriteString(targetModuleName));
+    if (!parcel.WriteString(bundleName) || !parcel.WriteString(moduleName) ||
+        !parcel.WriteString(abilityName) || !parcel.WriteString(pageName) ||
+        !parcel.WriteString(targetBundleName) || !parcel.WriteString(targetModuleName)) {
+        return false;
+    }
+
+    if (token) {
+        if (!parcel.WriteBool(true) || !parcel.WriteRemoteObject(token)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 PageStateData *PageStateData::Unmarshalling(Parcel &parcel)

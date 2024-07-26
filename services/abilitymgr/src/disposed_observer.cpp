@@ -36,8 +36,7 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
     std::lock_guard<ffrt::mutex> guard(observerLock_);
     if (abilityStateData.abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND)) {
-        token_ = abilityStateData.token;
-        auto abilityRecord = Token::GetAbilityRecordByToken(token_);
+        auto abilityRecord = Token::GetAbilityRecordByToken(abilityStateData.token);
         if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
             Want want = *disposedRule_.want;
@@ -63,7 +62,7 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
         }
     }
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
-        if (!token_) {
+        if (pageStateData.token == nullptr) {
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
             Want want = *disposedRule_.want;
             want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
@@ -74,7 +73,7 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
                 return;
             }
         } else {
-            auto abilityRecord = Token::GetAbilityRecordByToken(token_);
+            auto abilityRecord = Token::GetAbilityRecordByToken(pageStateData.token);
             if (!abilityRecord) {
                 interceptor_->UnregisterObserver(pageStateData.bundleName);
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr");
