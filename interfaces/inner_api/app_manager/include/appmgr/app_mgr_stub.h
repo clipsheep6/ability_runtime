@@ -128,7 +128,7 @@ private:
     int32_t HandleGetChildProcessInfoForSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachChildProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleExitChildProcessSafely(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleClearUpApplicationDataBySelf(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleClearUpApplicationDataBySelf(MessageParcel& data, MessageParcel& reply);
     int32_t HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterRenderStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterRenderStateObserver(MessageParcel &data, MessageParcel &reply);
@@ -138,11 +138,11 @@ private:
     int32_t HandleGetAllUIExtensionRootHostPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllUIExtensionProviderPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetAppAssertionPauseState(MessageParcel& data, MessageParcel& reply);
     int32_t HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSaveBrowserChannel(MessageParcel &data, MessageParcel &reply);
     int32_t HandleCheckCallingIsUserTestMode(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleStartNativeChildProcess(MessageParcel& data, MessageParcel& reply);
     int32_t HandleNotifyProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRestartResidentProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
