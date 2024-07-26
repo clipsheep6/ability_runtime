@@ -98,7 +98,7 @@ public:
     MOCK_METHOD1(SubscribeContainerModalButtonsRectChange, void(
         std::function<void(Rosen::Rect &containerModal, Rosen::Rect &buttons)> &&callback));
     MOCK_METHOD0(GetFormSerializedGesture, SerializedGesture());
-    MOCK_METHOD1(SetForceSplitEnable, void(bool isForceSplit));
+    MOCK_METHOD2(SetForceSplitEnable, void(bool isForceSplit, const std::string& homePage));
 
 #ifndef PREVIEW
     MOCK_METHOD4(
