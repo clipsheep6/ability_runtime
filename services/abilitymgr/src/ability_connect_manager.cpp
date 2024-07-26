@@ -64,13 +64,11 @@ const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
 const int COMMAND_TIMEOUT_MULTIPLE = 75;
 const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 75;
-const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 150;
 #else
 const int LOAD_TIMEOUT_MULTIPLE = 10;
 const int CONNECT_TIMEOUT_MULTIPLE = 10;
 const int COMMAND_TIMEOUT_MULTIPLE = 5;
 const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
-const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 10;
 #endif
 const int32_t AUTO_DISCONNECT_INFINITY = -1;
 const std::unordered_set<std::string> FROZEN_WHITE_LIST {
@@ -258,9 +256,6 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
             uiExtensionMap_[remoteObj] = UIExtWindowMapValType(targetService, abilityRequest.sessionInfo);
         }
         AddUIExtWindowDeathRecipient(remoteObj);
-        if (!isLoadedAbility) {
-            SaveUIExtRequestSessionInfo(targetService, abilityRequest.sessionInfo);
-        }
     }
 
     if (!isLoadedAbility) {
@@ -335,34 +330,9 @@ void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecor
             abilityRecord->SetWant(abilityRequest.want);
             CommandAbilityWindow(abilityRecord, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
             return;
-        } else {
-            if (abilityRecord->GetUIExtRequestSessionInfo() == nullptr) {
-                abilityRecord->SetWant(abilityRequest.want);
-                SaveUIExtRequestSessionInfo(abilityRecord, abilityRequest.sessionInfo);
-                DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
-                return;
-            }
         }
     }
     EnqueueStartServiceReq(abilityRequest, abilityRecord->GetURI());
-}
-
-void AbilityConnectManager::SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityRecord> abilityRecord,
-    sptr<SessionInfo> sessionInfo)
-{
-    CHECK_POINTER(abilityRecord);
-    CHECK_POINTER(taskHandler_);
-    abilityRecord->SetUIExtRequestSessionInfo(sessionInfo);
-    auto callback = [abilityRecord]() {
-        TAG_LOGE(
-            AAFwkTag::ABILITYMGR, "consume session timeout, abilityUri: %{public}s", abilityRecord->GetURI().c_str());
-        abilityRecord->SetUIExtRequestSessionInfo(nullptr);
-    };
-
-    int consumeSessionTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() *
-        UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE;
-    std::string taskName = std::string("ConsumeSessionTimeout_") +  std::to_string(abilityRecord->GetRecordId());
-    taskHandler_->SubmitTask(callback, taskName, consumeSessionTimeout);
 }
 
 void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &abilityRequest, const std::string &serviceUri)
@@ -1540,6 +1510,8 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
     std::lock_guard guard(serialMutex_);
     CHECK_POINTER(abilityRecord);
     if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "consume session timeout, abilityUri: %{public}s",
+            abilityRecord->GetURI().c_str());
         if (uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "Start load timeout.");
             uiExtensionAbilityRecordMgr_->LoadTimeout(abilityRecord->GetUIExtensionAbilityId());
@@ -2649,18 +2621,7 @@ void AbilityConnectManager::MoveToForeground(const std::shared_ptr<AbilityRecord
         selfObj->PrintTimeOutLog(abilityRecord, AbilityManagerService::FOREGROUND_TIMEOUT_MSG);
         selfObj->HandleForegroundTimeoutTask(abilityRecord);
     };
-    auto sessionInfo = abilityRecord->GetUIExtRequestSessionInfo();
-    if (sessionInfo != nullptr) {
-        abilityRecord->ForegroundAbility(task, sessionInfo);
-        abilityRecord->SetUIExtRequestSessionInfo(nullptr);
-    } else {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "SessionInfo is nullptr. Move to background");
-        abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
-        DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
-    }
-    if (taskHandler_) {
-        taskHandler_->CancelTask(std::string("ConsumeSessionTimeout_") +  std::to_string(abilityRecord->GetRecordId()));
-    }
+    abilityRecord->ForegroundAbility(task);
 }
 
 void AbilityConnectManager::MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)

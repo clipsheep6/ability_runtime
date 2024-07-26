@@ -2663,12 +2663,11 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_ForegroundAbility_001, TestSize.Level1
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     uint32_t sceneFlag = 0;
     Closure task;
-    sptr<SessionInfo> sessionInfo = nullptr;
     abilityRecord->abilityInfo_.type = AbilityType::DATA;
     abilityRecord->applicationInfo_.name = "app";
     abilityRecord->isAttachDebug_ = false;
     abilityRecord->isAssertDebug_ = false;
-    abilityRecord->ForegroundAbility(task, sessionInfo, sceneFlag);
+    abilityRecord->ForegroundAbility(task, sceneFlag);
     EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::DATA);
     EXPECT_NE(abilityRecord_, nullptr);
 }
@@ -2686,11 +2685,9 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_ForegroundAbility_002, TestSize.Level1
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     uint32_t sceneFlag = 0;
     Closure task;
-    sptr<SessionInfo> sessionInfo = nullptr;
     bool isNewWant = true;
     abilityRecord->SetIsNewWant(isNewWant);
-    abilityRecord->ForegroundAbility(task, sessionInfo, sceneFlag);
-    EXPECT_EQ(sessionInfo, nullptr);
+    abilityRecord->ForegroundAbility(task, sceneFlag);
     EXPECT_NE(abilityRecord_, nullptr);
 }
 

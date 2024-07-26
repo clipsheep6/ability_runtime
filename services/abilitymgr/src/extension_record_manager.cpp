@@ -88,7 +88,6 @@ void ExtensionRecordManager::AddExtensionRecordToTerminatedList(const int32_t ex
         return;
     }
     terminateRecords_.emplace(*findRecord);
-    extensionRecords_.erase(extensionRecordId);
 }
 
 int32_t ExtensionRecordManager::GetExtensionRecord(const int32_t extensionRecordId,

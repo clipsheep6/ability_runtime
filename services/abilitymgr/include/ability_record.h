@@ -368,7 +368,7 @@ public:
      *
      */
     void ForegroundAbility(uint32_t sceneFlag = 0);
-    void ForegroundAbility(const Closure &task, sptr<SessionInfo> sessionInfo = nullptr, uint32_t sceneFlag = 0);
+    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.
@@ -455,16 +455,6 @@ public:
     }
 
     sptr<SessionInfo> GetSessionInfo() const;
-
-    sptr<SessionInfo> GetUIExtRequestSessionInfo() const
-    {
-        return uiExtRequestSessionInfo_;
-    }
-
-    void SetUIExtRequestSessionInfo(sptr<SessionInfo> sessionInfo)
-    {
-        uiExtRequestSessionInfo_ = sessionInfo;
-    }
 
     /**
      * get ability's token.
@@ -1219,7 +1209,6 @@ private:
     sptr<SessionInfo> sessionInfo_ = nullptr;
     mutable ffrt::mutex sessionLock_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
-    sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
 
 #ifdef SUPPORT_SCREEN
     bool isStartingWindow_ = false;
