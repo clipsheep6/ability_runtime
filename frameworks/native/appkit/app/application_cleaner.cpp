@@ -48,13 +48,13 @@ static const int RESULT_ERR = -1;
 void ApplicationCleaner::RenameTempData()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Context is null.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Context is null");
         return;
     }
     std::vector<std::string> tempdir{};
     context_->GetAllTempDir(tempdir);
     if (tempdir.empty()) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Get app temp path list is empty.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Get app temp path list is empty");
         return;
     }
     int64_t now =
@@ -83,12 +83,12 @@ void ApplicationCleaner::ClearTempData()
         std::vector<std::string> temps;
 
         if (self->GetRootPath(rootDir) != RESULT_OK) {
-            TAG_LOGE(AAFwkTag::APPKIT, "Get root dir error.");
+            TAG_LOGE(AAFwkTag::APPKIT, "Get root dir error");
             return;
         }
 
         if (self->GetObsoleteBundleTempPath(rootDir, temps) != RESULT_OK) {
-            TAG_LOGE(AAFwkTag::APPKIT, "Get bundle temp file list is false.");
+            TAG_LOGE(AAFwkTag::APPKIT, "Get bundle temp file list is false");
             return;
         }
 
@@ -110,7 +110,7 @@ int ApplicationCleaner::GetRootPath(std::vector<std::string> &rootPath)
 
     auto instance = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance();
     if (instance == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get OsAccountManager instance.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get OsAccountManager instance");
         return RESULT_ERR;
     }
 

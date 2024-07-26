@@ -30,7 +30,7 @@ int32_t AssertFaultCallback::OnRemoteRequest(
     std::u16string descriptor = AssertFaultCallback::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -40,17 +40,17 @@ int32_t AssertFaultCallback::OnRemoteRequest(
         return NO_ERROR;
     }
 
-    TAG_LOGW(AAFwkTag::APPKIT, "Unexpected event ID, for default handling.");
+    TAG_LOGW(AAFwkTag::APPKIT, "Unexpected event ID, for default handling");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 void AssertFaultCallback::NotifyDebugAssertResult(AAFwk::UserStatus status)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Notify user action result to assert fault thread.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Notify user action result to assert fault thread");
     status_ = status;
     auto assertThread = assertFaultThread_.lock();
     if (assertThread == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to obtain assert fault thread.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to obtain assert fault thread");
         return;
     }
     assertThread->NotifyReleaseLongWaiting();

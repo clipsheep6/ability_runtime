@@ -117,7 +117,7 @@ bool ExtensionPluginInfo::ScanExtensions(std::vector<std::string>& files)
     std::string dirPath = EXTENSION_LIB;
     DIR *dirp = opendir(dirPath.c_str());
     if (dirp == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ExtensionPluginInfo::ScanDir open dir:%{public}s fail", dirPath.c_str());
+        TAG_LOGE(AAFwkTag::APPKIT, "ScanDir open dir:%{public}s fail", dirPath.c_str());
         return false;
     }
 
@@ -146,7 +146,7 @@ bool ExtensionPluginInfo::ScanExtensions(std::vector<std::string>& files)
 
 bool ExtensionPluginInfo::CheckFileType(const std::string& fileName, const std::string& extensionName)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "ExtensionPluginInfo::CheckFileType path is %{public}s, support suffix is %{public}s",
+    TAG_LOGD(AAFwkTag::APPKIT, "CheckFileType path is %{public}s, support suffix is %{public}s",
         fileName.c_str(),
         extensionName.c_str());
 

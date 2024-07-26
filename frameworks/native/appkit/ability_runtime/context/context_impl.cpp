@@ -237,7 +237,7 @@ int32_t ContextImpl::GetGroupDirWithCheck(const std::string &groupId, bool check
     }
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d", errCode);
         return errCode;
     }
     std::string groupDirGet;
@@ -352,18 +352,18 @@ std::string ContextImpl::GetCloudFileDir()
 
 void ContextImpl::SwitchArea(int mode)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "mode:%{public}d.", mode);
+    TAG_LOGD(AAFwkTag::APPKIT, "mode:%{public}d", mode);
     if (mode < 0 || mode >= (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0]))) {
         TAG_LOGE(AAFwkTag::APPKIT, "ContextImpl::SwitchArea, mode is invalid.");
         return;
     }
     currArea_ = CONTEXT_ELS[mode];
-    TAG_LOGD(AAFwkTag::APPKIT, "currArea:%{public}s.", currArea_.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "currArea:%{public}s", currArea_.c_str());
 }
 
 void ContextImpl::SetMcc(std::string mcc)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "mcc:%{public}s.", mcc.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "mcc:%{public}s", mcc.c_str());
     if (config_) {
         config_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC, mcc);
     }
@@ -371,7 +371,7 @@ void ContextImpl::SetMcc(std::string mcc)
 
 void ContextImpl::SetMnc(std::string mnc)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "mnc:%{public}s.", mnc.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "mnc:%{public}s", mnc.c_str());
     if (config_) {
         config_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC, mnc);
     }
@@ -385,7 +385,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &mod
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+    TAG_LOGD(AAFwkTag::APPKIT, "begin");
     if (bundleName.empty() || moduleName.empty()) {
         return nullptr;
     }
@@ -418,7 +418,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
                 return hapModuleInfo.moduleName == moduleName;
             });
         if (info == bundleInfo.hapModuleInfos.end()) {
-            TAG_LOGE(AAFwkTag::APPKIT, "moduleName is error.");
+            TAG_LOGE(AAFwkTag::APPKIT, "moduleName is error");
             return nullptr;
         }
         appContext->InitHapModuleInfo(*info);
@@ -531,7 +531,7 @@ int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bu
 
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "errCode: %{public}d", errCode);
         return errCode;
     }
 
@@ -570,7 +570,7 @@ void ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bundl
     if (bundleMgr_ == nullptr) {
         int errCode = GetBundleManager();
         if (errCode != ERR_OK) {
-            TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
+            TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d", errCode);
             return;
         }
     }
@@ -600,7 +600,7 @@ int ContextImpl::GetArea()
         }
     }
     if (mode == -1) {
-        TAG_LOGE(AAFwkTag::APPKIT, "not find mode.");
+        TAG_LOGE(AAFwkTag::APPKIT, "not find mode");
         return EL_DEFAULT;
     }
     TAG_LOGD(AAFwkTag::APPKIT, "end");
@@ -631,7 +631,7 @@ int ContextImpl::GetCurrentAccountId() const
     int userId = 0;
     auto instance = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance();
     if (instance == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get OsAccountManager instance.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get OsAccountManager instance");
         return userId;
     }
     instance->GetOsAccountLocalIdFromProcess(userId);
@@ -644,22 +644,22 @@ int ContextImpl::GetCurrentActiveAccountId() const
     std::vector<int> accountIds;
     auto instance = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance();
     if (instance == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get OsAccountManager instance.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get OsAccountManager instance");
         return 0;
     }
     ErrCode ret = instance->QueryActiveOsAccountIds(accountIds);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ContextImpl::GetCurrentActiveAccountId error.");
+        TAG_LOGE(AAFwkTag::APPKIT, "ContextImpl::GetCurrentActiveAccountId error");
         return 0;
     }
 
     if (accountIds.size() == 0) {
-        TAG_LOGE(AAFwkTag::APPKIT, "no accounts.");
+        TAG_LOGE(AAFwkTag::APPKIT, "no accounts");
         return 0;
     }
 
     if (accountIds.size() > 1) {
-        TAG_LOGE(AAFwkTag::APPKIT, "no current now.");
+        TAG_LOGE(AAFwkTag::APPKIT, "no current now");
         return 0;
     }
 
@@ -669,7 +669,7 @@ int ContextImpl::GetCurrentActiveAccountId() const
 std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bundleName)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+    TAG_LOGD(AAFwkTag::APPKIT, "begin");
     if (parentContext_ != nullptr) {
         return parentContext_->CreateBundleContext(bundleName);
     }
@@ -681,7 +681,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d", errCode);
         return nullptr;
     }
 
@@ -798,12 +798,12 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
                 } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::SHARED) {
                     loadPath = std::regex_replace(loadPath, hsp_pattern, hsp_sandbox);
                 } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::APP_SERVICE_FWK) {
-                    TAG_LOGD(AAFwkTag::APPKIT, "System hsp path, not need translate.");
+                    TAG_LOGD(AAFwkTag::APPKIT, "System hsp path, not need translate");
                 } else {
                     loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
                 }
 
-                TAG_LOGD(AAFwkTag::APPKIT, "loadPath: %{public}s", loadPath.c_str());
+                TAG_LOGD(AAFwkTag::APPKIT, "loadPath: %{private}s", loadPath.c_str());
                 GetOverlayPath(resourceManager, bundleInfo.name, hapModuleInfo.moduleName, loadPath, currentBundle);
                 AddPatchResource(resourceManager, loadPath, hapModuleInfo.hqfInfo.hqfFilePath,
                     bundleInfo.applicationInfo.debug);
@@ -838,7 +838,7 @@ void ContextImpl::GetOverlayPath(std::shared_ptr<Global::Resource::ResourceManag
     }
     if (overlayModuleInfos.size() == 0) {
         if (!resourceManager->AddResource(loadPath.c_str())) {
-            TAG_LOGE(AAFwkTag::APPKIT, "AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
+            TAG_LOGE(AAFwkTag::APPKIT, "AddResource fail, moduleResPath: %{private}s", loadPath.c_str());
         }
     } else {
         std::vector<std::string> overlayPaths;
@@ -850,7 +850,7 @@ void ContextImpl::GetOverlayPath(std::shared_ptr<Global::Resource::ResourceManag
                 it.hapPath = std::regex_replace(it.hapPath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
             }
             if (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE) {
-                TAG_LOGD(AAFwkTag::APPKIT, "hapPath: %{public}s", it.hapPath.c_str());
+                TAG_LOGD(AAFwkTag::APPKIT, "hapPath: %{private}s", it.hapPath.c_str());
                 overlayPaths.emplace_back(it.hapPath);
             }
         }
@@ -902,7 +902,7 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
         if (load && GetApplicationInfo()->apiTargetVersion % API_VERSION_MOD >= API11) {
             std::shared_ptr<Global::Resource::ResourceManager> currentResMgr = GetResourceManager();
             if (currentResMgr != nullptr) {
-                TAG_LOGD(AAFwkTag::APPKIT, "apiVersion: %{public}d, load parent config.",
+                TAG_LOGD(AAFwkTag::APPKIT, "apiVersion: %{public}d, load parent config",
                     GetApplicationInfo()->apiTargetVersion);
                 currentResMgr->GetResConfig(*resConfig);
             }
@@ -918,7 +918,7 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
             resConfig->GetLocaleInfo()->getLanguage(), resConfig->GetLocaleInfo()->getScript(),
             resConfig->GetLocaleInfo()->getCountry());
     } else {
-        TAG_LOGE(AAFwkTag::APPKIT, "ContextImpl::InitResourceManager language: GetLocaleInfo is null.");
+        TAG_LOGE(AAFwkTag::APPKIT, "LocaleInfo is null");
     }
 #endif
     resConfig->SetDeviceType(GetDeviceType());
@@ -928,7 +928,7 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
         resConfig->SetMcc(static_cast<uint32_t>(std::stoi(mcc)));
         resConfig->SetMnc(static_cast<uint32_t>(std::stoi(mnc)));
     } catch (...) {
-        TAG_LOGW(AAFwkTag::APPKIT, "Set mcc,mnc failed mcc:%{public}s mnc:%{public}s.", mcc.c_str(), mnc.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "Set mcc,mnc failed mcc:%{public}s mnc:%{public}s", mcc.c_str(), mnc.c_str());
     }
     resourceManager->UpdateResConfig(*resConfig);
 }
@@ -943,11 +943,11 @@ ErrCode ContextImpl::GetBundleManager()
 
     bundleMgr_ = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "The bundleMgr_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "The bundleMgr_ is nullptr");
         return ERR_NULL_OBJECT;
     }
 
-    TAG_LOGD(AAFwkTag::APPKIT, "Success.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Success");
     return ERR_OK;
 }
 
@@ -962,9 +962,7 @@ void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::Applicati
 
 void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Start.");
     resourceManager_ = resourceManager;
-    TAG_LOGD(AAFwkTag::APPKIT, "End.");
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::GetResourceManager() const
@@ -1005,7 +1003,7 @@ void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInf
     }
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d", errCode);
         return ;
     }
 
@@ -1070,7 +1068,7 @@ void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& 
         TAG_LOGD(AAFwkTag::APPKIT, "ForceCreateDirectory, dir: %{public}s", dirPath.c_str());
         bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            TAG_LOGE(AAFwkTag::APPKIT, "create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
+            TAG_LOGE(AAFwkTag::APPKIT, "create dir %{public}s failed, errno is %{public}d", dirPath.c_str(), errno);
             return;
         }
         if (mode != 0) {
@@ -1086,7 +1084,7 @@ void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configurati
 
 void ContextImpl::KillProcessBySelf(const bool clearPageStack)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "killProcessBySelf called clearPageStack is %{public}d.", clearPageStack);
+    TAG_LOGD(AAFwkTag::APPKIT, "killProcessBySelf called clearPageStack is %{public}d", clearPageStack);
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
     appMgrClient->KillApplicationSelf(clearPageStack);
 }
@@ -1095,14 +1093,14 @@ int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo
 {
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
     auto result = appMgrClient->GetProcessRunningInformation(info);
-    TAG_LOGD(AAFwkTag::APPKIT, "result is %{public}d.", result);
+    TAG_LOGD(AAFwkTag::APPKIT, "result is %{public}d", result);
     return result;
 }
 
 int32_t ContextImpl::RestartApp(const AAFwk::Want& want)
 {
     auto result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->RestartApp(want);
-    TAG_LOGD(AAFwkTag::APPKIT, "result is %{public}d.", result);
+    TAG_LOGD(AAFwkTag::APPKIT, "result is %{public}d", result);
     return result;
 }
 
@@ -1120,14 +1118,14 @@ Global::Resource::DeviceType ContextImpl::GetDeviceType() const
     auto config = GetConfiguration();
     if (config != nullptr) {
         auto deviceType = config->GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
-        TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}s.", deviceType.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}s", deviceType.c_str());
         deviceType_ = AppExecFwk::ConvertDeviceType(deviceType);
     }
 
     if (deviceType_ == Global::Resource::DeviceType::DEVICE_NOT_SET) {
         deviceType_ = Global::Resource::DeviceType::DEVICE_PHONE;
     }
-    TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}d.", deviceType_);
+    TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}d", deviceType_);
     return deviceType_;
 }
 
@@ -1136,7 +1134,7 @@ ErrCode ContextImpl::GetOverlayMgrProxy()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d", errCode);
         return errCode;
     }
 
@@ -1147,7 +1145,7 @@ ErrCode ContextImpl::GetOverlayMgrProxy()
 
     overlayMgrProxy_ = bundleMgr_->GetOverlayManagerProxy();
     if (overlayMgrProxy_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPKIT, "GetOverlayManagerProxy failed.");
+            TAG_LOGE(AAFwkTag::APPKIT, "GetOverlayManagerProxy failed");
         return ERR_NULL_OBJECT;
     }
 
@@ -1161,14 +1159,14 @@ int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std:
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int errCode = GetOverlayMgrProxy();
     if (errCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d", errCode);
         return errCode;
     }
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "overlayMgrProxy_->GetTargetOverlayModuleInfo");
         auto ret = overlayMgrProxy_->GetTargetOverlayModuleInfo(moduleName, overlayModuleInfos);
         if (ret != ERR_OK) {
-            TAG_LOGD(AAFwkTag::APPKIT, "GetOverlayModuleInfo form bms failed.");
+            TAG_LOGD(AAFwkTag::APPKIT, "GetOverlayModuleInfo form bms failed");
             return ret;
         }
     }
@@ -1193,7 +1191,7 @@ std::vector<std::string> ContextImpl::GetAddOverlayPaths(
         if ((iter != overlayModuleInfos_.end()) && (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
             iter->state = it.state;
             ChangeToLocalPath(iter->bundleName, iter->hapPath, iter->hapPath);
-            TAG_LOGD(AAFwkTag::APPKIT, "add path:%{public}s", iter->hapPath.c_str());
+            TAG_LOGD(AAFwkTag::APPKIT, "add path:%{private}s", iter->hapPath.c_str());
             addPaths.emplace_back(iter->hapPath);
         }
     }
@@ -1214,7 +1212,7 @@ std::vector<std::string> ContextImpl::GetRemoveOverlayPaths(
         if ((iter != overlayModuleInfos_.end()) && (it.state != AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
             iter->state = it.state;
             ChangeToLocalPath(iter->bundleName, iter->hapPath, iter->hapPath);
-            TAG_LOGD(AAFwkTag::APPKIT, "remove path:%{public}s", iter->hapPath.c_str());
+            TAG_LOGD(AAFwkTag::APPKIT, "remove path:%{private}s", iter->hapPath.c_str());
             removePaths.emplace_back(iter->hapPath);
         }
     }
@@ -1227,25 +1225,25 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
     const std::string &moduleName, const std::string &loadPath)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+    TAG_LOGD(AAFwkTag::APPKIT, "begin");
     auto want = data.GetWant();
     std::string action = want.GetAction();
     if (action != OVERLAY_STATE_CHANGED) {
-        TAG_LOGD(AAFwkTag::APPKIT, "Not this subscribe, action: %{public}s.", action.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "Not this subscribe, action: %{public}s", action.c_str());
         return;
     }
     if (GetBundleName() != bundleName) {
-        TAG_LOGD(AAFwkTag::APPKIT, "Not this app, bundleName: %{public}s.", bundleName.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "Not this app, bundleName: %{public}s", bundleName.c_str());
         return;
     }
     bool isEnable = data.GetWant().GetBoolParam(AppExecFwk::Constants::OVERLAY_STATE, false);
     // 1.get overlay hapPath
     if (resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "resourceManager is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "resourceManager is nullptr");
         return;
     }
     if (overlayModuleInfos_.size() == 0) {
-        TAG_LOGE(AAFwkTag::APPKIT, "overlayModuleInfos is empty.");
+        TAG_LOGE(AAFwkTag::APPKIT, "overlayModuleInfos is empty");
         return;
     }
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos;
@@ -1256,7 +1254,7 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
 
     // 2.add/remove overlay hapPath
     if (loadPath.empty() || overlayModuleInfos.size() == 0) {
-        TAG_LOGW(AAFwkTag::APPKIT, "There is not any hapPath in overlayModuleInfo.");
+        TAG_LOGW(AAFwkTag::APPKIT, "There is not any hapPath in overlayModuleInfo");
     } else {
         if (isEnable) {
             std::vector<std::string> overlayPaths = GetAddOverlayPaths(overlayModuleInfos);

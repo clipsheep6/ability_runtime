@@ -56,7 +56,7 @@ std::shared_ptr<ApplicationInfo> ContextDeal::GetApplicationInfo() const
 void ContextDeal::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &info)
 {
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "SetApplicationInfo failed, info is empty");
+        TAG_LOGE(AAFwkTag::APPKIT, "info is empty");
         return;
     }
     applicationInfo_ = info;
@@ -70,7 +70,7 @@ std::shared_ptr<Context> ContextDeal::GetApplicationContext() const
 void ContextDeal::SetApplicationContext(const std::shared_ptr<Context> &context)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "SetApplicationContext failed, context is empty");
+        TAG_LOGE(AAFwkTag::APPKIT, "context is empty");
         return;
     }
     appContext_ = context;
@@ -105,7 +105,7 @@ const std::shared_ptr<AbilityInfo> ContextDeal::GetAbilityInfo()
 void ContextDeal::SetAbilityInfo(const std::shared_ptr<AbilityInfo> &info)
 {
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "SetAbilityInfo failed, info is empty");
+        TAG_LOGE(AAFwkTag::APPKIT, "info is empty");
         return;
     }
     abilityInfo_ = info;
@@ -119,7 +119,7 @@ std::shared_ptr<Context> ContextDeal::GetContext()
 void ContextDeal::SetContext(const std::shared_ptr<Context> &context)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "The context is empty.");
+        TAG_LOGE(AAFwkTag::APPKIT, "context is empty.");
         return;
     }
     abilityContext_ = context;
@@ -165,7 +165,7 @@ std::string ContextDeal::GetDataDir()
 std::string ContextDeal::GetDir(const std::string &name, int mode)
 {
     if (applicationInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "GetDir failed, applicationInfo_ == nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "applicationInfo_ == nullptr");
         return "";
     }
     std::string dir = applicationInfo_->dataDir + CONTEXT_DEAL_FILE_SEPARATOR + name;
@@ -305,7 +305,7 @@ std::string ContextDeal::GetString(int resId)
 std::vector<std::string> ContextDeal::GetStringArray(int resId)
 {
     if (resourceManager_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "GetStringArray resourceManager_ is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "resourceManager_ is nullptr");
         return std::vector<std::string>();
     }
 
@@ -314,7 +314,7 @@ std::vector<std::string> ContextDeal::GetStringArray(int resId)
     if (errval == OHOS::Global::Resource::RState::SUCCESS) {
         return retv;
     } else {
-        TAG_LOGE(AAFwkTag::APPKIT, "GetStringArray GetStringArrayById(resId:%d) retval is %u", resId, errval);
+        TAG_LOGE(AAFwkTag::APPKIT, "GetStringArrayById(resId:%d) retval is %u", resId, errval);
         return std::vector<std::string>();
     }
 }
@@ -347,13 +347,13 @@ std::map<std::string, std::string> ContextDeal::GetTheme()
 void ContextDeal::SetTheme(int themeId)
 {
     if (resourceManager_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "SetTheme resourceManager_ is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "resourceManager_ is nullptr");
         return;
     }
 
     auto hapModInfo = GetHapModuleInfo();
     if (hapModInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "SetTheme hapModInfo is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "hapModInfo is nullptr");
         return;
     }
 
@@ -407,10 +407,9 @@ int ContextDeal::GetThemeId()
 int ContextDeal::GetDisplayOrientation()
 {
     if (abilityInfo_ != nullptr) {
-        TAG_LOGD(AAFwkTag::APPKIT, "GetDisplayOrientation end");
         return static_cast<int>(abilityInfo_->orientation);
     } else {
-        TAG_LOGE(AAFwkTag::APPKIT, "GetDisplayOrientation abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityInfo_ is nullptr");
         return static_cast<int>(DisplayOrientation::UNSPECIFIED);
     }
 }

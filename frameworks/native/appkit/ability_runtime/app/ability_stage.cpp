@@ -47,14 +47,10 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
 }
 
 void AbilityStage::OnCreate(const AAFwk::Want &want) const
-{
-    TAG_LOGD(AAFwkTag::APPKIT, "AbilityStage OnCreate come.");
-}
+{}
 
 void AbilityStage::OnDestroy() const
-{
-    TAG_LOGD(AAFwkTag::APPKIT, "AbilityStage::OnDestroy come");
-}
+{}
 
 std::shared_ptr<Context> AbilityStage::GetContext() const
 {
@@ -72,12 +68,12 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
 {
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "AbilityStage::AddAbility failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "token is nullptr");
         return;
     }
 
     if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "AbilityStage::AddAbility failed, abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityRecord is nullptr");
         return;
     }
 
@@ -87,7 +83,7 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
 void AbilityStage::RemoveAbility(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "AbilityStage::RemoveAbility failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "token is nullptr");
         return;
     }
     abilityRecords_.erase(token);
@@ -100,30 +96,23 @@ bool AbilityStage::ContainsAbility() const
 
 std::string AbilityStage::OnAcceptWant(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "AbilityStage::OnAcceptWant come");
     return "";
 }
 
 std::string AbilityStage::OnNewProcessRequest(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "AbilityStage::OnNewProcessRequest come");
     return "";
 }
 
 void AbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
-{
-    TAG_LOGD(AAFwkTag::APPKIT, "called");
-}
+{}
 
 void AbilityStage::OnMemoryLevel(int level)
-{
-    TAG_LOGD(AAFwkTag::APPKIT, "called");
-}
+{}
 
 int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
     const std::shared_ptr<Context> &stageContext)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called");
     isAsyncCallback = false;
     return ERR_OK;
 }

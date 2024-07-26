@@ -1086,7 +1086,7 @@ private:
             if (*innerErrCode == ERR_OK) {
                 task.Resolve(env, CreateJsUndefined(env));
             } else {
-                TAG_LOGE(AAFwkTag::APPKIT, "OnRequestModalUIExtension is failed %{public}d", *innerErrCode);
+                TAG_LOGE(AAFwkTag::APPKIT, "OnRequestModalUIExtension failed %{public}d", *innerErrCode);
                 task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrCode));
             }
         };

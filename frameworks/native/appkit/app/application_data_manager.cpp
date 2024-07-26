@@ -32,13 +32,11 @@ ApplicationDataManager &ApplicationDataManager::GetInstance()
 
 void ApplicationDataManager::AddErrorObserver(const std::shared_ptr<IErrorObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Add error observer come.");
     errorObserver_ = observer;
 }
 
 bool ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Notify error observer come.");
     if (errorObserver_) {
         errorObserver_->OnUnhandledException(errMsg);
         return true;
@@ -51,7 +49,6 @@ bool ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
 
 bool ApplicationDataManager::NotifyCJUnhandledException(const std::string &errMsg)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Notify error observer come.");
     if (errorObserver_) {
         errorObserver_->OnUnhandledException(errMsg);
         return true;
@@ -64,13 +61,11 @@ bool ApplicationDataManager::NotifyCJUnhandledException(const std::string &errMs
 
 void ApplicationDataManager::RemoveErrorObserver()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Remove error observer come.");
     errorObserver_ = nullptr;
 }
 
 bool ApplicationDataManager::NotifyExceptionObject(const AppExecFwk::ErrorObject &errorObj)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Notify Exception error observer come.");
     if (errorObserver_) {
         errorObserver_->OnExceptionObject(errorObj);
         return true;
@@ -83,7 +78,7 @@ bool ApplicationDataManager::NotifyExceptionObject(const AppExecFwk::ErrorObject
 
 bool ApplicationDataManager::NotifyCJExceptionObject(const AppExecFwk::ErrorObject &errorObj)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Notify Exception error observer come.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Notify Exception error observer come");
     if (errorObserver_) {
         errorObserver_->OnExceptionObject(errorObj);
         return true;

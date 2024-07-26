@@ -43,7 +43,7 @@ sptr<IRemoteObject> SysMrgClient::GetSystemAbility(const int32_t systemAbilityId
         if (abilityManager_ == nullptr) {
             abilityManager_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (abilityManager_ == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "fail to GetSystemAbility abilityManager_ == nullptr.");
+                TAG_LOGE(AAFwkTag::APPKIT, "abilityManager_ == nullptr.");
                 return nullptr;
             }
         }

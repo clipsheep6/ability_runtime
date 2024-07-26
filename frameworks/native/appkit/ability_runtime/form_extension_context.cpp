@@ -31,13 +31,13 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Update form, formId: %{public}" PRId64 ".", formId);
     if (formId <= 0) {
-        TAG_LOGE(AAFwkTag::APPKIT, "FormId can't be negative or zero.");
+        TAG_LOGE(AAFwkTag::APPKIT, "FormId can't be negative or zero");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
     // check fms recover status
     if (AppExecFwk::FormMgr::GetRecoverStatus() == AppExecFwk::Constants::IN_RECOVERING) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Update failed, form is in recover status, can't do action on it.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Update failed, form is in recover status, can't do action on it");
         return ERR_APPEXECFWK_FORM_IN_RECOVER;
     }
 
@@ -54,11 +54,11 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
 
 ErrCode FormExtensionContext::StartAbility(const AAFwk::Want &want) const
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Start ability.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Start ability");
     // route to FMS
     ErrCode err = AppExecFwk::FormMgr::GetInstance().StartAbility(want, token_);
     if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Start ability failed with %{public}d.", err);
+        TAG_LOGE(AAFwkTag::APPKIT, "Start ability failed with %{public}d", err);
     }
     return err;
 }

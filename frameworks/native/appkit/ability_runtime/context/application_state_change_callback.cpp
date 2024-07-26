@@ -94,7 +94,7 @@ void JsApplicationStateChangeCallback::Register(napi_value jsCallback)
 bool JsApplicationStateChangeCallback::UnRegister(napi_value jsCallback)
 {
     if (jsCallback == nullptr) {
-        TAG_LOGI(AAFwkTag::APPKIT, "jsCallback is nullptr, delete all callback.");
+        TAG_LOGI(AAFwkTag::APPKIT, "jsCallback is nullptr, delete all callback");
         callbacks_.clear();
         return true;
     }

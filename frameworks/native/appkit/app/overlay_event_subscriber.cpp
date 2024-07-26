@@ -28,7 +28,7 @@ OverlayEventSubscriber::OverlayEventSubscriber(const EventFwk::CommonEventSubscr
 
 void OverlayEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "OnReceiveEvent begin.");
+    TAG_LOGD(AAFwkTag::APPKIT, "OnReceiveEvent begin");
     if (callback_ != nullptr) {
         callback_(data);
     }
