@@ -8781,16 +8781,14 @@ sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
 void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
-    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
-    CHECK_POINTER(abilityRecord);
-    auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerUserId);
-        CHECK_POINTER(uiAbilityManager);
-        uiAbilityManager->CompleteFirstFrameDrawing(abilityToken);
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Not foundation call.");
         return;
     }
+    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    CHECK_POINTER(abilityRecord);
 
+    auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
     auto missionListManager = GetMissionListManagerByUserId(ownerUserId);
     CHECK_POINTER(missionListManager);
     missionListManager->CompleteFirstFrameDrawing(abilityToken);
