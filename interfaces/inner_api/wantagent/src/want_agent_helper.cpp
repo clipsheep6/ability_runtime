@@ -478,7 +478,7 @@ ErrCode WantAgentHelper::GetType(const std::shared_ptr<WantAgent> &agent, int32_
 
 ErrCode WantAgentHelper::GetWant(const std::shared_ptr<WantAgent> &agent, std::shared_ptr<AAFwk::Want> &want)
 {
-    int id = HiviewDFX::XCollie::GetInstance().SetTimer("samgr::OHOS::AbilityRuntime::GetWant", XCOLLIE_TIMEOUT, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+    int id = HiviewDFX::XCollie::GetInstance().SetTimer("OHOS::AbilityRuntime::WantAgent::WantAgentHelper::GetWant", XCOLLIE_TIMEOUT, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
     if ((agent == nullptr) || (agent->GetPendingWant() == nullptr)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgent or PendingWant invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT;
