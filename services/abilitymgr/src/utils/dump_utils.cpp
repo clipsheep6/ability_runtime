@@ -21,31 +21,31 @@ std::pair<bool, DumpUtils::DumpKey> DumpUtils::DumpMapOne(std::string argString)
 {
     std::pair<bool, DumpUtils::DumpKey> result(false, KEY_DUMP_ALL);
 
-    if (argString.compare("-a") || argString.compare("--all")) {
+    if (argString.compare("-a") == 0 || argString.compare("--all") == 0) {
         result.first = true;
         result.second = KEY_DUMP_ALL;
-    } else if (argString.compare("-l") || argString.compare("--stack-list")) {
+    } else if (argString.compare("-l") == 0 || argString.compare("--stack-list") == 0) {
         result.first = true;
         result.second = KEY_DUMP_STACK_LIST;
-    } else if (argString.compare("-s") || argString.compare("--stack")) {
+    } else if (argString.compare("-s") == 0 || argString.compare("--stack") == 0) {
         result.first = true;
         result.second = KEY_DUMP_STACK;
-    } else if (argString.compare("-m") || argString.compare("--mission")) {
+    } else if (argString.compare("-m") == 0 || argString.compare("--mission") == 0) {
         result.first = true;
         result.second = KEY_DUMP_MISSION;
-    } else if (argString.compare("-t") || argString.compare("--top")) {
+    } else if (argString.compare("-t") == 0 || argString.compare("--top") == 0) {
         result.first = true;
         result.second = KEY_DUMP_TOP_ABILITY;
-    } else if (argString.compare("-w") || argString.compare("--waiting-queue")) {
+    } else if (argString.compare("-w") == 0 || argString.compare("--waiting-queue") == 0) {
         result.first = true;
         result.second = KEY_DUMP_WAIT_QUEUE;
-    } else if (argString.compare("-e") || argString.compare("--serv")) {
+    } else if (argString.compare("-e") == 0 || argString.compare("--serv") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SERVICE;
-    } else if (argString.compare("-d") || argString.compare("--data")) {
+    } else if (argString.compare("-d") == 0 || argString.compare("--data") == 0) {
         result.first = true;
         result.second = KEY_DUMP_DATA;
-    } else if (argString.compare("-f") || argString.compare("-focus")) {
+    } else if (argString.compare("-f") == 0 || argString.compare("-focus") == 0) {
         result.first = true;
         result.second = KEY_DUMP_FOCUS_ABILITY;
     }
@@ -56,13 +56,13 @@ std::pair<bool, DumpUtils::DumpKey> DumpUtils::DumpMapTwo(std::string argString)
 {
     std::pair<bool, DumpUtils::DumpKey> result(false, KEY_DUMP_ALL);
 
-    if (argString.compare("-z") || argString.compare("--win-mode")) {
+    if (argString.compare("-z") == 0 || argString.compare("--win-mode") == 0) {
         result.first = true;
         result.second = KEY_DUMP_WINDOW_MODE;
-    } else if (argString.compare("-L") || argString.compare("--mission-list")) {
+    } else if (argString.compare("-L") == 0 || argString.compare("--mission-list") == 0) {
         result.first = true;
         result.second = KEY_DUMP_MISSION_LIST;
-    } else if (argString.compare("-S") || argString.compare("--mission-infos")) {
+    } else if (argString.compare("-S") == 0 || argString.compare("--mission-infos") == 0) {
         result.first = true;
         result.second = KEY_DUMP_MISSION_INFOS;
     }
@@ -88,25 +88,25 @@ std::pair<bool, DumpUtils::DumpsysKey> DumpUtils::DumpsysMap(std::string argStri
 {
     std::pair<bool, DumpUtils::DumpsysKey> result(false, KEY_DUMP_SYS_ALL);
 
-    if (argString.compare("-a") || argString.compare("--all")) {
+    if (argString.compare("-a") == 0 || argString.compare("--all") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_ALL;
-    } else if (argString.compare("-l") || argString.compare("--mission-list")) {
+    } else if (argString.compare("-l") == 0 || argString.compare("--mission-list") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_MISSION_LIST;
-    } else if (argString.compare("-i") || argString.compare("--ability")) {
+    } else if (argString.compare("-i") == 0 || argString.compare("--ability") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_ABILITY;
-    } else if (argString.compare("-e") || argString.compare("--extension")) {
+    } else if (argString.compare("-e") == 0 || argString.compare("--extension") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_SERVICE;
-    } else if (argString.compare("-p") || argString.compare("--pending")) {
+    } else if (argString.compare("-p") == 0 || argString.compare("--pending") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_PENDING;
-    } else if (argString.compare("-r") || argString.compare("--process")) {
+    } else if (argString.compare("-r") == 0 || argString.compare("--process") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_PROCESS;
-    } else if (argString.compare("-d") || argString.compare("--data")) {
+    } else if (argString.compare("-d") == 0 || argString.compare("--data") == 0) {
         result.first = true;
         result.second = KEY_DUMP_SYS_DATA;
     }
