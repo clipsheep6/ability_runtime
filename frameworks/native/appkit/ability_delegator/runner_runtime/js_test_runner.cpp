@@ -20,8 +20,6 @@
 #include "js_runtime_utils.h"
 #include "runner_runtime/js_test_runner.h"
 
-extern const char _binary_delegator_mgmt_abc_start[];
-extern const char _binary_delegator_mgmt_abc_end[];
 namespace OHOS {
 namespace RunnerRuntime {
 namespace {
