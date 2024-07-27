@@ -2151,30 +2151,26 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
 
-    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
-    NapiAsyncTask::ExecuteCallback execute = [weak = context_, state, innerErrorCode]() {
-        auto context = weak.lock();
-        if (!context) {
-            TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
-            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
-            return;
-        }
-
-        *innerErrorCode = context->SetMissionContinueState(state);
-    };
-
-    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
-        if (*innerErrorCode == ERR_OK) {
+    ErrCode errcode = ERR_OK;
+    auto context = context_.lock();
+    if (context) {
+        errcode = context->SetMissionContinueState(state);
+    } else {
+        TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+        errcode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+    }
+    NapiAsyncTask::CompleteCallback complete = [errcode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (errcode == 0) {
             task.Resolve(env, CreateJsUndefined(env));
         } else {
-            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
         }
     };
 
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionContinueState",
-        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 

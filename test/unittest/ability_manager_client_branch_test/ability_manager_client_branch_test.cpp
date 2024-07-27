@@ -2463,6 +2463,25 @@ HWTEST_F(AbilityManagerClientBranchTest, SetMissionContinueState_0100, TestSize.
 }
 
 /**
+ * @tc.name: AbilityManagerClient_SetMissionContinueState_0200
+ * @tc.desc: SetMissionContinueState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SetMissionContinueState_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetMissionContinueState_0200 start";
+    EXPECT_NE(client_, nullptr);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token = nullptr;
+        sptr<IRemoteObject> sessionToken = nullptr;
+        AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_INACTIVE;
+        auto result = client_->SetMissionContinueState(token, state, sessionToken);
+        EXPECT_EQ(ERR_OK, result);
+    }
+    GTEST_LOG_(INFO) << "SetMissionContinueState_0200 end";
+}
+
+/**
  * @tc.name: AbilityManagerClient_VerifyPermission_0100
  * @tc.desc: VerifyPermission
  * @tc.type: FUNC

@@ -341,13 +341,14 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
 void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
 {
     std::lock_guard lock(sessionTokenMutex_);
-    TAG_LOGD(AAFwkTag::CONTEXT, "Start calling SetWeakSessionToken.");
+    TAG_LOGI(AAFwkTag::CONTEXT, "Start calling SetWeakSessionToken.");
     sessionToken_ = sessionToken;
 }
 
 sptr<IRemoteObject> AbilityContextImpl::GetSessionToken()
 {
     std::lock_guard lock(sessionTokenMutex_);
+    TAG_LOGI(AAFwkTag::CONTEXT, "calling");
     return sessionToken_.promote();
 }
 
@@ -776,7 +777,7 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
 
 ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "SetMissionContinueState: %{public}d", state);
+    TAG_LOGI(AAFwkTag::CONTEXT, "SetMissionContinueState: %{public}d", state);
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "sessionToken is null");
