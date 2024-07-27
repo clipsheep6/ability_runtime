@@ -1,0 +1,3 @@
+[Docs Uri Permission]
+services/uripermmgr/include/file_permission_manager.h @hobbycao
+services/uripermmgr/src/file_permission_manager.cpp @hobbycao
