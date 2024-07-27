@@ -553,6 +553,8 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         configuration_->RemoveItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
         configuration_->RemoveItem(AAFwk::GlobalConfigurationKey::COLORMODE_NEED_REMOVE_SET_BY_SA);
     }
+
+    abilityRuntimeContext_->SetConfiguration(configuration_);
 }
 
 /**

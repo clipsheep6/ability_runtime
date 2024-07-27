@@ -370,6 +370,8 @@ public:
 
     void PrintTokenInfo() const;
 
+    void AppHasDarkRes(bool &darkRes);
+
     static const int EL_DEFAULT = 1;
 
 protected:

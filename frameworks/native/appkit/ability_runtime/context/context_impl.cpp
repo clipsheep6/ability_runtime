@@ -1082,6 +1082,19 @@ void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configurati
     config_ = config;
 }
 
+void ContextImpl::AppHasDarkRes(bool &darkRes)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> currentResMgr = GetResourceManager();
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    if (currentResMgr == nullptr || resConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "resMgr or resConfig is null");
+        return;
+    }
+    currentResMgr->GetResConfig(*resConfig);
+    darkRes = resConfig->GetAppDarkRes();
+    TAG_LOGD(AAFwkTag::APPKIT, "darkRes %{public}d", darkRes);
+}
+
 void ContextImpl::KillProcessBySelf(const bool clearPageStack)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "killProcessBySelf called clearPageStack is %{public}d", clearPageStack);

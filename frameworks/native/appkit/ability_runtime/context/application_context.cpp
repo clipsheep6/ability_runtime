@@ -676,6 +676,24 @@ void ApplicationContext::SwitchArea(int mode)
     }
 }
 
+void ApplicationContext::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config)
+{
+    if (contextImpl_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "context is null");
+        return;
+    }
+    contextImpl_->SetConfiguration(config);
+}
+
+void ApplicationContext::AppHasDarkRes(bool &darkRes)
+{
+    if (contextImpl_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "context is null");
+        return;
+    }
+    contextImpl_->AppHasDarkRes(darkRes);
+}
+
 void ApplicationContext::SetColorMode(int32_t colorMode)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "colorMode:%{public}d", colorMode);

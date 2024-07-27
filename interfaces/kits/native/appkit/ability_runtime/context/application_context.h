@@ -114,6 +114,8 @@ public:
     void ClearUpApplicationData();
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
+    void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config);
+    void AppHasDarkRes(bool &darkRes);
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
     void KillProcessBySelf(const bool clearPageStack = true);
