@@ -43,6 +43,7 @@ public:
                                  std::vector<PolicyInfo> &pathPolicies);
 
     static PolicyInfo GetPathPolicyInfoFromUri(Uri &uri, uint32_t flag, const std::string &bundleName = "");
+
 };
 } // namespace AAFwk
 } // namespace OHOS
