@@ -35,7 +35,6 @@
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
 #include "app_preloader.h"
-#include "app_process_manager.h"
 #include "app_record_id.h"
 #include "app_running_manager.h"
 #include "app_running_record.h"
@@ -43,7 +42,6 @@
 #include "app_running_status_module.h"
 #include "app_scheduler_interface.h"
 #include "app_spawn_client.h"
-#include "app_task_info.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
 #include "bundle_mgr_helper.h"
@@ -557,30 +555,6 @@ public:
      * @return
      */
     void OnAbilityStateChanged(const std::shared_ptr<AbilityRunningRecord> &ability, const AbilityState state);
-
-    /**
-     * GetRecentAppList, Get a list of recent applications.
-     *
-     * @return a list of recent applications.
-     */
-    const std::list<const std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
-
-    /**
-     * GetRecentAppList, Remove the corresponding latest application list data by applying the name.
-     *
-     * @param appName, the application name.
-     * @param processName, the process name.
-     *
-     * @return
-     */
-    void RemoveAppFromRecentList(const std::string &appName, const std::string &processName);
-
-    /**
-     * GetRecentAppList, Clear recent application list.
-     *
-     * @return
-     */
-    void ClearRecentAppList();
 
     /**
      * OnRemoteDied, Equipment death notification.
@@ -1229,46 +1203,6 @@ private:
                       ExtensionAbilityType ExtensionAbilityType = ExtensionAbilityType::UNSPECIFIED);
 
     /**
-     * PushAppFront, Adjust the latest application record to the top level.
-     *
-     * @param recordId, the app record id.
-     *
-     * @return
-     */
-    void PushAppFront(const int32_t recordId);
-
-    /**
-     * RemoveAppFromRecentListById, Remove the specified recent application record by application record id.
-     *
-     * @param recordId, the app record id.
-     *
-     * @return
-     */
-    void RemoveAppFromRecentListById(const int32_t recordId);
-
-    /**
-     * AddAppToRecentList, Add application to recent list.
-     *
-     * @param appName, the app name.
-     * @param processName, the process name.
-     * @param pid, the app pid.
-     * @param recordId, the app record id.
-     *
-     * @return
-     */
-    void AddAppToRecentList(
-        const std::string &appName, const std::string &processName, const pid_t pid, const int32_t recordId);
-
-    /**
-     * AddAppToRecentList, Get application task information through ID.
-     *
-     * @param recordId, the app record id.
-     *
-     * @return application task information.
-     */
-    const std::shared_ptr<AppTaskInfo> GetAppTaskInfoById(const int32_t recordId) const;
-
-    /**
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
@@ -1289,15 +1223,6 @@ private:
      * @return true, return back success，others fail.
      */
     bool WaitForRemoteProcessExit(std::list<pid_t> &pids, const int64_t startTime);
-
-    /**
-     * GetAllPids, Get the corresponding pid collection.
-     *
-     * @param pids, process number collection to exit.
-     *
-     * @return true, return back success，others fail.
-     */
-    bool GetAllPids(std::list<pid_t> &pids);
 
     /**
      * ProcessExist, Judge whether the process exists.
@@ -1543,7 +1468,6 @@ private:
     bool IsSceneBoardCall();
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
-    std::shared_ptr<AppProcessManager> appProcessManager_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;
     std::shared_ptr<AppRunningManager> appRunningManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;

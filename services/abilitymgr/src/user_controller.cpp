@@ -220,8 +220,8 @@ int32_t UserController::LogoutUser(int32_t userId)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "appScheduler is null");
         return INVALID_USERID_VALUE;
     }
-    appScheduler->KillProcessesByUserId(userId);
     abilityManagerService->ClearUserData(userId);
+    appScheduler->KillProcessesByUserId(userId);
     if (IsCurrentUser(userId)) {
         SetCurrentUserId(0);
     }

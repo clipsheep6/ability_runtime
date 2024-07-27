@@ -279,8 +279,7 @@ using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
 using OHOS::AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
 
 AppMgrServiceInner::AppMgrServiceInner()
-    : appProcessManager_(std::make_shared<AppProcessManager>()),
-      remoteClientManager_(std::make_shared<RemoteClientManager>()),
+    : remoteClientManager_(std::make_shared<RemoteClientManager>()),
       appRunningManager_(std::make_shared<AppRunningManager>()),
       configuration_(std::make_shared<Configuration>()),
       appDebugManager_(std::make_shared<AppDebugManager>()),
@@ -1001,8 +1000,6 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     }
     appRecord->PopForegroundingAbilityTokens();
 
-    // push the foregrounded app front of RecentAppList.
-    PushAppFront(recordId);
     TAG_LOGI(AAFwkTag::APPMGR, "application is foregrounded");
     if (appRecord->GetApplicationPendingState() == ApplicationPendingState::BACKGROUNDING) {
         appRecord->ScheduleBackgroundRunning();
@@ -1101,7 +1098,6 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false, false);
     appRunningManager_->RemoveAppRunningRecordById(recordId);
-    RemoveAppFromRecentListById(recordId);
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
     if (!applicationInfo) {
@@ -1907,20 +1903,6 @@ bool AppMgrServiceInner::WaitForRemoteProcessExit(std::list<pid_t> &pids, const 
         delayTime = SystemTimeMillisecond() - startTime;
     }
     return false;
-}
-
-bool AppMgrServiceInner::GetAllPids(std::list<pid_t> &pids)
-{
-    for (const auto &appTaskInfo : appProcessManager_->GetRecentAppList()) {
-        if (appTaskInfo) {
-            auto appRecord = GetAppRunningRecordByPid(appTaskInfo->GetPid());
-            if (appRecord) {
-                pids.push_back(appTaskInfo->GetPid());
-                appRecord->ScheduleProcessSecurityExit();
-            }
-        }
-    }
-    return (pids.empty() ? false : true);
 }
 
 bool AppMgrServiceInner::ProcessExist(pid_t pid, int32_t uid)
@@ -2960,7 +2942,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         AddUIExtensionLauncherItem(want, appRecord, token);
     }
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false, false);
-    AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);
     if (!appExistFlag) {
         OnAppStarted(appRecord);
@@ -3119,66 +3100,6 @@ void AppMgrServiceInner::SendAppStartupTypeEvent(const std::shared_ptr<AppRunnin
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_STARTUP_TYPE, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
-void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, const std::string &processName)
-{
-    int64_t startTime = 0;
-    std::list<pid_t> pids;
-    auto appTaskInfo = appProcessManager_->GetAppTaskInfoByProcessName(appName, processName);
-    if (!appTaskInfo) {
-        return;
-    }
-    auto appRecord = GetAppRunningRecordByPid(appTaskInfo->GetPid());
-    if (!appRecord) {
-        appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
-        return;
-    }
-
-    // Do not delete resident processes, before exec ScheduleProcessSecurityExit
-    if (appRecord->IsKeepAliveApp() && IsMemorySizeSufficent()) {
-        return;
-    }
-
-    startTime = SystemTimeMillisecond();
-    pids.push_back(appTaskInfo->GetPid());
-    appRecord->ScheduleProcessSecurityExit();
-    if (!WaitForRemoteProcessExit(pids, startTime)) {
-        int32_t result = KillProcessByPid(appTaskInfo->GetPid(), "RemoveAppFromRecentList");
-        if (result < 0) {
-            TAG_LOGE(AAFwkTag::APPMGR, "RemoveAppFromRecentList kill process is fail");
-            return;
-        }
-    }
-    appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
-}
-
-const std::list<const std::shared_ptr<AppTaskInfo>> &AppMgrServiceInner::GetRecentAppList() const
-{
-    return appProcessManager_->GetRecentAppList();
-}
-
-void AppMgrServiceInner::ClearRecentAppList()
-{
-    int64_t startTime = 0;
-    std::list<pid_t> pids;
-    if (GetAllPids(pids)) {
-        return;
-    }
-
-    startTime = SystemTimeMillisecond();
-    if (WaitForRemoteProcessExit(pids, startTime)) {
-        appProcessManager_->ClearRecentAppList();
-        return;
-    }
-    for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        int32_t result = KillProcessByPid(*iter, "ClearRecentAppList");
-        if (result < 0) {
-            TAG_LOGE(AAFwkTag::APPMGR, "ClearRecentAppList kill process is fail");
-            return;
-        }
-    }
-    appProcessManager_->ClearRecentAppList();
-}
-
 void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess, bool isChildProcess)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "On remote died.");
@@ -3231,7 +3152,6 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         appRecord->StateChangedNotifyObserver(abilityRecord,
             static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true, false);
     }
-    RemoveAppFromRecentListById(appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
     DelayedSingleton<CacheProcessManager>::GetInstance()->OnProcessKilled(appRecord);
 
@@ -3255,28 +3175,6 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
 
     auto uid = appRecord->GetUid();
     NotifyAppRunningStatusEvent(appRecord->GetBundleName(), uid, AbilityRuntime::RunningStatus::APP_RUNNING_STOP);
-}
-
-void AppMgrServiceInner::PushAppFront(const int32_t recordId)
-{
-    appProcessManager_->PushAppFront(recordId);
-}
-
-void AppMgrServiceInner::RemoveAppFromRecentListById(const int32_t recordId)
-{
-    appProcessManager_->RemoveAppFromRecentListById(recordId);
-}
-
-void AppMgrServiceInner::AddAppToRecentList(
-    const std::string &appName, const std::string &processName, const pid_t pid, const int32_t recordId)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    appProcessManager_->AddAppToRecentList(appName, processName, pid, recordId);
-}
-
-const std::shared_ptr<AppTaskInfo> AppMgrServiceInner::GetAppTaskInfoById(const int32_t recordId) const
-{
-    return appProcessManager_->GetAppTaskInfoById(recordId);
 }
 
 void AppMgrServiceInner::HandleTimeOut(const AAFwk::EventWrap &event)
@@ -3383,7 +3281,6 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
         taskHandler_->SubmitTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
     }
     appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
-    RemoveAppFromRecentListById(appRecord->GetRecordId());
     if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
         RemoveRunningSharedBundleList(appRecord->GetBundleName());
     }

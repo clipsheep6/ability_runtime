@@ -265,11 +265,8 @@ public:
 
     void initConfig(const Configuration &config);
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
-    void HandleAddAbilityStageTimeOut(const int64_t eventId);
-    void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByRenderPid(const pid_t pid);
     std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
-    bool ProcessExitByPid(pid_t pid);
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
     int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);

@@ -96,12 +96,9 @@ void DoSomethingInterestingWithMyAPIadda(const char* data, size_t size)
     manager->GetRunningProcessInfoByPid(pidApps, infoByPid);
     std::regex re;
     manager->ClipStringContent(re, jsonStr, jsonStr);
-    manager->HandleAddAbilityStageTimeOut(eventId);
-    manager->HandleStartSpecifiedAbilityTimeOut(eventId);
     manager->GetAppRunningRecordByRenderPid(pidApps);
     wptr<IRemoteObject> remote;
     manager->OnRemoteRenderDied(remote);
-    manager->ProcessExitByPid(pidApps);
     manager->GetAppRunningStateByBundleName(jsonStr);
     sptr<IQuickFixCallback> callback;
     manager->NotifyLoadRepairPatch(jsonStr, callback);

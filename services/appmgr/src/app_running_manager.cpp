@@ -394,17 +394,6 @@ bool AppRunningManager::GetPidsByBundleNameUserIdAndAppIndex(const std::string &
     return (!pids.empty());
 }
 
-bool AppRunningManager::ProcessExitByPid(pid_t pid)
-{
-    auto appRecord = GetAppRunningRecordByPid(pid);
-    if (appRecord != nullptr) {
-        appRecord->SetKilling();
-        appRecord->ScheduleProcessSecurityExit();
-        return true;
-    }
-    return false;
-}
-
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote,
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
@@ -775,44 +764,6 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s", appData.bundleName.c_str());
         }
     }
-}
-
-void AppRunningManager::HandleAddAbilityStageTimeOut(const int64_t eventId)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "Handle add ability stage timeout.");
-    auto abilityRecord = GetAbilityRunningRecord(eventId);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr.");
-        return;
-    }
-
-    auto abilityToken = abilityRecord->GetToken();
-    auto appRecord = GetTerminatingAppRunningRecord(abilityToken);
-    if (!appRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
-        return;
-    }
-
-    appRecord->ScheduleProcessSecurityExit();
-}
-
-void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "Handle receive multi instances timeout.");
-    auto abilityRecord = GetAbilityRunningRecord(eventId);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr");
-        return;
-    }
-
-    auto abilityToken = abilityRecord->GetToken();
-    auto appRecord = GetTerminatingAppRunningRecord(abilityToken);
-    if (!appRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
-        return;
-    }
-
-    appRecord->ScheduleProcessSecurityExit();
 }
 
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)

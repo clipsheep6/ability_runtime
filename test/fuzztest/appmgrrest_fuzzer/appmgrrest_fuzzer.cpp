@@ -20,7 +20,6 @@
 
 #include "app_death_recipient.h"
 #include "app_mgr_service_event_handler.h"
-#include "app_process_manager.h"
 #define private public
 #include "app_spawn_client.h"
 #undef private
@@ -77,25 +76,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appDeathRecipient->SetAppMgrServiceInner(serviceInner);
     bool isRenderProcess = *data % ENABLE;
     appDeathRecipient->SetIsRenderProcess(isRenderProcess);
-    AppProcessManager appProcessManager;
-    std::shared_ptr<AppTaskInfo> appTaskInfo;
-    appProcessManager.RemoveAppFromRecentList(appTaskInfo);
-    std::string appName(data, size);
-    std::string processName(data, size);
-    pid_t pid = static_cast<pid_t>(GetU32Data(data));
-    int32_t recordId = static_cast<int32_t>(GetU32Data(data));
-    appProcessManager.AddAppToRecentList(appName, processName, pid, recordId);
-    appProcessManager.PushAppFront(recordId);
-    appProcessManager.GetAppTaskInfoById(recordId);
-    std::string bundleName(data, size);
-    appProcessManager.GetAppTaskInfoByProcessName(appName, bundleName);
-    appProcessManager.GetRecentAppList();
-    appProcessManager.RemoveAppFromRecentListById(recordId);
-    appProcessManager.ClearRecentAppList();
     AppSpawnClient appSpawnClient;
     appSpawnClient.OpenConnection();
     appSpawnClient.PreStartNWebSpawnProcess();
     AppSpawnStartMsg startMsg;
+    pid_t pid = static_cast<pid_t>(GetU32Data(data));
     appSpawnClient.StartProcess(startMsg, pid);
     int status = static_cast<int>(GetU32Data(data));
     appSpawnClient.GetRenderProcessTerminationStatus(startMsg, status);

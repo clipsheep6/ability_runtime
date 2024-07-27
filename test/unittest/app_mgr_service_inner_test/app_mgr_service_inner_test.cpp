@@ -1098,35 +1098,6 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetAllPids_001
- * @tc.desc: get all pids.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, GetAllPids_001, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "GetAllPids_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    std::list<pid_t> pids;
-    bool result = appMgrServiceInner->GetAllPids(pids);
-    EXPECT_FALSE(result);
-
-    pids.push_back(1);
-    result = appMgrServiceInner->GetAllPids(pids);
-    EXPECT_TRUE(result);
-
-    std::string appName = "test_appName";
-    std::string processName = "test_processName";
-    appMgrServiceInner->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
-    result = appMgrServiceInner->GetAllPids(pids);
-    EXPECT_TRUE(result);
-
-    TAG_LOGI(AAFwkTag::TEST, "GetAllPids_001 end");
-}
-
-/**
  * @tc.name: ProcessExist_001
  * @tc.desc: process exist.
  * @tc.type: FUNC
@@ -1775,63 +1746,6 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     TAG_LOGI(AAFwkTag::TEST, "StartProcess_001 end");
-}
-
-/**
- * @tc.name: RemoveAppFromRecentList_001
- * @tc.desc: remove app from recent list.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "RemoveAppFromRecentList_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    std::string appName = "test_appName";
-    std::string processName = "test_processName";
-    appMgrServiceInner->RemoveAppFromRecentList(appName, processName);
-
-    appMgrServiceInner->AddAppToRecentList(appName, processName, 0, 0);
-    appMgrServiceInner->RemoveAppFromRecentList(appName, processName);
-
-    appMgrServiceInner->ClearRecentAppList();
-    BundleInfo bundleInfo;
-    std::string appName1 = "hiservcie";
-    std::string processName1 = "hiservcie_processName";
-    std::shared_ptr<AppRunningRecord> appRecord =
-        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName1, bundleInfo);
-
-    pid_t pid = 123;
-    appMgrServiceInner->AddAppToRecentList(appName1, processName1, pid, 0);
-    appRecord->SetKeepAliveEnableState(true);
-    appRecord->SetEmptyKeepAliveAppState(true);
-    appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
-    appRecord->SetKeepAliveEnableState(false);
-    appRecord->SetEmptyKeepAliveAppState(false);
-    appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
-
-    TAG_LOGI(AAFwkTag::TEST, "RemoveAppFromRecentList_001 end");
-}
-
-/**
- * @tc.name: ClearRecentAppList_001
- * @tc.desc: clear recent list.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, ClearRecentAppList_001, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "ClearRecentAppList_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    appMgrServiceInner->ClearRecentAppList();
-    std::list<const std::shared_ptr<AppTaskInfo>> list = appMgrServiceInner->GetRecentAppList();
-    EXPECT_EQ(list.size(), 0);
-
-    TAG_LOGI(AAFwkTag::TEST, "ClearRecentAppList_001 end");
 }
 
 /**

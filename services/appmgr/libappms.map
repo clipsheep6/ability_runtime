@@ -19,7 +19,6 @@
       *AppDeathRecipient*;
       *AppLifeCycleDeal*;
       *AppMgrServiceInner*;
-      *AppProcessManager*;
       *AppRunningManager*;
       *AppRunningRecord*;
       *AppSpawnClient*;

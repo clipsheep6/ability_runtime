@@ -871,50 +871,6 @@ HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_009, TestSize.Level3)
  * Feature: Ams
  * Function: AppLifeCycle
  * SubFunction: NA
- * FunctionPoints: test getrecentapplist and removeappfromrecentlist all process.
- * EnvConditions: system running normally
- * CaseDescription: 1.call getrecentapplist API to get current app list
- *                  2.call removeappfromrecentlist API to remove current app list
- */
-HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_011, TestSize.Level1)
-{
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_100);
-    EXPECT_EQ(INDEX_NUM_100, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    for (int32_t i = INDEX_NUM_MAX; i > 0; i--) {
-        std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-        appInfo->name = TEST_APP_NAME + std::to_string(i);
-        appInfo->bundleName = appInfo->name;  // specify process condition
-        auto appTaskInfo =
-            serviceInner_->appProcessManager_->GetAppTaskInfoByProcessName(appInfo->name, appInfo->bundleName);
-        serviceInner_->appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
-    }
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-}
-
-/*
- * Feature: Ams
- * Function: AppLifeCycle
- * SubFunction: NA
- * FunctionPoints: test getrecentapplist and clearrecentappList all process.
- * EnvConditions: system running normally
- * CaseDescription: 1.call getrecentapplist API to get current app list
- *                  2.call clearrecentapplist API to clear current app list
- */
-HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_012, TestSize.Level1)
-{
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_100);
-    EXPECT_EQ(INDEX_NUM_100, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-
-    serviceInner_->appProcessManager_->ClearRecentAppList();
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-}
-
-/*
- * Feature: Ams
- * Function: AppLifeCycle
- * SubFunction: NA
  * FunctionPoints: test get and stop all process.
  * EnvConditions: system running normally
  * CaseDescription: OnStop

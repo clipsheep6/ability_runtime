@@ -333,8 +333,6 @@ HWTEST_F(AmsAppLifeCycleTest, RemoveAppFromRecentList_001, TestSize.Level1)
     appRecord->SetApplicationClient(client);
 
     EXPECT_TRUE(appRecord);
-    int size = serviceInner_->GetRecentAppList().size();
-    EXPECT_EQ(size, 1);
     EXPECT_FALSE(result.appExists);
 
     auto abilityInfo2 = std::make_shared<AbilityInfo>();
@@ -351,24 +349,7 @@ HWTEST_F(AmsAppLifeCycleTest, RemoveAppFromRecentList_001, TestSize.Level1)
     auto appRecord2 = StartProcessAndLoadAbility(token2, nullptr, abilityInfo2, appInfo2, 101);
     appRecord2->SetApplicationClient(client);
     EXPECT_TRUE(appRecord2);
-    size = serviceInner_->GetRecentAppList().size();
-    EXPECT_EQ(size, 2);
     EXPECT_FALSE(result.appExists);
-
-    // remove the first
-    EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-    serviceInner_->RemoveAppFromRecentList(appRecord->GetName(), appRecord->GetName());
-    sleep(1);
-    size = serviceInner_->GetRecentAppList().size();
-    EXPECT_EQ(size, 1);
-
-    EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-    serviceInner_->RemoveAppFromRecentList(appRecord2->GetName(), appRecord2->GetName());
-    sleep(3);
-
-    auto list = serviceInner_->GetRecentAppList();
-    size = list.size();
-    EXPECT_EQ(size, 0);
 }
 
 /*

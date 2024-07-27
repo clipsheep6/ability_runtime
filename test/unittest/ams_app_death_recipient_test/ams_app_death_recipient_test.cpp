@@ -177,8 +177,6 @@ sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
 
     auto appRecord = GetAppRunningRecordByIndex(pid);
 
-    EXPECT_EQ(size, static_cast<int>(appMgrServiceInner_->GetRecentAppList().size()));
-
     sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
     appRecord->SetApplicationClient(client);

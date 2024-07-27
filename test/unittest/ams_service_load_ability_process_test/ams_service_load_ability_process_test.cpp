@@ -208,7 +208,6 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_002, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "AmsServiceLoadAbilityProcessTest LoadAbility_002 start");
 
     EXPECT_TRUE(service_ != nullptr);
-    service_->ClearRecentAppList();
 
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
