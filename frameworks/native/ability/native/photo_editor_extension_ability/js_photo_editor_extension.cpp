@@ -37,12 +37,12 @@ void JsPhotoEditorExtension::Init(const std::shared_ptr<AppExecFwk::AbilityLocal
                                   std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
                                   const sptr<IRemoteObject> &token)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Begin init photo editor extension.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "Begin init photo editor extension");
     std::shared_ptr<PhotoEditorExtensionContext> context = std::make_shared<PhotoEditorExtensionContext>();
     context->SetToken(token);
     auto appContext = Context::GetApplicationContext();
     if (appContext == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "JsPhotoEditorExtension::CreateAndInitContext appContext is nullptr.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "JsPhotoEditorExtension::CreateAndInitContext appContext is nullptr");
         return;
     }
     context->SetApplicationInfo(appContext->GetApplicationInfo());
@@ -50,10 +50,10 @@ void JsPhotoEditorExtension::Init(const std::shared_ptr<AppExecFwk::AbilityLocal
     context->SetParentContext(appContext);
 
     if (record == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "JsPhotoEditorExtension::CreateAndInitContext record is nullptr.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "JsPhotoEditorExtension::CreateAndInitContext record is nullptr");
         return;
     }
-    TAG_LOGD(AAFwkTag::UI_EXT, "Begin init abilityInfo.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "Begin init abilityInfo");
     auto abilityInfo = record->GetAbilityInfo();
     context->SetAbilityInfo(abilityInfo);
     context->InitHapModuleInfo(abilityInfo);

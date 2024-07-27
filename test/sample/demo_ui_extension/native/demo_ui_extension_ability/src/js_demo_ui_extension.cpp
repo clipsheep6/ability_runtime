@@ -42,7 +42,7 @@ JsDemoUIExtension::~JsDemoUIExtension()
 
 void JsDemoUIExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    TAG_LOGE(AAFwkTag::UI_EXT, "OnForeground");
+    TAG_LOGE(AAFwkTag::UI_EXT, "called");
 
     ForegroundWindow(want, sessionInfo);
     HandleScope handleScope(jsRuntime_);
@@ -54,18 +54,18 @@ napi_value AttachUIExtensionBaseContext(napi_env env, void *value, void*)
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     if (value == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "invalid parameter.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "invalid parameter");
         return nullptr;
     }
 
     auto ptr = reinterpret_cast<std::weak_ptr<UIExtensionContext>*>(value)->lock();
     if (ptr == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "invalid context.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "invalid context");
         return nullptr;
     }
     napi_value object = JsDemoUIExtensionContext::CreateJsDemoUIExtensionContext(env, ptr);
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "create context error.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "create context error");
         return nullptr;
     }
     auto contextRef = JsRuntime::LoadSystemModuleByEngine(
@@ -76,11 +76,11 @@ napi_value AttachUIExtensionBaseContext(napi_env env, void *value, void*)
     }
     auto contextObj = contextRef->GetNapiValue();
     if (contextObj == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "load context error.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "load context error");
         return nullptr;
     }
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "not object.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "not object");
         return nullptr;
     }
     napi_coerce_to_native_binding_object(
@@ -117,10 +117,10 @@ void JsDemoUIExtension::BindContext()
         TAG_LOGE(AAFwkTag::UI_EXT, "context is nullptr");
         return;
     }
-    TAG_LOGD(AAFwkTag::UI_EXT, "BindContext CreateJsDemoUIExtensionContext.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "BindContext CreateJsDemoUIExtensionContext");
     napi_value contextObj = JsDemoUIExtensionContext::CreateJsDemoUIExtensionContext(env, context);
     if (contextObj == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Create js ui extension context error.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Create js ui extension context error");
         return;
     }
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(

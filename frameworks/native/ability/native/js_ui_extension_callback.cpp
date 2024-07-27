@@ -145,7 +145,7 @@ void JsUIExtensionCallback::CallJsResult(int32_t resultCode, const AAFwk::Want &
 {
     TAG_LOGI(AAFwkTag::UI_EXT, "call");
     if (env_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "env_ is null, not call js Result.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "env_ is null, not call js Result");
         return;
     }
 
@@ -191,7 +191,7 @@ void JsUIExtensionCallback::CallJsError(int32_t number)
 {
     TAG_LOGI(AAFwkTag::UI_EXT, "call");
     if (env_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "env_ is null, not call js error.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "env_ is null, not call js error");
         return;
     }
     std::string name;

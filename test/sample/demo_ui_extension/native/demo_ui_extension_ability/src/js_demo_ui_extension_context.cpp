@@ -57,7 +57,7 @@ napi_value JsDemoUIExtensionContext::TestMethod(napi_env env, napi_callback_info
 
 napi_value JsDemoUIExtensionContext::OnTestMethod(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
     NapiAsyncTask::ExecuteCallback execute = [weak = context_, innerErrorCode]() {
         auto context = weak.lock();
