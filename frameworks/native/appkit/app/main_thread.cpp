@@ -1644,7 +1644,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
                     " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
                     KILL_REASON);
-    
+
                 if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                     ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                     return;
@@ -1664,6 +1664,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             (static_cast<AbilityRuntime::CJRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(expectionInfo);
         }
 #endif
+        wptr<MainThread> weak = this;
+        auto callback = [weak](const AAFwk::ExitReason &exitReason) {
+            auto appThread = weak.promote();
+            if (appThread == nullptr) {
+                TAG_LOGE(AAFwkTag::APPKIT, "Main thread is nullptr");
+            }
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+            appThread->ScheduleProcessSecurityExit();
+        };
+        applicationContext->RegisterProcessSecurityExit(callback);
 
         application_->SetRuntime(std::move(runtime));
 

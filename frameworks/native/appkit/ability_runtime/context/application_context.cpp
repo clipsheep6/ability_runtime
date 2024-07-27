@@ -22,6 +22,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "running_process_info.h"
+#include "exit_reason.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -790,6 +791,11 @@ void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFont
     appFontCallback_ = appFontCallback;
 }
 
+void ApplicationContext::RegisterProcessSecurityExit(AppProcessExitCallback appProcessExitCallback)
+{
+    appProcessExitCallback_ = appProcessExitCallback;
+}
+
 std::string ApplicationContext::GetAppRunningUniqueId() const
 {
     TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueId is %{public}s", appRunningUniqueId_.c_str());
@@ -834,6 +840,17 @@ void ApplicationContext::SetCurrentAppMode(int32_t appMode)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "setCurrentAppMode is %{public}d", appMode);
     appMode_ = appMode;
+}
+
+void ApplicationContext::ProcessSecurityExit(const AAFwk::ExitReason &exitReason)
+{
+    if (appProcessExitCallback_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "callback is invalid");
+        return;
+    }
+
+    TAG_LOGI(AAFwkTag::APPKIT, "Proc exit, reason: %{public}s", exitReason.exitMsg.c_str());
+    appProcessExitCallback_(exitReason);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
