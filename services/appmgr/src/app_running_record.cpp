@@ -1850,6 +1850,24 @@ bool AppRunningRecord::IsKilling() const
     return isKilling_;
 }
 
+bool AppRunningRecord::NeedUpdateConfigurationBackground()
+{
+    bool needUpdate = false;
+    auto abilitiesMap = GetAbilities();
+    for (const auto &item : abilitiesMap) {
+        const auto &abilityRecord = item.second;
+        if (!abilityRecord || !abilityRecord->GetAbilityInfo()) {
+            continue;
+        }
+        if (abilityRecord->GetAbilityInfo()->type != AppExecFwk::AbilityType::PAGE &&
+            !(AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo()->extensionAbilityType))) {
+            needUpdate = true;
+            break;
+        }
+    }
+    return needUpdate;
+}
+
 void AppRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const
 {
     auto moduleRecord = GetModuleRunningRecordByToken(token);

@@ -676,6 +676,8 @@ public:
 
     void SetProcessChangeReason(ProcessChangeReason reason);
 
+    bool NeedUpdateConfigurationBackground();
+
     ProcessChangeReason GetProcessChangeReason() const;
 
     ExtensionAbilityType GetExtensionType() const;
@@ -803,7 +805,7 @@ public:
     bool GetIsGPU();
     void SetGPUPid(pid_t gpuPid);
     pid_t GetGPUPid();
-    
+
     inline void SetStrictMode(bool strictMode)
     {
         isStrictMode_ = strictMode;
