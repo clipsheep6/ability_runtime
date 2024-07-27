@@ -15,6 +15,7 @@
 
 #include "start_ability_handler.h"
 
+#include "permission_verification.h"
 #ifdef WITH_DLP
 #include "dlp_utils.h"
 #endif // WITH_DLP

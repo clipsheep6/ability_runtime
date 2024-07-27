@@ -89,7 +89,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 
     return PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want));
 }
-#endif // WITH_DLP_
+#endif // WITH_DLP
 
 [[maybe_unused]]static bool SandboxAuthCheck(const AbilityRecord &callerRecord, const Want &want)
 {

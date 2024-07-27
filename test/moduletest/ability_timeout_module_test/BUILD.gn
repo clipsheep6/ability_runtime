@@ -129,6 +129,11 @@ ohos_moduletest("ability_timeout_module_test") {
       "window_manager:sms",
     ]
   }
+
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
 }
 
 group("moduletest") {

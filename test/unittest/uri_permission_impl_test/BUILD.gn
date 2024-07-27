@@ -70,6 +70,11 @@ ohos_unittest("uri_permission_impl_test") {
     "init:libbegetutil",
     "storage_service:storage_manager_sa_proxy",
   ]
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
 }
 
 group("unittest") {

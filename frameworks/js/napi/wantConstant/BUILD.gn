@@ -27,6 +27,12 @@ ohos_shared_library("wantconstant") {
     "napi:ace_napi",
   ]
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
+
   relative_install_dir = "module/ability"
 
   subsystem_name = "ability"
@@ -45,6 +51,12 @@ ohos_shared_library("wantconstant_napi") {
     "hilog:libhilog",
     "napi:ace_napi",
   ]
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
 
   relative_install_dir = "module/app/ability"
 

@@ -54,6 +54,13 @@ ohos_shared_library("connection_obs_manager") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
+
   public_external_deps = [ "bundle_framework:appexecfwk_base" ]
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
