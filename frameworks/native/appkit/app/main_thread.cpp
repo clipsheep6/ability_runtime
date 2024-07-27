@@ -1664,7 +1664,14 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             (static_cast<AbilityRuntime::CJRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(expectionInfo);
         }
 #endif
-
+        wptr<MainThread> weak = this;
+        auto callback = [weak] (const AAFwk::ExitReason &exitReason) {
+            auto appThread = weak.promote();
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+            appThread->ScheduleProcessSecurityExit();
+        };
+        applicationContext->RegisterProcessSecurityExit(callback);
+        
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
