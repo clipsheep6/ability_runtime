@@ -200,6 +200,7 @@ constexpr size_t INDEX_ONE = 1;
 constexpr size_t INDEX_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
+constexpr const char* WANT_PARAMS_HOST_WINDOW_ID_KEY = "ohos.extra.param.key.hostwindowid";
 
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr const char* FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
@@ -5600,6 +5601,26 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         }
         return missionListManager->AbilityTransactionDone(token, state, saveData);
     }
+}
+
+int AbilityManagerService::AbilityWindowConfigTransitionDone(
+    const sptr<IRemoteObject> &token, const WindowConfig &windowConfig)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "Ability record is nullptr.");
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Lifecycle: ability: %{public}s.", abilityRecord->GetURI().c_str());
+    int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+    auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerMissionUserId);
+    CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+    return uiAbilityManager->AbilityWindowConfigTransactionDone(token, windowConfig);
 }
 
 int AbilityManagerService::ScheduleConnectAbilityDone(
@@ -11565,10 +11586,14 @@ void AbilityManagerService::SetAbilityRequestSessionInfo(AbilityRequest &ability
     auto callerAbilityRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if(callerAbilityRecord != nullptr) {
         sptr<SessionInfo> callerSessionInfo = callerAbilityRecord->GetSessionInfo();
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateSessionInfo %{public}d.", callerSessionInfo->persistentId);
-        sessionInfo->hostWindowId = callerSessionInfo->persistentId;
+        if (callerSessionInfo != nullptr) {
+            sessionInfo->hostWindowId = callerSessionInfo->persistentId;
+        }
     } else {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerAbilityRecord is nullptr");
+    }
+    if (abilityRequest.abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        abilityRequest.want.SetParam(WANT_PARAMS_HOST_WINDOW_ID_KEY, static_cast<int32_t>(sessionInfo->hostWindowId));
     }
     sessionInfo->want = abilityRequest.want;
     sessionInfo->callingTokenId = static_cast<uint32_t>(abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,

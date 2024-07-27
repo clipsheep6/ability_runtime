@@ -167,6 +167,9 @@ protected:
     bool showOnLockScreen_ = false;
 
 private:
+    void AbilityWindowConfigTransition(sptr<Rosen::WindowOption>& option,
+        const std::shared_ptr<Rosen::ExtensionWindowConfig>& extensionWindowConfig);
+
     sptr<IRemoteObject> CallOnConnect(const AAFwk::Want &want);
 
     napi_value CallOnDisconnect(const AAFwk::Want &want);
@@ -194,7 +197,7 @@ private:
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
     sptr<UIServiceStubImpl> extensionStub_ = nullptr;
     std::map<sptr<IRemoteObject>, std::unique_ptr<NativeReference>> hostProxyMap_;
-
+    bool firstRequest_ = true;
 #ifdef SUPPORT_GRAPHICS
     void OnSceneWillCreated(std::shared_ptr<Rosen::ExtensionWindowConfig> extensionWindowConfig);
     void OnSceneDidCreated(sptr<Rosen::Window>& window);

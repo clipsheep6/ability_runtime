@@ -62,6 +62,9 @@ int AbilityManagerStub::OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &
     if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE) {
         return AbilityTransitionDoneInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_WINDOW_CONFIG_TRANSITION_DONE) {
+        return AbilityWindowConfigTransitionDoneInner(data, reply);
+    }
     if (interfaceCode == AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE) {
         return ScheduleConnectAbilityDoneInner(data, reply);
     }
@@ -1045,6 +1048,19 @@ int AbilityManagerStub::AbilityTransitionDoneInner(MessageParcel &data, MessageP
         return ERR_INVALID_VALUE;
     }
     int32_t result = AbilityTransitionDone(token, targetState, *saveData);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::AbilityWindowConfigTransitionDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto token = data.ReadRemoteObject();
+    std::unique_ptr<WindowConfig> windowConfig(data.ReadParcelable<WindowConfig>());
+    if (!windowConfig) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "windowConfig is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = AbilityWindowConfigTransitionDone(token, *windowConfig);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

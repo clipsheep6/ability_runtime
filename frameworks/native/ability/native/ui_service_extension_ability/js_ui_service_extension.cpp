@@ -56,6 +56,7 @@ namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 }
+constexpr const char* WANT_PARAMS_HOST_WINDOW_ID_KEY = "ohos.extra.param.key.hostwindowid";
 
 using namespace OHOS::AppExecFwk;
 
@@ -276,18 +277,7 @@ void JsUIServiceExtension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionI
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-#ifdef SUPPORT_GRAPHICS
-    auto extensionWindowConfig = std::make_shared<Rosen::ExtensionWindowConfig>();
-    OnSceneWillCreated(extensionWindowConfig);
-    auto option = GetWindowOption(want, extensionWindowConfig, sessionInfo);
-    sptr<Rosen::Window> extensionWindow = Rosen::Window::Create(extensionWindowConfig->windowName, option, context);
-    if (extensionWindow != nullptr) {
-        OnSceneDidCreated(extensionWindow);
-        context->SetWindow(extensionWindow);
-    } else {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "extensionWindow is nullptr");
-    }
-#endif
+
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
 }
 
@@ -326,6 +316,26 @@ void JsUIServiceExtension::OnDisconnect(const AAFwk::Want &want,
 
 void JsUIServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
+#ifdef SUPPORT_GRAPHICS
+    auto context = GetContext();
+    if (firstRequest_ && context != nullptr) {
+        int32_t hostWindowId = want.GetIntParam(WANT_PARAMS_HOST_WINDOW_ID_KEY, 0);
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "try create window hostWindowId %{public}d", hostWindowId);
+        auto extensionWindowConfig = std::make_shared<Rosen::ExtensionWindowConfig>();
+        OnSceneWillCreated(extensionWindowConfig);
+        auto option = GetWindowOption(want, extensionWindowConfig, hostWindowId);
+        sptr<Rosen::Window> extensionWindow = Rosen::Window::Create(extensionWindowConfig->windowName, option, context);
+        if (extensionWindow != nullptr) {
+            OnSceneDidCreated(extensionWindow);
+            context->SetWindow(extensionWindow);
+            AbilityWindowConfigTransition(option, extensionWindowConfig);
+        } else {
+            TAG_LOGE(AAFwkTag::UISERVC_EXT, "extensionWindow is nullptr");
+        }
+        firstRequest_ = false;
+    }
+#endif
+
     Extension::OnCommand(want, restart, startId);
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false",
@@ -340,6 +350,32 @@ void JsUIServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int 
     napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
+}
+
+void JsUIServiceExtension::AbilityWindowConfigTransition(sptr<Rosen::WindowOption>& option,
+    const std::shared_ptr<Rosen::ExtensionWindowConfig>& extensionWindowConfig)
+{
+    auto context = GetContext();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "context is nullptr");
+        return;
+    }
+    auto token = context->GetToken();
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "token is null.");
+        return;
+    }
+    AAFwk::WindowConfig windowConfig;
+    if (option != nullptr) {
+        windowConfig.windowType = static_cast<int32_t>(option->GetWindowType());
+    }
+    if (extensionWindowConfig != nullptr) {
+        windowConfig.posx = extensionWindowConfig->windowRect.posX_;
+        windowConfig.posy = extensionWindowConfig->windowRect.posY_;
+        windowConfig.width = extensionWindowConfig->windowRect.width_;
+        windowConfig.height = extensionWindowConfig->windowRect.height_;
+    }
+    AAFwk::AbilityManagerClient::GetInstance()->AbilityWindowConfigTransitionDone(token, windowConfig);
 }
 
 sptr<IRemoteObject> JsUIServiceExtension::CallOnConnect(const AAFwk::Want &want)

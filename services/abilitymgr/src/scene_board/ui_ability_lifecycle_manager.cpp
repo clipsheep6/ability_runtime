@@ -311,6 +311,16 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     return DispatchState(abilityRecord, targetState);
 }
 
+int UIAbilityLifecycleManager::AbilityWindowConfigTransactionDone(const sptr<IRemoteObject> &token,
+    const WindowConfig &windowConfig)
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    abilityRecord->SaveAbilityWindowConfig(windowConfig);
+    return ERR_OK;
+}
+
 int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

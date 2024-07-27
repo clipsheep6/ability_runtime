@@ -716,6 +716,15 @@ public:
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
 
     /**
+     * AbilityWindowConfigTransitionDone, ability call this interface after lift cycle was changed.
+     *
+     * @param token,.ability's token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int AbilityWindowConfigTransitionDone(
+        const sptr<IRemoteObject> &token, const WindowConfig &windowConfig) override;
+
+    /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
      *
      * @param token,.service ability's token.

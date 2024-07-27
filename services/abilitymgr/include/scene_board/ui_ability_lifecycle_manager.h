@@ -79,6 +79,16 @@ public:
     int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const AppExecFwk::PacMap &saveData);
 
     /**
+     * @brief execute after the ability schedule the lifecycle
+     *
+     * @param token the ability token
+     * @param windowConfig the windowconfig
+     * @return execute error code
+     */
+    int AbilityWindowConfigTransactionDone(
+        const sptr<IRemoteObject> &token, const AppExecFwk::WindowConfig &windowConfig);
+
+    /**
      * attach ability thread ipc object.
      *
      * @param scheduler ability thread ipc object.

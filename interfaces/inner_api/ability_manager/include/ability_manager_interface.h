@@ -61,6 +61,7 @@
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
 #include "dialog_session_info.h"
+#include "window_config.h"
 #ifdef SUPPORT_SCREEN
 #include "window_manager_service_handler.h"
 #include "ability_first_frame_state_observer_interface.h"
@@ -644,6 +645,18 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) = 0;
+
+    /**
+     * AbilityWindowConfigTransitionDone, ability call this interface after life cycle was changed.
+     *
+     * @param token,.ability's token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int AbilityWindowConfigTransitionDone(
+        const sptr<IRemoteObject> &token, const WindowConfig &windowConfig)
+        {
+            return 0;
+        }
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.

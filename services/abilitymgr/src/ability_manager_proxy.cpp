@@ -1249,6 +1249,34 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::AbilityWindowConfigTransitionDone(
+    const sptr<IRemoteObject> &token, const WindowConfig &windowConfig)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token or state write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteParcelable(&windowConfig)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "saveData write failed.");
+        return INNER_ERR;
+    }
+    
+    error = SendRequest(AbilityManagerInterfaceCode::ABILITY_WINDOW_CONFIG_TRANSITION_DONE, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::ScheduleConnectAbilityDone(
     const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject)
 {

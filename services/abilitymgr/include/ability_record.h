@@ -42,6 +42,7 @@
 #include "ui_extension_window_command.h"
 #include "uri.h"
 #include "want.h"
+#include "window_config.h"
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window_configuration.h"
 #include "resource_manager.h"
@@ -435,6 +436,13 @@ public:
      */
     AbilityState GetAbilityState() const;
 
+    /**
+     * get ability's windowconfig.
+     *
+     * @return ability windowconfig.
+     */
+    WindowConfig GetAbilityWindowConfig() const;
+
     bool IsForeground() const;
 
     AbilityVisibilityState GetAbilityVisibilityState() const;
@@ -647,6 +655,7 @@ public:
      */
     void SaveAbilityState();
     void SaveAbilityState(const PacMap &inState);
+    void SaveAbilityWindowConfig(const WindowConfig &windowConfig);
 
     /**
      * restore ability state.
@@ -1171,6 +1180,7 @@ private:
     bool isLauncherRoot_ = false;
 
     PacMap stateDatas_;             // ability saved ability state data
+    WindowConfig windowConfig_;
     bool isRestarting_ = false;     // is restarting ?
     AppState appState_ = AppState::BEGIN;
 
