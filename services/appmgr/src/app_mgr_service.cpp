@@ -1598,5 +1598,15 @@ void AppMgrService::RestartResidentProcessDependedOnWeb()
     }
     appMgrServiceInner_->RestartResidentProcessDependedOnWeb();
 }
+
+int32_t AppMgrService::RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appMgrServiceInner_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appMgrServiceInner_ is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return appMgrServiceInner_->RegisterKiaInterceptor(interceptor);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

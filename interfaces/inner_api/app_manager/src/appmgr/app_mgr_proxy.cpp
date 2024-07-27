@@ -1931,5 +1931,24 @@ void AppMgrProxy::RestartResidentProcessDependedOnWeb()
 
     PARCEL_UTIL_SENDREQ_NORET(AppMgrInterfaceCode::RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB, data, reply, option);
 }
+
+int32_t AppMgrProxy::RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!data.WriteRemoteObject(interceptor->AsObject())) {
+        TAG_LOGE(AAFwkTag::APPMGR, "write interceptor failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    PARCEL_UTIL_SENDREQ_RET_INT(AppMgrInterfaceCode::REGISTER_KIA_INTERCEPTOR, data, reply, option);
+    return reply.ReadInt32();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

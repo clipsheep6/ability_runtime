@@ -75,6 +75,7 @@ ohos_shared_library("libappms") {
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
   defines += [ "AMS_LOG_DOMAIN = 0xD001303" ]
   defines += [ "OHOS_ACCOUNT_ENABLED" ]
+  defines += [ "INCLUDE_ZURI" ]
 
   if (product_name != "ohcore") {
     defines += [ "APP_MGR_SERVICE_APPMS" ]
@@ -112,6 +113,7 @@ ohos_shared_library("libappms") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
+    "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",

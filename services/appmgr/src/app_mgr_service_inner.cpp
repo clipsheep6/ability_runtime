@@ -221,6 +221,9 @@ constexpr const char* ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 constexpr const char* PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 constexpr const char* KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
 constexpr const char* PRELOAD_APPLIATION_TASK = "PreloadApplicactionTask";
+constexpr int32_t FILE_GUARD_UID = 6266;
+constexpr const char* KEY_WATERMARK_BUSINESS_NAME = "com.ohos.param.watermarkBusinessName";
+constexpr const char* KEY_IS_WATERMARK_ENABLED = "com.ohos.param.isWatermarkEnabled";
 
 constexpr const char* PROC_SELF_TASK_PATH = "/proc/self/task/";
 
@@ -490,7 +493,29 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
     std::string processName;
     MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, specifiedProcessFlag, processName);
     TAG_LOGD(AAFwkTag::APPMGR, "processName = %{public}s", processName.c_str());
-
+ 
+    // check KIA and tweek process name
+    bool isKia = false;
+    std::string watermarkBusinessName;
+    bool isWatermarkEnabled = false;
+    bool isFileUri = false;
+#ifdef INCLUDE_ZURI
+    isFileUri = !want->GetUriString().empty() && want->GetUri().GetScheme() == "file";
+#endif
+    if (isFileUri && kiaInterceptor_ != nullptr) {
+        auto resultCode = kiaInterceptor_->OnIntercept(*want);
+        watermarkBusinessName = want->GetStringParam(KEY_WATERMARK_BUSINESS_NAME);
+        isWatermarkEnabled = want->GetBoolParam(KEY_IS_WATERMARK_ENABLED, false);
+        TAG_LOGI(AAFwkTag::APPMGR, "After calling kiaInterceptor_->OnIntercept,"
+            "resultCode=%{public}d,watermarkBusinessName=%{public}s,isWatermarkEnabled=%{public}d",
+            resultCode, watermarkBusinessName.c_str(),
+            static_cast<int>(isWatermarkEnabled));
+        isKia = (resultCode == ERR_OK && !watermarkBusinessName.empty() && isWatermarkEnabled);
+        if (isKia) {
+            processName += "_KIA";
+        }
+    }
+    
     std::shared_ptr<AppRunningRecord> appRecord;
     bool isProcCache = false;
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
@@ -527,6 +552,19 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
         if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
             AddUIExtensionLauncherItem(want, appRecord, token);
         }
+    }
+
+    if (isKia) {
+#ifdef SUPPORT_SCREEN
+        TAG_LOGI(AAFwkTag::APPMGR, "Openning KIA file, start setting watermark.");
+        int32_t resultCode = static_cast<int32_t>(WindowManager::GetInstance().SetProcessWatermark(
+            appRecord->GetPriorityObject()->GetPid(), watermarkBusinessName, isWatermarkEnabled));
+        if (resultCode == WMError::WM_OK) {
+            TAG_LOGI(AAFwkTag::APPMGR, "setting watermark succeeds.");
+        } else {
+            TAG_LOGE(AAFwkTag::APPMGR, "setting watermark fails with result code:%{public}d", resultCode);
+        }
+#endif // SUPPORT_SCREEN
     }
 
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType) &&
@@ -5561,7 +5599,7 @@ bool AppMgrServiceInner::CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo 
         }
     }
     if (extensionInfos.size() <= 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension info failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Get extension info failed.");
         return ERR_INVALID_OPERATION;
     }
     AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
@@ -7333,6 +7371,21 @@ bool AppMgrServiceInner::IsProcessContainsOnlyUIAbility(const pid_t pid)
         }
     }
     return true;
+}
+
+int AppMgrServiceInner::RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "called.");
+    if (interceptor == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "interceptor is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    if (IPCSkeleton::GetCallingUid() != FILE_GUARD_UID) {
+        TAG_LOGE(AAFwkTag::APPMGR, "RegisterKiaInterceptor is only open to file guard.");
+        return ERR_PERMISSION_DENIED;
+    }
+    kiaInterceptor_ = interceptor;
+    return ERR_OK;
 }
 } // namespace AppExecFwk
 }  // namespace OHOS

@@ -335,6 +335,8 @@ int32_t AppMgrStub::OnRemoteRequestInnerSeventh(uint32_t code, MessageParcel &da
             return HandleKillProcessDependedOnWeb(data, reply);
         case static_cast<uint32_t>(AppMgrInterfaceCode::RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB):
             return HandleRestartResidentProcessDependedOnWeb(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_KIA_INTERCEPTOR):
+            return HandleRegisterKiaInterceptor(data, reply);
     }
     return INVALID_FD;
 }
@@ -1568,6 +1570,20 @@ int32_t AppMgrStub::HandleRestartResidentProcessDependedOnWeb(MessageParcel &dat
 {
     TAG_LOGD(AAFwkTag::APPMGR, "call");
     RestartResidentProcessDependedOnWeb();
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRegisterKiaInterceptor(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    sptr<IKiaInterceptor> interceptor = iface_cast<IKiaInterceptor>(data.ReadRemoteObject());
+    if (interceptor == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "interceptor is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = RegisterKiaInterceptor(interceptor);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

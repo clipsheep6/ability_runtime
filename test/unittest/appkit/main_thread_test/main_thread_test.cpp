@@ -269,6 +269,11 @@ class MockAppMgrStub : public AppMgrStub {
     {
         return true;
     }
+
+    int32_t RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor) override
+    {
+        return 0;
+    }
 };
 
 /*
