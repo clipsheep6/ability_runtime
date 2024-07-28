@@ -36,7 +36,7 @@ public:
     bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest) const;
 
     // check dominate screen
-    bool IsDominateScreen(const Want &want, bool isPendingWantCaller);
+    bool IsDominateScreen(const Want &want, bool isPendingWantCaller = true);
 
 private:
     AbilityPermissionUtil() = default;
