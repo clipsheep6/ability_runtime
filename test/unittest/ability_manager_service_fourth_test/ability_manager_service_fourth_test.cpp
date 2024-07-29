@@ -392,16 +392,16 @@ HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityForOptionInner_001, TestSi
     bool isStartAsCaller = true;
     uint32_t specifyTokenId = 0;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
+    auto result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, false, userId, requestCode,
         isStartAsCaller, specifyTokenId, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
     abilityMs->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
+    result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, false, userId, requestCode,
         isStartAsCaller, specifyTokenId, isImplicit);
     EXPECT_NE(result, ERR_INVALID_VALUE);
 
     abilityMs-> implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
-    result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
+    result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, false, userId, requestCode,
        isStartAsCaller, specifyTokenId, isImplicit);
     EXPECT_NE(result, ERR_INVALID_VALUE);
 }
@@ -579,11 +579,11 @@ HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityWithSpecifyTokenIdInner_00
     auto callerToken = MockToken(AbilityType::PAGE);
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     want.AddFlags(Want::FLAG_ABILITY_CONTINUATION);
-    abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, userId, requestCode);
+    abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, false, userId, requestCode);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityWithSpecifyTokenIdInner_001 part 1 end");
 
     want.RemoveFlags(Want::FLAG_ABILITY_CONTINUATION);
-    abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, userId, requestCode);
+    abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, false, userId, requestCode);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityWithSpecifyTokenIdInner_001 part 2 end");
 
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityWithSpecifyTokenIdInner_001 end");
@@ -606,7 +606,7 @@ HWTEST_F(AbilityManagerServiceFourthTest, StartAbilityWithSpecifyTokenIdInner_00
     uint32_t callerTokenId{0};
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->StartAbilityWithSpecifyTokenIdInner(
-        want, startOptions, callerToken, userId, requestCode, callerTokenId);
+        want, startOptions, callerToken, false, userId, requestCode, callerTokenId);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest StartAbilityWithSpecifyTokenIdInner_002 end");
 }
 

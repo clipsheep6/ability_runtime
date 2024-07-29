@@ -460,7 +460,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbilityInner_001, TestSi
     Want want;
     ElementName element("", "com.ix.hiSingleMusicInfo", "SingleMusicAbility");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1);
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, false);
     EXPECT_EQ(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbilityInner_001 end";
 }
@@ -480,7 +480,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbilityInner_002, TestSi
     Want want;
     ElementName element("", "com.ix.hiBackgroundMusic", "hiBackgroundMusic");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1);
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, false);
     EXPECT_EQ(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbilityInner_002 end";
 }
@@ -500,7 +500,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbilityInner_003, TestSi
     Want want;
     ElementName element("", "com.ix.hiSingleMusicInfo", "SingleMusicAbility");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, -1, USER_ID_U100);
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, false, -1, USER_ID_U100);
     EXPECT_EQ(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbilityInner_003 end";
 }
@@ -520,7 +520,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbilityInner_004, TestSi
     Want want;
     ElementName element("", "com.ix.hiBackgroundData", "hiBackgroundData");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, -1, USER_ID_U100);
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, false, -1, USER_ID_U100);
     EXPECT_EQ(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbilityInner_004 end";
 }
@@ -540,7 +540,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbilityInner_005, TestSi
     Want want;
     ElementName element("", "com.ix.hiSingleMusicInfo", "SingleMusicAbility");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, -1, ERROR_USER_ID_U256);
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, false, -1, ERROR_USER_ID_U256);
     EXPECT_NE(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbilityInner_005 end";
 }
@@ -560,7 +560,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbilityInner_006, TestSi
     Want want;
     ElementName element("", "com.ix.hiBackgroundMusic", "hiBackgroundMusic");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, -1, ERROR_USER_ID_U256);
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, false, -1, ERROR_USER_ID_U256);
     EXPECT_NE(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbilityInner_006 end";
 }

@@ -643,7 +643,7 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
             break;
         default:
             result = abilityMgr->StartAbilityWrap(
-                targetWant, request.callerToken, request.requestCode, userId, false, 0, false, true);
+                targetWant, request.callerToken, request.requestCode, false, userId, false, 0, false, true);
             break;
     }
 

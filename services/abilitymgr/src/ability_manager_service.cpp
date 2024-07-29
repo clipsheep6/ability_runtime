@@ -543,7 +543,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
-    int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
+    int32_t ret = StartAbilityWrap(want, nullptr, requestCode, false, userId);
     AAFWK::ContinueRadar::GetInstance().ClickIconStartAbility("StartAbilityWrap", ret);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -582,7 +582,7 @@ int32_t AbilityManagerService::StartAbilityByFreeInstall(const Want &want, sptr<
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
 
-    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId);
+    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, false, userId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -597,11 +597,11 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenId(const Want &want, cons
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with specialId, the current process is not foundation process.");
         return ERR_INVALID_CONTINUATION_FLAG;
     }
-    return StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, userId, requestCode);
+    return StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, false, userId, requestCode);
 }
 
 int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    uint32_t specifyTokenId, int32_t userId, int requestCode)
+    uint32_t specifyTokenId, bool isPendingWantCaller, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
@@ -620,7 +620,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
         "Start ability come, ability is %{public}s, userId is %{public}d, specifyTokenId is %{public}u.",
         want.GetElement().GetAbilityName().c_str(), userId, specifyTokenId);
 
-    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, false, specifyTokenId);
+    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, isPendingWantCaller, userId, false, specifyTokenId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -629,11 +629,13 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
 }
 
 int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, uint32_t callerTokenId)
+    const sptr<IRemoteObject> &callerToken, bool isPendingWantCaller,
+    int32_t userId, int requestCode, uint32_t callerTokenId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability with startOptions by trigger.");
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
-    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, callerTokenId);
+    return StartUIAbilityForOptionWrap(
+        want, startOptions, callerToken, isPendingWantCaller, userId, requestCode, callerTokenId);
 }
 
 int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -770,7 +772,7 @@ int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const s
             callerPkg.c_str(), targetPkg.c_str());
         AbilityUtil::AddAbilityJumpRuleToBms(callerPkg, targetPkg, GetUserId());
     }
-    int32_t ret = StartAbilityWrap(newWant, callerToken, requestCode, userId, true,
+    int32_t ret = StartAbilityWrap(newWant, callerToken, requestCode, false, userId, true,
         0, false, isImplicit);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -845,7 +847,7 @@ bool AbilityManagerService::StartAbilityInChain(StartAbilityParams &params, int 
 }
 
 int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, uint32_t specifyToken,
+    int requestCode, bool isPendingWantCaller, int32_t userId, bool isStartAsCaller, uint32_t specifyToken,
     bool isForegroundToRestartApp, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -862,7 +864,7 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
     }
 
     return StartAbilityInner(want, callerToken,
-        requestCode, userId, isStartAsCaller, specifyToken, isForegroundToRestartApp, isImplicit);
+        requestCode, isPendingWantCaller, userId, isStartAsCaller, specifyToken, isForegroundToRestartApp, isImplicit);
 }
 
 void AbilityManagerService::SetReserveInfo(const std::string &linkString)
@@ -975,7 +977,7 @@ int AbilityManagerService::CheckCallPermission(const Want& want, const AppExecFw
 }
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, uint32_t specifyTokenId,
+    int requestCode, bool isPendingWantCaller, int32_t userId, bool isStartAsCaller, uint32_t specifyTokenId,
     bool isForegroundToRestartApp, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1472,7 +1474,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability with startOptions.");
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
-    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode);
+    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, false, userId, requestCode);
 }
 
 int AbilityManagerService::ImplicitStartAbility(const Want &want, const StartOptions &startOptions,
@@ -1480,11 +1482,12 @@ int AbilityManagerService::ImplicitStartAbility(const Want &want, const StartOpt
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Implicit Start ability with startOptions.");
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
-    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, 0, true);
+    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, false, userId, requestCode, 0, true);
 }
 
 int AbilityManagerService::StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options,
-    sptr<IRemoteObject> callerToken, int32_t userId, int requestCode, uint32_t callerTokenId, bool isImplicit,
+    sptr<IRemoteObject> callerToken, bool isPendingWantCaller, int32_t userId,
+    int requestCode, uint32_t callerTokenId, bool isImplicit,
     bool isCallByShortcut)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1492,7 +1495,7 @@ int AbilityManagerService::StartUIAbilityForOptionWrap(const Want &want, const S
     if (ret != ERR_OK) {
         return ret;
     }
-    return StartAbilityForOptionWrap(want, options, callerToken, userId, requestCode, false,
+    return StartAbilityForOptionWrap(want, options, callerToken, isPendingWantCaller, userId, requestCode, false,
         callerTokenId, isImplicit, isCallByShortcut);
 }
 
@@ -1506,7 +1509,7 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOpt
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     AAFwk::Want newWant = want;
     UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
-    return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
+    return StartAbilityForOptionWrap(newWant, startOptions, callerToken, false, userId, requestCode, true);
 }
 
 int AbilityManagerService::StartAbilityForResultAsCaller(
@@ -1521,7 +1524,7 @@ int AbilityManagerService::StartAbilityForResultAsCaller(
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
     auto asCallerSourceToken = connectManager->GetUIExtensionSourceToken(callerToken);
     UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
-    return StartAbilityWrap(newWant, callerToken, requestCode, userId, true);
+    return StartAbilityWrap(newWant, callerToken, requestCode, false, userId, true);
 }
 
 int AbilityManagerService::StartAbilityForResultAsCaller(const Want &want, const StartOptions &startOptions,
@@ -1535,12 +1538,12 @@ int AbilityManagerService::StartAbilityForResultAsCaller(const Want &want, const
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
     auto asCallerSourceToken = connectManager->GetUIExtensionSourceToken(callerToken);
     UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
-    return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
+    return StartAbilityForOptionWrap(newWant, startOptions, callerToken, false, userId, requestCode, true);
 }
 
 int AbilityManagerService::StartAbilityForOptionWrap(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, bool isStartAsCaller,
-    uint32_t callerTokenId, bool isImplicit, bool isCallByShortcut)
+    const sptr<IRemoteObject> &callerToken, bool isPendingWantCaller, int32_t userId, int requestCode,
+    bool isStartAsCaller, uint32_t callerTokenId, bool isImplicit, bool isCallByShortcut)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     StartAbilityParams startParams(const_cast<Want &>(want));
@@ -1556,13 +1559,13 @@ int AbilityManagerService::StartAbilityForOptionWrap(const Want &want, const Sta
         return result;
     }
 
-    return StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode, isStartAsCaller,
-        callerTokenId, isImplicit, isCallByShortcut);
+    return StartAbilityForOptionInner(want, startOptions, callerToken, isPendingWantCaller, userId, requestCode,
+        isStartAsCaller, callerTokenId, isImplicit, isCallByShortcut);
 }
 
 int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, bool isStartAsCaller,
-    uint32_t specifyTokenId, bool isImplicit, bool isCallByShortcut)
+    const sptr<IRemoteObject> &callerToken, bool isPendingWantCaller, int32_t userId, int requestCode,
+    bool isStartAsCaller, uint32_t specifyTokenId, bool isImplicit, bool isCallByShortcut)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // prevent the app from dominating the screen
@@ -1955,7 +1958,7 @@ int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, const StartO
         return CHECK_PERMISSION_FAILED;
     }
     want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::JUMP_SCREEN_MODE);
-    return StartUIAbilityForOptionWrap(want, options, callerToken, userId, requestCode);
+    return StartUIAbilityForOptionWrap(want, options, callerToken, false, userId, requestCode);
 }
 
 int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
@@ -10178,7 +10181,7 @@ int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, i
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
-    int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
+    int32_t ret = StartAbilityWrap(want, nullptr, requestCode, false, userId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -10753,7 +10756,7 @@ int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "RestartApp, start ability without CheckCallAbilityPermission.");
     result = StartAbilityWrap(want, nullptr,
-        DEFAULT_INVAL_VALUE, DEFAULT_INVAL_VALUE, false, 0, isForegroundToRestartApp);
+        DEFAULT_INVAL_VALUE, false, DEFAULT_INVAL_VALUE, false, 0, isForegroundToRestartApp);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility error.");
         return result;
@@ -11085,7 +11088,7 @@ int32_t AbilityManagerService::StartShortcut(const Want &want, const StartOption
         return ERR_PERMISSION_DENIED;
     }
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
-    return StartUIAbilityForOptionWrap(want, startOptions, nullptr, DEFAULT_INVAL_VALUE, DEFAULT_INVAL_VALUE,
+    return StartUIAbilityForOptionWrap(want, startOptions, nullptr, false, DEFAULT_INVAL_VALUE, DEFAULT_INVAL_VALUE,
         0, false, true);
 }
 

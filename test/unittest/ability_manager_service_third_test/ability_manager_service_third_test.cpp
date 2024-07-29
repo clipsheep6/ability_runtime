@@ -1421,7 +1421,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityWithSpecifyTokenIdInner_001
     Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 0;
-    EXPECT_EQ(abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, USER_ID_U100, requestCode),
+    EXPECT_EQ(abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, USER_ID_U100, false, requestCode),
         ERR_INVALID_VALUE);
 }
 
@@ -1437,7 +1437,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityWithSpecifyTokenIdInner_002
     want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 0;
-    EXPECT_EQ(abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, USER_ID_U100, requestCode),
+    EXPECT_EQ(abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, callerToken, USER_ID_U100, false, requestCode),
         ERR_INVALID_CONTINUATION_FLAG);
 }
 
@@ -1720,7 +1720,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityWrap_001, TestSize.Level1)
     uint32_t specifyToken = 0;
     bool isForegroundToRestartApp = true;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityWrap(want, callerToken, requestCode, userId, isStartAsCaller,
+    auto result = abilityMs->StartAbilityWrap(want, callerToken, requestCode, false, userId, isStartAsCaller,
         specifyToken, isForegroundToRestartApp, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
@@ -1787,7 +1787,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartUIAbilityForOptionWrap_001, TestSi
     int requestCode = 0;
     uint32_t callerTokenId = 0;
     bool isImplicit = true;
-    auto result = abilityMs->StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode,
+    auto result = abilityMs->StartUIAbilityForOptionWrap(want, startOptions, callerToken, false, userId, requestCode,
         callerTokenId, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
@@ -1808,7 +1808,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityForOptionWrap_001, TestSize
     bool isStartAsCaller = true;
     uint32_t callerTokenId = 0;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode,
+    auto result = abilityMs->StartAbilityForOptionWrap(want, startOptions, callerToken, false, userId, requestCode,
         isStartAsCaller, callerTokenId, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
@@ -1829,7 +1829,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityForOptionInner_001, TestSiz
     bool isStartAsCaller = true;
     uint32_t specifyTokenId = 0;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
+    auto result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, false, userId, requestCode,
         isStartAsCaller, specifyTokenId, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }

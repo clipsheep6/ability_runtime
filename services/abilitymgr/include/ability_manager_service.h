@@ -151,6 +151,7 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         uint32_t specifyTokenId,
+        bool isPendingWantCaller,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE);
 
@@ -169,6 +170,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        bool isPendingWantCaller,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         uint32_t specifyTokenId = 0);
@@ -976,6 +978,7 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int requestCode,
+        bool isPendingWantCaller,
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         uint32_t specifyTokenId = 0,
@@ -986,6 +989,7 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int requestCode,
+        bool isPendingWantCaller,
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         uint32_t specifyTokenId = 0,
@@ -1010,6 +1014,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        bool isPendingWantCaller,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
@@ -1021,6 +1026,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        bool isPendingWantCaller,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
@@ -2210,7 +2216,7 @@ private:
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
-        int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false,
+        bool isPendingWantCaller, int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false,
         bool isCallByShortcut = false);
 
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,

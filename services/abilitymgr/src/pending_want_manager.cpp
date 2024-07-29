@@ -248,7 +248,7 @@ int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<Start
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
         if (!startOptions) {
             result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
-                want, callerToken, callerTokenId, requestCode, callerUid);
+                want, callerToken, callerTokenId, true, requestCode, callerUid);
         } else {
             TAG_LOGD(AAFwkTag::WANTAGENT, "StartOptions windowMode:%{public}d displayId:%{public}d \
                 withAnimation:%{public}d windowLeft:%{public}d windowTop:%{public}d windowWidth:%{public}d \
@@ -257,7 +257,7 @@ int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<Start
                 startOptions->GetWindowLeft(), startOptions->GetWindowTop(), startOptions->GetWindowWidth(),
                 startOptions->GetWindowHeight());
             result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
-                want, *startOptions, callerToken, requestCode, callerUid, callerTokenId);
+                want, *startOptions, callerToken, true, requestCode, callerUid, callerTokenId);
         }
 
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
