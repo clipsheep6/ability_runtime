@@ -11577,6 +11577,55 @@ ErrCode AbilityManagerService::ConvertToExplicitWant(Want& want)
     return retCode;
 }
 
+int32_t AbilityManagerService::CleanUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!IsCallerSceneBoard()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "only support sceneboard call.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
+    CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "user request ot clean session: %{public}d.", sessionInfo->persistentId);
+    auto abilityRecord = uiAbilityManager->GetUIAbilityRecordBySessionInfo(sessionInfo);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    int32_t errCode = uiAbilityManager->CleanUIAbility(abilityRecord);
+    ReportCleanSession(sessionInfo, abilityRecord, errCode);
+    return errCode;
+}
+
+void AbilityManagerService::ReportCleanSession(const sptr<SessionInfo> &sessionInfo,
+    const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t errCode)
+{
+    if (!sessionInfo || !abilityRecord) {
+        return;
+    }
+
+    const auto &abilityInfo = abilityRecord->GetAbilityInfo();
+    std::string abilityName = abilityInfo.name;
+    if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+        abilityName += std::to_string(sessionInfo->persistentId);
+    }
+    (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+        DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityName);
+
+    EventInfo eventInfo;
+    eventInfo.errCode = errCode;
+    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
+    SendAbilityEvent(EventName::CLOSE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    if (eventInfo.errCode != ERR_OK) {
+        SendAbilityEvent(EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+}
+
 void AbilityManagerService::SetAbilityRequestSessionInfo(AbilityRequest &abilityRequest, AppExecFwk::ExtensionAbilityType extensionType)
 {
     if (extensionType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {

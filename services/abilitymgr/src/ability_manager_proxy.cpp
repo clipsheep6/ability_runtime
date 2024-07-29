@@ -1268,7 +1268,7 @@ int AbilityManagerProxy::AbilityWindowConfigTransitionDone(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "saveData write failed.");
         return INNER_ERR;
     }
-    
+
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_WINDOW_CONFIG_TRANSITION_DONE, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -5413,6 +5413,36 @@ void AbilityManagerProxy::NotifyFrozenProcessByRSS(const std::vector<int32_t> &p
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerProxy: SendRequest err %{public}d", error);
     }
+}
+
+int AbilityManagerProxy::CleanUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write flag or sessionInfo  failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write flag failed.");
+            return INNER_ERR;
+        }
+    }
+
+    error = SendRequest(AbilityManagerInterfaceCode::CLEAN_UI_ABILITY_BY_SCB, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "cleanUIAbility failed, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::PreStartMission(const std::string& bundleName, const std::string& moduleName,

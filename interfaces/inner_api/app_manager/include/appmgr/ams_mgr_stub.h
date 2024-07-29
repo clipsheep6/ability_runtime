@@ -94,6 +94,7 @@ private:
     int32_t OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
     int32_t HandleBlockProcessCacheByPids(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleCleanAbilityByUserRequest(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsKilledForUpgradeWeb(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsProcessContainsOnlyUIAbility(MessageParcel &data, MessageParcel &reply);
     DISALLOW_COPY_AND_MOVE(AmsMgrStub);

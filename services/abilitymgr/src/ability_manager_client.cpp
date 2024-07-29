@@ -1938,6 +1938,19 @@ void AbilityManagerClient::NotifyFrozenProcessByRSS(const std::vector<int32_t> &
     return abms->NotifyFrozenProcessByRSS(pidList, uid);
 }
 
+ErrCode AbilityManagerClient::CleanUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (sessionInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
+    return abms->CleanUIAbilityBySCB(sessionInfo);
+}
+
 ErrCode AbilityManagerClient::PreStartMission(const std::string& bundleName, const std::string& moduleName,
     const std::string& abilityName, const std::string& startTime)
 {

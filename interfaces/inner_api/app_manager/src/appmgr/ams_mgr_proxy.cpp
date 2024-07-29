@@ -1227,6 +1227,28 @@ void AmsMgrProxy::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
     TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
+bool AmsMgrProxy::CleanAbilityByUserRequest(const sptr<IRemoteObject> &token)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write interface token");
+        return false;
+    }
+    if (!data.WriteRemoteObject(token.GetRefPtr())) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return false;
+    }
+
+    int32_t ret = SendTransactCmd(
+        static_cast<uint32_t>(IAmsMgr::Message::CLEAN_UIABILITY_BY_USER_REQUEST), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+    return reply.ReadBool();
+}
+
 bool AmsMgrProxy::IsKilledForUpgradeWeb(const std::string &bundleName)
 {
     MessageParcel data;
