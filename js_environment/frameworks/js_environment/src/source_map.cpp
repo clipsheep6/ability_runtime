@@ -266,7 +266,6 @@ void SourceMap::ExtractSourceMapData(const std::string& allmappings, std::shared
         std::vector<int32_t> ans;
 
         if (!VlqRevCode(mapping, ans)) {
-            TAG_LOGE(AAFwkTag::JSENV, "decode code fail");
             return;
         }
         if (ans.empty()) {
@@ -525,7 +524,7 @@ bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, int& line, int
         if (iter != sourceMaps_.end()) {
             return GetLineAndColumnNumbers(line, column, *(iter->second), url);
         }
-        TAG_LOGE(AAFwkTag::JSENV, "TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
+        TAG_LOGE(AAFwkTag::JSENV, "stageMode sourceMaps find fail");
         return false;
     }
     return false;

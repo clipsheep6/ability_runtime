@@ -23,27 +23,27 @@ namespace AAFwk {
 void QuickFixLoadCallback::OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     if (systemAbilityId != QUICK_FIX_MGR_SERVICE_ID) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::QUICKFIX, "System ability id %{public}d mismatch", systemAbilityId);
         return;
     }
 
     if (remoteObject == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Object is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Object is nullptr");
         return;
     }
 
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Load system ability %{public}d succeed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Load system ability %{public}d succeed", systemAbilityId);
     QuickFixManagerClient::GetInstance()->OnLoadSystemAbilitySuccess(remoteObject);
 }
 
 void QuickFixLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     if (systemAbilityId != QUICK_FIX_MGR_SERVICE_ID) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::QUICKFIX, "System ability id %{public}d mismatch", systemAbilityId);
         return;
     }
 
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Load system ability %{public}d failed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Load system ability %{public}d failed", systemAbilityId);
     QuickFixManagerClient::GetInstance()->OnLoadSystemAbilityFail();
 }
 }  // namespace AAFwk

@@ -39,9 +39,7 @@ static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILE
 }
 
 JsEnvironment::JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl) : impl_(std::move(impl))
-{
-    TAG_LOGD(AAFwkTag::JSENV, "called");
-}
+{}
 
 JsEnvironment::~JsEnvironment()
 {
@@ -60,10 +58,10 @@ JsEnvironment::~JsEnvironment()
 
 bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* jsEngine)
 {
-    TAG_LOGD(AAFwkTag::JSENV, "Js environment initialize.");
+    TAG_LOGD(AAFwkTag::JSENV, "Js environment initialize");
     vm_ = panda::JSNApi::CreateJSVM(pandaOption);
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Create vm failed.");
+        TAG_LOGE(AAFwkTag::JSENV, "Create vm failed");
         return false;
     }
 
@@ -74,7 +72,7 @@ bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* js
 void JsEnvironment::InitTimerModule()
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine");
         return;
     }
 
@@ -86,7 +84,7 @@ void JsEnvironment::InitTimerModule()
 void JsEnvironment::InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo)
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine");
         return;
     }
 
@@ -127,7 +125,7 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
 {
     sourceMapOperator_ = operatorObj;
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return;
     }
 
@@ -139,7 +137,6 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
             return sourceMapOperator_->TranslateBySourceMap(rawStack);
         } else {
-            TAG_LOGE(AAFwkTag::JSENV, "SourceMap is not initialized yet");
             return NOT_INIT + rawStack;
         }
     };
@@ -149,7 +146,6 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
             return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
         }
-        TAG_LOGE(AAFwkTag::JSENV, "SourceMap is not initialized yet");
         return false;
     };
     engine_->RegisterSourceMapTranslateCallback(translateUrlBySourceMapFunc);
@@ -158,7 +154,7 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
 void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo)
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return;
     }
 
@@ -169,7 +165,7 @@ void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExcept
 bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return false;
     }
 
@@ -183,14 +179,14 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 bool JsEnvironment::StartDebugger(
     std::string& option, uint32_t socketFd, bool isDebugApp)
 {
-    TAG_LOGD(AAFwkTag::JSENV, "call.");
+    TAG_LOGD(AAFwkTag::JSENV, "call");
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return false;
     }
     int32_t identifierId = ParseHdcRegisterOption(option);
     if (identifierId == -1) {
-        TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results.");
+        TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results");
         return false;
     }
     debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
@@ -200,7 +196,7 @@ bool JsEnvironment::StartDebugger(
 void JsEnvironment::StopDebugger()
 {
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return;
     }
 
@@ -211,7 +207,7 @@ void JsEnvironment::StopDebugger(std::string& option)
 {
     int32_t identifierId = ParseHdcRegisterOption(option);
     if (identifierId == -1) {
-        TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results.");
+        TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results");
         return;
     }
     panda::JSNApi::StopDebugger(identifierId);
@@ -220,7 +216,7 @@ void JsEnvironment::StopDebugger(std::string& option)
 void JsEnvironment::InitConsoleModule()
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return;
     }
 
@@ -232,7 +228,7 @@ void JsEnvironment::InitConsoleModule()
 bool JsEnvironment::InitLoop(bool isStage)
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return false;
     }
 
@@ -245,7 +241,7 @@ bool JsEnvironment::InitLoop(bool isStage)
 void JsEnvironment::DeInitLoop()
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return;
     }
 
@@ -257,7 +253,7 @@ void JsEnvironment::DeInitLoop()
 bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle)
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine");
         return false;
     }
 
@@ -268,14 +264,14 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
     int32_t interval, int tid, bool isDebugApp)
 {
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return;
     }
 
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
-            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid.");
+            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid");
             return;
         }
         jsEnv->PostTask(task, "JsEnvironment::StartProfiler");
@@ -292,7 +288,7 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
 void JsEnvironment::DestroyHeapProfiler()
 {
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return;
     }
     panda::DFXJSNApi::DestroyHeapProfiler(vm_);
@@ -301,7 +297,7 @@ void JsEnvironment::DestroyHeapProfiler()
 void JsEnvironment::GetHeapPrepare()
 {
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return;
     }
     panda::DFXJSNApi::GetHeapPrepare(vm_);
@@ -310,7 +306,7 @@ void JsEnvironment::GetHeapPrepare()
 void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate)
 {
     if (engine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine");
         return;
     }
 
@@ -326,7 +322,7 @@ void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
 void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
 {
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return;
     }
 
@@ -343,7 +339,7 @@ DebuggerPostTask JsEnvironment::GetDebuggerPostTask()
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
-            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid.");
+            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid");
             return;
         }
         jsEnv->PostTask(task, "JsEnvironment:GetDebuggerPostTask");
@@ -355,14 +351,14 @@ void JsEnvironment::NotifyDebugMode(
     int tid, const char* libraryPath, uint32_t instanceId, bool debug, bool debugMode)
 {
     if (vm_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm");
         return;
     }
     panda::JSNApi::DebugOption debugOption = {libraryPath, debug ? debugMode : false};
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
-            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid.");
+            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid");
             return;
         }
         jsEnv->PostTask(task, "JsEnvironment:NotifyDebugMode");
@@ -372,7 +368,7 @@ void JsEnvironment::NotifyDebugMode(
 
 int32_t JsEnvironment::ParseHdcRegisterOption(std::string& option)
 {
-    TAG_LOGD(AAFwkTag::JSENV, "Start.");
+    TAG_LOGD(AAFwkTag::JSENV, "Start");
     std::size_t pos = option.find_first_of(":");
     if (pos == std::string::npos) {
         return -1;

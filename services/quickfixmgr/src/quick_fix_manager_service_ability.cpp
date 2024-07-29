@@ -24,9 +24,7 @@ REGISTER_SYSTEM_ABILITY_BY_ID(QuickFixManagerServiceAbility, QUICK_FIX_MGR_SERVI
 
 QuickFixManagerServiceAbility::QuickFixManagerServiceAbility(const int32_t systemAbilityId, bool runOnCreate)
     : SystemAbility(systemAbilityId, runOnCreate), service_(nullptr)
-{
-    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
-}
+{}
 
 QuickFixManagerServiceAbility::~QuickFixManagerServiceAbility()
 {
@@ -37,32 +35,29 @@ void QuickFixManagerServiceAbility::OnStart()
 {
     TAG_LOGI(AAFwkTag::QUICKFIX, "called");
     if (service_ != nullptr) {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "Quick fix manager service has started.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "Quick fix manager service has started");
         return;
     }
 
     service_ = QuickFixManagerService::GetInstance();
     if (service_ == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "instance is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "instance is nullptr");
         return;
     }
 
     if (!service_->Init()) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "init failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "init failed");
         return;
     }
 
     if (!Publish(service_)) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Publish failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Publish failed");
         return;
     }
-
-    TAG_LOGI(AAFwkTag::QUICKFIX, "Quick fix manager service start succeed.");
 }
 
 void QuickFixManagerServiceAbility::OnStop()
 {
-    TAG_LOGI(AAFwkTag::QUICKFIX, "called");
     service_ = nullptr;
 }
 }  // namespace AAFwk

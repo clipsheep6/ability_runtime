@@ -78,14 +78,14 @@ private:
     {
         TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
 
         std::string bundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], bundleName)) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleName is invalid.");
+            TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleName is invalid");
             ThrowInvalidParamError(env, "Parameter error: The bundleName is invalid, must be a string.");
             return CreateJsUndefined(env);
         }
@@ -105,7 +105,6 @@ private:
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JsQuickFixManager::OnGetApplyedQuickFixInfo", env,
             CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function finished.");
         return result;
     }
 
@@ -113,14 +112,14 @@ private:
     {
         TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
 
         std::vector<std::string> hapQuickFixFiles;
         if (!OHOS::AppExecFwk::UnwrapArrayStringFromJS(env, info.argv[0], hapQuickFixFiles)) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "Hap quick fix files is invalid.");
+            TAG_LOGE(AAFwkTag::QUICKFIX, "Hap quick fix files is invalid");
             ThrowInvalidParamError(env, "Parameter error: Hap quick fix files is invalid, must be a Array<string>.");
             return CreateJsUndefined(env);
         }
@@ -139,7 +138,6 @@ private:
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JsQuickFixManager::OnApplyQuickFix", env,
             CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function finished.");
         return result;
     }
 
@@ -147,14 +145,14 @@ private:
     {
         TAG_LOGD(AAFwkTag::QUICKFIX, "called");
         if (info.argc == ARGC_ZERO) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
 
         std::string bundleName;
         if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], bundleName)) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleName is invalid.");
+            TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleName is invalid");
             ThrowInvalidParamError(env, "Parameter error: The bundleName is invalid, must be a string.");
             return CreateJsUndefined(env);
         }
@@ -164,12 +162,12 @@ private:
             auto quickFixMgr = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance();
             if (quickFixMgr == nullptr) {
                 *retval = AAFwk::ERR_QUICKFIX_INTERNAL_ERROR;
-                TAG_LOGE(AAFwkTag::QUICKFIX, "Get quick fix mgr is nullptr.");
+                TAG_LOGE(AAFwkTag::QUICKFIX, "mgr is nullptr");
                 return;
             }
 
             *retval = quickFixMgr->RevokeQuickFix(bundleName);
-            TAG_LOGD(AAFwkTag::QUICKFIX, "Revoke quick fix execute retval is {%{public}d}.", *retval);
+            TAG_LOGD(AAFwkTag::QUICKFIX, "Revoke quick fix execute retval is {%{public}d}", *retval);
         };
 
         auto complete = [retval = errCode](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -179,7 +177,7 @@ private:
                 task.Reject(env, CreateJsErrorByErrorCode(env, *retval));
                 return;
             }
-            TAG_LOGD(AAFwkTag::QUICKFIX, "Revoke quick fix complete called ok.");
+            TAG_LOGD(AAFwkTag::QUICKFIX, "Revoke quick fix complete called ok");
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
 
@@ -187,7 +185,7 @@ private:
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JsQuickFixManager::OnRevokeQuickFix", env,
             CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
-        TAG_LOGD(AAFwkTag::QUICKFIX, "Function finished.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "Function finished");
         return result;
     }
 };
@@ -196,7 +194,7 @@ napi_value CreateJsQuickFixManager(napi_env env, napi_value exportObj)
 {
     TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Input parameter is invalid.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Input parameter is invalid");
         return nullptr;
     }
 
