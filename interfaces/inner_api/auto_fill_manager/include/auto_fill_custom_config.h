@@ -19,6 +19,8 @@
 #include <optional>
 #include <string>
 
+#include "view_data.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 namespace AutoFill {
@@ -79,6 +81,34 @@ struct AutoFillCustomConfig {
     std::optional<int32_t> backgroundColor;
     std::optional<int32_t> maskColor;
     std::function<void(const std::string&)> onStateChange;
+};
+
+enum class AutoFillCommand {
+    NONE,
+    FILL,
+    SAVE,
+    UPDATE,
+    RESIZE,
+    INPUT,
+    RELOAD_IN_MODAL
+};
+
+/**
+ * @struct AutoFillRequest
+ * AutoFillRequest is used to define the auto fill request parameter structure.
+ */
+struct AutoFillRequest {
+    AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
+    AutoFillCommand autoFillCommand = AutoFillCommand::NONE;
+    AbilityBase::ViewData viewData;
+    AutoFillCustomConfig config;
+    std::function<void()> doAfterAsyncModalBinding;
+    std::function<void()> onUIExtensionProxyReady;
+};
+
+struct AutoFillResult {
+    bool isPopup = false;
+    uint32_t autoFillSessionId = 0;
 };
 } // AutoFill
 } // namespace AbilityRuntime

@@ -56,9 +56,7 @@ public:
     void SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType);
     AutoFill::AutoFillWindowType GetWindowType() const;
     void SetExtensionType(bool isSmartAutoFill);
-    void SetAutoFillType(const AbilityBase::AutoFillType &autoFillType);
-    void SetViewData(const AbilityBase::ViewData &viewData);
-    void SetAutoFillRequestConfig(const AutoFill::AutoFillCustomConfig &config);
+    void SetAutoFillRequest(const AutoFill::AutoFillRequest &request);
     uint32_t GetCallbackId() const;
     void HandleTimeOut();
     void UpdateCustomPopupUIExtension(const AbilityBase::ViewData &viewData);
@@ -82,14 +80,12 @@ private:
     std::atomic<int32_t> instanceId_ {-1};
     uint32_t callbackId_ = 0;
     AutoFill::AutoFillWindowType autoFillWindowType_ = AutoFill::AutoFillWindowType::MODAL_WINDOW;
-    AbilityBase::ViewData viewData_;
-    AutoFill::AutoFillCustomConfig autoFillCustomConfig_;
+    AutoFill::AutoFillRequest request_;
     bool isReloadInModal_ = false;
     bool isSmartAutoFill_ = false;
     bool isOnResult_ = false;
     AAFwk::Want want_;
     int32_t errCode_ = 0;
-    AbilityBase::AutoFillType autoFillType_ = AbilityBase::AutoFillType::UNSPECIFIED;
     std::mutex proxyMutex_;
     std::shared_ptr<Ace::ModalUIExtensionProxy> modalUIExtensionProxy_;
     std::mutex closeMutex_;

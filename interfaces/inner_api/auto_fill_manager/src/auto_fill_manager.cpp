@@ -125,11 +125,9 @@ int32_t AutoFillManager::HandleRequestExecuteInner(Ace::UIContent *uiContent, co
     result.autoFillSessionId = callbackId;
     extensionCallback->SetInstanceId(uiContent->GetInstanceId());
     extensionCallback->SetSessionId(sessionId);
-    extensionCallback->SetViewData(request.viewData);
     extensionCallback->SetWindowType(autoFillWindowType);
     extensionCallback->SetExtensionType(isSmartAutoFill);
-    extensionCallback->SetAutoFillType(request.autoFillType);
-    extensionCallback->SetAutoFillRequestConfig(request.config);
+    extensionCallback->SetAutoFillRequest(request);
     TAG_LOGI(AAFwkTag::AUTOFILLMGR, "callbackId: %{public}u.", callbackId);
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     extensionCallbacks_.emplace(callbackId, extensionCallback);

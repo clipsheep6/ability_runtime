@@ -132,8 +132,8 @@ int32_t AutoFillExtensionCallback::ReloadInModal(const AAFwk::WantParams &wantPa
     want.SetParam(WANT_PARAMS_CUSTOM_DATA_KEY, wantParams.GetStringParam(WANT_PARAMS_CUSTOM_DATA_KEY));
     isSmartAutoFill_ ? want.SetParam(WANT_PARAMS_EXTENSION_TYPE_KEY, std::string(WANT_PARAMS_SMART_EXTENSION_TYPE)) :
         want.SetParam(WANT_PARAMS_EXTENSION_TYPE_KEY, std::string(WANT_PARAMS_EXTENSION_TYPE));
-    want.SetParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, static_cast<int32_t>(autoFillType_));
-    want.SetParam(WANT_PARAMS_VIEW_DATA_KEY, viewData_.ToJsonString());
+    want.SetParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, static_cast<int32_t>(request_.autoFillType));
+    want.SetParam(WANT_PARAMS_VIEW_DATA_KEY, request_.viewData.ToJsonString());
     want.SetParam(WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY, false);
     Ace::ModalUIExtensionCallbacks callback;
     AutoFillManager::GetInstance().BindModalUIExtensionCallback(shared_from_this(), callback);
@@ -169,7 +169,7 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
 void AutoFillExtensionCallback::UpdateCustomPopupConfig(const AAFwk::WantParams &wantParams)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
-    AutoFill::AutoFillCustomConfig autoFillCustomConfig = autoFillCustomConfig_;
+    AutoFill::AutoFillCustomConfig autoFillCustomConfig = request_.config;
     if (wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_WIDTH) &&
         wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT)) {
         AutoFill::PopupSize popupSize;
@@ -205,6 +205,9 @@ void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUI
         return;
     }
     SetModalUIExtensionProxy(modalUIExtensionProxy);
+    if (request_.onUIExtensionProxyReady) {
+        request_.onUIExtensionProxyReady();
+    }
 }
 
 void AutoFillExtensionCallback::onDestroy()
@@ -271,24 +274,14 @@ AutoFill::AutoFillWindowType AutoFillExtensionCallback::GetWindowType() const
     return autoFillWindowType_;
 }
 
-void AutoFillExtensionCallback::SetViewData(const AbilityBase::ViewData &viewData)
+void AutoFillExtensionCallback::SetAutoFillRequest(const AutoFill::AutoFillRequest &request)
 {
-    viewData_ = viewData;
-}
-
-void AutoFillExtensionCallback::SetAutoFillRequestConfig(const AutoFill::AutoFillCustomConfig &config)
-{
-    autoFillCustomConfig_ = config;
+    request_ = request;
 }
 
 void AutoFillExtensionCallback::SetExtensionType(bool isSmartAutoFill)
 {
     isSmartAutoFill_ = isSmartAutoFill;
-}
-
-void AutoFillExtensionCallback::SetAutoFillType(const AbilityBase::AutoFillType &autoFillType)
-{
-    autoFillType_ = autoFillType;
 }
 
 void AutoFillExtensionCallback::HandleTimeOut()
