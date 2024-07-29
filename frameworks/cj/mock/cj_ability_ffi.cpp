@@ -39,6 +39,7 @@ int FFIGetExitCode();
 int FFIGetStdResult();
 int FFIDump();
 int FFIAbilityDelegatorApplicationContext();
+int FFIAbilityDelegatorFinishTest();
 
 struct AbilityContextBroker {
     int64_t isAbilityContextExisted = 1;

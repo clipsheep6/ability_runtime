@@ -63,6 +63,11 @@ std::string CJShellCmdResult::Dump()
 {
     return shellCmdResultr_->Dump();
 }
+
+void CJAbilityDelegator::FinishTest(const char* msg, int64_t code)
+{
+    delegator_->FinishUserTest(msg, code);
+}
  
 extern "C" {
 int64_t FFIAbilityDelegatorRegistryGetAbilityDelegator()
@@ -143,6 +148,15 @@ int32_t FFIAbilityDelegatorApplicationContext(int64_t id)
         return INVALID_CODE;
     }
     return appContext->GetID();
+}
+
+void FFIAbilityDelegatorFinishTest(int64_t id, const char* msg, int64_t code)
+{
+    auto cjDelegator = FFI::FFIData::GetData<CJAbilityDelegator>(id);
+    if (cjDelegator == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "cj delegator is null.");
+    }
+    cjDelegator->FinishTest(msg, code);
 }
 }
 }

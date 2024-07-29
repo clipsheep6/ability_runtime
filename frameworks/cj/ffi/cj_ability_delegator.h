@@ -34,6 +34,7 @@ public:
     int32_t StartAbility(const AAFwk::Want& want);
     std::shared_ptr<AppExecFwk::ShellCmdResult> ExecuteShellCommand(const char* cmd, int64_t timeoutSec);
     std::shared_ptr<AbilityRuntime::ApplicationContext> GetAppContext();
+    void FinishTest(const char* msg, int64_t code);
  
 private:
     std::shared_ptr<AppExecFwk::AbilityDelegator> delegator_;
@@ -58,6 +59,7 @@ CJ_EXPORT int32_t FFIGetExitCode(int64_t id);
 CJ_EXPORT const char* FFIGetStdResult(int64_t id);
 CJ_EXPORT const char* FFIDump(int64_t id);
 CJ_EXPORT int32_t FFIAbilityDelegatorApplicationContext(int64_t id);
+CJ_EXPORT void FFIAbilityDelegatorFinishTest(int64_t id, const char* msg, int64_t code);
 };
 }
 }
