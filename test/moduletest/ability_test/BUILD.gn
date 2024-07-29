@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
@@ -347,7 +348,7 @@ group("moduletest") {
 
   deps = []
 
-  if (is_phone_product) {
+  if (is_phone_product && !use_libfuzzer) {
     deps += [
       ":ability_conetxt_test",
       ":ability_moduletest",
