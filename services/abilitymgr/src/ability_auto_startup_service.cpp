@@ -130,8 +130,8 @@ int32_t AbilityAutoStartupService::SetApplicationAutoStartup(const AutoStartupIn
 
     AutoStartupInfo fullInfo(info);
     fullInfo.abilityTypeName = abilityTypeName;
-    fullInfo.accessTokenId = accessTokenId;
     fullInfo.userId = userId;
+    fullInfo.accessTokenId = accessTokenId;
 
     return InnerSetApplicationAutoStartup(fullInfo);
 }
@@ -614,7 +614,7 @@ int32_t AbilityAutoStartupService::SetApplicationAutoStartupByEDM(const AutoStar
     int32_t userId;
     std::string typeName;
     std::string accessTokenId;
-    
+
     errorCode = GetAbilityInfo(info, typeName, accessTokenId, userId);
     if (errorCode != ERR_OK) {
         return errorCode;

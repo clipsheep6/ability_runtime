@@ -429,8 +429,8 @@ void FreeInstallManager::StartAbilityByConvertedWant(FreeInstallInfo &info, cons
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
     auto url = info.want.GetUriString();
     int32_t recordId = GetRecordIdByToken(info.callerToken);
-    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinishedByUrl(recordId, startTime,
-        url, result);
+    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinishedByUrl(recordId,
+        startTime, url, result);
 }
 
 void FreeInstallManager::StartAbilityByOriginalWant(FreeInstallInfo &info, const std::string &startTime)
@@ -449,8 +449,8 @@ void FreeInstallManager::StartAbilityByOriginalWant(FreeInstallInfo &info, const
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
     auto url = info.want.GetUriString();
     int32_t recordId = GetRecordIdByToken(info.callerToken);
-    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinishedByUrl(recordId, startTime,
-        url, result);
+    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinishedByUrl(recordId,
+        startTime, url, result);
 }
 
 int32_t FreeInstallManager::UpdateElementName(Want &want, int32_t userId) const
@@ -627,6 +627,45 @@ void FreeInstallManager::RemoveFreeInstallInfo(const std::string &bundleName, co
     }
 }
 
+int32_t FreeInstallManager::GetRecordIdByToken(const sptr<IRemoteObject> &callerToken)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    int recordId = -1;
+    if (abilityRecord != nullptr) {
+        recordId = abilityRecord->GetRecordId();
+    }
+    return recordId;
+}
+
+bool FreeInstallManager::VerifyStartFreeInstallPermission(const sptr<IRemoteObject> &callerToken)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall || IsTopAbility(callerToken)) {
+        return true;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
+        return true;
+    }
+
+    return false;
+}
+
+int FreeInstallManager::SetAppRunningState(Want &want)
+{
+    auto appMgr = AppMgrUtil::GetAppMgr();
+    if (appMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "appMgr is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    bool isAppRunning = appMgr->GetAppRunningStateByBundleName(want.GetElement().GetBundleName());
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "isAppRunning=%{public}d.", static_cast<int>(isAppRunning));
+    want.SetParam(KEY_IS_APP_RUNNING, isAppRunning);
+    return ERR_OK;
+}
+
 bool FreeInstallManager::GetFreeInstallTaskInfo(const std::string& bundleName, const std::string& abilityName,
     const std::string& startTime, FreeInstallInfo& taskInfo)
 {
@@ -699,45 +738,6 @@ void FreeInstallManager::SetFreeInstallTaskSessionId(const std::string& bundleNa
         }
         it++;
     }
-}
-
-int FreeInstallManager::SetAppRunningState(Want &want)
-{
-    auto appMgr = AppMgrUtil::GetAppMgr();
-    if (appMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::FREE_INSTALL, "appMgr is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    bool isAppRunning = appMgr->GetAppRunningStateByBundleName(want.GetElement().GetBundleName());
-    TAG_LOGI(AAFwkTag::FREE_INSTALL, "isAppRunning=%{public}d.", static_cast<int>(isAppRunning));
-    want.SetParam(KEY_IS_APP_RUNNING, isAppRunning);
-    return ERR_OK;
-}
-
-bool FreeInstallManager::VerifyStartFreeInstallPermission(const sptr<IRemoteObject> &callerToken)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall || IsTopAbility(callerToken)) {
-        return true;
-    }
-
-    if (AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
-        return true;
-    }
-
-    return false;
-}
-
-int32_t FreeInstallManager::GetRecordIdByToken(const sptr<IRemoteObject> &callerToken)
-{
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    int recordId = -1;
-    if (abilityRecord != nullptr) {
-        recordId = abilityRecord->GetRecordId();
-    }
-    return recordId;
 }
 
 void FreeInstallManager::NotifyInsightIntentFreeInstallResult(const Want &want, int resultCode)

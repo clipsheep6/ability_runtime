@@ -43,10 +43,10 @@ struct FreeInstallInfo {
     bool isPreStartMissionCalled = false;
     bool isStartUIAbilityBySCBCalled = false;
     uint32_t specifyTokenId = 0;
-    bool isOpenAtomicServiceShortUrl = false;
-    std::shared_ptr<Want> originalWant = nullptr;
     bool isFreeInstallFinished = false;
     int resultCode = 0;
+    bool isOpenAtomicServiceShortUrl = false;
+    std::shared_ptr<Want> originalWant = nullptr;
 };
 
 /**

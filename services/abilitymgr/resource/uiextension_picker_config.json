@@ -9,16 +9,16 @@
             "typePicker": "sysPicker/photoPicker"
         },
         {
-            "type": "cameraPicker",
-            "typePicker": "sysPicker/camera"
-        },
-        {
             "type": "navigation",
             "typePicker": "sysPicker/navigation"
         },
         {
             "type": "finance",
             "typePicker": "sysPicker/appSelector"
+        },
+        {
+            "type": "cameraPicker",
+            "typePicker": "sysPicker/camera"
         },
         {
             "type": "filePicker",

@@ -101,7 +101,7 @@ void UriUtils::FilterUriWithPermissionDms(Want &want, uint32_t tokenId)
     auto checkResult = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().CheckUriAuthorization(
         uriVec, want.GetFlags(), tokenId));
     std::vector<std::string> validUriVec;
-    for (auto i = 0; i < checkResult.size(); i++) {
+    for (size_t i = 0; i < checkResult.size(); i++) {
         if (checkResult[i]) {
             validUriVec.emplace_back(uriVec[i]);
         }

@@ -300,8 +300,6 @@ public:
 
     void RemoveLauncherDeathRecipient();
 
-    std::shared_ptr<AAFwk::AbilityRecord> GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token);
-
     /**
      * @brief Get ui extension session info
      *
@@ -315,6 +313,8 @@ public:
     void CloseAssertDialog(const std::string &assertSessionId);
 
     void SignRestartAppFlag(const std::string &bundleName);
+
+    std::shared_ptr<AAFwk::AbilityRecord> GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token);
 
     void DeleteInvalidServiceRecord(const std::string &bundleName);
 

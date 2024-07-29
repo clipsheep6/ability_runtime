@@ -51,7 +51,7 @@ public:
 private:
     InterceptorMap GetInterceptorMapCopy();
 private:
-    std::mutex interceptorMapLock_;
+    std::recursive_mutex interceptorMapLock_;
     std::unordered_map<std::string, std::shared_ptr<IAbilityInterceptor>> interceptorMap_;
 };
 } // namespace AAFwk
