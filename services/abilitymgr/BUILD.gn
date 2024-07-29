@@ -111,6 +111,7 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection",
   ]
   deps = [
+    ":wantagent_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
@@ -227,6 +228,55 @@ ohos_shared_library("abilityms") {
   version_script = "libabilityms.map"
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk_indirect" ]
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("wantagent_manager") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+  include_dirs = [
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+  ]
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
+    "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+
+  public_external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+  ]
+
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }
 

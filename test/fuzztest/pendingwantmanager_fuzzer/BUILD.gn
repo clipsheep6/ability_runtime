@@ -50,6 +50,7 @@ ohos_fuzztest("PendingWantManagerFuzzTest") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/abilitymgr:mission_list",
+    "${ability_runtime_services_path}/abilitymgr:wantagent_manager",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

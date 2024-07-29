@@ -49,6 +49,7 @@ ohos_fuzztest("AbilityManagerServiceSecondFuzzTest") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:wantagent_manager",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

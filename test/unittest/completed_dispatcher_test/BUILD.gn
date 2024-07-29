@@ -30,6 +30,7 @@ ohos_unittest("completed_dispatcher_test") {
   }
   deps = [
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:wantagent_manager",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

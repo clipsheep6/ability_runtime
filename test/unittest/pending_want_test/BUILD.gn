@@ -39,6 +39,7 @@ ohos_unittest("pending_want_test") {
   deps = [
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:wantagent_manager",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

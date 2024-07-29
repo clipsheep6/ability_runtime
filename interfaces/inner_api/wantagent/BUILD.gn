@@ -50,12 +50,6 @@ ohos_shared_library("wantagent_innerkits") {
   ]
 
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "src/completed_dispatcher.cpp",
     "src/pending_want.cpp",
     "src/trigger_info.cpp",
@@ -71,6 +65,7 @@ ohos_shared_library("wantagent_innerkits") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+    "${ability_runtime_services_path}/abilitymgr:wantagent_manager",
   ]
 
   external_deps = [

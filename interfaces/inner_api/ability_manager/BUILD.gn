@@ -92,18 +92,12 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/system_ability_token_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_ability_connect_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_host_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_session_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_callback_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/window_config.cpp",
     "src/status_bar_delegate/status_bar_delegate_proxy.cpp",
     "src/status_bar_delegate/status_bar_delegate_stub.cpp",
@@ -132,6 +126,7 @@ ohos_shared_library("ability_manager") {
     ":mission_info",
     ":process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/abilitymgr:wantagent_manager",
   ]
 
   external_deps = [
