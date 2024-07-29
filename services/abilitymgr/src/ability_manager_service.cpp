@@ -266,12 +266,12 @@ std::shared_ptr<AbilityManagerService> AbilityManagerService::GetPubInstance()
 void AbilityManagerService::OnStart()
 {
     if (state_ == ServiceRunningState::STATE_RUNNING) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service has already started.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "already started.");
         return;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service starting.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "starting.");
     if (!Init()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to init ability manager service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to init");
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
@@ -279,12 +279,12 @@ void AbilityManagerService::OnStart()
      * so it can't affect the TDD test program */
     instance_ = DelayedSingleton<AbilityManagerService>::GetInstance().get();
     if (instance_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability manager service enter OnStart, but instance_ is nullptr!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "enter OnStart, but instance_ is nullptr!");
         return;
     }
     bool ret = Publish(instance_);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Publish ability manager service failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Publish failed!");
         return;
     }
 
@@ -295,7 +295,7 @@ void AbilityManagerService::OnStart()
 #ifdef SUPPORT_SCREEN
     AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
 #endif
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service start success.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start success.");
 }
 
 bool AbilityManagerService::Init()
@@ -310,7 +310,7 @@ bool AbilityManagerService::Init()
     userController_ = std::make_shared<UserController>();
     userController_->Init();
     AmsConfigurationParameter::GetInstance().Parse();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service config parse");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "config parse");
     subManagersHelper_ = std::make_shared<SubManagersHelper>(taskHandler_, eventHandler_);
     subManagersHelper_->InitSubManagers(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
@@ -343,7 +343,7 @@ bool AbilityManagerService::Init()
 void AbilityManagerService::InitDeepLinkReserve()
 {
     if (!DeepLinkReserveConfig::GetInstance().LoadConfiguration()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "InitDeepLinkReserve failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed.");
     }
 }
 
@@ -369,7 +369,7 @@ void AbilityManagerService::InitInterceptor()
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
     if (isAppJumpEnabled) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "add AbilityJumpInterceptor to Executer");
         interceptorExecuter_->AddInterceptor("AbilityJump", std::make_shared<AbilityJumpInterceptor>());
     }
 }
@@ -528,13 +528,13 @@ int32_t AbilityManagerService::StartAbilityByFreeInstall(const Want &want, sptr<
     EventInfo eventInfo = BuildEventInfo(want, userId);
     SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with continuation flags is not allowed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continuation flags is not allowed!");
         eventInfo.errCode = ERR_INVALID_VALUE;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CONTINUATION_FLAG;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability come, ability is %{public}s, userId is %{public}d",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
 
     int32_t ret = StartAbilityWrap(want, callerToken, requestCode, false, userId);
@@ -549,7 +549,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenId(const Want &want, cons
     uint32_t specifyTokenId, int32_t userId, int requestCode)
 {
     if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with specialId, the current process is not foundation process.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "current process is not foundation process.");
         return ERR_INVALID_CONTINUATION_FLAG;
     }
     return StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, false, userId, requestCode);
@@ -565,7 +565,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
     EventInfo eventInfo = BuildEventInfo(want, userId);
     SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with continuation flags is not allowed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continuation flags is not allowed.");
         eventInfo.errCode = ERR_INVALID_VALUE;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CONTINUATION_FLAG;
@@ -587,7 +587,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
     const sptr<IRemoteObject> &callerToken, bool isPendingWantCaller,
     int32_t userId, int requestCode, uint32_t callerTokenId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability with startOptions by trigger.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     return StartUIAbilityForOptionWrap(
         want, startOptions, callerToken, isPendingWantCaller, userId, requestCode, callerTokenId);
@@ -709,7 +709,7 @@ int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const s
     EventInfo eventInfo = BuildEventInfo(want, userId);
     SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with continuation flags is not allowed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continuation flags is not allowed!");
         eventInfo.errCode = ERR_INVALID_VALUE;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CONTINUATION_FLAG;
@@ -717,13 +717,13 @@ int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const s
 
     AAFwk::Want newWant = want;
     UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Start ability come, ability is %{public}s, userId is %{public}d",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     std::string callerPkg;
     std::string targetPkg;
     if (AbilityUtil::CheckJumpInterceptorWant(newWant, callerPkg, targetPkg)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR,
-            "the call is from interceptor dialog, callerPkg:%{public}s, targetPkg:%{public}s",
+            "callerPkg:%{public}s, targetPkg:%{public}s",
             callerPkg.c_str(), targetPkg.c_str());
         AbilityUtil::AddAbilityJumpRuleToBms(callerPkg, targetPkg, GetUserId());
     }
@@ -744,10 +744,10 @@ int AbilityManagerService::StartAbilityPublicPrechainCheck(StartAbilityParams &p
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
         if (!isSpecificSA) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s VerificationAllToken failed.", __func__);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "VerificationAllToken failed.");
             return ERR_INVALID_CALLER;
         }
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s: Caller is specific system ability.", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Caller is specific system ability.");
     }
 
     // 2. validUserId, multi-user
@@ -849,7 +849,7 @@ int AbilityManagerService::CheckExtensionCallPermission(const Want& want, const 
     auto isToPermissionMgr = IsTargetPermission(want);
     if (!isSACall && !isSystemAppCall && !isShellCall && !isToPermissionMgr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR,
-            "Cannot start extension by start ability, use startServiceExtensionAbility.");
+            "Cannot start, use startServiceExtensionAbility.");
         return ERR_WRONG_INTERFACE_CALL;
     }
     int result = CheckCallServicePermission(abilityRequest);
@@ -976,10 +976,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
         if (!isSpecificSA) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s VerificationAllToken failed.", __func__);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "VerificationAllToken failed.");
             return ERR_INVALID_CALLER;
         }
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s: Caller is specific system ability.", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Caller is specific system ability.");
     }
 
     int32_t oriValidUserId = GetValidUserId(userId);
@@ -1137,7 +1137,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
         if (result != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR,
-                "StartAbility: App data ability preloading failed, '%{public}s', %{public}d.",
+                "App data ability preloading failed, '%{public}s', %{public}d.",
                 abilityInfo.bundleName.c_str(), result);
             return result;
         }
@@ -1169,7 +1169,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         auto abilityRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
         if (abilityRecord == nullptr &&
             !PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME)) {
-            TAG_LOGW(AAFwkTag::ABILITYMGR, "StartAbilityInner, Remove continueSessionId and persistentId");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "Remove continueSessionId and persistentId");
             abilityRequest.want.RemoveParam(DMS_CONTINUED_SESSION_ID);
             abilityRequest.want.RemoveParam(DMS_PERSISTENT_ID);
         }
@@ -1186,7 +1186,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     ReportAbilitStartInfoToRSS(abilityInfo);
     ReportEventToRSS(abilityInfo, callerToken);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability, name is %{public}s.", abilityInfo.name.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
 
@@ -1273,7 +1273,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed");
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return CHECK_PERMISSION_FAILED;
@@ -1364,7 +1364,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
     }
     result = CheckCallAbilityPermission(abilityRequest);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s CheckCallAbilityPermission error.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckCallAbilityPermission error.");
         eventInfo.errCode = result;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
@@ -1391,7 +1391,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
         if (result != ERR_OK) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility: App data ability preloading failed, '%{public}s', %{public}d",
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "App data ability preloading failed, '%{public}s', %{public}d",
                 abilityInfo.bundleName.c_str(),
                 result);
             eventInfo.errCode = result;
@@ -1557,7 +1557,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed");
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return CHECK_PERMISSION_FAILED;
@@ -1690,7 +1690,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
     result = CheckCallAbilityPermission(abilityRequest, 0, isCallByShortcut);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s CheckCallAbilityPermission error.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckCallAbilityPermission error.");
         eventInfo.errCode = result;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
