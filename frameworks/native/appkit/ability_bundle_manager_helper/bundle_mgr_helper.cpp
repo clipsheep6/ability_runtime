@@ -46,6 +46,19 @@ ErrCode BundleMgrHelper::GetNameForUid(const int32_t uid, std::string &name)
     return bundleMgr->GetNameForUid(uid, name);
 }
 
+ErrCode BundleMgrHelper::GetNameAndIndexForUid(const int32_t uid, std::string &bundleName, int32_t &appIndex)
+{
+    TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "called");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    return bundleMgr->GetNameAndIndexForUid(uid, bundleName, appIndex);
+}
+
 bool BundleMgrHelper::GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo,
     int32_t userId)
 {
