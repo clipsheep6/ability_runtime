@@ -35,6 +35,15 @@ class UIServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.startAbilityByType(type, wantParam, abilityStartCallback);
   }
 
+  connectServiceExtensionAbility(want, options) {
+    console.log('connectServiceExtensionAbility');
+    return this.__context_impl__.connectServiceExtensionAbility(want, options);
+  }
+
+  disconnectServiceExtensionAbility(connection, callback) {
+      console.log('disconnectServiceExtensionAbility');
+      return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
+  }
 }
 
 export default UIServiceExtensionContext;

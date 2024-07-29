@@ -23,6 +23,7 @@
 #include "event_handler.h"
 #include "js_free_install_observer.h"
 #include "native_engine/native_engine.h"
+#include "js_service_extension_context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
