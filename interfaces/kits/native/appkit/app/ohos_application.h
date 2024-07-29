@@ -320,6 +320,11 @@ public:
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
     void UpdateAppContextResMgr(const Configuration &config);
+    bool isUpdateColor(Configuration &config, std::string colorMode, std::string globalColorMode,
+        std::string globalColorModeIsSetBySa, std::string colorModeIsSetByApp, std::string colorModeIsSetBySa);
+    bool isUpdateFontSize(Configuration &config);
+    bool isUpdateLanguage(Configuration &config, const std::string language,
+        const std::string languageIsSetByApp, const std::string globalLanguageIsSetByApp);
 
 private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
