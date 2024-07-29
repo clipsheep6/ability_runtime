@@ -339,6 +339,10 @@ void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecor
             abilityRecord->SetWant(abilityRequest.want);
             CommandAbilityWindow(abilityRecord, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
             return;
+        } else {
+            abilityRecord->SetWant(abilityRequest.want);
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
+            return;
         }
     }
     EnqueueStartServiceReq(abilityRequest, abilityRecord->GetURI());
@@ -3211,7 +3215,7 @@ std::string AbilityConnectManager::GenerateBundleName(const AbilityRequest &abil
 
 int32_t AbilityConnectManager::ReportXiaoYiToRSSIfNeeded(const AppExecFwk::AbilityInfo &abilityInfo)
 {
-    if (abilityInfo.type != AppExecFwk::AbilityType::EXTENSION || 
+    if (abilityInfo.type != AppExecFwk::AbilityType::EXTENSION ||
         abilityInfo.bundleName != XIAOYI_BUNDLE_NAME) {
         return ERR_OK;
     }
