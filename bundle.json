@@ -58,7 +58,6 @@
             "ets_runtime",
             "ets_utils",
             "faultloggerd",
-            "app_file_service",
             "ffrt",
             "form_fwk",
             "graphic_2d",
