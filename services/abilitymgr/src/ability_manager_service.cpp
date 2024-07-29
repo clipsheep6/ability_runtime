@@ -3242,6 +3242,9 @@ int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, in
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is Null.");
         return ERR_INVALID_VALUE;
     }
+
+    CHECK_CALLER_IS_SYSTEM_APP;
+
     return TerminateAbilityWithFlag(token, resultCode, resultWant, true);
 }
 
@@ -3828,6 +3831,7 @@ int AbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
     EventInfo eventInfo;
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+    CHECK_CALLER_IS_SYSTEM_APP;
 
     if (ERR_OK != DisconnectLocalAbility(connect) &&
         ERR_OK != DisconnectRemoteAbility(connect->AsObject())) {
