@@ -16,6 +16,7 @@
 #include "interceptor/control_interceptor.h"
 
 #include "ability_util.h"
+#include "appexecfwk_errors.h"
 #include "app_running_control_rule_result.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
@@ -88,7 +89,13 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     }
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetAppRunningControlRule");
-    auto ret = IN_PROCESS_CALL(appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule));
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
+    auto ret = appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule);
+    if (ret == ERR_BUNDLE_MANAGER_PERMISSION_DENIED) {
+        IPCSkeleton::SetCallingIdentity(identity, true);
+    } else {
+        IPCSkeleton::SetCallingIdentity(identity);
+    }
     if (ret != ERR_OK) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Get No AppRunningControlRule.");
         return false;
