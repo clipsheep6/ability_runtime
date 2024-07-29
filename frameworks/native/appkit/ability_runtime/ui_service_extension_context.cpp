@@ -66,7 +66,7 @@ sptr<Rosen::Window> UIServiceExtensionContext::GetWindow()
 
 Ace::UIContent* UIServiceExtensionContext::GetUIContent()
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (window_ == nullptr) {
         TAG_LOGD(AAFwkTag::APPKIT, "window_ is nullptr");
         return nullptr;
@@ -117,5 +117,30 @@ ErrCode UIServiceExtensionContext::StartAbilityByType(const std::string &type,
     uiExtensionCallbacks->SetSessionId(sessionId);
     return ERR_OK;
 }
+
+ErrCode UIServiceExtensionContext::ConnectServiceExtensionAbility(
+        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+    {
+        TAG_LOGD(AAFwkTag::APPKIT, "Connect ability begin, ability:%{public}s.",
+            want.GetElement().GetAbilityName().c_str());
+        ErrCode ret =
+            ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
+        TAG_LOGD(AAFwkTag::APPKIT, "ServiceExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
+        return ret;
+}
+
+ErrCode UIServiceExtensionContext::DisConnectServiceExtensionAbility(const AAFwk::Want &want,
+        const sptr<AbilityConnectCallback> &connectCallback, int32_t accountId) const
+    {
+        TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+        ErrCode ret =
+            ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback, accountId);
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::APPKIT, "%{public}s end DisconnectAbility error, ret=%{public}d", __func__, ret);
+        }
+        TAG_LOGI(AAFwkTag::APPKIT, "end");
+        return ret;
+}
+
 }  // namespace AbilityRuntime
 }  // namespace OHOS
