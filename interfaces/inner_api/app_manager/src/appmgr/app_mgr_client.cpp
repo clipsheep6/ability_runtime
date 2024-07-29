@@ -1280,6 +1280,22 @@ AppMgrResultCode AppMgrClient::BlockProcessCacheByPids(const std::vector<int32_t
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
+bool AppMgrClient::CleanAbilityByUserRequest(const sptr<IRemoteObject> &token)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "get appmgrservice is nullptr.");
+        return false;
+    }
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "get abilityms service is nullptr.");
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    return amsService->CleanAbilityByUserRequest(token);
+}
+
 bool AppMgrClient::IsKilledForUpgradeWeb(const std::string &bundleName)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());

@@ -179,5 +179,15 @@ int32_t AbilityRunningRecord::GetUIExtensionAbilityId() const
 {
     return uiExtensionAbilityId_;
 }
+
+void AbilityRunningRecord::SetUserRequestCleaningStatus()
+{
+    isUserRequestCleaning_ = true;
+}
+
+bool AbilityRunningRecord::IsUserRequestCleaning() const
+{
+    return isUserRequestCleaning_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -658,6 +658,20 @@ void AmsMgrScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
     amsHandler_->SubmitTask(blockProcCacheFunc, TASK_BLOCK_PROCESS_CACHE_BY_PIDS);
 }
 
+bool AmsMgrScheduler::CleanAbilityByUserRequest(const sptr<IRemoteObject> &token)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return false;
+    }
+
+    if (IPCSkeleton::GetCallingPid() != getprocpid()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
+        return false;
+    }
+    return amsMgrServiceInner_->CleanAbilityByUserRequest(token);
+}
+
 bool AmsMgrScheduler::IsKilledForUpgradeWeb(const std::string &bundleName)
 {
     if (!IsReady()) {

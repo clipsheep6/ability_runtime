@@ -622,6 +622,17 @@ void AppScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
     appMgrClient_->BlockProcessCacheByPids(pids);
 }
 
+bool AppScheduler::CleanAbilityByUserRequest(const sptr<IRemoteObject> &token)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
+    if (!appMgrClient_) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appMgrClient is nullptr");
+        return false;
+    }
+    return IN_PROCESS_CALL(appMgrClient_->CleanAbilityByUserRequest(token));
+}
+
 bool AppScheduler::IsKilledForUpgradeWeb(const std::string &bundleName)
 {
     if (!appMgrClient_) {

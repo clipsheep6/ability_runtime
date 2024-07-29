@@ -140,7 +140,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
         if (appRecord && appRecord->GetProcessName() == processName &&
             (specifiedProcessFlag.empty() ||
             appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
-            !(appRecord->IsTerminating()) && !(appRecord->IsKilling()) && !(appRecord->GetRestartAppFlag())) {
+            !(appRecord->IsTerminating()) && !(appRecord->IsKilling()) && !(appRecord->GetRestartAppFlag()) &&
+            !(appRecord->IsUserRequestCleaning())) {
             auto appInfoList = appRecord->GetAppInfoList();
             TAG_LOGD(AAFwkTag::APPMGR,
                 "appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
@@ -1539,6 +1540,39 @@ int AppRunningManager::DumpFfrt(const std::vector<int32_t>& pids, std::string& r
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return DumpErrorCode::ERR_OK;
+}
+
+bool AppRunningManager::HandleUserRequestClean(const sptr<IRemoteObject> &abilityToken, pid_t &pid, int32_t &uid)
+{
+    if (abilityToken == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityToken is nullptr");
+        return false;
+    }
+
+    auto appRecord = GetAppRunningRecordByAbilityToken(abilityToken);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to get appRecord.");
+        return false;
+    }
+
+    auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(abilityToken);
+    if (!abilityRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to get abilityRecord.");
+        return false;
+    }
+    abilityRecord->SetUserRequestCleaningStatus();
+
+    bool canKill = appRecord->IsAllAbilityReadyToCleanedByUserRequest();
+    if (!canKill || appRecord->IsKeepAliveApp()) {
+        return false;
+    }
+
+    appRecord->SetUserRequestCleaning();
+    if (appRecord->GetPriorityObject()) {
+        pid = appRecord->GetPriorityObject()->GetPid();
+    }
+    uid = appRecord->GetUid();
+    return true;
 }
 
 bool AppRunningManager::IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,

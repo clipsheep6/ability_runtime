@@ -194,6 +194,8 @@ int32_t AmsMgrStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data
             return HandleIsProcessContainsOnlyUIAbility(data, reply);
         case static_cast<uint32_t>(IAmsMgr::Message::FORCE_KILL_APPLICATION):
             return HandleForceKillApplication(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::CLEAN_UIABILITY_BY_USER_REQUEST):
+            return HandleCleanAbilityByUserRequest(data, reply);
     }
     return AAFwk::ERR_CODE_NOT_EXIST;
 }
@@ -766,6 +768,18 @@ ErrCode AmsMgrStub::HandleBlockProcessCacheByPids(MessageParcel &data, MessagePa
     }
 
     BlockProcessCacheByPids(pids);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleCleanAbilityByUserRequest(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    auto result = CleanAbilityByUserRequest(token);
+    if (!reply.WriteBool(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "fail to write the result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

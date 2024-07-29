@@ -843,6 +843,10 @@ public:
      */
     void ScheduleBackgroundRunning();
 
+    void SetUserRequestCleaning();
+    bool IsUserRequestCleaning() const;
+    bool IsAllAbilityReadyToCleanedByUserRequest();
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -993,6 +997,7 @@ private:
     bool isStrictMode_ = false;
     bool isAttachedToStatusBar = false;
     bool isDependedOnArkWeb_ = false;
+    bool isUserRequestCleaning_ = false;
 };
 
 }  // namespace AppExecFwk

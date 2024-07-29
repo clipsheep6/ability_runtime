@@ -2535,5 +2535,24 @@ int32_t UIAbilityLifecycleManager::GetAbilityStateByPersistentId(int32_t persist
     state = false;
     return ERR_INVALID_VALUE;
 }
+
+int32_t UIAbilityLifecycleManager::CleanUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        std::string element = abilityRecord->GetElementName().GetURI();
+        if (DelayedSingleton<AppScheduler>::GetInstance()->CleanAbilityByUserRequest(abilityRecord->GetToken())) {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "user clean ability: %{public}s success", element.c_str());
+            return ERR_OK;
+        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR,
+            "can not force kill when user request clean ability, schedule lifecycle:%{public}s", element.c_str());
+    }
+
+    return CloseUIAbilityInner(abilityRecord, -1, nullptr, true);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

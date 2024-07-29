@@ -175,6 +175,7 @@ constexpr const char* GPU_PROCESS_NAME = ":gpu";
 constexpr const char* GPU_PROCESS_TYPE = "gpu";
 constexpr const char* FONT_WGHT_SCALE = "persist.sys.font_wght_scale_for_user0";
 constexpr const char* FONT_SCALE = "persist.sys.font_scale_for_user0";
+constexpr const char* KILL_REASON_USER_REQUEST = "User Request";
 const std::string TOKEN_ID = "TOKEN_ID";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
@@ -2083,6 +2084,7 @@ void AppMgrServiceInner::UpdateAbilityState(const sptr<IRemoteObject> &token, co
     }
 
     appRecord->UpdateAbilityState(token, state);
+    CheckCleanAbilityByUserRequest(appRecord, abilityRecord, state);
 }
 
 void AppMgrServiceInner::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)
@@ -2918,7 +2920,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
-    
+
     #ifdef ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER
     bool checkApiVersion = (appInfo && (appInfo->apiTargetVersion % API_VERSION_MOD == API10));
     TAG_LOGD(AAFwkTag::APPMGR, "version of api is %{public}d", appInfo->apiTargetVersion % API_VERSION_MOD);
@@ -2928,7 +2930,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         TAG_LOGI(AAFwkTag::APPMGR, "tokenId = %{public}u, ret = %{public}d", tokenId, sandboxRet);
     }
     #endif
-    
+
     TAG_LOGI(AAFwkTag::APPMGR, "Start process success, pid: %{public}d, processName: %{public}s.",
         pid, processName.c_str());
     SetRunningSharedBundleList(bundleName, startMsg.hspList);
@@ -7147,6 +7149,69 @@ void AppMgrServiceInner::BlockProcessCacheByPids(const std::vector<int32_t>& pid
     }
 }
 
+bool AppMgrServiceInner::CleanAbilityByUserRequest(const sptr<IRemoteObject> &token)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    if (!token) {
+        TAG_LOGE(AAFwkTag::APPMGR, "token is invalid.");
+        return false;
+    }
+
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is invalid.");
+        return false;
+    }
+
+    pid_t targetPid = 0;
+    int32_t targetUid = 0;
+    if (!appRunningManager_->HandleUserRequestClean(token, targetPid, targetUid)) {
+        TAG_LOGW(AAFwkTag::APPMGR, "can not clean process now.");
+        return false;
+    }
+
+    if (targetPid <= 0 || targetUid <= 0) {
+        TAG_LOGE(AAFwkTag::APPMGR, "get pid or uid is invalid.pid:%{public}d, uid:%{public}d", targetPid, targetUid);
+        return false;
+    }
+    TAG_LOGI(AAFwkTag::APPMGR, "all user request clean ability scheduled to bg, force kill pid:%{public}d", targetPid);
+    KillProcessByPid(targetPid, KILL_REASON_USER_REQUEST, targetUid);
+    return true;
+}
+
+void AppMgrServiceInner::CheckCleanAbilityByUserRequest(const std::shared_ptr<AppRunningRecord> &appRecord,
+    const std::shared_ptr<AbilityRunningRecord> &abilityRecord, const AbilityState state)
+{
+    if (!appRecord || !abilityRecord) {
+        return;
+    }
+
+    if (state != AbilityState::ABILITY_STATE_BACKGROUND) {
+        return;
+    }
+
+    if (abilityRecord->GetAbilityInfo() && abilityRecord->GetAbilityInfo()->type != AppExecFwk::AbilityType::PAGE) {
+        return;
+    }
+
+    if (appRecord->IsKeepAliveApp()) {
+        return;
+    }
+
+    if (!appRecord->IsAllAbilityReadyToCleanedByUserRequest()) {
+        TAG_LOGD(AAFwkTag::APPMGR,
+            "not ready to clean when user request. bundleName:%{public}s", appRecord->GetBundleName().c_str());
+        return;
+    }
+    appRecord->SetUserRequestCleaning();
+
+    pid_t pid = 0;
+    if (appRecord->GetPriorityObject()) {
+        pid = appRecord->GetPriorityObject()->GetPid();
+    }
+    TAG_LOGI(AAFwkTag::APPMGR, "all user request clean ability scheduled to bg, force kill, pid:%{public}d", pid);
+    KillProcessByPid(pid, KILL_REASON_USER_REQUEST, appRecord->GetUid());
+}
+
 bool AppMgrServiceInner::IsKilledForUpgradeWeb(const std::string &bundleName) const
 {
     auto callerUid = IPCSkeleton::GetCallingUid();
@@ -7162,7 +7227,7 @@ bool AppMgrServiceInner::IsProcessContainsOnlyUIAbility(const pid_t pid)
     if (appRecord == nullptr) {
         return false;
     }
-    
+
     auto abilityRecordList = appRecord->GetAbilities();
 
     for (auto it = abilityRecordList.begin(); it != abilityRecordList.end(); ++it) {
@@ -7173,7 +7238,7 @@ bool AppMgrServiceInner::IsProcessContainsOnlyUIAbility(const pid_t pid)
         if (abilityInfo == nullptr) {
             return false;
         }
-        
+
         bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE);
         if (!isUIAbility) {
             return false;

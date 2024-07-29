@@ -2377,5 +2377,32 @@ bool AppRunningRecord::GetProcessCacheBlocked()
 {
     return processCacheBlocked;
 }
+
+bool AppRunningRecord::IsAllAbilityReadyToCleanedByUserRequest()
+{
+    std::lock_guard<ffrt::mutex> lock(hapModulesLock_);
+    for (const auto &iter : hapModules_) {
+        for (const auto &moduleRecord : iter.second) {
+            if (moduleRecord == nullptr) {
+                TAG_LOGE(AAFwkTag::APPMGR, "Module record is nullptr.");
+                continue;
+            }
+            if (!moduleRecord->IsAllAbilityReadyToCleanedByUserRequest()) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void AppRunningRecord::SetUserRequestCleaning()
+{
+    isUserRequestCleaning_ = true;
+}
+
+bool AppRunningRecord::IsUserRequestCleaning() const
+{
+    return isUserRequestCleaning_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

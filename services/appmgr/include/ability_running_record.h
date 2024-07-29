@@ -196,6 +196,8 @@ public:
     bool GetFocusFlag() const;
     void SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId);
     int32_t GetUIExtensionAbilityId() const;
+    void SetUserRequestCleaningStatus();
+    bool IsUserRequestCleaning() const;
 
 private:
     int32_t lastLaunchTime_ = 0;
@@ -214,6 +216,7 @@ private:
     sptr<IRemoteObject> preToken_;
     int32_t ownerUserId_ = -1;
     bool isSingleUser_ = false;
+    bool isUserRequestCleaning_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

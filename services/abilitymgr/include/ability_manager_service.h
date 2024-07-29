@@ -756,6 +756,14 @@ public:
         WindowCommand winCmd,
         AbilityCommand abilityCmd) override;
 
+    /**
+     *  Request to clean UIAbility from user.
+     *
+     * @param sessionInfo the session info of the ability to clean.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CleanUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
     std::shared_ptr<TaskHandlerWrap> GetTaskHandler() const
     {
         return taskHandler_;
@@ -2235,6 +2243,9 @@ private:
 
     int PreStartFreeInstall(const Want &want, sptr<IRemoteObject> callerToken,
         uint32_t specifyTokenId, bool isStartAsCaller, Want &localWant);
+
+    void ReportCleanSession(const sptr<SessionInfo> &sessionInfo,
+        const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t errCode);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
