@@ -406,6 +406,7 @@ group("unittest") {
     "app_state_observer_manager_test:unittest",
     "app_utils_test:unittest",
     "appkit:unittest",
+    "application_context_manager_test:unittest",
     "application_context_test:unittest",
     "atomic_service_status_callback_proxy_test:unittest",
     "atomic_service_status_callback_stub_test:unittest",
