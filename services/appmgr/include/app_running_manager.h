@@ -344,6 +344,8 @@ public:
     bool GetPidsByBundleNameUserIdAndAppIndex(const std::string &bundleName,
         const int userId, const int appIndex, std::list<pid_t> &pids);
 
+    bool HandleUserRequestClean(const sptr<IRemoteObject> &abilityToken, pid_t &pid, int32_t &uid);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     int32_t AssignRunningProcessInfoByAppRecord(

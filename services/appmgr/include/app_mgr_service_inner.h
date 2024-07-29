@@ -1123,6 +1123,8 @@ public:
 
     void BlockProcessCacheByPids(const std::vector<int32_t>& pids);
 
+    bool CleanAbilityByUserRequest(const sptr<IRemoteObject> &token);
+
     bool IsKilledForUpgradeWeb(const std::string &bundleName) const;
 
     bool IsProcessContainsOnlyUIAbility(const pid_t pid);
@@ -1466,6 +1468,8 @@ private:
     void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token);
     bool IsSceneBoardCall();
+    void CheckCleanAbilityByUserRequest(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const std::shared_ptr<AbilityRunningRecord> &abilityRecord, const AbilityState state);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;

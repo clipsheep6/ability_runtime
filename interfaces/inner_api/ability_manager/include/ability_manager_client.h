@@ -1539,6 +1539,14 @@ public:
         const std::string& abilityName, const std::string& startTime);
 
     /**
+     *  Request to clean UIAbility from user.
+     *
+     * @param sessionInfo the session info of the ability to clean.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CleanUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+
+    /**
      * Open link of ability and atomic service.
      *
      * @param want Ability want.

@@ -1301,6 +1301,14 @@ public:
         const std::string& abilityName, const std::string& startTime) override;
 
     /**
+     *  Request to clean UIAbility from user.
+     *
+     * @param sessionInfo the session info of the ability to clean.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CleanUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
+    /**
      * Open link of ability and atomic service.
      *
      * @param want Ability want.

@@ -310,6 +310,14 @@ public:
     virtual void BlockProcessCacheByPids(const std::vector<int32_t> &pids) override;
 
     /**
+     * Request to clean uiability from user.
+     *
+     * @param token the token of ability.
+     * @return Returns true if clean success, others return false.
+     */
+    virtual bool CleanAbilityByUserRequest(const sptr<IRemoteObject> &token) override;
+
+    /**
      * whether killed for upgrade web.
      *
      * @param bundleName the bundle name is killed for upgrade web.
