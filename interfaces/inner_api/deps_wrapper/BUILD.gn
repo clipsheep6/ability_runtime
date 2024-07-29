@@ -41,6 +41,7 @@ ohos_shared_library("ability_deps_wrapper") {
   configs = [ ":ability_deps_wrapper_private_config" ]
 
   external_deps = [
+    "ability_base:base",
     "c_utils:utils",
     "hilog:libhilog",
     "samgr:samgr_proxy",
