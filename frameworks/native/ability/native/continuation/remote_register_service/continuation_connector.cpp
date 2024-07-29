@@ -61,15 +61,15 @@ sptr<ContinuationConnector> ContinuationConnector::GetInstance(const std::weak_p
 void ContinuationConnector::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     if (remoteObject == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationConnector::OnAbilityConnectDone failed, remote is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "remote is nullptr");
         return;
     }
     remoteRegisterService_ = iface_cast<RemoteRegisterServiceProxy>(remoteObject);
     if (remoteRegisterService_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ContinuationConnector::OnAbilityConnectDone failed, remoteRegisterService_ is nullptr");
+            "remoteRegisterService_ is nullptr");
         return;
     }
     isConnected_.store(true);
@@ -80,7 +80,6 @@ void ContinuationConnector::OnAbilityConnectDone(
         }
         continuationRequestList_.clear();
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 /**
@@ -94,10 +93,8 @@ void ContinuationConnector::OnAbilityConnectDone(
  */
 void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     remoteRegisterService_ = nullptr;
     isConnected_.store(false);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 /**
@@ -107,19 +104,19 @@ void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
  */
 void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppExecFwk::ContinuationRequest> &request)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr tmpcontext = context_.lock();
     if (tmpcontext == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ContinuationConnector::BindRemoteRegisterAbility failed, context_.lock is nullptr");
+            "tmpcontext is nullptr");
         return;
     }
     if (request == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationConnector::BindRemoteRegisterAbility failed, request is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "request is nullptr");
         return;
     }
     if (IsAbilityConnected()) {
-        TAG_LOGI(AAFwkTag::CONTINUATION, "ContinuationConnector::BindRemoteRegisterAbility, remote register bounded");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "remote register bounded");
         request->Execute();
         return;
     }
@@ -129,7 +126,6 @@ void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppE
         continuationRequestList_.push_back(request);
     }
     BindRemoteRegisterAbility();
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 /**
@@ -137,18 +133,16 @@ void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppE
  */
 void ContinuationConnector::UnbindRemoteRegisterAbility()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr tmpcontext = context_.lock();
     if (tmpcontext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ContinuationConnector::UnbindRemoteRegisterAbility failed, context_.lock is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "tmpcontext is nullptr");
         return;
     }
 
     tmpcontext->DisconnectAbility(this);
     isConnected_.store(false);
     remoteRegisterService_ = nullptr;
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 /**
@@ -170,13 +164,12 @@ bool ContinuationConnector::IsAbilityConnected()
  */
 bool ContinuationConnector::Unregister(int token)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     if (remoteRegisterService_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationConnector::Unregister failed, remoteRegisterService_ is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "remoteRegisterService_ is nullptr");
         return false;
     }
 
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return remoteRegisterService_->Unregister(token);
 }
 
@@ -191,14 +184,13 @@ bool ContinuationConnector::Unregister(int token)
  */
 bool ContinuationConnector::UpdateConnectStatus(int token, const std::string &deviceId, int status)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     if (remoteRegisterService_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ContinuationConnector::UpdateConnectStatus failed, remoteRegisterService_ is nullptr");
+            "remoteRegisterService_ is nullptr");
         return false;
     }
 
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return remoteRegisterService_->UpdateConnectStatus(token, deviceId, status);
 }
 
@@ -211,13 +203,12 @@ bool ContinuationConnector::UpdateConnectStatus(int token, const std::string &de
  */
 bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraParams &parameter)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     if (remoteRegisterService_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ContinuationConnector::ShowDeviceList failed, remoteRegisterService_ is nullptr");
+            "remoteRegisterService_ is nullptr");
         return false;
     }
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return remoteRegisterService_->ShowDeviceList(token, parameter);
 }
 
@@ -234,25 +225,24 @@ bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraPar
 int ContinuationConnector::Register(std::weak_ptr<Context> &context, std::string bundleName,
     const AppExecFwk::ExtraParams &parameter, std::shared_ptr<IContinuationDeviceCallback> &callback)
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr pcontext = context.lock();
     if (pcontext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationConnector::Register failed, pcontext is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "pcontext is nullptr");
         return -1;
     }
     if (remoteRegisterService_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationConnector::Register failed, remoteRegisterService_ is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "remoteRegisterService_ is nullptr");
         return -1;
     }
     sptr<IRemoteObject> token = pcontext->GetToken();
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationConnector::Register failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "token is nullptr");
         return -1;
     }
 
     sptr<ContinuationDeviceCallbackProxy> callBackSptr(new (std::nothrow) ContinuationDeviceCallbackProxy(callback));
 
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return remoteRegisterService_->Register(bundleName, token, parameter, callBackSptr);
 }
 
@@ -261,18 +251,17 @@ int ContinuationConnector::Register(std::weak_ptr<Context> &context, std::string
  */
 void ContinuationConnector::BindRemoteRegisterAbility()
 {
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "begin");
     std::shared_ptr tmpcontext = context_.lock();
     if (tmpcontext == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION,
-            "ContinuationConnector::BindRemoteRegisterAbility failed, context_.lock is nullptr");
+            "tmpcontext is nullptr");
         return;
     }
     Want want;
     want.SetElementName(CONNECTOR_DEVICE_ID, CONNECTOR_BUNDLE_NAME, CONNECTOR_ABILITY_NAME);
     want.AddFlags(Want::FLAG_NOT_OHOS_COMPONENT);
     tmpcontext->ConnectAbility(want, this);
-    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

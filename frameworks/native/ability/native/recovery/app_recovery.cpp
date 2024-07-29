@@ -73,12 +73,12 @@ static bool BlockMainThreadLocked()
     action.sa_handler = SigQuitHandler;
     action.sa_flags = 0;
     if (sigaction(SIGQUIT, &action, nullptr) != 0) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Failed to register signal");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to register signal");
         return false;
     }
 
     if (syscall(SYS_tgkill, getpid(), getpid(), SIGQUIT) != 0) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to send SIGQUIT to main thread, errno(%d).", errno);
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to send SIGQUIT to main thread, errno(%d)", errno);
         return false;
     }
     int left = 1000000; // 1s
@@ -116,12 +116,12 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
     if (abilityInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "Ability info invalid.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AbilityInfo invalid");
         return false;
     }
 
     if (isEnable_ && !abilityRecoverys_.empty() && !abilityInfo->recoverable) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery abilityRecoverys is not empty but ability recoverable is false.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "recoverable is false");
         return false;
     }
     ability_ = ability;
@@ -136,7 +136,7 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
             AppRecovery::GetInstance().DeleteInValidMissionFiles();
         };
         if (!handler->PostTask(task, "AppRecovery:AddAbility", DELAY_TIME)) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "Failed to DeleteInValidMissionFiles.");
+            TAG_LOGE(AAFwkTag::RECOVERY, "DeleteInValidMissionFiles failed");
         }
     }
     return true;
@@ -145,43 +145,42 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
 bool AppRecovery::RemoveAbility(const sptr<IRemoteObject>& tokenId)
 {
     if (!tokenId) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery removeAbility tokenId is null.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "tokenId is null");
         return false;
     }
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery removeAbility start");
+    TAG_LOGD(AAFwkTag::RECOVERY, "start");
     auto itr = std::find_if(abilityRecoverys_.begin(), abilityRecoverys_.end(),
         [&tokenId](std::shared_ptr<AbilityRecovery> &abilityRecovery) {
         return (abilityRecovery && abilityRecovery->GetToken() == tokenId);
     });
     if (itr != abilityRecoverys_.end()) {
         abilityRecoverys_.erase(itr);
-        TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery removeAbility done");
     }
     return true;
 }
 
 bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 {
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery ScheduleSaveAppState begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "begin");
     if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleSaveAppState. is not enabled");
+        TAG_LOGE(AAFwkTag::RECOVERY, "not enabled");
         return false;
     }
 
     if (!ShouldSaveAppState(reason)) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ts not save ability state");
+        TAG_LOGE(AAFwkTag::RECOVERY, "not save ability state");
         return false;
     }
 
     if (reason == StateReason::APP_FREEZE) {
         auto abilityPtr = ability_.lock();
         if (!abilityPtr || !abilityPtr->GetAbilityContext()) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleSaveAppState ability or context is nullptr");
+            TAG_LOGE(AAFwkTag::RECOVERY, "ability or context is nullptr");
             return false;
         }
         std::lock_guard<std::mutex> lock(g_mutex);
         if (!BlockMainThreadLocked()) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Failed to block main thread, skip save state when appfreeze");
+            TAG_LOGE(AAFwkTag::RECOVERY, "Failed to block main thread");
             return false;
         }
 #ifdef SUPPORT_SCREEN
@@ -196,7 +195,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 
     auto handler = mainHandler_.lock();
     if (handler == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "ScheduleSaveAppState. main handler is not exist");
+        TAG_LOGE(AAFwkTag::RECOVERY, "handler is not exist");
         return false;
     }
 
@@ -204,7 +203,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
         AppRecovery::GetInstance().DoSaveAppState(reason, ability);
     };
     if (!handler->PostTask(task, "AppRecovery:SaveAppState")) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to schedule save app state.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to schedule save app state");
         return false;
     }
 
@@ -213,9 +212,9 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 
 void AppRecovery::SetRestartWant(std::shared_ptr<AAFwk::Want> want)
 {
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery SetRestartWant begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "begin");
     if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery SetRestartWant not enabled");
+        TAG_LOGE(AAFwkTag::RECOVERY, "not enabled");
         return;
     }
     want_ = want;
@@ -224,17 +223,17 @@ void AppRecovery::SetRestartWant(std::shared_ptr<AAFwk::Want> want)
 bool AppRecovery::ScheduleRecoverApp(StateReason reason)
 {
     if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp. is not enabled");
+        TAG_LOGE(AAFwkTag::RECOVERY, "not enabled");
         return false;
     }
 
     if (!ShouldRecoverApp(reason)) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp. is not recover app");
+        TAG_LOGE(AAFwkTag::RECOVERY, "not recover app");
         return false;
     }
 
     if (abilityRecoverys_.empty()) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp ability is nullptr");
+        TAG_LOGE(AAFwkTag::RECOVERY, "ability is nullptr");
         return false;
     }
 
@@ -245,7 +244,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
 
     auto handler = mainHandler_.lock();
     if (handler == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp main handler is not exist");
+        TAG_LOGE(AAFwkTag::RECOVERY, "handler is not exist");
         return false;
     }
 
@@ -258,7 +257,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
         AppRecovery::GetInstance().DoRecoverApp(reason);
     };
     if (!handler->PostTask(task, "AppRecovery:RecoverApp")) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to schedule save app state.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to schedule save app state");
     }
 
     return true;
@@ -277,9 +276,9 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
 
 void AppRecovery::DoRecoverApp(StateReason reason)
 {
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DoRecoverApp begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "begin");
     if (abilityRecoverys_.empty()) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery no ability exist! ");
+        TAG_LOGE(AAFwkTag::RECOVERY, "no ability exist");
         return;
     }
     AAFwk::Want *want = nullptr;
@@ -300,15 +299,14 @@ void AppRecovery::DoRecoverApp(StateReason reason)
             break;
         }
     }
-    TAG_LOGW(AAFwkTag::RECOVERY, "AppRecovery no foreground ability, not DoRecoverApp!");
 }
 
 void AppRecovery::DoSaveAppState(StateReason reason, uintptr_t ability)
 {
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DoSaveAppState begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "begin");
     auto appInfo = applicationInfo_.lock();
     if (appInfo == nullptr || abilityRecoverys_.empty()) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Application or ability info is not exist.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Application or ability info is not exist.");
         return;
     }
 
@@ -316,12 +314,12 @@ void AppRecovery::DoSaveAppState(StateReason reason, uintptr_t ability)
     for (auto& abilityRecoveryRecord : abilityRecoverys_) {
         if (!onlySaveTargetAbility) {
             abilityRecoveryRecord->ScheduleSaveAbilityState(reason);
-            TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery not onlySaveTargetAbility ScheduleSaveAbilityState");
+            TAG_LOGD(AAFwkTag::RECOVERY, "not onlySaveTargetAbility");
             continue;
         }
         if (abilityRecoveryRecord->IsSameAbility(ability)) {
             abilityRecoveryRecord->ScheduleSaveAbilityState(reason);
-            TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery IsSameAbility ScheduleSaveAbilityState");
+            TAG_LOGD(AAFwkTag::RECOVERY, "IsSameAbility");
             break;
         }
     }
@@ -456,18 +454,16 @@ void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t miss
     std::string file = fileDir + "/" + fileName;
     bool ret = OHOS::RemoveFile(file);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s failed", file.c_str());
+        TAG_LOGE(AAFwkTag::RECOVERY, "file: %{public}s failed", file.c_str());
     }
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s done", file.c_str());
 }
 
 void AppRecovery::ClearPageStack(std::string bundleName)
 {
-    TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery ClearPageStack %{public}s", bundleName.c_str());
     DeleteInValidMissionFiles();
     std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ClearPageStack. abilityMgr client is not exist.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "abilityMgr not exist.");
         return;
     }
     abilityMgr->ScheduleClearRecoveryPageStack();
@@ -477,13 +473,13 @@ bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionI
 {
     DIR *dir = opendir(path.c_str());
     if (dir == nullptr) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery GetMissionIds open dir error.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "open dir error.");
         return false;
     }
     struct dirent *ptr;
     while ((ptr = readdir(dir)) != nullptr) {
         if (ptr == nullptr) {
-            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery GetMissionIds read dir error.");
+            TAG_LOGE(AAFwkTag::RECOVERY, "read dir error.");
             return false;
         }
         if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) {

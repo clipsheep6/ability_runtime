@@ -28,33 +28,32 @@ ReverseContinuationSchedulerPrimaryStage::ReverseContinuationSchedulerPrimarySta
 
 void ReverseContinuationSchedulerPrimaryStage::NotifyReplicaTerminated()
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin");
     wptr<ReverseContinuationSchedulerPrimaryStage> weak = this;
     auto task = [weak]() {
         auto reverseContinuationSchedulerPrimary = weak.promote();
         if (reverseContinuationSchedulerPrimary == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTINUATION, "reverseContinuationSchedulerPrimary is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "reverseContinuationSchedulerPrimary is nullptr");
             return;
         }
         reverseContinuationSchedulerPrimary->HandlerNotifyReplicaTerminated();
     };
 
     if (mainHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error");
         return;
     }
-    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 bool ReverseContinuationSchedulerPrimaryStage::ContinuationBack(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin");
     wptr<ReverseContinuationSchedulerPrimaryStage> weak = this;
     auto task = [weak, want]() {
         auto reverseContinuationSchedulerPrimary = weak.promote();
@@ -66,41 +65,38 @@ bool ReverseContinuationSchedulerPrimaryStage::ContinuationBack(const AAFwk::Wan
     };
 
     if (mainHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr");
         return false;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error");
         return false;
     }
-    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
 void ReverseContinuationSchedulerPrimaryStage::HandlerNotifyReplicaTerminated()
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin");
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
         TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
         return;
     }
     continuationHandler->NotifyReplicaTerminated();
-    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 void ReverseContinuationSchedulerPrimaryStage::HandlerContinuationBack(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin");
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr");
         return;
     }
     continuationHandler->ContinuationBack(want);
-    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 } // namespace AppExecFwk
 } // namespace OHOS
