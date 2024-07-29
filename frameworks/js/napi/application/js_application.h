@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef OHOS_ABILITY_RUNTIME_JS_APPLICATION_H
+#define OHOS_ABILITY_RUNTIME_JS_APPLICATION_H
 
 #include "napi/native_api.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_APPLICATION_H
-#define OHOS_ABILITY_RUNTIME_JS_APPLICATION_H
 namespace OHOS {
 namespace AbilityRuntime {
 class JsApplication {

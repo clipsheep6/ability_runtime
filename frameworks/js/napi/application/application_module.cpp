@@ -22,7 +22,7 @@ static napi_module _module = {
     .nm_modname = "app.ability.application",
 };
 
-extern "C" __attribute__((constructor)) void NAPI_Application_AutoRegister(void)
+extern "C" __attribute__((constructor)) void NAPI_app_ability_application_AutoRegister(void)
 {
     napi_module_register(&_module);
 }
