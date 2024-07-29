@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-
 #include "cj_ability_connect_callback_object.h"
 #include "mock_ability_connect_callback_stub.h"
+#include <gtest/gtest.h>
 
 using namespace testing;
 using namespace testing::ext;

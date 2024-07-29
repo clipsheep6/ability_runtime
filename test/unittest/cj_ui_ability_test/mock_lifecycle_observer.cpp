@@ -18,14 +18,14 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-void MockLifecycleObserver::OnActive()
-{
-    GTEST_LOG_(INFO) << "MockLifecycleObserver::OnActive called";
-}
-
 void MockLifecycleObserver::OnBackground()
 {
     GTEST_LOG_(INFO) << "MockLifecycleObserver::OnBackground called";
+}
+
+void MockLifecycleObserver::OnActive()
+{
+    GTEST_LOG_(INFO) << "MockLifecycleObserver::OnActive called";
 }
 
 void MockLifecycleObserver::OnForeground(const Want& want)
@@ -33,14 +33,14 @@ void MockLifecycleObserver::OnForeground(const Want& want)
     GTEST_LOG_(INFO) << "MockLifecycleObserver::OnForeground called";
 }
 
-void MockLifecycleObserver::OnInactive()
-{
-    GTEST_LOG_(INFO) << "MockLifecycleObserver::OnInactive called";
-}
-
 void MockLifecycleObserver::OnStart(const Want& want)
 {
     GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStart called";
+}
+
+void MockLifecycleObserver::OnInactive()
+{
+    GTEST_LOG_(INFO) << "MockLifecycleObserver::OnInactive called";
 }
 
 void MockLifecycleObserver::OnStop()
@@ -48,12 +48,12 @@ void MockLifecycleObserver::OnStop()
     GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStop called";
 }
 
-void MockLifecycleObserver::OnStateChanged(LifeCycle::Event event, const Want& want)
+void MockLifecycleObserver::OnStateChanged(LifeCycle::Event event)
 {
     GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStateChanged called";
 }
 
-void MockLifecycleObserver::OnStateChanged(LifeCycle::Event event)
+void MockLifecycleObserver::OnStateChanged(LifeCycle::Event event, const Want& want)
 {
     GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStateChanged called";
 }

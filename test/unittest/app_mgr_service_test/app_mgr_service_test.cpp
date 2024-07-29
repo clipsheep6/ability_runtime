@@ -1426,6 +1426,21 @@ HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UnregisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify it when judgments is ready and observer is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, UnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->UnregisterAbilityForegroundStateObserver(nullptr);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
  * @tc.name: IsApplicationRunning_001
  * @tc.desc: Determine that the application is running by returning a value.
  * @tc.type: FUNC
@@ -1459,21 +1474,6 @@ HWTEST_F(AppMgrServiceTest, RegisterAbilityForegroundStateObserver_0100, TestSiz
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int32_t res = appMgrService->RegisterAbilityForegroundStateObserver(nullptr);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: UnregisterAbilityForegroundStateObserver_0100
- * @tc.desc: Verify it when judgments is ready and observer is nullptr.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceTest, UnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
-{
-    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
-    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
-    appMgrService->taskHandler_ = taskHandler_;
-    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
-    int32_t res = appMgrService->UnregisterAbilityForegroundStateObserver(nullptr);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 
@@ -1794,7 +1794,6 @@ HWTEST_F(AppMgrServiceTest, GetRunningMultiAppInfoByBundleName_002, TestSize.Lev
     int32_t ret = appMgrService->GetRunningMultiAppInfoByBundleName(bundleName, info);
     EXPECT_NE(ret, ERR_OK);
 }
-
 /**
  * @tc.name: StartNativeChildProcess_0100
  * @tc.desc: Start native child process.

@@ -57,7 +57,7 @@ void DataAbilityHelperForObserverTest::SetUpTestCase(void)
 
 void DataAbilityHelperForObserverTest::TearDownTestCase(void)
 {
-    MockAbilitySchedulerTools::GetInstance()->SetMockStatus(true);
+    MockAbilitySchedulerTools::GetInstance()->SetMockStatus(false);
 }
 
 void DataAbilityHelperForObserverTest::SetUp(void)

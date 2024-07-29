@@ -74,6 +74,5 @@ ohos_unittest("remote_mission_listener_proxy_test") {
 
 group("unittest") {
   testonly = true
-
   deps = [ ":remote_mission_listener_proxy_test" ]
 }

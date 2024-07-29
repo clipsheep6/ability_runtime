@@ -218,7 +218,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_007, TestSize.Level1)
  * Feature: URIPermissionManagerService
  * Function: GrantUriPermission
  * SubFunction: NA
- * FunctionPoints: GrantUriPermission not called by SA or SystemApp.
+ * FunctionPoints: URIPermissionManagerService GrantUriPermission
  */
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_008, TestSize.Level1)
 {
@@ -410,6 +410,7 @@ HWTEST_F(UriPermissionImplTest, Upms_VerifyUriPermission_001, TestSize.Level1)
     auto flagRead = 1;
     auto flagWrite = 2;
     auto flagReadWrite = 3;
+
     // read
     upms->uriMap_.clear();
     upms->AddTempUriPermission(uri, flagRead, callerTokenId, targetTokenId, 0);
@@ -453,7 +454,6 @@ HWTEST_F(UriPermissionImplTest, Upms_VerifyUriPermission_001, TestSize.Level1)
  */
 HWTEST_F(UriPermissionImplTest, Upms_SendSystemAppGrantUriPermissionEvent_001, TestSize.Level1)
 {
-    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
     std::vector<std::string> uriVec = { "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt" };
     const std::vector<int32_t> resVec = { ERR_OK };
     auto ret = UPMSUtils::SendSystemAppGrantUriPermissionEvent(1001, 1002, uriVec, resVec);
@@ -483,7 +483,6 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
     auto mediaPhotoUri = Uri("file://media/Photo/1/IMG_001/test_001.jpg");
     uint32_t callerTokenId = 1001;
     uint32_t targetTokenId = 1002;
@@ -522,14 +521,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_001, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
+    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
+    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -545,7 +544,6 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_002, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
     auto mediaAudioUri = Uri("file://media/Audio/1/Record_001/test_001.mp3");
     uint32_t callerTokenId = 1001;
     uint32_t targetTokenId = 1002;
@@ -607,7 +605,6 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_003, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
     auto docsUri = Uri("file://docs/DestTop/Text/test_001.txt");
     uint32_t callerTokenId = 1001;
     uint32_t targetTokenId = 1002;
@@ -660,7 +657,6 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_004, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
     auto uri1 = Uri("file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_001.txt");
     auto uri2 = Uri("file://com.example.app1002/data/storage/el2/base/haps/entry/files/test_002.txt");
     uint32_t callerTokenId = 1001;
@@ -743,7 +739,6 @@ HWTEST_F(UriPermissionImplTest, RevokeAllUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
     MyFlag::tokenInfos[1001] = TokenInfo(1001, MyATokenTypeEnum::TOKEN_NATIVE, "foundation");
     IPCSkeleton::callerTokenId = 1001;
     auto ret = upms->RevokeAllUriPermissions(1002);

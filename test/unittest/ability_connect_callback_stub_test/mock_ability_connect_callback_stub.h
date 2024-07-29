@@ -16,8 +16,8 @@
 #ifndef UNITTEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_STUB_H
 #define UNITTEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_STUB_H
 
-#include <gmock/gmock.h>
 #include "ability_connect_callback_stub.h"
+#include <gmock/gmock.h>
 #include "semaphore_ex.h"
 
 namespace OHOS {
