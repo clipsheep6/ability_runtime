@@ -469,16 +469,16 @@ ErrCode WantAgentHelper::GetType(const std::shared_ptr<WantAgent> &agent, int32_
 
 ErrCode WantAgentHelper::GetWant(const std::shared_ptr<WantAgent> &agent, std::shared_ptr<AAFwk::Want> &want)
 {
+    if ((agent == nullptr) || (agent->GetPendingWant() == nullptr)) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgent or PendingWant invalid input param.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT;
+    }
     int id = HiviewDFX::XCollie::GetInstance().SetTimer(
         "OHOS::AbilityRuntime::WantAgent::WantAgentHelper::GetWant",
         XCOLLIE_TIMEOUT,
         nullptr,
         nullptr,
         HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
-    if ((agent == nullptr) || (agent->GetPendingWant() == nullptr)) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "invalid input param");
-        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT;
-    }
     ErrCode result = agent->GetPendingWant()->GetWant(agent->GetPendingWant()->GetTarget(), want);
     HiviewDFX::XCollie::GetInstance().CancelTimer(id);
     return result;

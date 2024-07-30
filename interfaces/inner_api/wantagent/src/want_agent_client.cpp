@@ -152,19 +152,20 @@ ErrCode WantAgentClient::GetPendingWantUserId(const sptr<IWantSender> &target, i
 
 ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &target, std::string &bundleName)
 {
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     int id = HiviewDFX::XCollie::GetInstance().SetTimer(
         "OHOS::AAFwk::WantAgentClient::GetPendingWantBundleName",
         XCOLLIE_TIMEOUT,
         nullptr,
         nullptr,
         HiviewDFX::XCOLLIE_FLAG_LOG | HiviewDFX::XCOLLIE_FLAG_RECOVERY);
-    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME),
         abms, target->AsObject(), reply, error)) {
+        HiviewDFX::XCollie::GetInstance().CancelTimer(id);
         return error;
     }
     bundleName = Str16ToStr8(reply.ReadString16());
@@ -189,19 +190,20 @@ ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int
 
 ErrCode WantAgentClient::GetPendingWantType(sptr<IWantSender> target, int32_t &type)
 {
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     int id = HiviewDFX::XCollie::GetInstance().SetTimer(
         "OHOS::AAFwk::WantAgentClient::GetPendingWantType",
         XCOLLIE_TIMEOUT,
         nullptr,
         nullptr,
         HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
-    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE),
         abms, target->AsObject(), reply, error)) {
+        HiviewDFX::XCollie::GetInstance().CancelTimer(id);
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     type = reply.ReadInt32();
