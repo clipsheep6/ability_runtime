@@ -720,6 +720,10 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
         TAG_LOGW(AAFwkTag::APPKIT, "invalid object");
         return nullptr;
     }
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "context object");
+        return nullptr;
+    }
     auto jsContext = std::make_unique<JsBaseContext>(context);
     SetNamedNativePointer(env, object, BASE_CONTEXT_NAME, jsContext.release(), JsBaseContext::Finalizer);
 
@@ -757,10 +761,8 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeFunction(env, object, "switchArea", moduleName, JsBaseContext::SwitchArea);
     BindNativeFunction(env, object, "getArea", moduleName, JsBaseContext::GetArea);
     BindNativeFunction(env, object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
-    BindNativeFunction(env, object, "createSystemHspModuleResourceManager", moduleName,
-        JsBaseContext::CreateSystemHspModuleResourceManager);
-    BindNativeFunction(env, object, "createModuleResourceManager", moduleName,
-        JsBaseContext::CreateModuleResourceManager);
+    BindNativeFunction(env, object, "createSystemHspModuleResourceManager", moduleName,JsBaseContext::CreateSystemHspModuleResourceManager);
+    BindNativeFunction(env, object, "createModuleResourceManager", moduleName,JsBaseContext::CreateModuleResourceManager);
     BindNativeFunction(env, object, "getGroupDir", moduleName, JsBaseContext::GetGroupDir);
     return object;
 }
