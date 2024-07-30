@@ -188,6 +188,8 @@ constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr const char* SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 constexpr const char* BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
 constexpr const char* STR_PHONE = "phone";
+constexpr const char* PARAM_RESV_ANCO_CALLER_UID = "ohos.anco.param.callerUid";
+constexpr const char* PARAM_RESV_ANCO_CALLER_BUNDLENAME = "ohos.anco.param.callerBundleName";
 // Distributed continued session Id
 constexpr const char* DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
 constexpr const char* DMS_PERSISTENT_ID = "ohos.dms.persistentId";
@@ -5925,7 +5927,12 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
         if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
             return ERR_APP_CLONE_INDEX_INVALID;
         }
-        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, appIndex);
+        Want localWant = want;
+        if (!StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+            localWant.RemoveParam(PARAM_RESV_ANCO_CALLER_UID);
+            localWant.RemoveParam(PARAM_RESV_ANCO_CALLER_BUNDLENAME);
+        }
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(localWant, userId, appIndex);
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -8024,12 +8031,10 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
-        int32_t callerUid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, -1);
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "call from anco or broker, callerUid: %{public}d.", callerUid);
-        if (callerUid != -1) {
-            return;
-        }
+    if (!StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from anco or broker.");
+        want.RemoveParam(PARAM_RESV_ANCO_CALLER_UID);
+        want.RemoveParam(PARAM_RESV_ANCO_CALLER_BUNDLENAME);
     }
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
@@ -8076,6 +8081,11 @@ void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObj
 
 void AbilityManagerService::UpdateAsCallerInfoFromToken(Want& want, sptr<IRemoteObject> asCallerSourceToken)
 {
+    if (!StartAbilityUtils::IsCallFromAncoShellOrBroker(asCallerSourceToken)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from anco or broker.");
+        want.RemoveParam(PARAM_RESV_ANCO_CALLER_UID);
+        want.RemoveParam(PARAM_RESV_ANCO_CALLER_BUNDLENAME);
+    }
     want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
@@ -8102,6 +8112,11 @@ void AbilityManagerService::UpdateAsCallerInfoFromToken(Want& want, sptr<IRemote
 
 void AbilityManagerService::UpdateAsCallerInfoFromCallerRecord(Want& want, sptr<IRemoteObject> callerToken)
 {
+    if (!StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from anco or broker.");
+        want.RemoveParam(PARAM_RESV_ANCO_CALLER_UID);
+        want.RemoveParam(PARAM_RESV_ANCO_CALLER_BUNDLENAME);
+    }
     want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.RemoveParam(Want::PARAM_RESV_CALLER_PID);

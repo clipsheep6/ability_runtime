@@ -33,6 +33,8 @@ constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.Serv
 constexpr int32_t ERMS_ISALLOW_RESULTCODE = 10;
 constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr int32_t BROKER_UID = 5557;
+constexpr const char* PARAM_RESV_ANCO_CALLER_UID = "ohos.anco.param.callerUid";
+constexpr const char* PARAM_RESV_ANCO_CALLER_BUNDLENAME = "ohos.anco.param.callerBundleName";
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
@@ -144,6 +146,9 @@ StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId
     }
     Want localWant = want;
     if (!StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from anco or broker.");
+        localWant.RemoveParam(PARAM_RESV_ANCO_CALLER_UID);
+        localWant.RemoveParam(PARAM_RESV_ANCO_CALLER_BUNDLENAME);
         localWant.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
         localWant.RemoveParam(Want::PARAM_RESV_CALLER_UID);
         localWant.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
