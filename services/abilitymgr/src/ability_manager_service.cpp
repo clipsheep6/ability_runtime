@@ -506,10 +506,10 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     bool isDebugApp = want.GetBoolParam(DEBUG_APP, false);
-    bool hasWindowOptions = (want.GetIntParam(Want::PARAM_RESV_WINDOW_LEFT, 0) > 0 ||
-        want.GetIntParam(Want::PARAM_RESV_WINDOW_TOP, 0) > 0 ||
-        want.GetIntParam(Want::PARAM_RESV_WINDOW_HEIGHT, 0) > 0 ||
-        want.GetIntParam(Want::PARAM_RESV_WINDOW_WIDTH, 0) > 0);
+    bool hasWindowOptions = (want.HasParameter(Want::PARAM_RESV_WINDOW_LEFT) ||
+        want.HasParameter(Want::PARAM_RESV_WINDOW_TOP) ||
+        want.HasParameter(Want::PARAM_RESV_WINDOW_HEIGHT) ||
+        want.HasParameter(Want::PARAM_RESV_WINDOW_WIDTH));
     TAG_LOGD(AAFwkTag::ABILITYMGR, "isDebugApp=%{public}d, hasWindowOptions=%{public}d",
         static_cast<int>(isDebugApp), static_cast<int>(hasWindowOptions));
     bool checkDeveloperModeFlag = (isDebugApp || hasWindowOptions);

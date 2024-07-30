@@ -216,6 +216,7 @@ const std::string PERFCMD_FIRST_PROFILE = "profile";
 const std::string PERFCMD_FIRST_DUMPHEAP = "dumpheap";
 
 const std::string STRING_TEST_REGEX_INTEGER_NUMBERS = "^(0|[1-9][0-9]*|-[1-9][0-9]*)$";
+const std::string STRING_REGEX_ALL_NUMBERS = "^(-)?([0-9]|[1-9][0-9]+)([\\.][0-9]+)?$";
 }  // namespace
 
 class AbilityManagerShellCommand : public ShellCommand {

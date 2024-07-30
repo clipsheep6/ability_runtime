@@ -970,14 +970,6 @@ bool AbilityManagerShellCommand::CheckPerfCmdString(
     return true;
 }
 
-bool IsNum(const std::string& s)
-{
-    for (auto c : s)
-        if (!std::isdigit(c))
-            return false;
-    return true;
-}
-
 bool AbilityManagerShellCommand::CheckParameters(int extraArguments)
 {
     if (optind + extraArguments >= argc_) return false;
@@ -995,7 +987,7 @@ ErrCode AbilityManagerShellCommand::ParseParam(ParametersInteger& pi)
 {
     std::string key = optarg;
     std::string intString = argv_[optind + OPTION_PARAMETER_VALUE_OFFSET];
-    if (!IsNum(intString)) {
+    if (!std::regex_match(intString, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
         resultReceiver_.append("invalid parameter ");
         resultReceiver_.append(intString);
         resultReceiver_.append(" for integer option\n");
@@ -1396,9 +1388,13 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     bool isNativeDebug = false;
     bool isMultiThread = false;
     int windowLeft = 0;
+    bool hasWindowLeft = false;
     int windowTop = 0;
+    bool hasWindowTop = false;
     int windowHeight = 0;
+    bool hasWindowHeight = false;
     int windowWidth = 0;
+    bool hasWindowWidth = false;
 
     while (true) {
         counter++;
@@ -1799,65 +1795,53 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             case OPTION_WINDOW_LEFT: {
                 // 'aa start --wl xxx'
-                if (!IsNum(optarg)) {
+                if (!std::regex_match(optarg, std::regex(STRING_REGEX_ALL_NUMBERS))) {
                     resultReceiver_.append("invalid argument for option --wl\n");
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
-                windowLeft = atoi(optarg);
-                if (windowLeft < 0) {
-                    resultReceiver_.append("window left cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
+                windowLeft = int(atof(optarg));
+                hasWindowLeft = true;
+                TAG_LOGI(AAFwkTag::AA_TOOL, "windowLeft=%{public}d", windowLeft);
 
                 break;
             }
             case OPTION_WINDOW_TOP: {
                 // 'aa start --wt xxx'
-                if (!IsNum(optarg)) {
+                if (!std::regex_match(optarg, std::regex(STRING_REGEX_ALL_NUMBERS))) {
                     resultReceiver_.append("invalid argument for option --wt\n");
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
-                if (windowTop < 0) {
-                    resultReceiver_.append("window top cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowTop = atoi(optarg);
+                windowTop = int(atof(optarg));
+                hasWindowTop = true;
+                TAG_LOGI(AAFwkTag::AA_TOOL, "windowTop=%{public}d", windowTop);
 
                 break;
             }
             case OPTION_WINDOW_HEIGHT: {
                 // 'aa start --wh xxx'
-                if (!IsNum(optarg)) {
+                if (!std::regex_match(optarg, std::regex(STRING_REGEX_ALL_NUMBERS))) {
                     resultReceiver_.append("invalid argument for option --wh\n");
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
-                if (windowHeight < 0) {
-                    resultReceiver_.append("window height cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowHeight = atoi(optarg);
+                windowHeight = int(atof(optarg));
+                hasWindowHeight = true;
+                TAG_LOGI(AAFwkTag::AA_TOOL, "windowHeight=%{public}d", windowHeight);
 
                 break;
             }
             case OPTION_WINDOW_WIDTH: {
                 // 'aa start --ww xxx'
-                if (!IsNum(optarg)) {
+                if (!std::regex_match(optarg, std::regex(STRING_REGEX_ALL_NUMBERS))) {
                     resultReceiver_.append("invalid argument for option --ww\n");
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
-                if (windowWidth < 0) {
-                    resultReceiver_.append("window width cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowWidth = atoi(optarg);
+                windowWidth = int(atof(optarg));
+                hasWindowWidth = true;
+                TAG_LOGI(AAFwkTag::AA_TOOL, "windowWidth=%{public}d", windowWidth);
 
                 break;
             }
@@ -1989,16 +1973,16 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             if (isMultiThread) {
                 want.SetParam("multiThread", isMultiThread);
             }
-            if (windowLeft > 0) {
+            if (hasWindowLeft) {
                 want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, windowLeft);
             }
-            if (windowTop > 0) {
+            if (hasWindowTop) {
                 want.SetParam(Want::PARAM_RESV_WINDOW_TOP, windowTop);
             }
-            if (windowHeight > 0) {
+            if (hasWindowHeight) {
                 want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, windowHeight);
             }
-            if (windowWidth > 0) {
+            if (hasWindowWidth) {
                 want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, windowWidth);
             }
         }
@@ -2030,9 +2014,7 @@ ErrCode AbilityManagerShellCommand::RunAsTestCommand()
             }
 
             std::string argv = argv_[++i];
-            std::smatch sm;
-            auto isNumber = std::regex_match(argv, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS));
-            if (!isNumber) {
+            if (!std::regex_match(argv, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
                 return TestCommandError("error: option [" + opt + "] only supports integer numbers.\n");
             }
 
