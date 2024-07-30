@@ -281,16 +281,19 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
 static void ProcessLinkType(std::vector<AppExecFwk::AbilityInfo> &abilityInfos)
 {
     bool appLinkingExist = false;
+    bool defaultAppExist = false;
     if (!abilityInfos.size()) {
         return;
     }
     for (const auto &info : abilityInfos) {
         if (info.linkType == AppExecFwk::LinkType::APP_LINK) {
             appLinkingExist = true;
-            break;
+        }
+        if (info.linkType == AppExecFwk::LinkType::DEFAULT_APP) {
+            defaultAppExist = true;
         }
     }
-    if (!appLinkingExist) {
+    if (!appLinkingExist && !defaultAppExist) {
         return;
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Open applink first!");
@@ -299,10 +302,17 @@ static void ProcessLinkType(std::vector<AppExecFwk::AbilityInfo> &abilityInfos)
             it++;
             continue;
         }
-        if (it->linkType == AppExecFwk::LinkType::DEEP_LINK) {
+        if (it->linkType == AppExecFwk::LinkType::DEFAULT_APP && appLinkingExist) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s default deleted.", it->name.c_str());
             it = abilityInfos.erase(it);
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s deleted.", it->name.c_str());
+            continue;
         }
+        if (it->linkType == AppExecFwk::LinkType::DEEP_LINK) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s deleted.", it->name.c_str());
+            it = abilityInfos.erase(it);
+            continue;
+        }
+        it++;
     }
 }
 
