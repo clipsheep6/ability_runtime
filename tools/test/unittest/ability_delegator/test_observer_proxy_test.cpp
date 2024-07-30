@@ -39,6 +39,7 @@ using namespace OHOS::AAFwk;
 
 namespace {
 const std::string CMD = "ls -l";
+const std::string WRONGCMD = "kk -l";
 }  // namespace
 
 class TestObserverProxyTest : public ::testing::Test {
@@ -115,10 +116,22 @@ public:
 
     std::u16string GetObjectDescriptor() const
     {
-        std::u16string descriptor = std::u16string();
-        return descriptor;
+        if (bExchange) {
+            std::u16string descriptor = std::u16string();
+            return descriptor;
+        } else {
+            std::u16string descriptor = std::u16string(u"testDescriptor");
+            return descriptor;
+        }
     }
+
+    static void SetExchange(bool bEx) {
+        bExchange = bEx;
+    }
+private:
+    static bool  bExchange;
 };
+bool MockIRemoteObject::bExchange = true;
 }
 
 /**
@@ -130,8 +143,16 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0100, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0100 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
+    OHOS::MockIRemoteObject::SetExchange(true);
     TestObserverProxy testObserverProxy(object);
     EXPECT_EQ(testObserverProxy.ExecuteShellCommand(CMD.c_str(), 0).stdResult.size(), 0);
+    OHOS::MockIRemoteObject::SetExchange(false);
+    testObserverProxy.ExecuteShellCommand(CMD.c_str(), 0);
+    testObserverProxy.ExecuteShellCommand("", 0);
+    std::string cmdstr;
+    testObserverProxy.ExecuteShellCommand(cmdstr, 0);
+    testObserverProxy.ExecuteShellCommand(cmdstr, false);
+    testObserverProxy.ExecuteShellCommand(WRONGCMD.c_str(), 0);
     TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0100 end");
 }
 
@@ -145,8 +166,13 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0200, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0200 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
     ASSERT_NE(object, nullptr);
+    OHOS::MockIRemoteObject::SetExchange(true);
     TestObserverProxy testObserverProxy(object);
     testObserverProxy.TestStatus(CMD.c_str(), 0);
+    OHOS::MockIRemoteObject::SetExchange(false);
+    testObserverProxy.TestStatus(CMD.c_str(), 0);
+    testObserverProxy.TestStatus(CMD.c_str(), false);
+    testObserverProxy.TestStatus(WRONGCMD.c_str(), 0);
     TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0200 end");
 }
 
@@ -160,7 +186,12 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0300, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0300 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
     ASSERT_NE(object, nullptr);
+    OHOS::MockIRemoteObject::SetExchange(true);
     TestObserverProxy testObserverProxy(object);
     testObserverProxy.TestFinished(CMD.c_str(), 0);
+    OHOS::MockIRemoteObject::SetExchange(false);
+    testObserverProxy.TestFinished(CMD.c_str(), 0);
+    testObserverProxy.TestFinished(CMD.c_str(), false);
+    testObserverProxy.TestFinished(WRONGCMD.c_str(), 0);
     TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0300 end");
 }
