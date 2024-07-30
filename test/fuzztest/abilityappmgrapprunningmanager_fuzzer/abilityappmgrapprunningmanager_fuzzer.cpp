@@ -117,7 +117,7 @@ void DoSomethingInterestingWithMyAPIaddb(const char* data, size_t size)
     std::shared_ptr<ApplicationInfo> infoAPP;
     OHOS::AppExecFwk::AppRunningRecord foregroundingRecord(infoAPP, recordId, jsonStr);
     manager->IsApplicationFirstForeground(foregroundingRecord);
-    manager->IsApplicationBackground(foregroundingRecord);
+    manager->IsApplicationBackground(jsonStr);
     manager->IsApplicationFirstFocused(foregroundingRecord);
     manager->IsApplicationUnfocused(jsonStr);
     bool isAttachDebug = *data % ENABLE;
