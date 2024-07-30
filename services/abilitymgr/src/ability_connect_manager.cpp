@@ -2090,6 +2090,14 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
     }
     if (ability->GetAbilityInfo().name == AbilityConfig::CALLUI_ABILITY_NAME && ability->GetStartId() == 0) {
         HandleConnectTimeoutTask(ability);
+        EventInfo eventInfo;
+        eventInfo.userId = userId_;
+        eventInfo.bundleName = ability->GetAbilityInfo().bundleName;
+        eventInfo.moduleName = ability->GetAbilityInfo().moduleName;
+        eventInfo.abilityName = ability->GetAbilityInfo().name;
+        eventInfo.abilityName = ability->GetAbilityInfo().name;
+        eventInfo.errCode = CONNECTION_TIMEOUT;
+        EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
     }
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout end");
