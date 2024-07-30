@@ -240,6 +240,10 @@ public:
     void SetRestoreEnabled(bool enabled) override;
     bool GetRestoreEnabled() override;
 
+    void SetWant(const AAFwk::Want &want) override;
+    AAFwk::Want GetWant() override;
+    AAFwk::ContinueState GetContinueState() override;
+
 #ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
@@ -307,6 +311,9 @@ private:
     std::mutex uiExtensionMutex_;
     std::map<int32_t, Want> uiExtensionMap_;
     std::atomic<bool> restoreEnabled_ = true;
+    AAFwk::Want want_;
+    AAFwk::ContinueState continueState_ = AAFwk::ContinueState::CONTINUESTATE_UNKNOWN;
+
 
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);

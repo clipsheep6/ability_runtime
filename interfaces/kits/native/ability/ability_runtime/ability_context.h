@@ -395,6 +395,9 @@ public:
     virtual void SetTerminating(bool state) = 0;
     virtual void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) = 0;
     virtual void RemoveResultCallbackTask(int requestCode) = 0;
+    virtual void SetWant(const AAFwk::Want &want) = 0;
+    virtual AAFwk::Want GetWant() = 0;
+    virtual AAFwk::ContinueState GetContinueState() = 0;
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;
 
