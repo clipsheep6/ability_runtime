@@ -1084,16 +1084,6 @@ int32_t AppMgrClient::UnregisterAppRunningStatusListener(const sptr<IRemoteObjec
     return service->UnregisterAppRunningStatusListener(listener);
 }
 
-bool AppMgrClient::IsFinalAppProcess()
-{
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
-    if (service == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
-        return false;
-    }
-    return service->IsFinalAppProcess();
-}
-
 void AppMgrClient::ClearProcessByToken(sptr<IRemoteObject> token) const
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
@@ -1107,6 +1097,16 @@ void AppMgrClient::ClearProcessByToken(sptr<IRemoteObject> token) const
         return;
     }
     amsService->ClearProcessByToken(token);
+}
+
+bool AppMgrClient::IsFinalAppProcess()
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return false;
+    }
+    return service->IsFinalAppProcess();
 }
 
 int32_t AppMgrClient::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)

@@ -117,6 +117,7 @@ bool ApplicationImpl::PerformTerminate(bool isLastProcess)
         curState_ = APP_STATE_TERMINATED;
         return true;
     }
+    TAG_LOGE(AAFwkTag::APPKIT, "curState is %{public}d", curState_);
     return false;
 }
 
