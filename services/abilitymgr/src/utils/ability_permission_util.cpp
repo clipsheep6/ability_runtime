@@ -32,6 +32,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 constexpr const char* IS_DELEGATOR_CALL = "isDelegatorCall";
+constexpr const char* SETTINGS = "settings";
+constexpr int32_t BASE_USER_RANGE = 200000;
 }
 
 AbilityPermissionUtil &AbilityPermissionUtil::GetInstance()
@@ -62,13 +64,41 @@ bool AbilityPermissionUtil::IsDominateScreen(const Want &want, bool isPendingWan
         AppExecFwk::RunningProcessInfo processInfo;
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
         bool isDelegatorCall = processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false);
+        if (isDelegatorCall || InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "not dominate screen.");
+            return false;
+        }
+        // add temporarily
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
-        if (!isDelegatorCall && !InsightIntentExecuteParam::IsInsightIntentExecute(want) &&
-            !AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "dominate screen.");
-            return true;
+        bool withoutSettings = bundleName.find(SETTINGS) == std::string::npos &&
+            abilityName.find(SETTINGS) == std::string::npos;
+        if (withoutSettings && AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "not dominate screen, allow.");
+            return false;
+        } else if (AppUtils::GetInstance().IsAllowStartAbilityWithoutCallerToken(bundleName, abilityName)) {
+            auto bms = AbilityUtil::GetBundleManagerHelper();
+            CHECK_POINTER_RETURN_BOOL(bms);
+            int32_t callerUid = IPCSkeleton::GetCallingUid();
+            std::string callerBundleName;
+            if (!IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName))) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get caller bundle name.");
+                return false;
+            }
+            auto userId = callerUid / BASE_USER_RANGE;
+            AppExecFwk::BundleInfo info;
+            if (!IN_PROCESS_CALL(
+                bms->GetBundleInfo(callerBundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, info, userId))) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get bundle info.");
+                return false;
+            }
+            if (info.applicationInfo.needAppDetail) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "not dominate screen, app detail.");
+                return false;
+            }
         }
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "dominate screen.");
+        return true;
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "not dominate screen.");
     return false;
