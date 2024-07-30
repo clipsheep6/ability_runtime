@@ -720,6 +720,12 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
         TAG_LOGW(AAFwkTag::APPKIT, "invalid object");
         return nullptr;
     }
+
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "invalid context");
+        return nullptr;
+    }
+
     auto jsContext = std::make_unique<JsBaseContext>(context);
     SetNamedNativePointer(env, object, BASE_CONTEXT_NAME, jsContext.release(), JsBaseContext::Finalizer);
 
