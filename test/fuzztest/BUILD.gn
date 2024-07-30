@@ -20,6 +20,7 @@ group("fuzztest") {
     "abilityappdebuginfo_fuzzer:fuzztest",
     "abilityappdebugmanager_fuzzer:fuzztest",
     "abilityappdfrapplicationanrlistener_fuzzer:fuzztest",
+    "abilityappfreezemanager_fuzzer:fuzztest",
     "abilityappjsheapmeminfo_fuzzer:fuzztest",
     "abilityappmgrapprunningmanager_fuzzer:fuzztest",
     "abilityappmgrevent_fuzzer:fuzztest",
