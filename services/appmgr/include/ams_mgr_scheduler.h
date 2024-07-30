@@ -165,6 +165,14 @@ public:
         const int appIndex = 0) override;
 
     /**
+     * KillProcessesByAccessTokenId.
+     *
+     * @param  accessTokenId, accessTokenId.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t KillProcessesByAccessTokenId(const uint32_t accessTokenId) override;
+
+    /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.

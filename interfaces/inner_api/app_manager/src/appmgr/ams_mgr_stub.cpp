@@ -67,11 +67,15 @@ int32_t AmsMgrStub::OnRemoteRequestInner(uint32_t code, MessageParcel &data,
     if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
         return retCode;
     }
-        retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
     if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
         return retCode;
     }
-        retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerFourth(code, data, reply, option);
     if (retCode != AAFwk::ERR_CODE_NOT_EXIST) {
         return retCode;
     }
@@ -190,12 +194,22 @@ int32_t AmsMgrStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data
             return HandleBlockProcessCacheByPids(data, reply);
         case static_cast<uint32_t>(IAmsMgr::Message::IS_KILLED_FOR_UPGRADE_WEB):
             return HandleIsKilledForUpgradeWeb(data, reply);
+    }
+    return AAFwk::ERR_CODE_NOT_EXIST;
+}
+
+int32_t AmsMgrStub::OnRemoteRequestInnerFourth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
         case static_cast<uint32_t>(IAmsMgr::Message::IS_PROCESS_CONTAINS_ONLY_UI_EXTENSION):
             return HandleIsProcessContainsOnlyUIAbility(data, reply);
         case static_cast<uint32_t>(IAmsMgr::Message::FORCE_KILL_APPLICATION):
             return HandleForceKillApplication(data, reply);
         case static_cast<uint32_t>(IAmsMgr::Message::CLEAN_UIABILITY_BY_USER_REQUEST):
             return HandleCleanAbilityByUserRequest(data, reply);
+        case static_cast<uint32_t>(IAmsMgr::Message::FORCE_KILL_APPLICATION_BY_ACCESS_TOKEN_ID):
+            return HandleKillProcessesByAccessTokenId(data, reply);
     }
     return AAFwk::ERR_CODE_NOT_EXIST;
 }
@@ -379,6 +393,18 @@ ErrCode AmsMgrStub::HandleForceKillApplication(MessageParcel &data, MessageParce
         bundleName.c_str(), userId, appIndex);
 
     int32_t result = ForceKillApplication(bundleName, userId, appIndex);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleKillProcessesByAccessTokenId(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int accessTokenId = data.ReadInt32();
+
+    TAG_LOGI(AAFwkTag::APPMGR, "accessTokenId=%{public}d", accessTokenId);
+
+    int32_t result = KillProcessesByAccessTokenId(accessTokenId);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

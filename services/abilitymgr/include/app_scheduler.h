@@ -245,6 +245,14 @@ public:
         const int appIndex = 0);
 
     /**
+     * KillProcessesByAccessTokenId.
+     *
+     * @param  accessTokenId, accessTokenId.
+     * @return ERR_OK, return back success, others fail.
+     */
+    int KillProcessesByAccessTokenId(const uint32_t accessTokenId);
+
+    /**
      * kill the application by uid
      *
      * @param bundleName name of bundle.

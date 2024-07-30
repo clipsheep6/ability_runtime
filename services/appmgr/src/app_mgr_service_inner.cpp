@@ -1231,6 +1231,42 @@ int32_t AppMgrServiceInner::ForceKillApplicationInner(const std::string &bundleN
     return result;
 }
 
+int32_t AppMgrServiceInner::KillProcessesByAccessTokenId(const uint32_t accessTokenId)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_KILL_APP_PROCESSES);
+    if (!isCallingPerm) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no permission to kill processes.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    std::vector<pid_t> pids;
+    GetPidsByAccessTokenId(accessTokenId, pids);
+    if (pids.empty()) {
+        TAG_LOGI(AAFwkTag::APPMGR, "no pids matching the given accessTokenId.");
+        return ERR_OK;
+    }
+
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+
+    int32_t result = ERR_OK;
+    for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
+        result = KillProcessByPid(*iter, "KillProcessesByAccessTokenId");
+        if (result < 0) {
+            TAG_LOGE(AAFwkTag::APPMGR,
+                "KillProcessesByAccessTokenId failed for accessTokenId:%{public}d,pid:%{public}d",
+                accessTokenId, *iter);
+            return result;
+        }
+    }
+    return result;
+}
+
 int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
     if (!appRunningManager_) {
@@ -7221,6 +7257,34 @@ bool AppMgrServiceInner::IsKilledForUpgradeWeb(const std::string &bundleName) co
     }
     return ExitResidentProcessManager::GetInstance().IsKilledForUpgradeWeb(bundleName);
 }
+
+void AppMgrServiceInner::GetPidsByAccessTokenId(const uint32_t accessTokenId, std::vector<pid_t> &pids)
+{
+    int32_t result = ERR_OK;
+    pid_t foregroundPid = -1;
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (!appRecord->GetSpawned()) {
+            continue;
+        }
+        auto applicationInfo = appRecord->GetApplicationInfo();
+        if (!applicationInfo) {
+            continue;
+        }
+        if (accessTokenId == applicationInfo->accessTokenId) {
+            pid_t curPid = appRecord->GetPriorityObject()->GetPid();
+            if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+                foregroundPid = curPid;
+                continue;
+            }
+            pids.push_back(curPid);
+        }
+    }
+    if (foregroundPid >= 0) {
+        pids.push_back(foregroundPid);
+    }
+}
+
 bool AppMgrServiceInner::IsProcessContainsOnlyUIAbility(const pid_t pid)
 {
     auto appRecord = GetAppRunningRecordByPid(pid);

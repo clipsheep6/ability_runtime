@@ -158,6 +158,15 @@ public:
     virtual int ForceKillApplication(const std::string &bundleName, const int userId = -1, const int appIndex = 0) = 0;
 
     /**
+     * KillProcessesByAccessTokenId, call KillProcessesByAccessTokenId() through proxy object,
+     * force kill the application.
+     *
+     * @param  accessTokenId, accessTokenId.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int KillProcessesByAccessTokenId(const uint32_t accessTokenId) = 0;
+
+    /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.
@@ -412,6 +421,7 @@ public:
         IS_PROCESS_CONTAINS_ONLY_UI_EXTENSION,
         FORCE_KILL_APPLICATION,
         CLEAN_UIABILITY_BY_USER_REQUEST,
+        FORCE_KILL_APPLICATION_BY_ACCESS_TOKEN_ID = 49,
     };
 };
 }  // namespace AppExecFwk

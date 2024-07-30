@@ -356,6 +356,16 @@ int32_t AmsMgrScheduler::ForceKillApplication(const std::string &bundleName,
     return amsMgrServiceInner_->ForceKillApplication(bundleName, userId, appIndex);
 }
 
+int32_t AmsMgrScheduler::KillProcessesByAccessTokenId(const uint32_t accessTokenId)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "accessTokenId=%{public}d", accessTokenId);
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    return amsMgrServiceInner_->KillProcessesByAccessTokenId(accessTokenId);
+}
+
 int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, uid = %{public}d", bundleName.c_str(), uid);

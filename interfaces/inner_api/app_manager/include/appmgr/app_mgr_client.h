@@ -174,6 +174,15 @@ public:
         const int appIndex = 0);
 
     /**
+     * KillProcessesByAccessTokenId, call KillProcessesByAccessTokenId() through proxy object,
+     * force kill the application.
+     *
+     * @param  accessTokenId, accessTokenId.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual AppMgrResultCode KillProcessesByAccessTokenId(const uint32_t accessTokenId);
+
+    /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.

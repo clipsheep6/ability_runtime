@@ -272,6 +272,19 @@ int AppScheduler::ForceKillApplication(const std::string &bundleName,
     return ERR_OK;
 }
 
+int AppScheduler::KillProcessesByAccessTokenId(const uint32_t accessTokenId)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    int ret = (int)appMgrClient_->KillProcessesByAccessTokenId(accessTokenId);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to force kill application by accessTokenId.");
+        return INNER_ERR;
+    }
+
+    return ERR_OK;
+}
+
 int AppScheduler::KillApplicationByUid(const std::string &bundleName, int32_t uid)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
