@@ -786,6 +786,8 @@ ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state, sessionToken);
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::CONTEXT, "SetMissionContinueState failed: %{public}d", err);
+    } else {
+        continueState_ = state;
     }
     return err;
 }
@@ -1048,6 +1050,21 @@ ErrCode AbilityContextImpl::OpenLink(const AAFwk::Want& want, int requestCode)
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "called");
     return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
+}
+
+void AbilityContextImpl::SetWant(const AAFwk::Want &want)
+{
+    want_ = want;
+}
+
+AAFwk::Want AbilityContextImpl::GetWant()
+{
+    return want_;
+}
+
+AAFwk::ContinueState AbilityContextImpl::GetContinueState()
+{
+    return continueState_;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
