@@ -401,6 +401,12 @@ napi_value JsWantAgent::OnGetWant(napi_env env, napi_callback_info info)
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "This application is not system-app, can not use system-api");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
+        return CreateJsUndefined(env);
+    }
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
