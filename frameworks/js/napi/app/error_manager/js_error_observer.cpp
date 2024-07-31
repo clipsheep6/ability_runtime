@@ -67,7 +67,7 @@ void JsErrorObserver::CallJsFunction(napi_value obj, const char* methodName, nap
 {
     TAG_LOGD(AAFwkTag::JSNAPI, "call method:%{public}s", methodName);
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Failed to get object");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null obj");
         return;
     }
 

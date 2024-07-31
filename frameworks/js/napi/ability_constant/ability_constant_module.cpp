@@ -42,7 +42,6 @@ static napi_status SetEnumItem(napi_env env, napi_value object, const char* name
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemName, itemValue), status);
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemValue, itemName), status);
 
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
     return napi_ok;
 }
 
@@ -61,7 +60,6 @@ static napi_value InitLaunchReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "AUTO_STARTUP", LAUNCHREASON_AUTO_STARTUP));
     NAPI_CALL(env, SetEnumItem(env, object, "INSIGHT_INTENT", LAUNCHREASON_INSIGHT_INTENT));
 
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
     return object;
 }
 
@@ -81,7 +79,6 @@ static napi_value InitLastExitReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "RESOURCE_CONTROL", LASTEXITREASON_RESOURCE_CONTROL));
     NAPI_CALL(env, SetEnumItem(env, object, "UPGRADE", LASTEXITREASON_UPGRADE));
 
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
     return object;
 }
 
@@ -95,7 +92,6 @@ static napi_value InitOnContinueResultObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "REJECT", ONCONTINUE_REJECT));
     NAPI_CALL(env, SetEnumItem(env, object, "MISMATCH", ONCONTINUE_MISMATCH));
 
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
     return object;
 }
 
@@ -122,7 +118,6 @@ static napi_value InitWindowModeObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_SPLIT_SECONDARY", MULTI_WINDOW_DISPLAY_SECONDARY));
     NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_FLOATING", MULTI_WINDOW_DISPLAY_FLOATING));
 
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
     return object;
 }
 
@@ -138,7 +133,7 @@ static napi_value InitOnSaveResultEnum(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "RECOVERY_AGREE", AppExecFwk::RECOVERY_AGREE));
     NAPI_CALL(env, SetEnumItem(env, object, "RECOVERY_REJECT", AppExecFwk::RECOVERY_REJECT));
     NAPI_CALL(env, SetEnumItem(env, object, "ALL_REJECT", AppExecFwk::ALL_REJECT));
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
+
     return object;
 }
 
@@ -150,7 +145,7 @@ static napi_value InitStateTypeEnum(napi_env env)
     NAPI_CALL(env, napi_create_object(env, &object));
     NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION", AppExecFwk::CONTINUATION));
     NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", AppExecFwk::APP_RECOVERY));
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
+
     return object;
 }
 
@@ -167,7 +162,6 @@ static napi_value InitMemoryLevelObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL",
         static_cast<int>(MemoryLevel::MEMORY_LEVEL_CRITICAL)));
 
-    TAG_LOGD(AAFwkTag::JSNAPI, "end");
     return object;
 }
 

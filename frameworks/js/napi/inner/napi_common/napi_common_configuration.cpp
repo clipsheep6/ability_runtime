@@ -78,7 +78,7 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     std::string fontSizeScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE);
     jsValue = WrapDoubleToJS(env, fontSizeScale != "" ? std::stod(fontSizeScale) : 1.0);
     SetPropertyValueByPropertyName(env, jsObject, "fontSizeScale", jsValue);
-    
+
     std::string fontWeightScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
     jsValue = WrapDoubleToJS(env, fontWeightScale != "" ? std::stod(fontWeightScale) : 1.0);
     SetPropertyValueByPropertyName(env, jsObject, "fontWeightScale", jsValue);
@@ -114,7 +114,7 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
     if (UnwrapInt32ByPropertyName(env, param, "colorMode", colormode)) {
         TAG_LOGD(AAFwkTag::JSNAPI, "The parsed colormode part %{public}d", colormode);
         if (colormode != Global::Resource::DARK && colormode != Global::Resource::LIGHT) {
-            TAG_LOGE(AAFwkTag::JSNAPI, "Set colorMode to unsupported value.");
+            TAG_LOGE(AAFwkTag::JSNAPI, "Set colorMode to unsupported value");
             return false;
         }
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, GetColorModeStr(colormode))) {

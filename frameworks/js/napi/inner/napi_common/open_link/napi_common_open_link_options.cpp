@@ -28,7 +28,7 @@ bool UnwrapOpenLinkOptions(napi_env env, napi_value param, AAFwk::OpenLinkOption
     TAG_LOGI(AAFwkTag::JSNAPI, "called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "Params is invalid.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "invalid params");
         return false;
     }
 

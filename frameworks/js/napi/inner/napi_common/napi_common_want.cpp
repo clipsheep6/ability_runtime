@@ -267,7 +267,7 @@ bool InnerWrapWantParamsFloat(
 bool InnerWrapWantParamsDouble(
     napi_env env, napi_value jsObject, const std::string &key, const AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "enter");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     auto value = wantParams.GetParam(key);
     AAFwk::IDouble *ao = AAFwk::IDouble::Query(value);
     if (ao == nullptr) {
@@ -697,7 +697,7 @@ bool InnerSetWantParamsArrayObject(napi_env env, const std::string &key,
 bool InnerSetWantParamsArrayString(
     const std::string &key, const std::vector<std::string> &value, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "InnerSetWantParamsArrayString enter");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     size_t size = value.size();
     sptr<AAFwk::IArray> ao = new (std::nothrow) AAFwk::Array(size, AAFwk::g_IID_IString);
     if (ao != nullptr) {

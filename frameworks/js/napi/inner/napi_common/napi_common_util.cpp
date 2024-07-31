@@ -25,7 +25,7 @@ namespace OHOS {
 namespace AppExecFwk {
 bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "IsTypeForNapiValue start.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     napi_valuetype valueType = napi_undefined;
 
     if (param == nullptr) {
@@ -42,7 +42,7 @@ bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectTyp
 
 bool IsArrayForNapiValue(napi_env env, napi_value param, uint32_t &arraySize)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "IsArrayForNapiValue start.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     bool isArray = false;
     arraySize = 0;
 
@@ -279,7 +279,7 @@ bool UnwrapStringFromJS2(napi_env env, napi_value param, std::string &value)
 
 napi_value WrapArrayInt32ToJS(napi_env env, const std::vector<int> &value)
 {
-    TAG_LOGD(AAFwkTag::JSNAPI, "WrapArrayInt32ToJS start.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called");
     napi_value jsArray = nullptr;
     napi_value jsValue = nullptr;
     uint32_t index = 0;
@@ -303,7 +303,7 @@ bool UnwrapArrayInt32FromJS(napi_env env, napi_value param, std::vector<int> &va
     int natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed");
+        TAG_LOGD(AAFwkTag::JSNAPI, "arraySize Expanding ArrayInt32 from JS failed");
         return false;
     }
 
@@ -312,7 +312,7 @@ bool UnwrapArrayInt32FromJS(napi_env env, napi_value param, std::vector<int> &va
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed");
+            TAG_LOGD(AAFwkTag::JSNAPI, "array item Expanding ArrayInt32 from JS failed");
             return false;
         }
 
@@ -350,7 +350,7 @@ bool UnwrapArrayLongFromJS(napi_env env, napi_value param, std::vector<long> &va
     long natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "arraySize Expanding ArrayInt32 from JS failed.");
         return false;
     }
 
@@ -359,7 +359,7 @@ bool UnwrapArrayLongFromJS(napi_env env, napi_value param, std::vector<long> &va
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed.");
+            TAG_LOGD(AAFwkTag::JSNAPI, "array item Expanding ArrayInt32 from JS failed.");
             return false;
         }
 
@@ -397,7 +397,7 @@ bool UnwrapArrayInt64FromJS(napi_env env, napi_value param, std::vector<int64_t>
     int64_t natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error");
+        TAG_LOGD(AAFwkTag::JSNAPI, "arraySize Expanding ArrayInt32 from JS error");
         return false;
     }
 
@@ -406,7 +406,7 @@ bool UnwrapArrayInt64FromJS(napi_env env, napi_value param, std::vector<int64_t>
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error");
+            TAG_LOGD(AAFwkTag::JSNAPI, "array item Expanding ArrayInt32 from JS error");
             return false;
         }
 
@@ -444,7 +444,7 @@ bool UnwrapArrayDoubleFromJS(napi_env env, napi_value param, std::vector<double>
     double natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "arraySize Expanding ArrayInt32 from JS error");
         return false;
     }
 
@@ -453,7 +453,7 @@ bool UnwrapArrayDoubleFromJS(napi_env env, napi_value param, std::vector<double>
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error.");
+            TAG_LOGD(AAFwkTag::JSNAPI, "array item Expanding ArrayInt32 from JS error");
             return false;
         }
 

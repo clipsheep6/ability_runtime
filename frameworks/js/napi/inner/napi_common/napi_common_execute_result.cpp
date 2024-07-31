@@ -35,7 +35,7 @@ bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteRes
     }
     int32_t code = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "code", code)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Intent result must contain a code.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "parse code fail");
         return false;
     }
     executeResult.code = code;
@@ -47,16 +47,16 @@ bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteRes
             napi_valuetype valueType = napi_undefined;
             napi_typeof(env, result, &valueType);
             if (valueType != napi_object) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
+                TAG_LOGE(AAFwkTag::JSNAPI, "type not function");
                 return false;
             }
             auto wp = std::make_shared<AAFwk::WantParams>();
             if (!AppExecFwk::UnwrapWantParams(env, result, *wp)) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
+                TAG_LOGE(AAFwkTag::JSNAPI, "unwrap want failed");
                 return false;
             }
             if (!executeResult.CheckResult(wp)) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "Invalid intent result.");
+                TAG_LOGE(AAFwkTag::JSNAPI, "Check wp fail");
                 return false;
             }
             executeResult.result = wp;

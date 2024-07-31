@@ -34,22 +34,22 @@ bool UnwrapProcessOptions(napi_env env, napi_value param, std::shared_ptr<AAFwk:
     auto option = std::make_shared<AAFwk::ProcessOptions>();
     int32_t processMode = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "processMode", processMode)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap processMode failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap processMode failed");
         return false;
     }
     option->processMode = AAFwk::ProcessOptions::ConvertInt32ToProcessMode(processMode);
     if (option->processMode == AAFwk::ProcessMode::UNSPECIFIED) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Convert processMode failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Convert processMode failed");
         return false;
     }
     int32_t startupVisibility = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "startupVisibility", startupVisibility)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap startupVisibility failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap startupVisibility failed");
         return false;
     }
     option->startupVisibility = AAFwk::ProcessOptions::ConvertInt32ToStartupVisibility(startupVisibility);
     if (option->startupVisibility == AAFwk::StartupVisibility::UNSPECIFIED) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Convert startupVisibility failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Convert startupVisibility failed");
         return false;
     }
     processOptions = option;
@@ -63,7 +63,7 @@ bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::
 {
     UnwrapStartOptions(env, param, startOptions);
     if (!UnwrapProcessOptions(env, param, startOptions.processOptions)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap processOptions failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap processOptions failed");
         return false;
     }
     return true;
