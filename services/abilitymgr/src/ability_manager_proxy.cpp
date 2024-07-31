@@ -2249,7 +2249,6 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
 int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -3192,7 +3191,6 @@ int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string &d
 int32_t AbilityManagerProxy::RegisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -3222,7 +3220,6 @@ int32_t AbilityManagerProxy::RegisterAbilityFirstFrameStateObserver(
 int32_t AbilityManagerProxy::UnregisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -3340,7 +3337,6 @@ int AbilityManagerProxy::GetProcessRunningInfos(std::vector<AppExecFwk::RunningP
 
 int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -3374,7 +3370,6 @@ int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool 
 
 int32_t AbilityManagerProxy::StopSyncRemoteMissions(const std::string& devId)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -3425,7 +3420,6 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
 int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
     const sptr<IRemoteObject> &callerToken, int32_t accountId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "begin.");
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -3462,7 +3456,6 @@ int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilit
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "SendRequest Call.");
     error = SendRequest(AbilityManagerInterfaceCode::START_CALL_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -4079,7 +4072,6 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
 int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Call");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -4114,7 +4106,6 @@ int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid
 
 int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Call");
     if (!callerToken) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is invalid.");
         return ERR_INVALID_CALLER;
@@ -4147,7 +4138,6 @@ int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<I
 
 int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (callerToken == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is nullptr");
         return INNER_ERR;
@@ -4719,7 +4709,6 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
 
 int32_t AbilityManagerProxy::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -4743,7 +4732,6 @@ int32_t AbilityManagerProxy::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebug
 
 int32_t AbilityManagerProxy::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -4767,7 +4755,6 @@ int32_t AbilityManagerProxy::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDeb
 
 int32_t AbilityManagerProxy::AttachAppDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -4791,7 +4778,6 @@ int32_t AbilityManagerProxy::AttachAppDebug(const std::string &bundleName)
 
 int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
@@ -4816,7 +4802,6 @@ int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
 int32_t AbilityManagerProxy::ExecuteIntent(uint64_t key,  const sptr<IRemoteObject> &callerToken,
     const InsightIntentExecuteParam &param)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -4876,7 +4861,6 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
 int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
     const InsightIntentExecuteResult &result)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write remote object failed.");
@@ -4905,7 +4889,6 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
 
 int32_t AbilityManagerProxy::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return ERR_FLATTEN_OBJECT;
@@ -4956,7 +4939,6 @@ int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
 int32_t AbilityManagerProxy::RequestAssertFaultDialog(
     const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Params callback is nullptr.");
         return INNER_ERR;
