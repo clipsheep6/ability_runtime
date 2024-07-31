@@ -3461,7 +3461,6 @@ int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilit
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
@@ -4166,7 +4165,6 @@ int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &cal
 int32_t AbilityManagerProxy::AcquireShareData(
     const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -4191,14 +4189,12 @@ int32_t AbilityManagerProxy::AcquireShareData(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request err: %{public}d.", error);
         return INNER_ERR;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::ShareDataDone(
     const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -4233,13 +4229,11 @@ int32_t AbilityManagerProxy::ShareDataDone(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest err: %{public}d.", error);
         return error;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -4257,13 +4251,11 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &e
         return error;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::RecordAppExitReason(const ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -4280,13 +4272,11 @@ int32_t AbilityManagerProxy::RecordAppExitReason(const ExitReason &exitReason)
         return error;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -4304,7 +4294,6 @@ int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const Ex
         return error;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
@@ -4412,7 +4401,6 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
 
 int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -4432,7 +4420,6 @@ int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> 
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
