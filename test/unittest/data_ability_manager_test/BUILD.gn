@@ -80,6 +80,7 @@ ohos_unittest("data_ability_manager_test") {
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
     "napi:ace_napi",
+    "relational_store:native_rdb",
     "window_manager:session_manager_lite",
   ]
 

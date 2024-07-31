@@ -16,6 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/ability_delegator"
 
 ability_delegator_mock_sources = [
+  "${ability_runtime_path}/tools/aa/src/shell_command_config_loader.cpp",
   "${ability_runtime_path}/tools/aa/src/shell_command_executor.cpp",
   "${ability_runtime_path}/tools/aa/src/test_observer.cpp",
   "${ability_runtime_path}/tools/aa/src/test_observer_stub.cpp",
@@ -105,6 +106,7 @@ ohos_unittest("iability_monitor_unittest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "c_utils:utils",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
@@ -183,6 +185,7 @@ ohos_unittest("ability_delegator_registry_unittest") {
   configs += [ "${ability_runtime_services_path}/common:common_config" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -199,6 +202,7 @@ ohos_unittest("ability_delegator_registry_unittest") {
     "ability_runtime:runtime",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -236,6 +240,7 @@ ohos_unittest("js_test_runner_unittest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
