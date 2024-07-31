@@ -50,19 +50,19 @@ const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 
 #define CHECK_POINTER_RETURN(object)                        \
     if (!object) {                                          \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "proxy is nullptr"); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null proxy"); \
         return;                                             \
     }
 
 #define CHECK_POINTER_RETURN_NOT_CONNECTED(object)           \
     if (!object) {                                           \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "proxy is nullptr"); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null proxy"); \
         return ABILITY_SERVICE_NOT_CONNECTED;                \
     }
 
 #define CHECK_POINTER_RETURN_INVALID_VALUE(object)           \
     if (!object) {                                           \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "proxy is nullptr"); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null proxy"); \
         return ERR_INVALID_VALUE;                            \
     }
 
@@ -316,7 +316,7 @@ ErrCode AbilityManagerClient::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> s
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null sessionInfo");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
@@ -342,7 +342,7 @@ ErrCode AbilityManagerClient::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo,
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null sessionInfo");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
@@ -433,7 +433,7 @@ ErrCode AbilityManagerClient::CloseUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, null sessionInfo");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
@@ -467,7 +467,7 @@ ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(sptr<SessionInfo> sessionIn
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, null sessionInfo");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
@@ -1329,12 +1329,12 @@ ErrCode AbilityManagerClient::PrepareTerminateAbility(sptr<IRemoteObject> token,
     sptr<IPrepareTerminateCallback> callback)
 {
     if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null callback");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abms");
         return ERR_INVALID_VALUE;
     }
     return abms->PrepareTerminateAbility(token, callback);
@@ -1792,7 +1792,7 @@ bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abms");
         return true;
     }
     return abms->IsAbilityControllerStart(want);
@@ -1820,7 +1820,7 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abms");
         return true;
     }
     return abms->OpenFile(uri, flag);
@@ -1901,7 +1901,7 @@ bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abms");
         return false;
     }
     return abms->IsEmbeddedOpenAllowed(callerToken, appId);
