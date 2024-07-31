@@ -15,11 +15,8 @@
 
 #include "call_record.h"
 
-#include "hilog_tag_wrapper.h"
 #include "ability_util.h"
 #include "ability_manager_service.h"
-#include "ability_record.h"
-#include "element_name.h"
 
 namespace OHOS {
 namespace AAFwk {

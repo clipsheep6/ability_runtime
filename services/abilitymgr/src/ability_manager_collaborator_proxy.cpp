@@ -14,8 +14,8 @@
  */
 
 #include "ability_manager_collaborator_proxy.h"
+
 #include "configuration.h"
-#include "errors.h"
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {

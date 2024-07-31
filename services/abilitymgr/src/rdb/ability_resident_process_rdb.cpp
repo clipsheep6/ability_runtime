@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-#include <cstdlib>
-
 #include "ability_resident_process_rdb.h"
+
 #include "hilog_tag_wrapper.h"
 #include "parser_util.h"
 

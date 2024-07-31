@@ -14,8 +14,6 @@
  */
 
 #include "ability_running_info.h"
-#include "nlohmann/json.hpp"
-#include "string_ex.h"
 
 namespace OHOS {
 namespace AAFwk {

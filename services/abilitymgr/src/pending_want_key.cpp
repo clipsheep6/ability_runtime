@@ -14,7 +14,6 @@
  */
 
 #include "pending_want_key.h"
-#include "iremote_object.h"
 
 namespace OHOS {
 namespace AAFwk {

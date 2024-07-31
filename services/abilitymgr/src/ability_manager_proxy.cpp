@@ -15,20 +15,9 @@
 
 #include "ability_manager_proxy.h"
 
-#include "errors.h"
-#include "string_ex.h"
-
-#include "hilog_tag_wrapper.h"
-#include "ability_connect_callback_proxy.h"
-#include "ability_connect_callback_stub.h"
-#include "ability_manager_errors.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
-#include "appexecfwk_errors.h"
-#include "configuration.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "session_info.h"
 #include "status_bar_delegate_interface.h"
 
 namespace OHOS {

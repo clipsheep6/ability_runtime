@@ -15,27 +15,18 @@
 
 #include "ability_manager_client.h"
 
-#include "ability_manager_interface.h"
-#include "string_ex.h"
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
 #include "session_manager_lite.h"
-#include "ws_common.h"
 #endif // SUPPORT_SCREEN
-#include "session_info.h"
-
 #include "status_bar_delegate_interface.h"
-#include "string_ex.h"
 #include "system_ability_definition.h"
-
 
 namespace OHOS {
 namespace AAFwk {

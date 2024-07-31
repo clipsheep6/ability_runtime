@@ -15,11 +15,9 @@
 
 #include "connection_record.h"
 
-#include "ability_manager_errors.h"
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "connection_state_manager.h"
-#include "hilog_tag_wrapper.h"
 #include "ui_service_extension_connection_constants.h"
 
 namespace OHOS {

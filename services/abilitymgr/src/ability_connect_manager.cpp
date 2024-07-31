@@ -15,29 +15,18 @@
 
 #include "ability_connect_manager.h"
 
-#include <algorithm>
-#include <mutex>
 #include <regex>
 
-#include "ability_connect_callback_stub.h"
-#include "ability_manager_errors.h"
 #include "ability_manager_service.h"
 #include "ability_resident_process_rdb.h"
-#include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
-#include "app_utils.h"
 #include "assert_fault_callback_death_mgr.h"
-#include "extension_config.h"
 #include "hitrace_meter.h"
-#include "hilog_tag_wrapper.h"
-#include "in_process_call_wrapper.h"
 #include "int_wrapper.h"
-#include "parameter.h"
 #include "res_sched_util.h"
 #include "session/host/include/zidl/session_interface.h"
 #include "startup_util.h"
-#include "extension_record.h"
 #include "ui_extension_utils.h"
 #include "ui_service_extension_connection_constants.h"
 #include "cache_extension_utils.h"

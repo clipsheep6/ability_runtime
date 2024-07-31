@@ -14,8 +14,7 @@
  */
 
 #include "ui_extension_record_factory.h"
-#include "ability_util.h"
-#include "extension_record_manager.h"
+
 #include "hilog_tag_wrapper.h"
 #include "ui_extension_record.h"
 

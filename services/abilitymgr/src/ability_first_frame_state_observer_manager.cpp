@@ -16,9 +16,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "ability_first_frame_state_observer_manager.h"
 
-#include "ability_first_frame_state_data.h"
 #include "ability_first_frame_state_observer_stub.h"
-#include "application_info.h"
 #include "hilog_tag_wrapper.h"
 #include "permission_verification.h"
 

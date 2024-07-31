@@ -15,11 +15,7 @@
 
 #include "system_ability_token_callback_stub.h"
 
-#include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {

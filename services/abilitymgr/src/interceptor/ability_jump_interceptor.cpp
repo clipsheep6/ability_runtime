@@ -17,12 +17,8 @@
 
 #include "ability_util.h"
 #include "accesstoken_kit.h"
-#include "app_jump_control_rule.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "in_process_call_wrapper.h"
 #include "permission_constants.h"
-#include "permission_verification.h"
 #include "start_ability_utils.h"
 #include "system_dialog_scheduler.h"
 

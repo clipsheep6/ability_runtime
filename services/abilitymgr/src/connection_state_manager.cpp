@@ -15,13 +15,9 @@
 
 #include "connection_state_manager.h"
 
-#include <fstream>
-
-#include "app_mgr_interface.h"
 #include "connection_observer_errors.h"
 #include "global_constant.h"
 #include "hilog_tag_wrapper.h"
-#include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 

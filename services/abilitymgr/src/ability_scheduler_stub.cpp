@@ -16,18 +16,14 @@
 #include "ability_scheduler_stub.h"
 
 #include "ability_manager_errors.h"
-#include "abs_shared_result_set.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "hilog_tag_wrapper.h"
-#include "ipc_types.h"
 #include "ishared_result_set.h"
-#include "pac_map.h"
 #include "session_info.h"
 #include "values_bucket.h"
-#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
