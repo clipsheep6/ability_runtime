@@ -1041,9 +1041,7 @@ HWTEST_F(JsRuntimeTest, ReInitJsEnvImpl_0100, TestSize.Level1)
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
 {
-    AbilityRuntime::Runtime::Options options;
-    options.preload = false;
-    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options_);
 
     bool needBreakPoint = false;
     uint32_t instanceId = 1;
