@@ -885,14 +885,15 @@ ohos_shared_library("ui_service_extension") {
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_extension.cpp",
-    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_extension_context.cpp",    
     "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_extension.cpp",
     "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/ui_service_extension_context.cpp",
   ]
 
-  deps = [
+  deps = [    
     ":abilitykit_native",
     ":ui_service_extension_connection",
+    ":service_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",
