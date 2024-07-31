@@ -2334,7 +2334,8 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
     }
 
     if (abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE ||
-        abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+        abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE ||
+        abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
         result = CheckCallServiceExtensionPermission(abilityRequest);
         if (result != ERR_OK) {
             return result;
@@ -2529,7 +2530,8 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
-    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
+    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN ||
+        extensionType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
         return StartExtensionAbilityInner(want, callerToken, userId, extensionType, false);
     }
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
@@ -2745,6 +2747,13 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     }
     if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
         return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
+
+    if (extensionType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
+        if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+            return ERR_INVALID_VALUE;
+        }
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
