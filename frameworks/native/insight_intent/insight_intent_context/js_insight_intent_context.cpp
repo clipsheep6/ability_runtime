@@ -29,7 +29,7 @@ constexpr static char CONTEXT_MODULE_NAME[] = "InsightIntentContext";
 
 void JsInsightIntentContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    TAG_LOGI(AAFwkTag::INTENT, "enter");
+    TAG_LOGI(AAFwkTag::INTENT, "called");
     std::unique_ptr<JsInsightIntentContext>(static_cast<JsInsightIntentContext*>(data));
 }
 
@@ -41,7 +41,7 @@ napi_value JsInsightIntentContext::StartAbiity(napi_env env, napi_callback_info 
 
 napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     // unwrap want
@@ -88,7 +88,6 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
     // create complete task
     NapiAsyncTask::CompleteCallback complete = [innerErrCode](napi_env env, NapiAsyncTask& task, int32_t status) {
         if (*innerErrCode == ERR_OK) {
-            TAG_LOGD(AAFwkTag::INTENT, "StartAbility success.");
             task.Resolve(env, CreateJsUndefined(env));
         } else {
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrCode));
@@ -105,7 +104,7 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
 
 napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<InsightIntentContext>& context)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     napi_value contextObj;
     napi_create_object(env, &contextObj);
 
@@ -120,7 +119,7 @@ napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<Insi
 bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want)
 {
     if (info.argc == 0) {
-        TAG_LOGE(AAFwkTag::INTENT, "not enough args");
+        TAG_LOGE(AAFwkTag::INTENT, "invalid argc");
         ThrowTooFewParametersError(env);
         return false;
     }
@@ -128,7 +127,7 @@ bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& w
     // unwrap want
     bool unwrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
     if (!unwrapWantFlag) {
-        TAG_LOGE(AAFwkTag::INTENT, "Failed to parse want.");
+        TAG_LOGE(AAFwkTag::INTENT, "parse want fail");
         ThrowInvalidParamError(env, "Parameter error: Failed to parse want, must be a Want.");
         return false;
     }

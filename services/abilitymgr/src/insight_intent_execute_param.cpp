@@ -79,7 +79,7 @@ bool InsightIntentExecuteParam::GenerateFromWant(const AAFwk::Want &want,
 {
     const WantParams &wantParams = want.GetParams();
     if (!wantParams.HasParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME)) {
-        TAG_LOGE(AAFwkTag::INTENT, "The want does not contain insight intent name.");
+        TAG_LOGE(AAFwkTag::INTENT, "empty want");
         return false;
     }
 

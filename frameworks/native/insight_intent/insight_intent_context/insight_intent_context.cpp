@@ -24,7 +24,7 @@ namespace AbilityRuntime {
 ErrCode InsightIntentContext::StartAbilityByInsightIntent(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByInsightIntent(want, token_, intentId_);
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::INTENT, "failed to startAbility. ret=%{public}d", err);

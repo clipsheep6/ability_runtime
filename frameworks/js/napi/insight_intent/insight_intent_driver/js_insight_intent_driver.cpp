@@ -82,7 +82,7 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        TAG_LOGI(AAFwkTag::INTENT, "JsInsightIntentDriver::Finalizer is called");
+        TAG_LOGI(AAFwkTag::INTENT, "called");
         std::unique_ptr<JsInsightIntentDriver>(static_cast<JsInsightIntentDriver*>(data));
     }
 
@@ -96,7 +96,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::INTENT, "called");
         if (info.argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::INTENT, "Params not match");
+            TAG_LOGE(AAFwkTag::INTENT, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -143,7 +143,7 @@ private:
 
 napi_value JsInsightIntentDriverInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "JsInsightIntentDriverInit is called");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::INTENT, "Invalid input parameters");
         return nullptr;

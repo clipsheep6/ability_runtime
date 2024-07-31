@@ -32,7 +32,7 @@ const uint8_t NUMBER_OF_PARAMETERS_THREE = 3;
 napi_value ExecuteModeInit(napi_env env)
 {
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "Invalid input parameters");
+        TAG_LOGE(AAFwkTag::INTENT, "null env");
         return nullptr;
     }
     napi_value objValue = nullptr;
@@ -54,7 +54,7 @@ napi_value JsInsightIntentInit(napi_env env, napi_value exportObj)
 {
     TAG_LOGD(AAFwkTag::INTENT, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "Invalid input parameters");
+        TAG_LOGE(AAFwkTag::INTENT, "null env or exportObj");
         return nullptr;
     }
 

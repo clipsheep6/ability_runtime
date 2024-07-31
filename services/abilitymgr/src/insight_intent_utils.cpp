@@ -33,7 +33,7 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
     TAG_LOGD(AAFwkTag::INTENT, "Get srcEntry, bundleName: %{public}s, moduleName: %{public}s, intentName: %{public}s.",
         bundleName.c_str(), moduleName.c_str(), intentName.c_str());
     if (bundleName.empty() || moduleName.empty() || intentName.empty()) {
-        TAG_LOGE(AAFwkTag::INTENT, "Invalid param.");
+        TAG_LOGE(AAFwkTag::INTENT, "bundleName or moduleName or intentName is empty");
         return std::string("");
     }
 
@@ -47,14 +47,14 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
     auto ret = IN_PROCESS_CALL(bundleMgrHelper->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName,
         profile, AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::INTENT, "Get json profile failed, error code: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::INTENT, "Get json profile failed code: %{public}d", ret);
         return std::string("");
     }
 
     // Transform json string
     std::vector<InsightIntentInfo> infos;
     if (!InsightIntentProfile::TransformTo(profile, infos)) {
-        TAG_LOGE(AAFwkTag::INTENT, "Transform profile failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "Transform profile failed");
         return std::string("");
     }
 

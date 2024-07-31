@@ -51,12 +51,12 @@ JsInsightIntentExecutor::JsInsightIntentExecutor(JsRuntime& runtime) : runtime_(
 JsInsightIntentExecutor::~JsInsightIntentExecutor()
 {
     state_ = State::DESTROYED;
-    TAG_LOGI(AAFwkTag::INTENT, "JsInsightIntentExecutor destructor");
+    TAG_LOGI(AAFwkTag::INTENT, "called");
 }
 
 bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightIntentInfo)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     STATE_PATTERN_NAIVE_ACCEPT(State::CREATED, false);
     state_ = State::INITIALIZED;
     InsightIntentExecutor::Init(insightIntentInfo);
@@ -64,26 +64,26 @@ bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightInten
     HandleScope handleScope(runtime_);
     jsObj_ = JsInsightIntentExecutor::LoadJsCode(insightIntentInfo, runtime_);
     if (jsObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "LoadJsCode failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "null jsObj_");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
     auto env = runtime_.GetNapiEnv();
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "Napi env invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "null env");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "Context invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "null Context");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
     napi_value contextObj = CreateJsInsightIntentContext(env, context);
     contextObj_ = JsRuntime::LoadSystemModuleByEngine(env, "app.ability.InsightIntentContext", &contextObj, 1);
     if (contextObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "Load system module failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "null contextObj_");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
@@ -92,7 +92,7 @@ bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightInten
     if (!CheckTypeForNapiValue(env, executorNapiVal, napi_object) ||
         !CheckTypeForNapiValue(env, contextNapiVal, napi_object) ||
         napi_set_named_property(env, executorNapiVal, "context", contextNapiVal) != napi_ok) {
-        TAG_LOGE(AAFwkTag::INTENT, "Set property failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "Set context property failed");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
@@ -113,12 +113,12 @@ bool JsInsightIntentExecutor::HandleExecuteIntent(
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback,
     bool& isAsync)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     STATE_PATTERN_NAIVE_ACCEPT(State::INITIALIZED, false);
     state_ = State::EXECUTING;
 
     if (callback == nullptr || callback->IsEmpty()) {
-        TAG_LOGE(AAFwkTag::INTENT, "HandleExecuteIntent invalid callback.");
+        TAG_LOGE(AAFwkTag::INTENT, "callback is nullptr");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
     callback_ = std::move(callback);
@@ -164,10 +164,10 @@ std::unique_ptr<NativeReference> JsInsightIntentExecutor::LoadJsCode(
     const InsightIntentExecutorInfo& info,
     JsRuntime& runtime)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     auto executeParam = info.executeParam;
     if (executeParam == nullptr) {
-        TAG_LOGE(AAFwkTag::INTENT, "Execute param invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "null executeParam");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -193,7 +193,7 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResult(
     const napi_value* argv,
     napi_value& result)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     napi_value method = AppExecFwk::GetPropertyValueByPropertyName(
         env,
         obj,
@@ -219,7 +219,7 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResultInner(
     const napi_value* argv,
     napi_value& result)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     auto* env = runtime_.GetNapiEnv();
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_valuetype::napi_object)) {
@@ -238,7 +238,7 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResultInner(
 std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> JsInsightIntentExecutor::GetResultFromJs(
     napi_env env, napi_value resultJs)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     auto resultCpp = std::make_shared<AppExecFwk::InsightIntentExecuteResult>();
     if (!UnwrapExecuteResult(env, resultJs, *resultCpp)) {
         return nullptr;
@@ -248,7 +248,7 @@ std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> JsInsightIntentExecutor:
 
 napi_value JsInsightIntentExecutor::ResolveCbCpp(napi_env env, napi_callback_info info)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     constexpr size_t argc = 1;
     napi_value argv[argc] = {nullptr};
     size_t actualArgc = argc;
@@ -268,7 +268,6 @@ napi_value JsInsightIntentExecutor::ResolveCbCpp(napi_env env, napi_callback_inf
 
 napi_value JsInsightIntentExecutor::RejectCbCpp(napi_env env, napi_callback_info info)
 {
-    TAG_LOGW(AAFwkTag::INTENT, "Error or reject caught.");
     void* data = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, nullptr, &data);
     auto* callback = static_cast<InsightIntentExecutorAsyncCallback*>(data);
@@ -279,7 +278,7 @@ napi_value JsInsightIntentExecutor::RejectCbCpp(napi_env env, napi_callback_info
 void JsInsightIntentExecutor::ReplyFailed(InsightIntentExecutorAsyncCallback* callback,
     InsightIntentInnerErr innerErr)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     if (callback == nullptr) {
         return;
     }
@@ -292,7 +291,7 @@ void JsInsightIntentExecutor::ReplyFailed(InsightIntentExecutorAsyncCallback* ca
 void JsInsightIntentExecutor::ReplySucceeded(InsightIntentExecutorAsyncCallback* callback,
     std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     if (callback == nullptr) {
         return;
     }
@@ -307,7 +306,7 @@ void JsInsightIntentExecutor::ReplySucceeded(InsightIntentExecutorAsyncCallback*
 
 void JsInsightIntentExecutor::ReplyFailedInner(InsightIntentInnerErr innerErr)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     state_ = JsInsightIntentExecutor::State::INVALID;
     auto* callback = callback_.release();
     JsInsightIntentExecutor::ReplyFailed(callback, innerErr);
@@ -315,7 +314,7 @@ void JsInsightIntentExecutor::ReplyFailedInner(InsightIntentInnerErr innerErr)
 
 void JsInsightIntentExecutor::ReplySucceededInner(std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     state_ = JsInsightIntentExecutor::State::EXECUTATION_DONE;
     auto* callback = callback_.release();
     JsInsightIntentExecutor::ReplySucceeded(callback, resultCpp);
@@ -323,7 +322,7 @@ void JsInsightIntentExecutor::ReplySucceededInner(std::shared_ptr<AppExecFwk::In
 
 bool JsInsightIntentExecutor::HandleResultReturnedFromJsFunc(napi_value resultJs)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     auto* env = runtime_.GetNapiEnv();
     if (resultJs == nullptr) {
         ReplyFailedInner();
@@ -379,7 +378,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentUIAbilityForeground(
     const AAFwk::WantParams& param,
     const std::shared_ptr<NativeReference>& windowStageJs)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::UIABILITY_FOREGROUND);
@@ -409,7 +408,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentUIAbilityBackground(
     const std::string& name,
     const AAFwk::WantParams& param)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::UIABILITY_BACKGROUND);
@@ -441,7 +440,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentUIExtension(
     const AAFwk::WantParams& param,
     const std::shared_ptr<NativeReference>& UIExtensionContentSession)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::UIEXTENSION_ABILITY);
@@ -471,7 +470,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentServiceExtension(
     const std::string& name,
     const AAFwk::WantParams& param)
 {
-    TAG_LOGD(AAFwkTag::INTENT, "enter");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::SERVICE_EXTENSION_ABILITY);
