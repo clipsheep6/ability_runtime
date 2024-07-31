@@ -71,7 +71,7 @@ public:
      */
     std::shared_ptr<AppRunningRecord> CheckAppRunningRecordIsExist(const std::string &appName,
         const std::string &processName, const int uid, const BundleInfo &bundleInfo,
-        const std::string &specifiedProcessFlag = "");
+        const std::string &specifiedProcessFlag = "", bool *isProCache = nullptr);
 
 #ifdef APP_NO_RESPONSE_DIALOG
     /**

@@ -85,6 +85,7 @@ enum class AppStartType {
     COLD = 0,
     HOT,
     MULTI_INSTANCE,
+    PROCESS_CACHE_LAUNCH
 };
 
 enum class PreloadMode {
