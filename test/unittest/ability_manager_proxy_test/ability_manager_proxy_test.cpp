@@ -1599,6 +1599,26 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionContinueState_00
 
 /*
  * Feature: AbilityManagerService
+ * Function: SetMissionContinueState
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetMissionContinueState
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of SetMissionContinueState
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionContinueState_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_INACTIVE;
+    auto res = proxy_->SetMissionContinueState(token, state);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: SetMissionLabel
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService SetMissionLabel

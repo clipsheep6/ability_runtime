@@ -70,6 +70,7 @@ static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects
 std::recursive_mutex gConnectsLock_;
 int64_t g_serialNumber = 0;
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
+std::atomic<bool> g_hasSetContinueState = false;
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
@@ -2151,29 +2152,62 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
 
-    ErrCode errcode = ERR_OK;
-    auto context = context_.lock();
-    if (context) {
-        errcode = context->SetMissionContinueState(state);
-    } else {
-        TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
-        errcode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+    if (!g_hasSetContinueState) {
+        g_hasSetContinueState = true;
+        return SyncSetMissionContinueState(env, info, state);
     }
-    NapiAsyncTask::CompleteCallback complete = [errcode](napi_env env, NapiAsyncTask& task, int32_t status) {
-        if (errcode == 0) {
+
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, state, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+        *innerErrorCode = context->SetMissionContinueState(state);
+    };
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
             task.Resolve(env, CreateJsUndefined(env));
         } else {
-            task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
         }
     };
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionContinueState",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+    TAG_LOGI(AAFwkTag::CONTEXT, "end");
+    return result;
+}
 
+napi_value JsAbilityContext::SyncSetMissionContinueState(napi_env env, NapiCallbackInfo& info,
+    const AAFwk::ContinueState& state)
+{
+    TAG_LOGI(AAFwkTag::CONTEXT, "called");
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    auto context = context_.lock();
+    if (context) {
+        *innerErrorCode = context->SetMissionContinueState(state);
+    } else {
+        TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+        *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+    }
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+        }
+    };
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionContinueState",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    TAG_LOGI(AAFwkTag::CONTEXT, "end");
     return result;
 }
-
 #ifdef SUPPORT_SCREEN
 napi_value JsAbilityContext::SetMissionLabel(napi_env env, napi_callback_info info)
 {

@@ -149,6 +149,7 @@ private:
         bool isAbilityResult = false, bool isOpenLink = false);
     bool CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         int32_t &userId, napi_value &lastParam);
+    napi_value SyncSetMissionContinueState(napi_env env, NapiCallbackInfo& info, const AAFwk::ContinueState& state);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
