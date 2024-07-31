@@ -1956,7 +1956,6 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
 
 int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     ContinueMissionInfo continueMissionInfo;
     continueMissionInfo.srcDeviceId = data.ReadString();
     continueMissionInfo.dstDeviceId = data.ReadString();
@@ -2193,7 +2192,6 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
 
 int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     data.ReadInt32Vector(&missionIds);
     int32_t topMissionId = data.ReadInt32();
@@ -2206,7 +2204,6 @@ int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, Messa
 
 int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     std::vector<int32_t> result;
 
@@ -2225,7 +2222,6 @@ int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, Messa
 
 int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "begin.");
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
@@ -2848,7 +2844,6 @@ int AbilityManagerStub::HandleRequestDialogService(MessageParcel &data, MessageP
 
 int32_t AbilityManagerStub::HandleReportDrawnCompleted(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     if (callerToken == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is invalid.");
@@ -3075,7 +3070,6 @@ int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &
 
 int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
     if (abilityToken == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "read abilityToken failed!");
@@ -3087,7 +3081,6 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     int32_t sessionId = data.ReadInt32();
     CompleteFirstFrameDrawing(sessionId);
     return NO_ERROR;
@@ -3095,7 +3088,6 @@ int AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner(MessageParcel &data,
 
 int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     sptr<IRemoteObject> token = nullptr;
     if (data.ReadBool()) {
         token = data.ReadRemoteObject();
@@ -3115,7 +3107,6 @@ int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, Messag
 
 int AbilityManagerStub::GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     std::string dialogSessionId = data.ReadString();
     sptr<DialogSessionInfo> info;
     int result = GetDialogSessionInfo(dialogSessionId, info);
@@ -3134,7 +3125,6 @@ int AbilityManagerStub::GetDialogSessionInfoInner(MessageParcel &data, MessagePa
 
 int AbilityManagerStub::SendDialogResultInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
@@ -3151,7 +3141,6 @@ int AbilityManagerStub::SendDialogResultInner(MessageParcel &data, MessageParcel
 
 int AbilityManagerStub::RegisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto callback = iface_cast<AppExecFwk::IAbilityFirstFrameStateObserver>(data.ReadRemoteObject());
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback is null.");
@@ -3169,7 +3158,6 @@ int AbilityManagerStub::RegisterAbilityFirstFrameStateObserverInner(MessageParce
 
 int AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto callback = iface_cast<AppExecFwk::IAbilityFirstFrameStateObserver>(data.ReadRemoteObject());
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback is null.");
@@ -3186,7 +3174,6 @@ int AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner(MessagePar
 
 int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<int32_t> missionIds;
     std::vector<MissionValidResult> results;
 
@@ -3481,7 +3468,6 @@ int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, Message
 
 int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "App debug lister is nullptr.");
@@ -3498,7 +3484,6 @@ int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, M
 
 int32_t AbilityManagerStub::UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "App debug lister is nullptr.");
@@ -3580,7 +3565,6 @@ int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParce
 
 int AbilityManagerStub::StartAbilityForResultAsCallerInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The want is nullptr.");
@@ -3599,7 +3583,6 @@ int AbilityManagerStub::StartAbilityForResultAsCallerInner(MessageParcel &data, 
 
 int AbilityManagerStub::StartAbilityForResultAsCallerForOptionsInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The want is nullptr.");
@@ -3644,7 +3627,6 @@ int32_t AbilityManagerStub::StartAbilityByInsightIntentInner(MessageParcel &data
 
 int32_t AbilityManagerStub::ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto token = data.ReadRemoteObject();
     if (token == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get remote object.");
@@ -3719,7 +3701,6 @@ int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, M
 
 int32_t AbilityManagerStub::NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     uint64_t assertSessionId = data.ReadUint64();
     int32_t status = data.ReadInt32();
     auto result = NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
@@ -3732,7 +3713,6 @@ int32_t AbilityManagerStub::NotifyDebugAssertResultInner(MessageParcel &data, Me
 
 int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::vector<AppExecFwk::AbilityStateData> abilityStateDatas;
     int32_t result = GetForegroundUIAbilities(abilityStateDatas);
     if (result != ERR_OK) {
