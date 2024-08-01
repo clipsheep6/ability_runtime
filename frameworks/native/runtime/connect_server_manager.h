@@ -47,7 +47,7 @@ public:
     bool StoreInstanceMessage(
         int32_t tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
     void StoreDebuggerInfo(int32_t tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
-        const DebuggerPostTask& debuggerPostTask, bool isDebugApp);
+        const DebuggerPostTask& debuggerPostTask);
     void SetConnectedCallback();
     bool SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName);
     void SendDebuggerInfo(bool needBreakPoint, bool isDebugApp);

@@ -101,20 +101,19 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     if (g_debugMode) {
         auto instanceId = DFXJSNApi::GetCurrentThreadId();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
-        bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
+        bool isDebugMode = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         if (g_nativeStart) {
-            TAG_LOGD(AAFwkTag::APPMGR, "native is true, set needBreakPoint = false.");
-            needBreakPoint = false;
+            TAG_LOGD(AAFwkTag::APPMGR, "native is true, set isDebugMode = false.");
+            isDebugMode = false;
         }
         auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
             nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
         };
-        panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
+        panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugMode, g_debugApp};
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
         ConnectServerManager::Get().StoreDebuggerInfo(
-            instanceId, reinterpret_cast<void*>(vm), debugOption, workerPostTask, g_debugApp);
-
-        panda::JSNApi::NotifyDebugMode(instanceId, vm, debugOption, instanceId, workerPostTask, g_debugApp);
+            instanceId, reinterpret_cast<void*>(vm), debugOption, workerPostTask);
+        panda::JSNApi::NotifyDebugMode(instanceId, vm, debugOption, instanceId, workerPostTask);
     }
 }
 

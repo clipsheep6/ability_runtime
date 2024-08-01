@@ -146,7 +146,7 @@ bool ConnectServerManager::StoreInstanceMessage(int32_t tid, int32_t instanceId,
 }
 
 void ConnectServerManager::StoreDebuggerInfo(int32_t tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
-    const DebuggerPostTask& debuggerPostTask, bool isDebugApp)
+    const DebuggerPostTask& debuggerPostTask)
 {
     std::lock_guard<std::mutex> lock(g_debuggerMutex);
     if (g_debuggerInfo.find(tid) == g_debuggerInfo.end()) {
@@ -158,10 +158,10 @@ void ConnectServerManager::StoreDebuggerInfo(int32_t tid, void* vm, const panda:
         return;
     }
 
-    panda::JSNApi::StoreDebugInfo(tid, reinterpret_cast<panda::EcmaVM*>(vm), debugOption, debuggerPostTask, isDebugApp);
+    panda::JSNApi::StoreDebugInfo(tid, reinterpret_cast<panda::EcmaVM*>(vm), debugOption, debuggerPostTask);
 }
 
-void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp)
+void ConnectServerManager::SendDebuggerInfo(bool isDebugMode, bool isDebugApp)
 {
     ConnectServerManager::Get().SetConnectedCallback();
     std::lock_guard<std::mutex> lock(mutex_);
@@ -177,8 +177,8 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
             continue;
         }
         ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
-        panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-        panda::JSNApi::StoreDebugInfo(tid, vm, debugOption, debuggerPostTask, isDebugApp);
+        panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugMode, isDebugApp};
+        panda::JSNApi::StoreDebugInfo(tid, vm, debugOption, debuggerPostTask);
     }
 }
 

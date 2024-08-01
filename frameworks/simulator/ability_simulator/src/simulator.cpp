@@ -689,7 +689,8 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH,
+        (options_.debugPort != 0), false, options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0, [this](std::function<void()> &&arg) {
         debuggerTask_.OnPostTask(std::move(arg));
     });
