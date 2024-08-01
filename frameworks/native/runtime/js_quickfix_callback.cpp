@@ -33,7 +33,7 @@ bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patch
     TAG_LOGD(AAFwkTag::JSRUNTIME, "baseFileName: %{private}s", baseFileName.c_str());
     auto position = baseFileName.find(".abc");
     if (position == std::string::npos) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "invalid baseFileName!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, ".abc not found");
         return false;
     }
     int baseFileNameLen = static_cast<int>(baseFileName.length());
@@ -41,7 +41,7 @@ bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patch
     int suffixLen = strlen(MERGE_ABC_PATH);
     int moduleLen = baseFileNameLen - prefixLen - suffixLen;
     if (moduleLen < 0) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "invalid baseFileName!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "invalid moduleLen");
         return false;
     }
     std::string moduleName = baseFileName.substr(prefixLen, moduleLen);

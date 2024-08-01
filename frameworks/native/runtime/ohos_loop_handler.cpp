@@ -20,19 +20,19 @@ namespace AbilityRuntime {
 
 void OHOSLoopHandler::OnReadable(int32_t)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "OHOSLoopHandler::OnReadable is triggered");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "triggered");
     OnTriggered();
 }
 
 void OHOSLoopHandler::OnWritable(int32_t)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "OHOSLoopHandler::OnWritable is triggered");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "triggered");
     OnTriggered();
 }
 
 void OHOSLoopHandler::OnTriggered()
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "OHOSLoopHandler::OnTriggered is triggered");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "triggered");
 
     uv_run(uvLoop_, UV_RUN_NOWAIT);
 

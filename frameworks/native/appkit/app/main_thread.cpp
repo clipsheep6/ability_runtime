@@ -1533,7 +1533,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.lang = isCJApp ? AbilityRuntime::Runtime::Language::CJ : AbilityRuntime::Runtime::Language::JS;
 #endif
         if (applicationInfo_->appProvisionType == Constants::APP_PROVISION_TYPE_DEBUG) {
-            TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi-Thread Mode: %{public}d.", appLaunchData.GetMultiThread());
+            TAG_LOGD(AAFwkTag::APPKIT, "multi-thread mode: %{public}d", appLaunchData.GetMultiThread());
             options.isMultiThread = appLaunchData.GetMultiThread();
             TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Error-Info-Enhance Mode: %{public}d.",
                 appLaunchData.GetErrorInfoEnhance());

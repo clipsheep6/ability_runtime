@@ -39,38 +39,35 @@ HdcRegister& HdcRegister::Get()
 void HdcRegister::StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp,
     HdcRegisterCallback callback)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister begin");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 
     registerHandler_ = dlopen("libhdc_register.z.so", RTLD_LAZY);
     if (registerHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister failed to open register library");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null registerHandler_");
         return;
     }
     auto startRegister = reinterpret_cast<StartRegister>(dlsym(registerHandler_, "StartConnect"));
     if (startRegister == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister failed to find symbol 'StartConnect'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null StartConnect");
         return;
     }
     startRegister(processName, bundleName, debugApp, callback);
-    
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister end");
 }
 
 void HdcRegister::StopHdcRegister()
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister begin");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (registerHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister registerHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null registerHandler_");
         return;
     }
     auto stopRegister = reinterpret_cast<StopRegister>(dlsym(registerHandler_, "StopConnect"));
     if (stopRegister != nullptr) {
         stopRegister();
     } else {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister failed to find symbol 'StopConnect'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null StopConnect");
     }
     dlclose(registerHandler_);
     registerHandler_ = nullptr;
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister end");
 }
 } // namespace OHOS::AbilityRuntime

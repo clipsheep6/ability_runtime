@@ -29,16 +29,16 @@ namespace {
 }
 void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "Enter.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (!func || !work) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters");
         return;
     }
 
     auto task = [func, work, status]() {
-        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work");
         func(work, status);
-        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work end.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work end");
     };
 
     AppExecFwk::EventQueue::Priority prio = AppExecFwk::EventQueue::Priority::IMMEDIATE;
@@ -58,12 +58,10 @@ void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void
     }
 
     if (g_eventHandler  == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters");
         return;
     }
     g_eventHandler->PostTask(task, prio);
-
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "PostTask end.");
 }
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 {
@@ -74,7 +72,7 @@ OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::E
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventRunner != nullptr) {
-        TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
         if (eventRunner.get() == AppExecFwk::EventRunner::GetMainEventRunner().get()) {
             g_eventHandler = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
@@ -97,7 +95,7 @@ void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const st
 
 void OHOSJsEnvironmentImpl::PostSyncTask(const std::function<void()>& task, const std::string& name)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "Post sync task");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventHandler_ != nullptr) {
         eventHandler_->PostSyncTask(task, name);
     }
@@ -113,7 +111,7 @@ void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
 
 void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "Init timer.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER(engine);
     auto ret = JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
     if (!ret) {

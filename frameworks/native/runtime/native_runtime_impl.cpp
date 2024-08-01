@@ -77,7 +77,7 @@ napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_p
     pandaOption.SetMemConfigProperty(memConfigProperty);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
-    TAG_LOGI(AAFwkTag::JSRUNTIME, "NativeRuntimeImpl::Initialize ark properties = %{public}d bundlename = %{public}s",
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ark properties = %{public}d bundlename = %{public}s",
         arkProperties, bundleName.c_str());
     pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
     pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
@@ -102,7 +102,7 @@ napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_p
     jsEnv = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
     if (jsEnv == nullptr || !jsEnv->Initialize(pandaOption, static_cast<void*>(this))
         || jsEnv->GetNativeEngine() == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize js environment failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize js environment failed");
         return napi_status::napi_ok;
     }
     jsEnv->GetNativeEngine()->MarkNativeThread();
@@ -113,13 +113,13 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
 {
     auto jsEnv = GetJsEnv(env);
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return napi_status::napi_generic_failure;
     }
 
     auto vm = GetEcmaVm(jsEnv);
     if (!vm) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "vm is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null vm");
         return napi_status::napi_generic_failure;
     }
 
@@ -154,7 +154,7 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
         SetRequestAotCallback(jsEnv);
 
         if (!InitLoop(jsEnv)) {
-            TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize loop failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Init loop failed");
             return napi_status::napi_generic_failure;
         }
     }
@@ -168,11 +168,11 @@ napi_status NativeRuntimeImpl::AddEnv(napi_env env, std::shared_ptr<JsEnv::JsEnv
     std::lock_guard<std::mutex> lock(envMutex_);
     pid_t threadId = gettid();
     if (threadIds_.find(threadId) != threadIds_.end()) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "already created!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "already created");
         return napi_status::napi_create_ark_runtime_only_one_env_per_thread;
     }
     if (envMap_.size() >= MAX_ENV_COUNT) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "the maximum number of runtime environments that can be created is 16!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "envMap size exceed upperLimits");
         return napi_status::napi_create_ark_runtime_too_many_envs;
     }
     threadIds_.insert(threadId);
@@ -204,7 +204,7 @@ napi_status NativeRuntimeImpl::RemoveJsEnv(napi_env env)
 panda::ecmascript::EcmaVM* NativeRuntimeImpl::GetEcmaVm(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv) const
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return nullptr;
     }
     return jsEnv->GetVM();
@@ -238,7 +238,7 @@ void NativeRuntimeImpl::LoadAotFile(const Options& options, const std::shared_pt
 void NativeRuntimeImpl::InitConsoleModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return;
     }
     jsEnv->InitConsoleModule();
@@ -247,7 +247,7 @@ void NativeRuntimeImpl::InitConsoleModule(const std::shared_ptr<JsEnv::JsEnviron
 void NativeRuntimeImpl::InitTimerModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return;
     }
     jsEnv->InitTimerModule();
@@ -257,7 +257,7 @@ void NativeRuntimeImpl::SetModuleLoadChecker(const std::shared_ptr<ModuleChecker
     const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return;
     }
     jsEnv->SetModuleLoadChecker(moduleCheckerDelegate);
@@ -266,30 +266,30 @@ void NativeRuntimeImpl::SetModuleLoadChecker(const std::shared_ptr<ModuleChecker
 void NativeRuntimeImpl::SetRequestAotCallback(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return;
     }
     auto callback = [](const std::string& bundleName, const std::string& moduleName, int32_t triggerMode) -> int32_t {
         auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get system ability manager.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "get Samgr failed");
             return ERR_INVALID_VALUE;
         }
 
         auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         if (remoteObj == nullptr) {
-            TAG_LOGE(AAFwkTag::JSRUNTIME, "Remote object is nullptr.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "null remoteObj");
             return ERR_INVALID_VALUE;
         }
 
         auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObj);
         if (bundleMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get bundle manager.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "get bms failed");
             return ERR_INVALID_VALUE;
         }
 
         TAG_LOGD(AAFwkTag::JSRUNTIME,
-            "Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d.",
+            "Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d",
             bundleName.c_str(), moduleName.c_str(), triggerMode);
         return bundleMgr->ResetAOTCompileStatus(bundleName, moduleName, triggerMode);
     };
@@ -300,7 +300,7 @@ void NativeRuntimeImpl::SetRequestAotCallback(const std::shared_ptr<JsEnv::JsEnv
 bool NativeRuntimeImpl::InitLoop(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return false;
     }
     return jsEnv->InitLoop();
@@ -309,7 +309,7 @@ bool NativeRuntimeImpl::InitLoop(const std::shared_ptr<JsEnv::JsEnvironment>& js
 void NativeRuntimeImpl::InitWorkerModule(const Options& options, const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null jsEnv");
         return;
     }
 

@@ -45,7 +45,7 @@ JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string&
 bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff,
     size_t *buffSize, std::string& errorMsg) const
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "JsModuleReader operator start: %{private}s", inputPath.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called start: %{private}s", inputPath.c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid param");
@@ -54,7 +54,7 @@ bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff,
 
     auto realHapPath = GetAppHspPath(inputPath);
     if (realHapPath.empty()) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "realHapPath is empty");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "empty realHapPath");
         return false;
     }
 
@@ -68,7 +68,7 @@ bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff,
 
     auto data = extractor->GetSafeData(MERGE_ABC_PATH);
     if (!data) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "get mergeAbc fileBuffer failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null data");
         return false;
     }
 
@@ -134,13 +134,13 @@ std::string JsModuleReader::GetOtherHspPath(const std::string& bundleName, const
 
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null bundleMgrHelper");
         return presetAppHapPath;
     }
 
     std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
     if (bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBaseSharedBundleInfos failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBaseSharedBundleInfos failed");
         return presetAppHapPath;
     }
     std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
@@ -155,7 +155,7 @@ std::string JsModuleReader::GetOtherHspPath(const std::string& bundleName, const
     int32_t ret = bundleMgrHelper->GetDependentBundleInfo(sharedBundleName, bundleInfo,
         AppExecFwk::GetDependentBundleInfoFlag::GET_APP_SERVICE_HSP_BUNDLE_INFO);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetDependentBundleInfo failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetDependentBundleInfo failed");
         return presetAppHapPath;
     }
     for (const auto &info : bundleInfo.hapModuleInfos) {
@@ -172,12 +172,12 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
     std::string presetAppHapPath = inputPath;
     std::string moduleName = inputPath.substr(inputPath.find_last_of("/") + 1);
     if (moduleName.empty()) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to obtain moduleName.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "empty moduleName");
         return presetAppHapPath;
     }
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null bundleMgrHelper");
         return presetAppHapPath;
     }
     if (inputPath.find_first_of("/") == inputPath.find_last_of("/")) {
@@ -185,7 +185,7 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
         auto getInfoResult = bundleMgrHelper->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
             GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
         if (getInfoResult != 0 || bundleInfo.hapModuleInfos.empty()) {
-            TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBundleInfoForSelf failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBundleInfoForSelf failed");
             return presetAppHapPath;
         }
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
@@ -204,12 +204,12 @@ void JsModuleReader::GetHapPathList(const std::string &bundleName, std::vector<s
 {
     auto systemAbilityManagerClient = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!systemAbilityManagerClient) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "fail to get system ability mgr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null systemAbilityManagerClient");
         return;
     }
     auto remoteObject = systemAbilityManagerClient->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (!remoteObject) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "fail to get bundle manager proxy.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "null remoteObject");
         return;
     }
     auto bundleMgrProxy = iface_cast<IBundleMgr>(remoteObject);
@@ -217,7 +217,7 @@ void JsModuleReader::GetHapPathList(const std::string &bundleName, std::vector<s
     auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
         GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
     if (getInfoResult != 0 || bundleInfo.hapModuleInfos.empty()) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBundleInfoForSelf failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBundleInfoForSelf failed");
         return;
     }
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
