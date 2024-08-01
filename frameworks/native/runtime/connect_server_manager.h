@@ -55,6 +55,8 @@ public:
     DebuggerPostTask GetDebuggerPostTask(int32_t tid);
     void SetSwitchCallback(int32_t instanceId);
     void SetProfilerCallBack();
+    void SetRecordCallback(const std::function<void(void)> & startRecordFunc,
+        const std::function<std::string(void)> & stopRecordRunc);
 
 private:
     ConnectServerManager() = default;

@@ -56,6 +56,8 @@ using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus,
 using SetConnectCallback = void (*)(const std::function<void(bool)>);
 using RemoveMessage = void (*)(int32_t);
 using WaitForConnection = bool (*)();
+using SetRecordCallBack = void(*)(const std::function<void(void)> & startRecordFunc,
+        const std::function<std::string(void)> & stopRecordRunc);
 
 std::mutex g_debuggerMutex;
 std::mutex g_loadsoMutex;
@@ -417,4 +419,17 @@ DebuggerPostTask ConnectServerManager::GetDebuggerPostTask(int32_t tid)
     }
     return it->second.second;
 }
+
+void ConnectServerManager::SetRecordCallback(const std::function<void(void)> & startRecordFunc, 
+    const std::function<std::string(void)> & stopRecordRunc)
+{
+    LoadConnectServerDebuggerSo();
+    auto setRecordCallback = reinterpret_cast<SetRecordCallBack>(dlsym(handlerConnectServerSo_, "SetRecordCallback"));
+    if (setRecordCallback == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'SetRecordCallback'");
+        return;
+    }
+    setRecordCallback(startRecordFunc,stopRecordRunc);
+}
+
 } // namespace OHOS::AbilityRuntime
