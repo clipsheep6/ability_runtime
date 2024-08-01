@@ -38,7 +38,7 @@ napi_value JsApplication::OnGetApplicationContext(napi_env env, NapiCallbackInfo
     napi_value value = JsApplicationContextUtils::CreateJsApplicationContext(env);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
-        TAG_LOGW(AAFwkTag::APPKIT, "Mandatory parameters are left unspecified.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Mandatory parameters are left unspecified.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
