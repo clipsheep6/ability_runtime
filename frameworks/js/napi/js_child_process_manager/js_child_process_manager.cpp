@@ -108,7 +108,7 @@ private:
         NapiAsyncTask::CompleteCallback complete = [srcEntry](napi_env env, NapiAsyncTask &task, int32_t status) {
             pid_t pid = 0;
             ChildProcessManagerErrorCode errorCode =
-                ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork(srcEntry, pid);
+                ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry, pid);
             if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
                 task.ResolveWithNoError(env, CreateJsValue(env, pid));
             } else {

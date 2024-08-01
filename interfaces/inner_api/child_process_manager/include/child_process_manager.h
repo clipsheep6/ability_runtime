@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_CHILD_PROCESS_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_CHILD_PROCESS_MANAGER_H
 
+#include <mutex>
 #include <string>
 #include <sys/types.h>
 
@@ -76,6 +77,7 @@ private:
     static bool signalRegistered_;
     bool isChildProcessBySelfFork_ = false;
     int32_t childProcessCount_ = 0;
+    std::mutex childProcessCountLock_;
 
     DISALLOW_COPY_AND_MOVE(ChildProcessManager);
 };

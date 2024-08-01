@@ -126,10 +126,11 @@ ChildProcessManagerErrorCode ChildProcessManager::StartArkChildProcess(
     AppExecFwk::ChildProcessRequest request;
     request.srcEntry = srcEntry;
     request.childProcessType = childProcessType;
-    request.childProcessCount = childProcessCount_;
     request.isStartWithDebug = g_debugOption.isStartWithDebug;
     request.args = args;
     request.options = options;
+    std::lock_guard<std::mutex> lock(childProcessCountLock_);
+    request.childProcessCount = childProcessCount_;
     auto ret = appMgr->StartChildProcess(pid, request);
     childProcessCount_++;
     TAG_LOGD(AAFwkTag::PROCESSMGR, "AppMgr StartChildProcess ret:%{public}d", ret);
@@ -155,6 +156,7 @@ ChildProcessManagerErrorCode ChildProcessManager::StartNativeChildProcessByAppSp
         return ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED;
     }
 
+    std::lock_guard<std::mutex> lock(childProcessCountLock_);
     auto ret = appMgr->StartNativeChildProcess(libName, childProcessCount_, callbackStub);
     TAG_LOGD(AAFwkTag::PROCESSMGR, "AppMgr StartNativeChildProcess ret:%{public}d", ret);
 
@@ -465,6 +467,7 @@ void ChildProcessManager::MakeProcessName(const std::string &srcEntry)
             processName.append(filename);
         }
     }
+    std::lock_guard<std::mutex> lock(childProcessCountLock_);
     processName.append(std::to_string(childProcessCount_));
     childProcessCount_++;
     TAG_LOGD(AAFwkTag::PROCESSMGR, "SetForkProcessDebugOption processName is %{public}s", processName.c_str());
