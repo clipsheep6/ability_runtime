@@ -157,7 +157,7 @@ void NAPIDataAbilityObserver::CallJsMethod()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (needRelease_ && ref_ != nullptr) {
-            TAG_LOGI(AAFwkTag::FA, "%{public}s to delete callback.", __func__);
+            TAG_LOGI(AAFwkTag::FA, "to delete callback");
             napi_delete_reference(env_, ref_);
             ref_ = nullptr;
             needRelease_ = false;
@@ -169,13 +169,13 @@ void NAPIDataAbilityObserver::CallJsMethod()
 void NAPIDataAbilityObserver::OnChange()
 {
     if (ref_ == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "%{public}s, OnChange ref is nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "null ret");
         return;
     }
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "%{public}s, loop is nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "null loop");
         return;
     }
 

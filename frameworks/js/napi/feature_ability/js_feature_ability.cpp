@@ -91,7 +91,7 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
 {
     TAG_LOGI(AAFwkTag::FA, "called");
     if (info.argc != 1) {
-        TAG_LOGE(AAFwkTag::FA, "arguments not match");
+        TAG_LOGE(AAFwkTag::FA, "invalid argc");
         return CreateJsUndefined(env);
     }
 
@@ -146,7 +146,7 @@ napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackI
 
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     FeatureAbilityTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want) {
-        TAG_LOGI(AAFwkTag::FA, "OnStartAbilityForResult async callback is called");
+        TAG_LOGI(AAFwkTag::FA, "asyncCallback");
         std::string data = want.GetStringParam(RESULT_DATA_TAG);
         napi_value abilityResult = JsFeatureAbility::CreateJsResult(env, resultCode, data);
         if (abilityResult == nullptr) {
@@ -155,14 +155,14 @@ napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackI
         } else {
             asyncTask->Resolve(env, abilityResult);
         }
-        TAG_LOGI(AAFwkTag::FA, "OnStartAbilityForResult async callback is called end");
+        TAG_LOGI(AAFwkTag::FA, "asyncCallback end");
     };
 
     want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
     requestCode_ = (requestCode_ == INT_MAX) ? 0 : (requestCode_ + 1);
     ability->StartFeatureAbilityForResult(want, requestCode_, std::move(task));
 
-    TAG_LOGI(AAFwkTag::FA, "OnStartAbilityForResult is called end");
+    TAG_LOGI(AAFwkTag::FA, "end");
     return result;
 }
 
@@ -176,24 +176,24 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
 
     Ability *ability = GetAbility(env);
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "null ability");
         return CreateJsUndefined(env);
     }
 
     if (!IsTypeForNapiValue(env, info.argv[0], napi_object)) {
-        TAG_LOGE(AAFwkTag::FA, "Params is invalid.");
+        TAG_LOGE(AAFwkTag::FA, "invalid args[PARAM0]");
         return CreateJsUndefined(env);
     }
 
     int32_t code = ERR_OK;
     if (!UnwrapInt32ByPropertyName(env, info.argv[0], "code", code)) {
-        TAG_LOGE(AAFwkTag::FA, "Failed to get code.");
+        TAG_LOGE(AAFwkTag::FA, "invalid args[PARAM0]");
         return CreateJsUndefined(env);
     }
 
     napi_value jsResultObj = GetPropertyValueByPropertyName(env, info.argv[0], "result", napi_object);
     if (jsResultObj == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "Failed to get result.");
+        TAG_LOGE(AAFwkTag::FA, "get result failed");
         return CreateJsUndefined(env);
     }
 

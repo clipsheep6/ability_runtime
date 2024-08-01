@@ -91,7 +91,7 @@ void InsertExecuteCB(napi_env env, void *data)
     TAG_LOGI(AAFwkTag::FA, "called");
     DAHelperInsertCB *insertCB = static_cast<DAHelperInsertCB *>(data);
     if (insertCB == nullptr) {
-        TAG_LOGW(AAFwkTag::FA, "NAPI_Insert, insertCB is nullptr.");
+        TAG_LOGW(AAFwkTag::FA, "null insertCB");
         return;
     }
     auto dataAbilityHelper = insertCB->dataAbilityHelper;

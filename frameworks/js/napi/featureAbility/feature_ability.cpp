@@ -110,7 +110,7 @@ napi_value JsFeatureAbilityInit(napi_env env, napi_value exports)
     }
 
     if (!AppExecFwk::CheckTypeForNapiValue(env, exports, napi_object)) {
-        TAG_LOGE(AAFwkTag::FA, "object is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "null object");
         return exports;
     }
 
@@ -221,7 +221,7 @@ napi_value JsFeatureAbility::OnHasWindowFocus(napi_env env, const NapiCallbackIn
 {
     TAG_LOGD(AAFwkTag::FA, "called");
     if (info.argc > ARGS_ONE || info.argc < ARGS_ZERO) {
-        TAG_LOGE(AAFwkTag::FA, " wrong number of arguments.");
+        TAG_LOGE(AAFwkTag::FA, "invalid argc");
         return CreateJsUndefined(env);
     }
     NapiAsyncTask::CompleteCallback complete =
@@ -278,12 +278,12 @@ napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackI
 {
     TAG_LOGD(AAFwkTag::FA, "called");
     if (info.argc < ARGS_ONE || info.argc > ARGS_TWO) {
-        TAG_LOGE(AAFwkTag::FA, "wrong number of arguments.");
+        TAG_LOGE(AAFwkTag::FA, "invalid argc");
         return CreateJsUndefined(env);
     }
 
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "null ability");
         return CreateJsUndefined(env);
     }
 
@@ -322,7 +322,7 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
 {
     TAG_LOGD(AAFwkTag::FA, "called");
     if (info.argc > ARGS_TWO || info.argc < ARGS_ONE) {
-        TAG_LOGE(AAFwkTag::FA, "wrong number of arguments.");
+        TAG_LOGE(AAFwkTag::FA, "invalid argc");
         return CreateJsUndefined(env);
     }
 
@@ -403,7 +403,7 @@ napi_value JsFeatureAbility::OnGetWindow(napi_env env, napi_callback_info info)
 
     auto complete = [obj = this] (napi_env env, NapiAsyncTask& task, int32_t status) {
         if (obj->ability_ == nullptr) {
-            TAG_LOGE(AAFwkTag::FA, "OnGetWindow task execute error, the ability is nullptr");
+            TAG_LOGE(AAFwkTag::FA, "null ability");
             task.Resolve(env, CreateJsNull(env));
             return;
         }
@@ -505,7 +505,7 @@ napi_value CreateAsyncWork(napi_env env, napi_value &resourceName, AsyncCallback
         TAG_LOGI(AAFwkTag::FA, "worker pool thread execute exit");
     },
     [](napi_env env, napi_status status, void *data) {
-        TAG_LOGI(AAFwkTag::FA, "main event thread complete");
+        TAG_LOGI(AAFwkTag::FA, "complete");
         AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
         if (asyncCallbackInfo == nullptr) {
             TAG_LOGE(AAFwkTag::FA, "null asyncCallbackInfo");
@@ -692,12 +692,12 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
         delete work;
         return;
     }
-    
+
     onAbilityCB->requestCode = requestCode;
     onAbilityCB->resultCode = resultCode;
     onAbilityCB->resultData = resultData;
     onAbilityCB->cb = callbackInfo;
-    
+
     if (work == nullptr) {
         TAG_LOGE(AAFwkTag::FA, "null work");
         return;
@@ -745,8 +745,7 @@ napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_valu
     param.requestCode = dummyRequestCode_;
     param.forResultOption = true;
     dummyRequestCode_ = (dummyRequestCode_ < INT32_MAX) ? (dummyRequestCode_ + 1) : 0;
-    TAG_LOGI(AAFwkTag::FA, "%{public}s, reqCode=%{public}d forResultOption=%{public}d.",
-        __func__,
+    TAG_LOGI(AAFwkTag::FA, "reqCode=%{public}d forResultOption=%{public}d",
         param.requestCode,
         param.forResultOption);
 
