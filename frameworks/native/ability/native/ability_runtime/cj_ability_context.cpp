@@ -30,7 +30,7 @@ std::shared_ptr<AbilityRuntime::AbilityContext> CJAbilityContext::GetAbilityCont
 sptr<IRemoteObject> CJAbilityContext::GetToken()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
     return context_->GetToken();
@@ -39,7 +39,7 @@ sptr<IRemoteObject> CJAbilityContext::GetToken()
 std::string CJAbilityContext::GetPreferencesDir()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return "";
     }
     return context_->GetPreferencesDir();
@@ -48,7 +48,7 @@ std::string CJAbilityContext::GetPreferencesDir()
 std::string CJAbilityContext::GetDatabaseDir()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return "";
     }
     return context_->GetDatabaseDir();
@@ -57,7 +57,7 @@ std::string CJAbilityContext::GetDatabaseDir()
 std::string CJAbilityContext::GetBundleName()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return "";
     }
     return context_->GetBundleName();
@@ -66,7 +66,7 @@ std::string CJAbilityContext::GetBundleName()
 int32_t CJAbilityContext::GetArea()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->GetArea();
@@ -75,7 +75,7 @@ int32_t CJAbilityContext::GetArea()
 std::shared_ptr<AppExecFwk::AbilityInfo> CJAbilityContext::GetAbilityInfo()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
     return context_->GetAbilityInfo();
@@ -84,7 +84,7 @@ std::shared_ptr<AppExecFwk::AbilityInfo> CJAbilityContext::GetAbilityInfo()
 std::shared_ptr<AppExecFwk::HapModuleInfo> CJAbilityContext::GetHapModuleInfo()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
     return context_->GetHapModuleInfo();
@@ -93,7 +93,7 @@ std::shared_ptr<AppExecFwk::HapModuleInfo> CJAbilityContext::GetHapModuleInfo()
 std::shared_ptr<AppExecFwk::Configuration> CJAbilityContext::GetConfiguration()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
     return context_->GetConfiguration();
@@ -102,7 +102,7 @@ std::shared_ptr<AppExecFwk::Configuration> CJAbilityContext::GetConfiguration()
 int32_t CJAbilityContext::StartAbility(const AAFwk::Want& want)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     // -1 is default accountId which is the same as js.
@@ -112,7 +112,7 @@ int32_t CJAbilityContext::StartAbility(const AAFwk::Want& want)
 int32_t CJAbilityContext::StartAbility(const AAFwk::Want& want, const AAFwk::StartOptions& startOptions)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbility(want, startOptions, -1);
@@ -121,7 +121,7 @@ int32_t CJAbilityContext::StartAbility(const AAFwk::Want& want, const AAFwk::Sta
 int32_t CJAbilityContext::StartAbilityWithAccount(const AAFwk::Want& want, int32_t accountId)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbilityWithAccount(want, accountId, -1);
@@ -131,7 +131,7 @@ int32_t CJAbilityContext::StartAbilityWithAccount(
     const AAFwk::Want& want, int32_t accountId, const AAFwk::StartOptions& startOptions)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbilityWithAccount(want, accountId, startOptions, -1);
@@ -140,7 +140,7 @@ int32_t CJAbilityContext::StartAbilityWithAccount(
 int32_t CJAbilityContext::StartServiceExtensionAbility(const Want& want)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartServiceExtensionAbility(want);
@@ -149,7 +149,7 @@ int32_t CJAbilityContext::StartServiceExtensionAbility(const Want& want)
 int32_t CJAbilityContext::StartServiceExtensionAbilityWithAccount(const Want& want, int32_t accountId)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartServiceExtensionAbility(want, accountId);
@@ -158,7 +158,7 @@ int32_t CJAbilityContext::StartServiceExtensionAbilityWithAccount(const Want& wa
 int32_t CJAbilityContext::StopServiceExtensionAbility(const Want& want)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StopServiceExtensionAbility(want);
@@ -167,7 +167,7 @@ int32_t CJAbilityContext::StopServiceExtensionAbility(const Want& want)
 int32_t CJAbilityContext::StopServiceExtensionAbilityWithAccount(const Want& want, int32_t accountId)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StopServiceExtensionAbility(want, accountId);
@@ -176,7 +176,7 @@ int32_t CJAbilityContext::StopServiceExtensionAbilityWithAccount(const Want& wan
 int32_t CJAbilityContext::TerminateSelf()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->TerminateSelf();
@@ -185,7 +185,7 @@ int32_t CJAbilityContext::TerminateSelf()
 int32_t CJAbilityContext::TerminateSelfWithResult(const AAFwk::Want& want, int32_t resultCode)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->TerminateAbilityWithResult(want, resultCode);
@@ -194,7 +194,7 @@ int32_t CJAbilityContext::TerminateSelfWithResult(const AAFwk::Want& want, int32
 std::tuple<int32_t, bool> CJAbilityContext::IsTerminating()
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return std::make_tuple(ERR_INVALID_INSTANCE_CODE, false);
     }
     return std::make_tuple(SUCCESS_CODE, context_->IsTerminating());
@@ -203,7 +203,7 @@ std::tuple<int32_t, bool> CJAbilityContext::IsTerminating()
 bool CJAbilityContext::ConnectAbility(const AAFwk::Want& want, int64_t connectionId)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto connection = new CJAbilityConnectCallback(connectionId);
@@ -214,7 +214,7 @@ int32_t CJAbilityContext::ConnectAbilityWithAccount(
     const AAFwk::Want& want, int32_t accountId, int64_t connectionId)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto connection = new CJAbilityConnectCallback(connectionId);
@@ -224,7 +224,7 @@ int32_t CJAbilityContext::ConnectAbilityWithAccount(
 void CJAbilityContext::DisconnectAbility(const AAFwk::Want& want, int64_t connectionId)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return;
     }
     auto connection = new CJAbilityConnectCallback(connectionId);
@@ -234,7 +234,7 @@ void CJAbilityContext::DisconnectAbility(const AAFwk::Want& want, int64_t connec
 int32_t CJAbilityContext::StartAbilityForResult(const AAFwk::Want& want, int32_t requestCode, RuntimeTask&& task)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbilityForResult(want, requestCode, std::move(task));
@@ -244,7 +244,7 @@ int32_t CJAbilityContext::StartAbilityForResult(
     const AAFwk::Want& want, const AAFwk::StartOptions& startOptions, int32_t requestCode, RuntimeTask&& task)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
@@ -254,7 +254,7 @@ int32_t CJAbilityContext::StartAbilityForResultWithAccount(
     const AAFwk::Want& want, int32_t accountId, int32_t requestCode, RuntimeTask&& task)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbilityForResultWithAccount(want, accountId, requestCode, std::move(task));
@@ -264,7 +264,7 @@ int32_t CJAbilityContext::StartAbilityForResultWithAccount(const AAFwk::Want& wa
     const AAFwk::StartOptions& startOptions, int32_t requestCode, RuntimeTask&& task)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
@@ -274,7 +274,7 @@ int32_t CJAbilityContext::RequestPermissionsFromUser(
     AppExecFwk::Ability* ability, std::vector<std::string>& permissions, PermissionRequestTask&& task)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return SUCCESS_CODE;
@@ -284,7 +284,7 @@ int32_t CJAbilityContext::RequestPermissionsFromUser(
 int32_t CJAbilityContext::SetMissionLabel(const std::string& label)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->SetMissionLabel(label);
@@ -293,7 +293,7 @@ int32_t CJAbilityContext::SetMissionLabel(const std::string& label)
 int32_t CJAbilityContext::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap>& icon)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->SetMissionIcon(icon);
@@ -302,7 +302,7 @@ int32_t CJAbilityContext::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pixe
 
 void CJAbilityContext::InheritWindowMode(AAFwk::Want& want)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "CJAbilityContext::InheritWindowMode called");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
 #ifdef SUPPORT_GRAPHICS
     // Only split mode need inherit.
     auto windowMode = context_->GetCurrentWindowMode();
@@ -310,15 +310,14 @@ void CJAbilityContext::InheritWindowMode(AAFwk::Want& want)
         windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
     }
-    TAG_LOGD(AAFwkTag::CONTEXT,
-        "CJAbilityContext::InheritWindowMode called end. window mode is %{public}d", windowMode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "end, window mode is %{public}d", windowMode);
 #endif
 }
 
 int32_t CJAbilityContext::RequestDialogService(AAFwk::Want& want, RequestDialogResultTask&& task)
 {
     if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context_->RequestDialogService(want, std::move(task));

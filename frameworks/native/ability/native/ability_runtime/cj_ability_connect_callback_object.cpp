@@ -26,9 +26,9 @@ CJAbilityConnectCallbackFuncs* g_cjAbilityConnectCallbackFuncs = nullptr;
 
 void RegisterCJAbilityConnectCallbackFuncs(void (*registerFunc)(CJAbilityConnectCallbackFuncs* result))
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "RegisterCJAbilityConnectCallbackFuncs start.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "start");
     if (g_cjAbilityConnectCallbackFuncs != nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Repeated registration for cangjie functions of CJAbilityConnectCallback.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "repeated registration for cangjie functions of CJAbilityConnectCallback");
         return;
     }
 
@@ -39,7 +39,7 @@ void RegisterCJAbilityConnectCallbackFuncs(void (*registerFunc)(CJAbilityConnect
 CJAbilityConnectCallback::~CJAbilityConnectCallback()
 {
     if (g_cjAbilityConnectCallbackFuncs == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Cangjie functions for CJAbilityConnectCallbacks are not registered");
+        TAG_LOGE(AAFwkTag::CONTEXT, "cangjie functions for CJAbilityConnectCallbacks are not registered");
         return;
     }
     g_cjAbilityConnectCallbackFuncs->release(callbackId_);
@@ -48,9 +48,9 @@ CJAbilityConnectCallback::~CJAbilityConnectCallback()
 void CJAbilityConnectCallback::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "OnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "called, resultCode:%{public}d", resultCode);
     if (g_cjAbilityConnectCallbackFuncs == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Cangjie functions for CJAbilityConnectCallbacks are not registered");
+        TAG_LOGE(AAFwkTag::CONTEXT, "cangjie functions for CJAbilityConnectCallbacks are not registered");
         return;
     }
 
@@ -62,9 +62,9 @@ void CJAbilityConnectCallback::OnAbilityConnectDone(
 
 void CJAbilityConnectCallback::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "OnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "called, resultCode:%{public}d", resultCode);
     if (g_cjAbilityConnectCallbackFuncs == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Cangjie functions for CJAbilityConnectCallbacks are not registered");
+        TAG_LOGE(AAFwkTag::CONTEXT, "cangjie functions for CJAbilityConnectCallbacks are not registered");
         return;
     }
 

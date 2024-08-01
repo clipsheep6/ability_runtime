@@ -50,7 +50,7 @@ const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 
 ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "requestCode: %{public}d", requestCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "requestCode = %{public}d", requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
@@ -63,7 +63,8 @@ ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
 
 ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "requestCode: %{public}d", requestCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "requestCode: %{public}d",
+        requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
@@ -168,7 +169,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
         return false;
     }
 
-    TAG_LOGI(AAFwkTag::CONTEXT, "called, ability:%{public}s.", abilityInfo->name.c_str());
+    TAG_LOGD(AAFwkTag::CONTEXT, "ability:%{public}s", abilityInfo->name.c_str());
 
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
@@ -179,7 +180,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
     TAG_LOGD(AAFwkTag::CONTEXT, "ret=%{public}d", ret);
     bool value = ((ret == ERR_OK) ? true : false);
     if (!value) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "errorCode = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::CONTEXT, "errorCode: %{public}d", ret);
     }
     TAG_LOGD(AAFwkTag::CONTEXT, "end");
     return value;
@@ -189,18 +190,18 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
-    TAG_LOGI(AAFwkTag::CONTEXT, "called, caller:%{public}s",
+    TAG_LOGI(AAFwkTag::CONTEXT, "caller:%{public}s",
         info == nullptr ? "" : info->name.c_str());
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
         return ERR_INVALID_VALUE;
     }
 
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "error, ret=%{public}d", ret);
+        TAG_LOGE(AAFwkTag::CONTEXT, "error, ret:%{public}d", ret);
     }
     return ret;
 }

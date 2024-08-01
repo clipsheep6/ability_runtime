@@ -26,13 +26,13 @@ extern "C" {
 int64_t FFIAbilityGetAbilityContext(AbilityHandle abilityHandle)
 {
     if (abilityHandle == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "ability handle is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null ability handle");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto ability = static_cast<CJUIAbility*>(abilityHandle);
     auto context = ability->GetAbilityContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "GetAbilityContext failed, abilityContext is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null abilityContext");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto cjContext = FFI::FFIData::Create<CJAbilityContext>(context);
@@ -43,12 +43,12 @@ void FFIAbilityContextGetFilesDir(int64_t id, void(*accept)(const char*))
 {
     auto cjContext = FFI::FFIData::GetData<CJAbilityContext>(id);
     if (cjContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "cj abilityContext is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null cj abilityContext");
         return;
     }
     auto context = cjContext->GetAbilityContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "context is null");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return;
     }
     auto filesDir = context->GetFilesDir();
