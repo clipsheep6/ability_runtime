@@ -149,7 +149,7 @@ napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env,
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "application is not system-app, can not use system-api");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }

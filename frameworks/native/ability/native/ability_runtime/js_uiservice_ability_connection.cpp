@@ -40,23 +40,23 @@ void RemoveUIServiceAbilityConnection(int64_t connectId)
         return connectId == obj.first.id;
     });
     if (item != g_uiServiceExtensionConnects.end()) {
-        TAG_LOGD(AAFwkTag::CONTEXT, "exist, remove");
+        TAG_LOGD(AAFwkTag::UI_EXT, "exist, remove");
         if (item->second) {
             item->second->RemoveConnectionObject();
             item->second->SetProxyObject(nullptr);
         }
         g_uiServiceExtensionConnects.erase(item);
     } else {
-        TAG_LOGD(AAFwkTag::CONTEXT, "not exist");
+        TAG_LOGD(AAFwkTag::UI_EXT, "not exist");
     }
-    TAG_LOGI(AAFwkTag::CONTEXT, "Connects new size:%{public}zu", g_uiServiceExtensionConnects.size());
+    TAG_LOGI(AAFwkTag::UI_EXT, "connects new size:%{public}zu", g_uiServiceExtensionConnects.size());
 }
 
 int64_t InsertUIServiceAbilityConnection(sptr<JSUIServiceExtAbilityConnection> connection, const AAFwk::Want &want)
 {
     std::lock_guard<std::recursive_mutex> lock(g_uiServiceExtensionConnectsLock_);
     if (connection == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "connection null");
+        TAG_LOGE(AAFwkTag::UI_EXT, "connection null");
         return -1;
     }
     int64_t connectId = g_uiServiceExtensionSerialNumber;
