@@ -1116,13 +1116,14 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
     for (auto iter = foregroundingAbilityTokens_.begin(); iter != foregroundingAbilityTokens_.end();) {
         auto ability = GetAbilityRunningRecordByToken(*iter);
         auto moduleRecord = GetModuleRunningRecordByToken(*iter);
-        if (!moduleRecord) {
-            TAG_LOGE(AAFwkTag::APPMGR, "can not find module record");
-            ++iter;
-            continue;
+        if (moduleRecord != nullptr) {
+            moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
+            StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND),
+                true, false);
+        } else {
+            TAG_LOGW(AAFwkTag::APPMGR, "can not find module record");
         }
-        moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
-        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
+        // The token should be removed even though the module record didn't exist.
         iter = foregroundingAbilityTokens_.erase(iter);
     }
 }
