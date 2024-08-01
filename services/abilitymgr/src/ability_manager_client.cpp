@@ -614,7 +614,7 @@ ErrCode AbilityManagerClient::Connect()
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AbilityMgrDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to create AbilityMgrDeathRecipient!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to create AbilityMgrDeathRecipient");
         return GET_ABILITY_SERVICE_FAILED;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
@@ -677,7 +677,7 @@ ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, co
     int32_t missionId, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams)
 {
     if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null");
         return ERR_INVALID_VALUE;
     }
 
@@ -692,7 +692,7 @@ ErrCode AbilityManagerClient::ContinueMission(AAFwk::ContinueMissionInfo continu
 
 {
     if (continueMissionInfo.srcDeviceId.empty() || continueMissionInfo.dstDeviceId.empty() || callback == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null");
         return ERR_INVALID_VALUE;
     }
 
@@ -1006,7 +1006,7 @@ ErrCode AbilityManagerClient::GetMissionIdByToken(sptr<IRemoteObject> token, int
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     missionId = abms->GetMissionIdByToken(token);
     if (missionId <= 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "get missionid by token failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get missionid by token failed");
         return MISSION_NOT_FOUND;
     }
     return ERR_OK;
