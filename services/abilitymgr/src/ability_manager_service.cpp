@@ -2641,7 +2641,7 @@ int AbilityManagerService::RequestModalUIExtensionInner(Want want)
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Window Modal System Create UIExtension is called!");
     want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
     auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
-    return IN_PROCESS_CALL(connection->CreateModalUIExtension(want)) ? ERR_OK : INNER_ERR;
+    return connection->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
 }
 
 int AbilityManagerService::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
