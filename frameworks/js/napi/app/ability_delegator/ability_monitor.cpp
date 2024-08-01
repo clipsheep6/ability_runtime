@@ -41,8 +41,6 @@ void AbilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference> &abilit
     }
 
     jsMonitor_->OnAbilityCreate(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
@@ -54,8 +52,6 @@ void AbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &a
     }
 
     jsMonitor_->OnAbilityForeground(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
@@ -67,8 +63,6 @@ void AbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &a
     }
 
     jsMonitor_->OnAbilityBackground(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &abilityObj)
@@ -80,8 +74,6 @@ void AbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &ability
     }
 
     jsMonitor_->OnAbilityDestroy(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
@@ -94,8 +86,6 @@ void AbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &a
     }
 
     jsMonitor_->OnWindowStageCreate(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
@@ -107,8 +97,6 @@ void AbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &
     }
 
     jsMonitor_->OnWindowStageRestore(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
@@ -120,8 +108,6 @@ void AbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &
     }
 
     jsMonitor_->OnWindowStageDestroy(abilityObj);
-
-    TAG_LOGD(AAFwkTag::DELEGATOR, "end");
 }
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
