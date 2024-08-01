@@ -1174,7 +1174,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     }
     auto state = static_cast<int>(GetSupportProcessCacheState());
     auto appInfo = appRecord->GetApplicationInfo();
-    HiSysEventWrite(HiSysEvent::Domain::AAFWK, "CACHE_START_APP", HiSysEvent::EventType::BEHAVIOR,
+    HiSysEventWrite(HiSysEvent::Domain::AAFWK, "CACHE_SUPPORT_STATE", HiSysEvent::EventType::BEHAVIOR,
         EVENT_KEY_VERSION_CODE, appInfo->versionCode, EVENT_KEY_VERSION_NAME, appInfo->versionName,
         EVENT_KEY_BUNDLE_NAME, appInfo->bundleName, EVENT_KEY_SUPPORT_STATE, state);
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
