@@ -14,25 +14,13 @@
  */
 #include "system_dialog_scheduler.h"
 
-#include <cmath>
-#include <regex>
-
-#include "app_utils.h"
-#include "display_info.h"
-#include "constants.h"
 #include "ability_record.h"
 #include "ability_util.h"
 #include "app_gallery_enable_util.h"
-#include "app_scheduler.h"
-#include "dm_common.h"
+#include "app_utils.h"
+#include "display_info.h"
 #include "display_manager.h"
-#include "errors.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "in_process_call_wrapper.h"
-#include "locale_config.h"
-#include "parameters.h"
-#include "resource_manager.h"
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 

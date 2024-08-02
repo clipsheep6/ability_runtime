@@ -19,7 +19,6 @@
 
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "mission_info_mgr.h"
 #include "scene_board_judgement.h"
 #include "os_account_manager_wrapper.h"
 

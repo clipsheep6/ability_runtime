@@ -17,12 +17,8 @@
 
 #include "ability_record.h"
 #include "ability_util.h"
-#include "bundle_constants.h"
-#include "bundle_mgr_helper.h"
 #include "global_constant.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "server_constant.h"
 #include "startup_util.h"
 
 namespace OHOS {

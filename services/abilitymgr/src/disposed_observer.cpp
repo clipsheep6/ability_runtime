@@ -17,9 +17,8 @@
 
 #include "interceptor/disposed_rule_interceptor.h"
 #include "ability_record.h"
-#include "hilog_tag_wrapper.h"
 #include "modal_system_ui_extension.h"
-#include "want.h"
+
 namespace OHOS {
 namespace AAFwk {
 namespace {

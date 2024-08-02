@@ -16,14 +16,9 @@
 #include "interceptor/disposed_rule_interceptor.h"
 
 #include "ability_record.h"
-#include "ability_util.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "modal_system_ui_extension.h"
-#include "task_utils_wrap.h"
-#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AAFwk {

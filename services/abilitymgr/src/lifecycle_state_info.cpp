@@ -15,9 +15,6 @@
 
 #include "lifecycle_state_info.h"
 
-#include "nlohmann/json.hpp"
-#include "string_ex.h"
-
 namespace OHOS {
 namespace AAFwk {
 bool LifeCycleStateInfo::ReadFromParcel(Parcel &parcel)

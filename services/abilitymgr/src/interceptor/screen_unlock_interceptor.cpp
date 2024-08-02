@@ -15,14 +15,11 @@
 
 #include "interceptor/screen_unlock_interceptor.h"
 
-#include "ability_info.h"
 #include "ability_util.h"
-#include "hilog_tag_wrapper.h"
 #include "parameters.h"
 #include "start_ability_utils.h"
 #ifdef SUPPORT_SCREEN
 #include "screenlock_manager.h"
-#include "screenlock_common.h"
 #endif
 
 namespace OHOS {

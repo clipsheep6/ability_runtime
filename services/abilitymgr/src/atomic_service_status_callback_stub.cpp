@@ -17,8 +17,6 @@
 
 #include "ability_manager_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "ipc_types.h"
-#include "message_parcel.h"
 
 namespace OHOS {
 namespace AAFwk {

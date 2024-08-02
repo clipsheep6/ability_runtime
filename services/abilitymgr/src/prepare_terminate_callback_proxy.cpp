@@ -13,13 +13,9 @@
  * limitations under the License.
  */
 
-#include "ability_manager_errors.h"
 #include "prepare_terminate_callback_proxy.h"
+
 #include "hilog_tag_wrapper.h"
-#include "iremote_object.h"
-#include "message_parcel.h"
-#include "peer_holder.h"
-#include "want_params.h"
 
 namespace OHOS {
 namespace AAFwk {
