@@ -3361,14 +3361,14 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate ui extension ability begin.");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     auto abilityRecord = Token::GetAbilityRecordByToken(extensionSessionInfo->callerToken);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::shared_ptr<AbilityConnectManager> connectManager;
     std::shared_ptr<AbilityRecord> targetRecord;
     GetConnectManagerAndUIExtensionBySessionInfo(extensionSessionInfo, connectManager, targetRecord);
     CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connectManager, ERR_INVALID_VALUE);
 
-    if (!JudgeSelfCalled(targetRecord) && !JudgeSelfCalled(abilityRecord)) {
+    // self terminate or caller terminate is allowed.
+    if (!(JudgeSelfCalled(targetRecord) || (abilityRecord != nullptr && JudgeSelfCalled(abilityRecord)))) {
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -3382,11 +3382,9 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot terminate except ui extension ability.");
         return ERR_WRONG_INTERFACE_CALL;
     }
-    extensionSessionInfo->uiExtensionComponentId = (
-        static_cast<uint64_t>(abilityRecord->GetRecordId()) << OFFSET) |
-        static_cast<uint64_t>(extensionSessionInfo->persistentId);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
-        extensionSessionInfo->uiExtensionComponentId, extensionSessionInfo->want.GetElement().GetURI().c_str());
+
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "UIExtension persistentId: %{public}d, element: %{public}s.",
+        extensionSessionInfo->persistentId, extensionSessionInfo->want.GetElement().GetURI().c_str());
     connectManager->TerminateAbilityWindowLocked(targetRecord, extensionSessionInfo);
     return ERR_OK;
 }
