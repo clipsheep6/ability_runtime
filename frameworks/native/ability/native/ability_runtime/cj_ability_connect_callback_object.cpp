@@ -57,6 +57,10 @@ void CJAbilityConnectCallback::OnAbilityConnectDone(
     ElementNameHandle elementNameHandle = const_cast<AppExecFwk::ElementName*>(&element);
     // The cj side is responsible for the release.
     auto cjRemoteObj = FFI::FFIData::Create<AppExecFwk::CJRemoteObject>(remoteObject);
+    if (cjRemoteObj == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "remote object is empty.");
+        return;
+    }
     g_cjAbilityConnectCallbackFuncs->onConnect(callbackId_, elementNameHandle, cjRemoteObj->GetID(), resultCode);
 }
 

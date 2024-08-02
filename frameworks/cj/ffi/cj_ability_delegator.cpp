@@ -78,6 +78,10 @@ int64_t FFIAbilityDelegatorRegistryGetAbilityDelegator()
         return INVALID_CODE;
     }
     auto cjDelegator = FFI::FFIData::Create<CJAbilityDelegator>(delegator);
+    if (cjDelegator == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "cj delegator is null.");
+        return INVALID_CODE;
+    }
     return cjDelegator->GetID();
 }
  
@@ -100,6 +104,10 @@ int32_t FFIAbilityDelegatorExecuteShellCommand(int64_t id, const char* cmd, int6
         return INVALID_CODE;
     }
     auto cJShellCmdResult = FFI::FFIData::Create<CJShellCmdResult>(cjDelegator->ExecuteShellCommand(cmd, timeoutSec));
+    if (cJShellCmdResult == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "cj shell command result is null.");
+        return INVALID_CODE;
+    }
     return cJShellCmdResult->GetID();
 }
 
