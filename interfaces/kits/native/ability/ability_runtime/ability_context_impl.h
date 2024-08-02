@@ -240,6 +240,8 @@ public:
     void SetRestoreEnabled(bool enabled) override;
     bool GetRestoreEnabled() override;
 
+    std::shared_ptr<AAFwk::Want> GetWant() override;
+
 #ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.

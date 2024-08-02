@@ -454,7 +454,7 @@ public:
      *
      * @return Returns the Want object that starts this ability.
      */
-    std::shared_ptr<AAFwk::Want> GetWant();
+    std::shared_ptr<AAFwk::Want> GetWant() override;
 
     /**
      * @brief Sets the result code and data to be returned by this Page ability to the caller.

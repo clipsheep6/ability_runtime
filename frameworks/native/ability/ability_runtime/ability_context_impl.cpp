@@ -1049,5 +1049,15 @@ ErrCode AbilityContextImpl::OpenLink(const AAFwk::Want& want, int requestCode)
     TAG_LOGD(AAFwkTag::CONTEXT, "called");
     return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
+
+std::shared_ptr<AAFwk::Want> AbilityContextImpl::GetWant()
+{
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        TAG_LOGW(AAFwkTag::CONTEXT, "abilityCallback is nullptr.");
+        return nullptr;
+    }
+    return abilityCallback->GetWant();
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

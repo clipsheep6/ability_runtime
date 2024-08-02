@@ -349,6 +349,8 @@ public:
     virtual void SetRestoreEnabled(bool enabled) = 0;
     virtual bool GetRestoreEnabled() = 0;
 
+    virtual std::shared_ptr<AAFwk::Want> GetWant() = 0;
+
 #ifdef SUPPORT_GRAPHICS
 #ifdef SUPPORT_SCREEN
     /**

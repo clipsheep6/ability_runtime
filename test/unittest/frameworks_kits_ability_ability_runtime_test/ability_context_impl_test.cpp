@@ -86,6 +86,11 @@ public:
     void UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
     {
     }
+
+    std::shared_ptr<AAFwk::Want> GetWant()
+    {
+        return nullptr;
+    }
 };
 
 class AbilityContextImplTest : public testing::Test {

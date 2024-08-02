@@ -102,6 +102,8 @@ public:
      * @param observer the lifecycle observer to be unregistered on ability.
      */
     virtual void UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) = 0;
+
+    virtual std::shared_ptr<AAFwk::Want> GetWant() = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

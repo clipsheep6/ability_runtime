@@ -102,7 +102,7 @@ public:
      * @brief Obtains the Want object that starts this ability.
      * @return Returns the Want object that starts this ability.
      */
-    std::shared_ptr<AAFwk::Want> GetWant();
+    std::shared_ptr<AAFwk::Want> GetWant() override;
 
     /**
      * @brief Init the UIability
