@@ -25,6 +25,7 @@ abilityms_files = [
   "src/ability_manager_stub.cpp",
   "src/ability_record.cpp",
   "src/ability_manager_collaborator_proxy.cpp",
+  "src/ability_manager_xcollie.cpp",
   "src/ability_scheduler_proxy.cpp",
   "src/ability_token_stub.cpp",
   "src/app_scheduler.cpp",
