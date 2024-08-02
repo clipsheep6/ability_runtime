@@ -1470,7 +1470,8 @@ private:
     void InitAppWaitingDebugList();
     void HandleConfigurationChange(const Configuration &config);
     bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
-    int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
+    int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData,
+        bool isNeedExit = false);
     void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord,
         sptr<IRemoteObject> token);
     void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);

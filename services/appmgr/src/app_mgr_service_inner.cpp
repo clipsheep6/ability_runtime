@@ -5265,7 +5265,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
     // A dialog box is displayed when the PC appfreeze
     bool isDialogExist = appRunningManager_ ?
         appRunningManager_->CheckAppRunningRecordIsExist(APP_NO_RESPONSE_BUNDLENAME, APP_NO_RESPONSE_ABILITY) : false;
-    auto killFaultApp = std::bind(&AppMgrServiceInner::KillFaultApp, this, pid, bundleName, faultData);
+    auto killFaultApp = std::bind(&AppMgrServiceInner::KillFaultApp, this, pid, bundleName, faultData, false);
     ModalSystemAppFreezeUIExtension::GetInstance().ProcessAppFreeze(appRecord->GetFocusFlag(), faultData,
         std::to_string(pid), bundleName, killFaultApp, isDialogExist);
 #else
@@ -5277,7 +5277,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 
 bool AppMgrServiceInner::CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData)
 {
-    if (faultData.timeoutMarkers != "" && !taskHandler_->CancelTask(faultData.timeoutMarkers)) {
+    if (faultData.timeoutMarkers != "" && !dfxTaskHandler_->CancelTask(faultData.timeoutMarkers)) {
         return true;
     }
 
@@ -5287,10 +5287,11 @@ bool AppMgrServiceInner::CheckAppFault(const std::shared_ptr<AppRunningRecord> &
     return false;
 }
 
-int32_t AppMgrServiceInner::KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData)
+int32_t AppMgrServiceInner::KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData,
+    bool isNeedExit)
 {
-    auto killAppTask = [pid, bundleName, faultData, innerService = shared_from_this()]() {
-        if (faultData.forceExit && !faultData.waitSaveState) {
+    auto killAppTask = [pid, bundleName, faultData, isNeedExit, innerService = shared_from_this()]() {
+        if (isNeedExit || (faultData.forceExit && !faultData.waitSaveState)) {
             TAG_LOGI(AAFwkTag::APPMGR, "FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
                 bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
             innerService->KillProcessByPid(pid, "KillFaultApp");
@@ -5306,6 +5307,18 @@ int32_t AppMgrServiceInner::KillFaultApp(int32_t pid, const std::string &bundleN
 void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
     const std::string& bundleName, const FaultData &faultData)
 {
+    bool isNeedExit = (faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) ||
+        (faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT);
+#ifdef APP_NO_RESPONSE_DIALOG
+    bool isDialogExist = appRunningManager_ ?
+        appRunningManager_->CheckAppRunningRecordIsExist(APP_NO_RESPONSE_BUNDLENAME, APP_NO_RESPONSE_ABILITY) :
+        false;
+    auto killFaultApp = std::bind(&AppMgrServiceInner::KillFaultApp, this, pid, bundleName, faultData, isNeedExit);
+    ModalSystemAppFreezeUIExtension::GetInstance().ProcessAppFreeze(true, faultData, std::to_string(pid),
+        bundleName, killFaultApp, isDialogExist);
+#else
+    KillFaultApp(pid, bundleName, faultData, isNeedExit);
+#endif
     if (faultData.faultType == FaultDataType::APP_FREEZE) {
         AppfreezeManager::AppInfo info = {
             .pid = pid,
@@ -5314,14 +5327,6 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
             .processName = bundleName,
         };
         AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
-#ifdef APP_NO_RESPONSE_DIALOG
-        bool isDialogExist = appRunningManager_ ?
-            appRunningManager_->CheckAppRunningRecordIsExist(APP_NO_RESPONSE_BUNDLENAME, APP_NO_RESPONSE_ABILITY) :
-            false;
-        auto killFaultApp = std::bind(&AppMgrServiceInner::KillFaultApp, this, pid, bundleName, faultData);
-        ModalSystemAppFreezeUIExtension::GetInstance().ProcessAppFreeze(true, faultData, std::to_string(pid),
-            bundleName, killFaultApp, isDialogExist);
-#endif
     }
 }
 
@@ -5370,7 +5375,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             auto timeoutNotifyApp = [this, pid, uid, bundleName, transformedFaultData]() {
                 this->TimeoutNotifyApp(pid, uid, bundleName, transformedFaultData);
             };
-            taskHandler_->SubmitTask(timeoutNotifyApp, transformedFaultData.timeoutMarkers, timeout);
+            dfxTaskHandler_->SubmitTask(timeoutNotifyApp, transformedFaultData.timeoutMarkers, timeout);
         }
         record->NotifyAppFault(transformedFaultData);
         TAG_LOGW(AAFwkTag::APPMGR, "FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
