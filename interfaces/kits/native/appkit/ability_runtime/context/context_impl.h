@@ -199,6 +199,11 @@ public:
      */
     std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName, const std::string &moduleName) override;
 
+    std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName, std::shared_ptr<Context> inputContext);
+
+    std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName,
+                                                    const std::string &moduleName, std::shared_ptr<Context> inputContext);
+
     /**
      * @brief Get file area
      *
@@ -229,6 +234,8 @@ public:
      */
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
 
+    int32_t CreateBundleContext(std::shared_ptr<Context> &context, const std::string &bundleName,
+        std::shared_ptr<Context> inputContext);
     /**
      * @brief Creates a ResourceManager object for a hap with the given hap name and app name.
      *
@@ -402,7 +409,8 @@ private:
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
-                             bool currentBundle = false, const std::string &moduleName = "");
+                             bool currentBundle = false, const std::string &moduleName = "",
+                             std::shared_ptr<Context> inputContext = nullptr);
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);
@@ -442,9 +450,11 @@ private:
     void SubscribeToOverlayEvents(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const std::string &name, const std::string &hapModuleName, std::string &loadPath,
         std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos);
-    void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
+    void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        std::shared_ptr<Context> inputContext = nullptr);
     int32_t GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, bool &currentBundle);
-    void GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, const int &accountId);
+    void GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, const int &accountId,
+        std::shared_ptr<Context> inputContext = nullptr);
     ErrCode GetOverlayMgrProxy();
 
     static Global::Resource::DeviceType deviceType_;

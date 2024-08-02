@@ -50,6 +50,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/app_startup/startup_listener:startuplistener_napi",
     "${ability_runtime_napi_path}/app_startup/startup_manager:startupmanager_napi",
     "${ability_runtime_napi_path}/app_startup/startup_task:startuptask_napi",
+    "${ability_runtime_napi_path}/application:application_napi",
     "${ability_runtime_napi_path}/application_context_constant:contextconstant_napi",
     "${ability_runtime_napi_path}/auto_fill_extension_ability:autofillextensionability_napi",
     "${ability_runtime_napi_path}/auto_fill_extension_context:autofillextensioncontext_napi",
