@@ -220,6 +220,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
 

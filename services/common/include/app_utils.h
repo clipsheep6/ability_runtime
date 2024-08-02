@@ -24,6 +24,7 @@ namespace OHOS {
 namespace AAFwk {
 constexpr const int32_t DEFAULT_MAX_EXT_PER_PROC = 10;
 constexpr const int32_t DEFAULT_MAX_EXT_PER_DEV = 100;
+constexpr const int32_t DEFAULT_INVALID_VALUE = -1;
 template<typename T>
 class DeviceConfiguration {
 public:
@@ -56,6 +57,9 @@ public:
     int32_t GetLimitMaximumExtensionsPerDevice();
     std::string GetCacheExtensionTypeList();
     bool IsAllowStartAbilityWithoutCallerToken(const std::string& bundleName, const std::string& abilityName);
+    std::string GetShellAssistantBundleName();
+    int32_t GetCollaboratorBrokerUID();
+    int32_t GetCollaboratorBrokerReserveUID();
 
 private:
     void LoadResidentProcessInExtremeMemory();
@@ -82,6 +86,9 @@ private:
     volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerDevice_ = {false, DEFAULT_MAX_EXT_PER_DEV};
     DeviceConfiguration<std::vector<std::pair<std::string, std::string>>>
         startAbilityWithoutCallerToken_ = {false, {}};
+    DeviceConfiguration<std::string> shellAssistantBundleName_ = {false, ""};
+    volatile DeviceConfiguration<int32_t> collaboratorBrokerUid_ = {false, DEFAULT_INVALID_VALUE};
+    volatile DeviceConfiguration<int32_t> collaboratorBrokerReserveUid_ = {false, DEFAULT_INVALID_VALUE};
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk

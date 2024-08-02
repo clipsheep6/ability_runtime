@@ -20,13 +20,13 @@
 #include "hilog_tag_wrapper.h"
 #include "app_state_observer_manager.h"
 #include "app_mgr_service_inner.h"
+#include "app_utils.h"
 #include "cache_process_manager.h"
 
 namespace {
 const std::string MAX_PROC_CACHE_NUM = "persist.sys.abilityms.maxProcessCacheNum";
 const std::string PROCESS_CACHE_API_CHECK_CONFIG = "persist.sys.abilityms.processCacheApiCheck";
 const std::string PROCESS_CACHE_SET_SUPPORT_CHECK_CONFIG = "persist.sys.abilityms.processCacheSetSupportCheck";
-const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr int32_t API12 = 12;
 constexpr int32_t API_VERSION_MOD = 100;
 }
@@ -263,7 +263,7 @@ bool CacheProcessManager::IsAppSupportProcessCacheInnerFirst(const std::shared_p
         TAG_LOGI(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
         return false;
     }
-    if (appRecord->GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
+    if (appRecord->GetBundleName() == AAFwk::AppUtils::GetInstance().GetShellAssistantBundleName()) {
         TAG_LOGD(AAFwkTag::APPMGR, "shell assistant, not support.");
         return false;
     }

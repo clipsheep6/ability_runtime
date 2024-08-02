@@ -59,6 +59,7 @@ ohos_fuzztest("ExtensionControlInterceptorFuzzTest") {
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:perm_verification",
     "//third_party/jsoncpp:jsoncpp",
     "//third_party/libjpeg-turbo:turbojpeg_static",

@@ -50,6 +50,7 @@ ohos_unittest("AmsWorkFlowTest") {
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_services_path}/common:res_sched_util",

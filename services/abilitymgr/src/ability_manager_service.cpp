@@ -184,8 +184,6 @@ constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 // Broker params key
 constexpr const char* KEY_VISIBLE_ID = "ohos.anco.param.visible";
 constexpr const char* START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
-constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-constexpr const char* SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 constexpr const char* BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
 constexpr const char* STR_PHONE = "phone";
 constexpr const char* PARAM_RESV_ANCO_CALLER_UID = "ohos.anco.param.callerUid";
@@ -259,8 +257,6 @@ constexpr int32_t GET_PARAMETER_OTHER = -1;
 constexpr int32_t SIZE_10 = 10;
 constexpr int32_t HIDUMPER_SERVICE_UID = 1212;
 constexpr int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
-constexpr int32_t BROKER_UID = 5557;
-constexpr int32_t BROKER_RESERVE_UID = 5005;
 constexpr int32_t DMS_UID = 5522;
 constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
@@ -966,8 +962,9 @@ int AbilityManagerService::CheckCallPermission(const Want& want, const AppExecFw
     if (type == AppExecFwk::AbilityType::SERVICE) {
         return CheckServiceCallPermission(abilityRequest, abilityInfo);
     }
-    if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && AppUtils::GetInstance().IsSupportAncoApp()) ||
-        IPCSkeleton::GetCallingUid() == BROKER_UID) {
+    if ((callerBundleName == AppUtils::GetInstance().GetShellAssistantBundleName() &&
+        AppUtils::GetInstance().IsSupportAncoApp()) ||
+        IPCSkeleton::GetCallingUid() == AppUtils::GetInstance().GetCollaboratorBrokerUID()) {
         return CheckBrokerCallPermission(abilityRequest, abilityInfo);
     }
     if (!isForegroundToRestartApp && (!isSendDialogResult || want.GetBoolParam("isSelector", false))) {
@@ -9012,8 +9009,9 @@ bool AbilityManagerService::GetAnimationFlag()
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
 {
-    if (abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid()) == BROKER_UID &&
-        abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
+    if (abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid()) ==
+        AppUtils::GetInstance().GetCollaboratorBrokerUID() &&
+        abilityRequest.want.GetElement().GetBundleName() == AppUtils::GetInstance().GetShellAssistantBundleName()) {
         auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
         if (collaborator != nullptr) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "Collaborator CheckCallAbilityPermission.");
@@ -9123,8 +9121,8 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
 
 int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityRequest &abilityRequest)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
-    if (IPCSkeleton::GetCallingUid() != BROKER_UID && AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+    if (IPCSkeleton::GetCallingUid() != AppUtils::GetInstance().GetCollaboratorBrokerUID() &&
+        AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
         return ERR_OK;
     }
 
@@ -9779,7 +9777,8 @@ int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (!isSaCall || (callingUid != BROKER_UID && callingUid != BROKER_RESERVE_UID)) {
+    if (!isSaCall || (callingUid != AppUtils::GetInstance().GetCollaboratorBrokerUID() &&
+        callingUid != AppUtils::GetInstance().GetCollaboratorBrokerReserveUID())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The interface only support for broker");
         return CHECK_PERMISSION_FAILED;
     }
@@ -9798,7 +9797,8 @@ int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t typ
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (!isSaCall || (callingUid != BROKER_UID && callingUid != BROKER_RESERVE_UID)) {
+    if (!isSaCall || (callingUid != AppUtils::GetInstance().GetCollaboratorBrokerUID() &&
+        callingUid != AppUtils::GetInstance().GetCollaboratorBrokerReserveUID())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The interface only support for broker");
         return CHECK_PERMISSION_FAILED;
     }
@@ -10249,7 +10249,8 @@ int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &w
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
 {
     auto callingUid = IPCSkeleton::GetCallingUid();
-    bool isBrokerCall = (callingUid == BROKER_UID || callingUid == BROKER_RESERVE_UID);
+    bool isBrokerCall = (callingUid == AppUtils::GetInstance().GetCollaboratorBrokerUID() ||
+        callingUid == AppUtils::GetInstance().GetCollaboratorBrokerReserveUID());
     if (isBrokerCall) {
         return IsAbilityControllerStart(want, want.GetBundle());
     }
