@@ -2417,7 +2417,7 @@ void AbilityRecord::DumpUIExtensionPid(std::vector<std::string> &info, bool isUI
 
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (appScheduler == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get appScheduler is invalid");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get appScheduler invalid");
         return;
     }
     AppExecFwk::RunningProcessInfo processInfo;
@@ -2428,12 +2428,12 @@ void AbilityRecord::DumpUIExtensionPid(std::vector<std::string> &info, bool isUI
 void AbilityRecord::RemoveAbilityDeathRecipient() const
 {
     if (scheduler_ == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "scheduler_ is invalid");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "scheduler_ invalid");
         return;
     }
 
     if (schedulerDeathRecipient_ == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "schedulerDeathRecipient_ is invalid");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "schedulerDeathRecipient_ invalid");
         return;
     }
 
@@ -3216,7 +3216,7 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0));
     TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u", callerTokenId, tokenId);
     if (callerTokenId == 0) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerTokenId is invalid");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerTokenId invalid");
         return;
     }
     uint32_t flag = want.GetFlags();
@@ -3225,7 +3225,7 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         Uri uri(uriStr);
         auto &&scheme = uri.GetScheme();
         if (scheme != "file") {
-            TAG_LOGW(AAFwkTag::ABILITYMGR, "uri is invalid: %{private}s", uriStr.c_str());
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "uri invalid: %{private}s", uriStr.c_str());
             continue;
         }
         validUriList.emplace_back(uri);
