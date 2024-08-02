@@ -409,7 +409,7 @@ private:
     // byCall
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
-    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest) const;
+    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByNameInner(const AppExecFwk::ElementName &element);
 
@@ -441,6 +441,7 @@ private:
     void BatchCloseUIAbility(const std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
     void TerminateSession(std::shared_ptr<AbilityRecord> abilityRecord);
     int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t persistentId);
+    void CheckCallerFromBackground(std::shared_ptr<AbilityRecord> callerAbility, sptr<SessionInfo> &sessionInfo);
 
     int32_t userId_ = -1;
     mutable ffrt::mutex sessionLock_;
