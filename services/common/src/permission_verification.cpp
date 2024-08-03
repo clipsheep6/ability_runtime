@@ -31,7 +31,6 @@ const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 namespace {
 const int32_t SHELL_START_EXTENSION_FLOOR = 0; // FORM
 const int32_t SHELL_START_EXTENSION_CEIL = 21; // EMBEDDED_UI
-const int32_t BROKER_UID = 5557;
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 const std::set<std::string> OBSERVER_NATIVE_CALLER = {
     "memmgrservice",
@@ -405,7 +404,7 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
     uint32_t specifyTokenId = verificationInfo.specifyTokenId;
     TAG_LOGD(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u, isCallByShortcut %{public}d",
         specifyTokenId, isCallByShortcut);
-    if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
+    if (specifyTokenId == 0 &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         TAG_LOGD(AAFwkTag::DEFAULT, "Support SA call");
         return ERR_OK;

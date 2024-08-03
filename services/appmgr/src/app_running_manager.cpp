@@ -20,6 +20,7 @@
 #include "iremote_object.h"
 
 #include "appexecfwk_errors.h"
+#include "app_utils.h"
 #include "common_event_support.h"
 #include "exit_resident_process_manager.h"
 #include "hilog_tag_wrapper.h"
@@ -43,7 +44,6 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
     constexpr int32_t QUICKFIX_UID = 5524;
-    const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
     constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 }
 using EventFwk::CommonEventSupport;
@@ -822,7 +822,7 @@ int32_t AppRunningManager::UpdateConfigurationByBundleName(const Configuration &
 bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     std::string bundleName = appRecord->GetApplicationInfo()->name;
-    bool isReserveType = bundleName == SHELL_ASSISTANT_BUNDLENAME;
+    bool isReserveType = bundleName == AAFwk::AppUtils::GetInstance().GetShellAssistantBundleName();
     if (isReserveType) {
         TAG_LOGI(AAFwkTag::APPMGR, "isReserveType app [%{public}s]", appRecord->GetName().c_str());
     }

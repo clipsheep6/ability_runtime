@@ -17,6 +17,7 @@
 
 #include "ability_record.h"
 #include "ability_util.h"
+#include "app_utils.h"
 #include "bundle_constants.h"
 #include "bundle_mgr_helper.h"
 #include "global_constant.h"
@@ -31,8 +32,6 @@ namespace {
 constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
 constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
 constexpr int32_t ERMS_ISALLOW_RESULTCODE = 10;
-constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-constexpr int32_t BROKER_UID = 5557;
 constexpr const char* PARAM_RESV_ANCO_CALLER_UID = "ohos.anco.param.callerUid";
 constexpr const char* PARAM_RESV_ANCO_CALLER_BUNDLENAME = "ohos.anco.param.callerBundleName";
 }
@@ -328,12 +327,12 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateCallerAbilityInfo(cons
 bool StartAbilityUtils::IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &callerToken)
 {
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid == BROKER_UID) {
+    if (callingUid == AppUtils::GetInstance().GetCollaboratorBrokerUID()) {
         return true;
     }
     AppExecFwk::AbilityInfo callerAbilityInfo;
     if (GetCallerAbilityInfo(callerToken, callerAbilityInfo)) {
-        return callerAbilityInfo.bundleName == SHELL_ASSISTANT_BUNDLENAME;
+        return callerAbilityInfo.bundleName == AppUtils::GetInstance().GetShellAssistantBundleName();
     }
     return false;
 }

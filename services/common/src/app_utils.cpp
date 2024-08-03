@@ -58,6 +58,9 @@ constexpr const char* START_ABILITY_WITHOUT_CALLERTOKEN = "/system/etc/start_abi
 constexpr const char* START_ABILITY_WITHOUT_CALLERTOKEN_PATH =
     "/etc/ability_runtime/start_ability_without_caller_token.json";
 constexpr const char* START_ABILITY_WITHOUT_CALLERTOKEN_TITLE = "startAbilityWithoutCallerToken";
+constexpr const char* SHELL_ASSISTANT_BUNDLE_NAME = "const.sys.abilityms.shell_assistant_bundle_name";
+constexpr const char* COLLABORATOR_BROKER_UID = "const.sys.abilityms.collaborator_broker_uid";
+constexpr const char* COLLABORATOR_BROKER_RESERVE_UID = "const.sys.abilityms.collaborator_broker_reserve_uid";
 }
 
 AppUtils::~AppUtils() {}
@@ -355,6 +358,37 @@ void AppUtils::LoadStartAbilityWithoutCallerToken()
         std::string abilityName = jsonObject.at(ABILITY_NAME).get<std::string>();
         startAbilityWithoutCallerToken_.value.emplace_back(std::make_pair(bundleName, abilityName));
     }
+}
+
+std::string AppUtils::GetShellAssistantBundleName()
+{
+    if (!shellAssistantBundleName_.isLoaded) {
+        shellAssistantBundleName_.value = system::GetParameter(SHELL_ASSISTANT_BUNDLE_NAME, "");
+        shellAssistantBundleName_.isLoaded = true;
+    }
+    TAG_LOGD(AAFwkTag::DEFAULT, "shellAssistantBundleName_ is %{public}s", shellAssistantBundleName_.value.c_str());
+    return shellAssistantBundleName_.value;
+}
+
+int32_t AppUtils::GetCollaboratorBrokerUID()
+{
+    if (!collaboratorBrokerUid_.isLoaded) {
+        collaboratorBrokerUid_.value = system::GetIntParameter(COLLABORATOR_BROKER_UID, DEFAULT_INVALID_VALUE);
+        collaboratorBrokerUid_.isLoaded = true;
+    }
+    TAG_LOGD(AAFwkTag::DEFAULT, "collaboratorBrokerUid_ is %{public}d", collaboratorBrokerUid_.value);
+    return collaboratorBrokerUid_.value;
+}
+
+int32_t AppUtils::GetCollaboratorBrokerReserveUID()
+{
+    if (!collaboratorBrokerReserveUid_.isLoaded) {
+        collaboratorBrokerReserveUid_.value = system::GetIntParameter(COLLABORATOR_BROKER_RESERVE_UID,
+            DEFAULT_INVALID_VALUE);
+        collaboratorBrokerReserveUid_.isLoaded = true;
+    }
+    TAG_LOGD(AAFwkTag::DEFAULT, "collaboratorBrokerReserveUid_ is %{public}d", collaboratorBrokerReserveUid_.value);
+    return collaboratorBrokerReserveUid_.value;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
