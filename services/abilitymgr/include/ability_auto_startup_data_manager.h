@@ -38,7 +38,7 @@ public:
 
     int32_t DeleteAutoStartupData(const AutoStartupInfo &info);
 
-    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t accessTokenId);
 
     AutoStartupStatus QueryAutoStartupData(const AutoStartupInfo &info);
 

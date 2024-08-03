@@ -421,6 +421,13 @@ void AbilityManagerService::InitInterceptor()
     }
 }
 
+void AbilityManagerService::InitInterceptorForScreenUnlock()
+{
+    if (interceptorExecuter_) {
+        interceptorExecuter_->AddInterceptor("ScreenUnlock", std::make_shared<ScreenUnlockInterceptor>());
+    }
+}
+
 void AbilityManagerService::InitPushTask()
 {
     if (taskHandler_ == nullptr) {
@@ -7137,6 +7144,10 @@ int AbilityManagerService::LogoutUser(int32_t userId)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed, not account process");
         return CHECK_PERMISSION_FAILED;
     }
+
+    // Lister screen unlock for auto startup apps.
+    InitInterceptorForScreenUnlock();
+    SubscribeScreenUnlockedEvent();
 
     if (userController_) {
         auto ret = userController_->LogoutUser(userId);

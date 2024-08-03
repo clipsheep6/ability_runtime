@@ -205,15 +205,8 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const AutoStartupIn
     return ERR_OK;
 }
 
-int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const std::string &bundleName, int32_t uid)
+int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const std::string &bundleName, int32_t accessTokenId)
 {
-    int32_t userId;
-    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
-            GetOsAccountLocalIdFromUid(uid, userId) != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
-        return ERR_INVALID_VALUE;
-    }
-    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
     auto accessTokenIdStr = std::to_string(accessTokenId);
     if (bundleName.empty() || accessTokenIdStr.empty()) {
         TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Invalid value!");

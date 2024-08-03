@@ -81,10 +81,10 @@ public:
     /**
      * @brief Delete current bundleName auto start up data.
      * @param bundleName The current bundleName.
-     * @param uid The uid.
+     * @param accessTokenId The accessTokenId.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t accessTokenId);
 
     /**
      * @brief Check current bundleName auto start up data.
