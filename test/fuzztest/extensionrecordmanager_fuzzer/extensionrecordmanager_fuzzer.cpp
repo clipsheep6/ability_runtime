@@ -106,6 +106,8 @@ bool DoSomethingInterestingWithMyAPI(const char *data, size_t size)
     extensionRecordManager->GetRootCallerTokenLocked(int32Param);
     extensionRecordManager->GetOrCreateExtensionRecordInner(abilityRequest, strParam, extensionRecord, boolParam);
     extensionRecordManager->IsHostSpecifiedProcessValid(abilityRequest, record, strParam);
+    std::list<sptr<IRemoteObject>> callerList;
+    mgr->GetCallerTokenList(int32Param, callerList);
 
     return true;
 }

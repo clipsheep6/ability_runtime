@@ -41,6 +41,10 @@ public:
 
     void SetRootCallerToken(sptr<IRemoteObject> &rootCallerToken);
 
+    sptr<IRemoteObject> GetFocusedCallerToken() const;
+
+    void SetFocusedCallerToken(sptr<IRemoteObject> &rootCallerToken);
+
     virtual bool ContinueToGetCallerToken();
 
     virtual void Update(const AAFwk::AbilityRequest &abilityRequest);
@@ -57,6 +61,7 @@ public:
     pid_t hostPid_ = 0;
 private:
     sptr<IRemoteObject> rootCallerToken_ = nullptr;
+    sptr<IRemoteObject> focusedCallerToken_ = nullptr;
     sptr<AAFwk::PreLoadUIExtStateObserver> preLoadUIExtStateObserver_;
 };
 } // namespace AbilityRuntime

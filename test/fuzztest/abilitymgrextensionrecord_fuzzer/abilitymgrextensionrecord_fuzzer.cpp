@@ -68,9 +68,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AbilityRuntime::ExtensionRecord infos(abilityRecord);
     infos.GetCallToken();
     infos.GetRootCallerToken();
+    infos.GetFocusedCallerToken();
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
 
     infos.SetRootCallerToken(token);
+    infos.SetFocusedCallerToken(token);
     infos.ContinueToGetCallerToken();
     AAFwk::AbilityRequest abilityRequest;
     infos.Update(abilityRequest);

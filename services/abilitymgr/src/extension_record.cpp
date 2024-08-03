@@ -45,6 +45,16 @@ void ExtensionRecord::SetRootCallerToken(sptr<IRemoteObject> &rootCallerToken)
     rootCallerToken_ = rootCallerToken;
 }
 
+sptr<IRemoteObject> ExtensionRecord::GetFocusedCallerToken() const
+{
+    return focusedCallerToken_;
+}
+
+void ExtensionRecord::SetFocusedCallerToken(sptr<IRemoteObject> &focusedCallerToken)
+{
+    focusedCallerToken_ = focusedCallerToken;
+}
+
 void ExtensionRecord::UnloadUIExtensionAbility()
 {
     auto ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(

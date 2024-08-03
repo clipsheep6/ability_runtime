@@ -9594,6 +9594,13 @@ int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId
         return ret;
     }
 
+    auto topAbility = Token::GetAbilityRecordByToken(token);
+    if (topAbility != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "top ability: %{public}s, pid: %{public}d, tokenId: %{public}d",
+            topAbility->GetWant().GetElement().GetURI().c_str(), topAbility->GetPid(),
+            topAbility->GetApplicationInfo().accessTokenId);
+    }
+
     bool focused = false;
     int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
     auto connectManager = GetConnectManagerByUserId(userId);

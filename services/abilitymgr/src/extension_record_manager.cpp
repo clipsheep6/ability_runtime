@@ -461,10 +461,98 @@ int32_t ExtensionRecordManager::StartAbility(const AAFwk::AbilityRequest &abilit
 bool ExtensionRecordManager::IsFocused(int32_t extensionRecordId, const sptr<IRemoteObject>& focusToken)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    sptr<IRemoteObject> rootCallerToken = GetRootCallerTokenLocked(extensionRecordId);
-    bool isFocused = rootCallerToken == focusToken;
+    auto cachedCaller = GetCachedFocusedCallerToken(extensionRecordId);
+    if (cachedCaller != nullptr && cachedCaller == focusToken) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "id: %{public}d has focused", extensionRecordId);
+        return true;
+    }
+
+    bool isFocused = false;
+    std::list<sptr<IRemoteObject>> callerList;
+    auto rootCallerToken = GetCallerTokenList(extensionRecordId, callerList);
+    for (auto item : callerList) {
+        auto ability = AAFwk::Token::GetAbilityRecordByToken(item);
+        if (ability == nullptr) {
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "Wrong ability");
+            continue;
+        }
+
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "ability: %{public}s, pid: %{public}d, tokenId: %{public}d",
+            ability->GetWant().GetElement().GetURI().c_str(), ability->GetPid(),
+            ability->GetApplicationInfo().accessTokenId);
+
+        if (item == focusToken) {
+            isFocused = true;
+            SetCachedFocusedCallerToken(extensionRecordId, item);
+            break;
+        }
+    }
+
     TAG_LOGD(AAFwkTag::ABILITYMGR, "id: %{public}d isFocused: %{public}d.", extensionRecordId, isFocused);
     return isFocused;
+}
+
+void ExtensionRecordManager::SetCachedFocusedCallerToken(int32_t extensionRecordId,
+    sptr<IRemoteObject> &focusedCallerToken)
+{
+    auto it = extensionRecords_.find(extensionRecordId);
+    if (it != extensionRecords_.end() && it->second != nullptr) {
+        it->second->SetFocusedCallerToken(focusedCallerToken);
+    }
+}
+
+sptr<IRemoteObject> ExtensionRecordManager::GetCachedFocusedCallerToken(int32_t extensionRecordId) const
+{
+    auto it = extensionRecords_.find(extensionRecordId);
+    if (it != extensionRecords_.end() && it->second != nullptr) {
+        return it->second->GetFocusedCallerToken();
+    }
+    return nullptr;
+}
+
+sptr<IRemoteObject> ExtensionRecordManager::GetCallerTokenList(int32_t extensionRecordId,
+    std::list<sptr<IRemoteObject>> &callerList)
+{
+    auto it = extensionRecords_.find(extensionRecordId);
+    if (it != extensionRecords_.end() && it->second != nullptr) {
+        if (!it->second->ContinueToGetCallerToken()) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Got caller, no neeed continue, id: %{public}d", extensionRecordId);
+            callerList.push_front(it->second->GetCallToken());
+            return it->second->GetCallToken();
+        }
+
+        auto callerToken = it->second->GetCallToken();
+        if (callerToken == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is null, id: %{public}d", extensionRecordId);
+            return nullptr;
+        }
+
+        auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(callerToken);
+        if (callerAbilityRecord == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "callerAbilityRecord is null, id: %{public}d", extensionRecordId);
+            return nullptr;
+        }
+
+        if (callerAbilityRecord->GetUIExtensionAbilityId() == INVALID_EXTENSION_RECORD_ID) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Got caller, caught invalid id: %{public}d", extensionRecordId);
+            callerList.push_front(callerToken);
+            return callerToken;
+        }
+
+        // If caller extension record id is same with current, need terminate, prevent possible stack-overflow.
+        if (callerAbilityRecord->GetUIExtensionAbilityId() == extensionRecordId) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid id: %{public}d, same with caller", extensionRecordId);
+            return nullptr;
+        }
+
+        callerList.push_front(callerToken);
+        auto rootCallerToken = GetCallerTokenList(callerAbilityRecord->GetUIExtensionAbilityId(), callerList);
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Got caller, continue to get id: %{public}d", extensionRecordId);
+        return rootCallerToken;
+    }
+
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Not found id %{public}d", extensionRecordId);
+    return nullptr;
 }
 
 sptr<IRemoteObject> ExtensionRecordManager::GetRootCallerTokenLocked(int32_t extensionRecordId)
