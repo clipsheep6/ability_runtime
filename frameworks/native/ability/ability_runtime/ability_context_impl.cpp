@@ -987,6 +987,7 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
         disposedCallback->OnDestroy();
     };
     Ace::ModalUIExtensionConfig config;
+    config.prohibitedRemoveByRouter = true;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
         TAG_LOGE(AAFwkTag::CONTEXT, "CreateModalUIExtension is failed");
