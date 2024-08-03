@@ -34,6 +34,9 @@ constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.Serv
 constexpr int32_t ERMS_ISALLOW_RESULTCODE = 10;
 constexpr const char* PARAM_RESV_ANCO_CALLER_UID = "ohos.anco.param.callerUid";
 constexpr const char* PARAM_RESV_ANCO_CALLER_BUNDLENAME = "ohos.anco.param.callerBundleName";
+constexpr int32_t REQUEST_CODE_LENGTH = 32;
+constexpr int32_t PID_LENGTH = 16;
+constexpr int32_t REQUEST_CODE_PID_LENGTH = 48;
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
@@ -335,6 +338,36 @@ bool StartAbilityUtils::IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &c
         return callerAbilityInfo.bundleName == AppUtils::GetInstance().GetShellAssistantBundleName();
     }
     return false;
+}
+
+int64_t StartAbilityUtils::GenerateFullRequestCode(int32_t pid, bool backFlag, int32_t requestCode)
+{
+    if (requestCode <= 0 || pid <= 0) {
+        return 0;
+    }
+    int64_t fullRequestCode = requestCode;
+    uint64_t tempNum = pid;
+    fullRequestCode |= (tempNum << REQUEST_CODE_LENGTH);
+    if (backFlag) {
+        tempNum = 1;
+        fullRequestCode |= (tempNum << REQUEST_CODE_PID_LENGTH);
+    }
+    return fullRequestCode;
+}
+
+CallerRequestInfo StartAbilityUtils::ParseFullRequestCode(int64_t fullRequestCode)
+{
+    CallerRequestInfo requestInfo;
+    if (fullRequestCode <= 0) {
+        return requestInfo;
+    }
+    uint64_t tempNum = 1;
+    requestInfo.requestCode = (fullRequestCode & ((tempNum << REQUEST_CODE_LENGTH) - 1));
+    fullRequestCode >>= REQUEST_CODE_LENGTH;
+    requestInfo.pid = (fullRequestCode & ((tempNum << PID_LENGTH) - 1));
+    fullRequestCode >>= PID_LENGTH;
+    requestInfo.backFlag = (fullRequestCode == 1);
+    return requestInfo;
 }
 }
 }

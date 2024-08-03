@@ -338,6 +338,14 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
 #endif
 }
 
+ErrCode AbilityContextImpl::BackToCallerAbilityWithResult(const AAFwk::Want& want, int resultCode, int64_t requestCode)
+{
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->BackToCallerAbilityWithResult(
+        token_, resultCode, &want, requestCode);
+    TAG_LOGI(AAFwkTag::CONTEXT, "ret is %{public}d", err);
+    return static_cast<int32_t>(err);
+}
+
 void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
 {
     std::lock_guard lock(sessionTokenMutex_);

@@ -81,6 +81,10 @@ constexpr const char* ERROR_MSG_MULTI_APP_NOT_SUPPORTED = "App clone or multi-in
 constexpr const char* ERROR_MSG_NOT_APP_CLONE = "The target app is not Clone.";
 constexpr const char* ERROR_MSG_APP_CLONE_INDEX_INVALID =
     "The target app clone with the specified index does not exist.";
+constexpr const char* ERROR_MSG_CALLER_NOT_EXIST =
+    "The caller application does not exist.";
+constexpr const char* ERROR_MSG_NOT_SUPPROT_BACK_TO_CALLER =
+    "Current application does not support back to caller application.";
 constexpr const char* ERROR_MSG_EXTENSION_START_THIRD_PARTY_APP_CONTROLLED =
     "The extension can not start the specified third party application.";
 constexpr const char* ERROR_MSG_EXTENSION_START_SERVICE_CONTROLLED = "The extension can not start the service.";
@@ -140,6 +144,8 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_MULTI_APP_NOT_SUPPORTED, ERROR_MSG_MULTI_APP_NOT_SUPPORTED },
     { AbilityErrorCode::ERROR_NOT_APP_CLONE, ERROR_MSG_NOT_APP_CLONE },
     { AbilityErrorCode::ERROR_APP_CLONE_INDEX_INVALID, ERROR_MSG_APP_CLONE_INDEX_INVALID },
+    { AbilityErrorCode::ERROR_CODE_CALLER_NOT_EXIST, ERROR_MSG_CALLER_NOT_EXIST },
+    { AbilityErrorCode::ERROR_CODE_NOT_SUPPROT_BACK_TO_CALLER, ERROR_MSG_NOT_SUPPROT_BACK_TO_CALLER },
     { AbilityErrorCode::ERROR_CODE_EXTENSION_START_THIRD_PARTY_APP_CONTROLLED,
         ERROR_MSG_EXTENSION_START_THIRD_PARTY_APP_CONTROLLED },
     { AbilityErrorCode::ERROR_CODE_EXTENSION_START_SERVICE_CONTROLLED, ERROR_MSG_EXTENSION_START_SERVICE_CONTROLLED},
@@ -202,6 +208,8 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_NO_RESIDENT_PERMISSION, AbilityErrorCode::ERROR_CODE_NO_RESIDENT_PERMISSION},
     {ERR_MULTI_APP_NOT_SUPPORTED, AbilityErrorCode::ERROR_CODE_MULTI_APP_NOT_SUPPORTED},
     {ERR_APP_CLONE_INDEX_INVALID, AbilityErrorCode::ERROR_APP_CLONE_INDEX_INVALID},
+    {ERR_CALLER_NOT_EXISTS, AbilityErrorCode::ERROR_CODE_CALLER_NOT_EXIST},
+    {ERR_NOT_SUPPORT_BACK_TO_CALLER, AbilityErrorCode::ERROR_CODE_NOT_SUPPROT_BACK_TO_CALLER},
     {EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_FLAG,
         AbilityErrorCode::ERROR_CODE_EXTENSION_START_THIRD_PARTY_APP_CONTROLLED},
     {EXTENSION_BLOCKED_BY_SERVICE_LIST, AbilityErrorCode::ERROR_CODE_EXTENSION_START_SERVICE_CONTROLLED},

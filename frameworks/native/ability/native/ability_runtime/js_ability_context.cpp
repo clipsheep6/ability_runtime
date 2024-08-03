@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <mutex>
 
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
@@ -303,6 +304,11 @@ napi_value JsAbilityContext::TerminateSelf(napi_env env, napi_callback_info info
 napi_value JsAbilityContext::TerminateSelfWithResult(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnTerminateSelfWithResult);
+}
+
+napi_value JsAbilityContext::BackToCallerAbilityWithResult(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnBackToCallerAbilityWithResult);
 }
 
 napi_value JsAbilityContext::RestoreWindowStage(napi_env env, napi_callback_info info)
@@ -705,8 +711,7 @@ bool JsAbilityContext::CreateOpenLinkTask(const napi_env &env, const napi_value 
         isInner ? asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode)) :
             asyncTask->ResolveWithNoError(env, abilityResult);
     };
-    curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-    requestCode = curRequestCode_;
+    requestCode = GenerateRequestCode();
     auto context = context_.lock();
     if (!context) {
         TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
@@ -1118,9 +1123,9 @@ napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackI
         asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
-        curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-        (unwrapArgc == ARGC_ONE) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task)) :
-            context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
+        auto requestCode = GenerateRequestCode();
+        (unwrapArgc == ARGC_ONE) ? context->StartAbilityForResult(want, requestCode, std::move(task)) :
+            context->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
     }
     TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityForResult is called end");
     return result;
@@ -1203,10 +1208,10 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
         TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
         asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
     } else {
-        curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
+        auto requestCode = GenerateRequestCode();
         (unwrapArgc == INDEX_TWO) ? context->StartAbilityForResultWithAccount(
-            want, accountId, curRequestCode_, std::move(task)) : context->StartAbilityForResultWithAccount(
-                want, accountId, startOptions, curRequestCode_, std::move(task));
+            want, accountId, requestCode, std::move(task)) : context->StartAbilityForResultWithAccount(
+                want, accountId, startOptions, requestCode, std::move(task));
     }
     TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityForResultWithAccount is called end");
     return result;
@@ -1417,6 +1422,57 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
     TAG_LOGD(AAFwkTag::CONTEXT, "end");
     return result;
 }
+
+napi_value JsAbilityContext::OnBackToCallerAbilityWithResult(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGI(AAFwkTag::CONTEXT, "OnBackToCallerAbilityWithResult start");
+    if (info.argc < ARGC_TWO) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    int resultCode = 0;
+    AAFwk::Want want;
+    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "%s Failed to parse ability result!", __func__);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
+        return CreateJsUndefined(env);
+    }
+
+    int64_t requestCode = -1;
+    if (!OHOS::AppExecFwk::UnwrapInt64FromJS2(env, info.argv[INDEX_ONE], requestCode)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "the second parameter is invalid.");
+        ThrowInvalidParamError(env, "Parse param requestCode failed, requestCode must be number.");
+        return CreateJsUndefined(env);
+    }
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, resultCode, requestCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+            TAG_LOGI(AAFwkTag::CONTEXT, "TerminateSelfWithResult async");
+            auto context = weak.lock();
+            if (!context) {
+                TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+
+            auto errorCode = context->BackToCallerAbilityWithResult(want, resultCode, requestCode);
+            if (errorCode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_TWO) ? info.argv[ARGC_TWO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnBackToCallerAbilityWithResult",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    TAG_LOGD(AAFwkTag::CONTEXT, "OnBackToCallerAbilityWithResult end");
+    return result;
+}
+
 
 napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& info)
 {
@@ -1850,6 +1906,8 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
     BindNativeFunction(env, object, "terminateSelf", moduleName, JsAbilityContext::TerminateSelf);
     BindNativeFunction(env, object, "terminateSelfWithResult", moduleName,
         JsAbilityContext::TerminateSelfWithResult);
+    BindNativeFunction(env, object, "backToCallerAbilityWithResult", moduleName,
+        JsAbilityContext::BackToCallerAbilityWithResult);
     BindNativeFunction(env, object, "restoreWindowStage", moduleName, JsAbilityContext::RestoreWindowStage);
     BindNativeFunction(env, object, "isTerminating", moduleName, JsAbilityContext::IsTerminating);
     BindNativeFunction(env, object, "startRecentAbility", moduleName,
@@ -2484,8 +2542,8 @@ napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackIn
         return CreateJsUndefined(env);
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
-        curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-        context->OpenAtomicService(want, options, curRequestCode_, std::move(task));
+        auto requestCode = GenerateRequestCode();
+        context->OpenAtomicService(want, options, requestCode, std::move(task));
     }
     TAG_LOGD(AAFwkTag::CONTEXT, "OnOpenAtomicService is called end");
     return result;
@@ -2547,5 +2605,15 @@ napi_value JsAbilityContext::OnSetRestoreEnabled(napi_env env, NapiCallbackInfo&
     abilityContext->SetRestoreEnabled(enabled);
     return CreateJsUndefined(env);
 }
+
+int32_t JsAbilityContext::GenerateRequestCode()
+{
+    std::lock_guard lock(requestCodeMutex_);
+    curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
+    return curRequestCode_;
+}
+
+int32_t JsAbilityContext::curRequestCode_ = 0;
+std::mutex JsAbilityContext::requestCodeMutex_;
 }  // namespace AbilityRuntime
 }  // namespace OHOS

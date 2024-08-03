@@ -1766,6 +1766,15 @@ void AbilityRecord::SendResult(bool isSandboxApp, uint32_t tokeId)
     SetResult(nullptr);
 }
 
+void AbilityRecord::SendResultByBackToCaller(const std::shared_ptr<AbilityResult> &result)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    CHECK_POINTER(scheduler_);
+    CHECK_POINTER(result);
+    scheduler_->SendResult(result->requestCode_, result->resultCode_, result->resultWant_);
+}
+
 void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, int requestCode)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
@@ -1828,6 +1837,36 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
             }
         }
     }
+}
+
+std::shared_ptr<AbilityRecord> AbilityRecord::GetCallerByRequestCode(int32_t requestCode, int32_t pid)
+{
+    for (auto caller : GetCallerRecordList()) {
+        if (caller == nullptr) {
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "caller is nullptr.");
+            continue;
+        }
+        std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
+        if (callerAbilityRecord == nullptr) {
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "caller abilityRecord is nullptr.");
+            continue;
+        }
+        if (callerAbilityRecord->GetPid() != pid) {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "pid not match: %{public}d, %{public}d",
+                callerAbilityRecord->GetPid(), pid);
+            continue;
+        }
+        auto recordList = caller->GetRequestCodeList();
+        for (auto code: recordList) {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "callerRequestCode is %{public}d", code);
+        }
+        if (caller->IsHistoryRequestCode(requestCode)) {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "requestcode is invalid");
+            return callerAbilityRecord;
+        }
+    }
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "Not found caller by requestCode and pid.");
+    return nullptr;
 }
 
 void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *resultWant)
@@ -1982,11 +2021,29 @@ void AbilityRecord::RemoveSpecifiedWantParam(const std::string &key)
     }
 }
 
+void AbilityRecord::RemoveCallerRequestCode(std::shared_ptr<AbilityRecord> callerAbilityRecord, int32_t requestCode)
+{
+    if (callerAbilityRecord == nullptr) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "callerAbilityRecord is null.");
+        return;
+    }
+    for (auto it = callerList_.begin(); it != callerList_.end(); it++) {
+        if ((*it)->GetCaller() == callerAbilityRecord) {
+            (*it)->RemoveHistoryRequestCode(requestCode);
+            if ((*it)->GetRequestCodeList().empty()) {
+                callerList_.erase(it);
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "remove a callerRecord.");
+            }
+            return;
+        }
+    }
+}
+
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId,
     uint32_t callingTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Add caller record.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Add caller record, callingTokenId is %{public}u", callingTokenId);
     if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken, callingTokenId)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
@@ -1999,19 +2056,21 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
     };
 
     auto record = std::find_if(callerList_.begin(), callerList_.end(), isExist);
+    auto newCallerRecord = std::make_shared<CallerRecord>(requestCode, abilityRecord);
     if (record != callerList_.end()) {
+        newCallerRecord->SetRequestCodeList((*record)->GetRequestCodeList());
         callerList_.erase(record);
     }
-
-    callerList_.emplace_back(std::make_shared<CallerRecord>(requestCode, abilityRecord));
+    newCallerRecord->AddHistoryRequestCode(requestCode);
+    callerList_.emplace_back(newCallerRecord);
 
     lifeCycleStateInfo_.caller.requestCode = requestCode;
     lifeCycleStateInfo_.caller.deviceId = abilityRecord->GetAbilityInfo().deviceId;
     lifeCycleStateInfo_.caller.bundleName = abilityRecord->GetAbilityInfo().bundleName;
     lifeCycleStateInfo_.caller.abilityName = abilityRecord->GetAbilityInfo().name;
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "caller %{public}s, %{public}s",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "caller %{public}s, %{public}s, callerSize: %{public}zu",
         abilityRecord->GetAbilityInfo().bundleName.c_str(),
-        abilityRecord->GetAbilityInfo().name.c_str());
+        abilityRecord->GetAbilityInfo().name.c_str(), callerList_.size());
 }
 
 bool AbilityRecord::IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken, uint32_t callingTokenId)

@@ -215,6 +215,7 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     }
 
     LoadSystemConfiguration(amsJson);
+    LoadBackToCallerConfig(amsJson);
     SetPickerJsonObject(amsJson);
     amsJson.clear();
     inFile.close();
@@ -268,6 +269,23 @@ int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
     }
 
     return READ_FAIL;
+}
+
+int AmsConfigurationParameter::LoadBackToCallerConfig(nlohmann::json& Object)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "load backTocaller config.");
+    if (Object.contains(AmsConfig::SUPPORT_BACK_TO_CALLER) &&
+        Object.at(AmsConfig::SUPPORT_BACK_TO_CALLER).is_boolean()) {
+        supportBackToCaller_ = Object.at(AmsConfig::SUPPORT_BACK_TO_CALLER).get<bool>();
+        return READ_OK;
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "load backTocaller failed.");
+    return READ_FAIL;
+}
+
+bool AmsConfigurationParameter::IsSupportBackToCaller() const
+{
+    return supportBackToCaller_;
 }
 
 bool AmsConfigurationParameter::CheckServiceConfigEnable(nlohmann::json& Object, const std::string &configName,

@@ -13,5 +13,6 @@
     },
     "system_configuration":{
         "system_orientation": "vertical"
-    }
+    },
+    "supportBackToCaller": true
 }
