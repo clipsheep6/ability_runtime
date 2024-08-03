@@ -332,7 +332,7 @@ std::unique_ptr<ShellCmdResult> AbilityDelegator::ExecuteShellCommand(const std:
         return {};
     }
 
-    auto testObserver = iface_cast<ITestObserver>(observer_);
+    auto testObserver = ITestObserver::BuildTestObserver(observer_);
     if (!testObserver) {
         TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid testObserver");
         return {};
@@ -346,7 +346,7 @@ void AbilityDelegator::Print(const std::string &msg)
 {
     TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
 
-    auto testObserver = iface_cast<ITestObserver>(observer_);
+    auto testObserver = ITestObserver::BuildTestObserver(observer_);
     if (!testObserver) {
         TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid testObserver");
         return;

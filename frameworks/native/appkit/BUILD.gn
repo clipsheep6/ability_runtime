@@ -389,6 +389,40 @@ ohos_shared_library("app_context_utils") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("test_observer") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  include_dirs = [
+    "${ability_runtime_path}/tools/aa/include",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  sources = [
+    "${ability_runtime_path}/tools/aa/src/shell_command_result.cpp",
+    "${ability_runtime_path}/tools/aa/src/test_observer_proxy.cpp",
+    "${ability_runtime_path}/tools/aa/src/test_observer_stub.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 # build so
 ohos_shared_library("appkit_delegator") {
   include_dirs = [
@@ -414,8 +448,6 @@ ohos_shared_library("appkit_delegator") {
     "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/js_test_runner.cpp",
     "${ability_runtime_native_path}/appkit/ability_delegator/shell_cmd_result.cpp",
     "${ability_runtime_native_path}/appkit/ability_delegator/test_runner.cpp",
-    "${ability_runtime_path}/tools/aa/src/shell_command_result.cpp",
-    "${ability_runtime_path}/tools/aa/src/test_observer_proxy.cpp",
   ]
 
   cflags = []
@@ -424,6 +456,7 @@ ohos_shared_library("appkit_delegator") {
   }
 
   deps = [
+    ":test_observer",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",

@@ -142,5 +142,9 @@ int32_t TestObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     return remote->SendRequest(code, data, reply, option);
 }
 
+sptr<ITestObserver> ITestObserver::BuildTestObserver(sptr<IRemoteObject> remoteObject)
+{
+    return iface_cast<ITestObserver>(remoteObject);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

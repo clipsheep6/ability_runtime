@@ -93,18 +93,24 @@ ohos_unittest("test_observer_proxy_test") {
 ohos_unittest("test_observer_stub_test") {
   module_out_path = module_output_path
 
+  include_dirs = [
+    "${ability_runtime_path}/tools/aa/include",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
   sources = [
     "mock_test_observer_stub.cpp",
     "test_observer_stub_test.cpp",
   ]
 
   deps = [
-    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_native_path}/appkit:test_observer",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -118,6 +124,7 @@ ohos_unittest("shell_command_result_test") {
   configs = [ ":tools_ability_delegator_config" ]
 
   deps = [
+    "${ability_runtime_native_path}/appkit:test_observer",
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
