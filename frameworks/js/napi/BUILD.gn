@@ -97,5 +97,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/wantConstant:wantconstant_napi",
     "${ability_runtime_napi_path}/wantagent:napi_wantAgent",
     "${ability_runtime_napi_path}/wantagent:wantagent",
+    "${ability_runtime_napi_path}/live_form_extension_ability:liveformextensionability_napi",
+    "${ability_runtime_napi_path}/live_form_extension_context:liveformextensioncontext_napi",    
   ]
 }
