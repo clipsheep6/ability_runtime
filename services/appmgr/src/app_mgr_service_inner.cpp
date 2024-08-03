@@ -21,6 +21,7 @@
 #include <mutex>
 #include <queue>
 #include <securec.h>
+#include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -220,6 +221,8 @@ constexpr const char* ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 constexpr const char* PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 constexpr const char* KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
 constexpr const char* PRELOAD_APPLIATION_TASK = "PreloadApplicactionTask";
+
+constexpr const char* PROC_SELF_TASK_PATH = "/proc/self/task/";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
@@ -1886,9 +1889,9 @@ void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningReco
     }
 }
 
-int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason, int32_t uid)
+int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason)
 {
-    if (!ProcessExist(pid, uid)) {
+    if (!ProcessExist(pid)) {
         TAG_LOGI(AAFwkTag::APPMGR, "KillProcessByPid, process not exists, pid: %{public}d", pid);
         return AAFwk::ERR_KILL_PROCESS_NOT_EXIST;
     }
@@ -1899,6 +1902,10 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string&
     }
     int32_t ret = -1;
     if (pid > 0) {
+        if (CheckIsThreadInFoundation(pid)) {
+            TAG_LOGI(AAFwkTag::APPMGR, "pid %{public}d is thread tid in foundation, don't kill.", pid);
+            return AAFwk::ERR_KILL_FOUNDATION_UID;
+        }
         TAG_LOGI(AAFwkTag::APPMGR, "kill pid %{public}d", pid);
         ret = kill(pid, SIGNAL_KILL);
     }
@@ -1934,6 +1941,14 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string&
     return ret;
 }
 
+bool AppMgrServiceInner::CheckIsThreadInFoundation(pid_t pid) {
+    std::ostringstream pathBuilder;
+    pathBuilder << PROC_SELF_TASK_PATH << pid;
+    std::string path = pathBuilder.str();
+    TAG_LOGD(AAFwkTag::APPMGR, "CheckIsThreadInFoundation path:%{public}s", path.c_str());
+    return access(path.c_str(), F_OK) == 0;
+}
+
 bool AppMgrServiceInner::WaitForRemoteProcessExit(std::list<pid_t> &pids, const int64_t startTime)
 {
     int64_t delayTime = SystemTimeMillisecond() - startTime;
@@ -1947,7 +1962,7 @@ bool AppMgrServiceInner::WaitForRemoteProcessExit(std::list<pid_t> &pids, const 
     return false;
 }
 
-bool AppMgrServiceInner::ProcessExist(pid_t pid, int32_t uid)
+bool AppMgrServiceInner::ProcessExist(pid_t pid)
 {
     char pid_path[128] = {0};
     struct stat stat_buf;
@@ -1957,14 +1972,7 @@ bool AppMgrServiceInner::ProcessExist(pid_t pid, int32_t uid)
     if (snprintf_s(pid_path, sizeof(pid_path), sizeof(pid_path) - 1, "/proc/%d/status", pid) < 0) {
         return false;
     }
-    if (stat(pid_path, &stat_buf) != 0) {
-        return false;
-    }
-    TAG_LOGI(AAFwkTag::APPMGR, "uid: %{public}d, input uid: %{public}d", stat_buf.st_uid, uid);
-    if (uid == -1 || stat_buf.st_uid == 0) {
-        return true;
-    }
-    if (stat_buf.st_uid == static_cast<uint32_t>(uid)) {
+    if (stat(pid_path, &stat_buf) == 0) {
         return true;
     }
     return false;
@@ -3310,7 +3318,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     if (pid > 0) {
         auto timeoutTask = [appRecord, pid, uid, innerService = shared_from_this()]() {
             TAG_LOGI(AAFwkTag::APPMGR, "KillProcessByPid %{public}d, uid: %{public}d", pid, uid);
-            int32_t result = innerService->KillProcessByPid(pid, "TerminateApplication", uid);
+            int32_t result = innerService->KillProcessByPid(pid, "TerminateApplication");
             innerService->SendProcessExitEvent(appRecord);
             if (result < 0) {
                 TAG_LOGE(AAFwkTag::APPMGR, "KillProcessByPid kill process is fail");
@@ -5682,11 +5690,14 @@ void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecor
         for (auto iter : renderRecordMap) {
             auto renderRecord = iter.second;
             if (renderRecord && renderRecord->GetPid() > 0) {
-                TAG_LOGD(AAFwkTag::APPMGR, "Kill render process when host died.");
-                KillProcessByPid(renderRecord->GetPid(), "KillRenderProcess");
+                auto pid = renderRecord->GetPid();
+                auto uid = renderRecord->GetUid();
+                TAG_LOGI(AAFwkTag::APPMGR, "Kill render process when host died, pid:%{public}d, uid:%{public}d.",
+                    pid, uid);
+                KillProcessByPid(pid, "KillRenderProcess");
                 {
                     std::lock_guard lock(renderUidSetLock_);
-                    renderUidSet_.erase(renderRecord->GetUid());
+                    renderUidSet_.erase(uid);
                 }
                 DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
             }
@@ -6436,7 +6447,8 @@ void AppMgrServiceInner::KillChildProcess(const std::shared_ptr<AppRunningRecord
         }
         auto childPid = childRecord->GetPid();
         if (childPid > 0) {
-            TAG_LOGI(AAFwkTag::APPMGR, "Kill child process when host died, childPid:%{public}d.", childPid);
+            TAG_LOGI(AAFwkTag::APPMGR, "Kill child process when host died, childPid:%{public}d, childUid:%{public}d.",
+                childPid, childRecord->GetUid());
             KillProcessByPid(childPid, "KillChildProcess");
         }
     }
@@ -6469,6 +6481,8 @@ void AppMgrServiceInner::ExitChildProcessSafelyByChildPid(const pid_t pid)
         return;
     }
     childRecord->RegisterDeathRecipient();
+    TAG_LOGI(AAFwkTag::APPMGR, "Kill child ExitChildProcessSafely, childPid:%{public}d, childUid:%{public}d.",
+        pid, childRecord->GetUid());
     int32_t result = KillProcessByPid(pid, "ExitChildProcessSafelyByChildPid");
     if (result < 0) {
         TAG_LOGE(AAFwkTag::APPMGR, "KillChildProcessByPid kill process is fail.");
@@ -7220,7 +7234,7 @@ bool AppMgrServiceInner::CleanAbilityByUserRequest(const sptr<IRemoteObject> &to
         return false;
     }
     TAG_LOGI(AAFwkTag::APPMGR, "all user request clean ability scheduled to bg, force kill pid:%{public}d", targetPid);
-    KillProcessByPid(targetPid, KILL_REASON_USER_REQUEST, targetUid);
+    KillProcessByPid(targetPid, KILL_REASON_USER_REQUEST);
     return true;
 }
 
@@ -7255,7 +7269,7 @@ void AppMgrServiceInner::CheckCleanAbilityByUserRequest(const std::shared_ptr<Ap
         pid = appRecord->GetPriorityObject()->GetPid();
     }
     TAG_LOGI(AAFwkTag::APPMGR, "all user request clean ability scheduled to bg, force kill, pid:%{public}d", pid);
-    KillProcessByPid(pid, KILL_REASON_USER_REQUEST, appRecord->GetUid());
+    KillProcessByPid(pid, KILL_REASON_USER_REQUEST);
 }
 
 bool AppMgrServiceInner::IsKilledForUpgradeWeb(const std::string &bundleName) const

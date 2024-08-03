@@ -570,6 +570,11 @@ enum {
      */
     ERR_NOT_SUPPORT_BACK_TO_CALLER = 2097262,
 
+    /*
+     * Result (2097261) for killing process uid is foundation.
+     */
+    ERR_KILL_FOUNDATION_UID = 2097261,
+
     /**
      * Native error(3000000) for target bundle not exist.
      */

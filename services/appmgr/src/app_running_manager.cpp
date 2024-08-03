@@ -983,6 +983,8 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
     if (it != appRunningRecordMap_.end()) {
         auto appRecord = it->second;
         appRecord->RemoveRenderRecord(renderRecord);
+        TAG_LOGI(AAFwkTag::APPMGR, "RemoveRenderRecord pid:%{public}d, uid:%{public}d.", renderRecord->GetPid(),
+            renderRecord->GetUid());
         return renderRecord;
     }
     return nullptr;
@@ -1314,6 +1316,8 @@ std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(
     if (it != appRunningRecordMap_.end()) {
         auto appRecord = it->second;
         appRecord->RemoveChildProcessRecord(childRecord);
+        TAG_LOGI(AAFwkTag::APPMGR, "RemoveChildProcessRecord pid:%{public}d, uid:%{public}d.", childRecord->GetPid(),
+            childRecord->GetUid());
         return childRecord;
     }
     return nullptr;
