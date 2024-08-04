@@ -263,6 +263,30 @@ public:
         currentState_ = OBJSTATE::OBJ_NORMAL;
     }
 
+    void SetJsRemoteObj(napi_env env, napi_value value)
+    {
+        if (env == nullptr || value == nullptr) {
+            TAG_LOGE(AAFwkTag::DEFAULT, "parameter error");
+            return;
+        }
+        napi_ref ref = nullptr;
+        napi_create_reference(env, value, 1, &ref);
+        jsRemoteObj_.reset(reinterpret_cast<NativeReference*>(ref));
+        jsRemoteObjEnv_ = env;
+    }
+
+    void ReleaseJsRemoteObj()
+    {
+        if (jsRemoteObjEnv_ == nullptr || jsRemoteObj_ == nullptr) {
+            return;
+        }
+        TAG_LOGI(AAFwkTag::DEFAULT, "before release call");
+        napi_value value = jsRemoteObj_->GetNapiValue();
+        NAPI_ohos_rpc_ClearNativeRemoteProxy(jsRemoteObjEnv_, value);
+        jsRemoteObj_.reset();
+        jsRemoteObjEnv_ = nullptr;
+    }
+
 private:
 
     void OnReleaseNotify(const std::string &str)
@@ -350,6 +374,9 @@ private:
             TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, releaseFunc is nullptr", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
+        callee_ = nullptr;
+        callerCallBackObj_->SetCallBack(nullptr);
+        ReleaseJsRemoteObj();
         int32_t innerErrorCode = releaseCallFunc_(callerCallBackObj_);
         if (innerErrorCode != ERR_OK) {
             TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, ReleaseAbility failed %{public}d",
@@ -450,9 +477,11 @@ private:
     sptr<IRemoteObject> callee_;
     napi_env releaseCallBackEngine_;
     napi_env remoteStateChanegdEngine_;
+    napi_env jsRemoteObjEnv_ = nullptr;
     std::shared_ptr<CallerCallBack> callerCallBackObj_;
     std::unique_ptr<NativeReference> jsReleaseCallBackObj_;
     std::unique_ptr<NativeReference> jsRemoteStateChangedObj_;
+    std::unique_ptr<NativeReference> jsRemoteObj_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::mutex stateMechanismMutex_;
     OBJSTATE currentState_;
@@ -486,8 +515,10 @@ napi_value CreateJsCallerComplex(
         return CreateJsUndefined(env);
     }
 
+    auto jsRemoteObj = CreateJsCalleeRemoteObject(env, remoteObj);
+    jsCaller->SetJsRemoteObj(env, jsRemoteObj);
     napi_wrap(env, object, jsCaller.release(), JsCallerComplex::Finalizer, nullptr, nullptr);
-    napi_set_named_property(env, object, "callee", CreateJsCalleeRemoteObject(env, remoteObj));
+    napi_set_named_property(env, object, "callee", jsRemoteObj);
     const char *moduleName = "JsCallerComplex";
     BindNativeFunction(env, object, "release", moduleName, JsCallerComplex::JsReleaseCall);
     BindNativeFunction(env, object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
