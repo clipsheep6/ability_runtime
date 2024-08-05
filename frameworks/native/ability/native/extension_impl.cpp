@@ -53,6 +53,11 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
         if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_)) {
             extension_->SetExtensionWindowLifeCycleListener(
                 sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
+            AppExecFwk::Configuration config;
+            auto err = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionConfigurationByToken(token_, config);
+            if (err == ERR_OK) {
+                extension_->SetConfiguration(config);
+            }
         }
         if (record->GetAbilityInfo()->name == "com.ohos.callui.ServiceAbility") {
             PrintTokenInfo();

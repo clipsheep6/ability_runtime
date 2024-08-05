@@ -3025,5 +3025,36 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetRestartCount_001, TestSize.Level1)
     int32_t result = abilityRecord->GetRestartCount();
     EXPECT_EQ(result, restartCount);
 }
+
+/**
+ * @tc.name: AbilityRecord_SetConfiguration_001
+ * @tc.desc: Test set the configuration successfully.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetConfiguration_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    AppExecFwk::Configuration config;
+    config.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, "0");
+    abilityRecord->SetConfiguration(config);
+    auto displayId = abilityRecord->configuration_.GetItem(ConfigurationInner::APPLICATION_DISPLAYID);
+    EXPECT_EQ(displayId, "0");
+}
+
+/**
+ * @tc.name: AbilityRecord_GetConfiguration_001
+ * @tc.desc: Test get the configuration successfully.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetConfiguration_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    AppExecFwk::Configuration config;
+    config.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, "0");
+    abilityRecord->SetConfiguration(config);
+    config = abilityRecord->GetConfiguration();
+    auto displayId = config.GetItem(ConfigurationInner::APPLICATION_DISPLAYID);
+    EXPECT_EQ(displayId, "0");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

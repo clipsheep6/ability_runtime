@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -446,6 +446,12 @@ public:
         const InsightIntentExecuteResult &result));
     MOCK_METHOD3(GetUIExtensionRootHostInfo, int32_t(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
         int32_t userId));
+
+    int32_t GetUIExtensionConfigurationByToken(
+        const sptr<IRemoteObject> &token, AppExecFwk::Configuration &config) override
+    {
+        return 0;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

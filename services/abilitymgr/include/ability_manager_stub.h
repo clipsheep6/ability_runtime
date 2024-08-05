@@ -351,6 +351,7 @@ private:
         MessageParcel &reply, MessageOption &option);
     int32_t OpenLinkInner(MessageParcel &data, MessageParcel &reply);
     int32_t TerminateMissionInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetUIExtensionConfigurationByTokenInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

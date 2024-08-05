@@ -769,6 +769,9 @@ int AbilityManagerStub::OnRemoteRequestInnerNineteenth(uint32_t code, MessagePar
     if (interfaceCode == AbilityManagerInterfaceCode::TERMINATE_MISSION) {
         return TerminateMissionInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_UI_EXTENSION_CONFIGURATION_BY_TOKEN) {
+        return GetUIExtensionConfigurationByTokenInner(data, reply);
+    }
     return ERR_CODE_NOT_EXIST;
 }
 
@@ -4046,6 +4049,18 @@ int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessagePa
         TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenLink failed.");
     }
     reply.WriteInt32(result);
+    return result;
+}
+
+int32_t AbilityManagerStub::GetUIExtensionConfigurationByTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    AppExecFwk::Configuration config;
+    int32_t result = GetUIExtensionConfigurationByToken(token, config);
+    if (!reply.WriteParcelable(&config)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write result failed");
+        return ERR_INVALID_VALUE;
+    }
     return result;
 }
 } // namespace AAFwk

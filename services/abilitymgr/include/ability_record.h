@@ -584,6 +584,8 @@ public:
     bool IsCompleteFirstFrameDrawing() const;
     bool GetColdStartFlag();
     void SetColdStartFlag(bool isColdStart);
+    void SetConfiguration(const AppExecFwk::Configuration &configuration);
+    AppExecFwk::Configuration GetConfiguration() const;
 #endif
 
     bool GrantUriPermissionForServiceExtension();
@@ -1273,6 +1275,7 @@ private:
 
     bool isCompleteFirstFrameDrawing_ = false;
     bool coldStart_ = false;
+    AppExecFwk::Configuration configuration_;
 #endif
 
     bool isGrantedUriPermission_ = false;

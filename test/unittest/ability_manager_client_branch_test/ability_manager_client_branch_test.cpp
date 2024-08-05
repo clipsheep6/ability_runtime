@@ -2660,5 +2660,18 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionLabel_01
     GTEST_LOG_(INFO) << "AbilityManagerClient_SetMissionLabel_0100 end";
 }
 #endif
+
+/**
+ * @tc.name: AbilityManagerClient_GetUIExtensionConfigurationByToken_0100
+ * @tc.desc: Test the state of GetUIExtensionConfigurationByToken.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetUIExtensionConfigurationByToken_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    AppExecFwk::Configuration config;
+    auto result = client_->GetUIExtensionConfigurationByToken(token, config);
+    EXPECT_EQ(result, NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

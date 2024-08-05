@@ -2390,5 +2390,21 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetDialogSessionInfo_0100, TestSize.Lev
     auto res = abilityMs->GetDialogSessionInfo(dialogSessionId, dialogSessionInfo);
     EXPECT_EQ(res, INNER_ERR);
 }
+
+/**
+ * @tc.name: AbilityManagerService_GetUIExtensionConfigurationByToken_0100
+ * @tc.desc: Test the state of GetUIExtensionConfigurationByToken.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, AbilityManagerService_GetUIExtensionConfigurationByToken_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetUIExtensionConfigurationByToken_0100 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    AppExecFwk::Configuration config;
+    EXPECT_EQ(abilityMs_->GetUIExtensionConfigurationByToken(nullptr, config), ERR_INVALID_VALUE);
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_EQ(abilityMs_->GetUIExtensionConfigurationByToken(token, config), ERR_INVALID_VALUE);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetUIExtensionConfigurationByToken_0100 end");
+}
 } // namespace AAFwk
 } // namespace OHOS

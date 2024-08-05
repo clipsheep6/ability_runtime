@@ -149,7 +149,8 @@ std::shared_ptr<ExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr<A
     }
 
     BindContext();
-
+    handler_ = handler;
+    RegisterDisplayInfoChangedListener();
     return JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_);
 }
 
@@ -208,8 +209,18 @@ void JsUIExtensionBase::OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &lau
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
+#ifdef SUPPORT_GRAPHICS
+    if (context_ != nullptr && configuration_ != nullptr) {
+        auto configUtils = std::make_shared<ConfigurationUtils>();
+        configUtils->InitDisplayConfig(configuration_, context_->GetConfiguration(), context_->GetResourceManager());
+    }
+#endif // SUPPORT_GRAPHICS
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
+
+    if (context_ != nullptr) {
+        JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context_->GetConfiguration());
+    }
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
@@ -227,6 +238,9 @@ void JsUIExtensionBase::OnStop()
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
+#ifdef SUPPORT_GRAPHICS
+    UnregisterDisplayInfoChangedListener();
+#endif // SUPPORT_GRAPHICS
 }
 
 void JsUIExtensionBase::OnCommandWindow(
@@ -627,22 +641,7 @@ void JsUIExtensionBase::OnConfigurationUpdated(const AppExecFwk::Configuration &
     auto configUtils = std::make_shared<ConfigurationUtils>();
     configUtils->UpdateGlobalConfig(configuration, context_->GetResourceManager());
 
-    HandleScope handleScope(jsRuntime_);
-    auto fullConfig = context_->GetConfiguration();
-    if (!fullConfig) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "configuration is nullptr");
-        return;
-    }
-    napi_env env = jsRuntime_.GetNapiEnv();
-    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
-
-    napi_value napiConfiguration =
-        OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
-    if (napiConfiguration == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get configuration");
-        return;
-    }
-    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+    ConfigurationUpdated();
 }
 
 void JsUIExtensionBase::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
@@ -717,5 +716,96 @@ void JsUIExtensionBase::SetContext(const std::shared_ptr<UIExtensionContext> &co
 {
     context_ = context;
 }
+
+void JsUIExtensionBase::ConfigurationUpdated()
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "begin");
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = jsRuntime_.GetNapiEnv();
+
+    // Notify extension context
+    if (context_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get context");
+        return;
+    }
+
+    auto fullConfig = context_->GetConfiguration();
+    if (fullConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Configuration is nullptr");
+        return;
+    }
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
+
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
+    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+}
+
+void JsUIExtensionBase::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &configuration)
+{
+    configuration_ = configuration;
+}
+
+#ifdef SUPPORT_GRAPHICS
+void JsUIExtensionBase::OnDisplayInfoChange(
+    const sptr<IRemoteObject> &token, Rosen::DisplayId displayId, float density, Rosen::DisplayOrientation orientation)
+{
+    TAG_LOGI(AAFwkTag::UI_EXT, "displayId: %{public}" PRIu64 "", displayId);
+    if (context_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Context is invalid");
+        return;
+    }
+
+    auto contextConfig = context_->GetConfiguration();
+    if (contextConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Configuration is invalid");
+        return;
+    }
+
+    TAG_LOGI(AAFwkTag::UI_EXT, "Config dump: %{public}s", contextConfig->GetName().c_str());
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    auto result = configUtils->UpdateDisplayConfig(
+        contextConfig, context_->GetResourceManager(), displayId, density, orientation);
+    TAG_LOGI(AAFwkTag::UI_EXT, "Config dump after update: %{public}s", contextConfig->GetName().c_str());
+    if (result) {
+        auto jsUiExtension = std::static_pointer_cast<JsUIExtensionBase>(shared_from_this());
+        auto task = [jsUiExtension]() {
+            if (jsUiExtension) {
+                jsUiExtension->ConfigurationUpdated();
+            }
+        };
+        if (handler_ != nullptr) {
+            handler_->PostTask(task, "JsUIExtensionBase:OnChange");
+        }
+    }
+}
+
+void JsUIExtensionBase::RegisterDisplayInfoChangedListener()
+{
+    // register displayid change callback
+    auto jsUiExtensionBase = std::static_pointer_cast<JsUIExtensionBase>(shared_from_this());
+    jsUIExtensionBaseDisplayListener_ = sptr<JsUIExtensionBaseDisplayListener>::MakeSptr(jsUiExtensionBase);
+    if (jsUIExtensionBaseDisplayListener_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "JsUIExtensionBaseDisplayListener is nullptr");
+        return;
+    }
+    if (context_ == nullptr || context_->GetToken() == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Param is invalid");
+        return;
+    }
+    TAG_LOGI(AAFwkTag::UI_EXT, "RegisterDisplayInfoChangedListener");
+    Rosen::WindowManager::GetInstance().RegisterDisplayInfoChangedListener(
+        context_->GetToken(), jsUIExtensionBaseDisplayListener_);
+}
+
+void JsUIExtensionBase::UnregisterDisplayInfoChangedListener()
+{
+    if (context_ == nullptr || context_->GetToken() == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Param is invalid");
+        return;
+    }
+    Rosen::WindowManager::GetInstance().UnregisterDisplayInfoChangedListener(
+        context_->GetToken(), jsUIExtensionBaseDisplayListener_);
+}
+#endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime
 } // namespace OHOS

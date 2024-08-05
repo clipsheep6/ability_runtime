@@ -2826,5 +2826,22 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ChangeUIAbilityVisibilityB
 
     TAG_LOGI(AAFwkTag::TEST, "end");
 }
+
+/**
+ * @tc.name: AbilityManagerProxy_GetUIExtensionConfigurationByToken_0100
+ * @tc.desc: Test the state of GetUIExtensionConfigurationByToken.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionConfigurationByToken_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    AppExecFwk::Configuration config;
+    auto res = proxy_->GetUIExtensionConfigurationByToken(token, config);
+    EXPECT_EQ(
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_CONFIGURATION_BY_TOKEN), mock_->code_);
+}
 } // namespace AAFwk
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,10 @@
 #include "ui_extension_window_command.h"
 #include "want.h"
 #include "window.h"
+#ifdef SUPPORT_GRAPHICS
+#include "display_manager.h"
+#include "window_manager.h"
+#endif // SUPPORT_GRAPHICS
 
 class NativeReference;
 
@@ -152,6 +156,14 @@ public:
     void SetContext(const std::shared_ptr<UIExtensionContext> &context) override;
 
     void BindContext() override;
+
+    /**
+     * @brief Called when configuration changed, including system configuration and window configuration.
+     */
+    void ConfigurationUpdated();
+
+    void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &configuration) override;
+
 protected:
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
@@ -179,6 +191,38 @@ protected:
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
     sptr<IRemoteObject> token_ = nullptr;
+    std::shared_ptr<AbilityHandler> handler_ = nullptr;
+    std::shared_ptr<AppExecFwk::Configuration> configuration_ = nullptr;
+
+#ifdef SUPPORT_GRAPHICS
+protected:
+    class JsUIExtensionBaseDisplayListener : public OHOS::Rosen::IDisplayInfoChangedListener {
+    public:
+        explicit JsUIExtensionBaseDisplayListener(const std::weak_ptr<JsUIExtensionBase> &jsUiExtensionBase)
+        {
+            jsUiExtensionBase_ = jsUiExtensionBase;
+        }
+
+        void OnDisplayInfoChange(const sptr<IRemoteObject> &token, Rosen::DisplayId displayId, float density,
+            Rosen::DisplayOrientation orientation) override
+        {
+            auto sptr = jsUiExtensionBase_.lock();
+            if (sptr != nullptr) {
+                sptr->OnDisplayInfoChange(token, displayId, density, orientation);
+            }
+        }
+
+    private:
+        std::weak_ptr<JsUIExtensionBase> jsUiExtensionBase_;
+    };
+
+    void RegisterDisplayInfoChangedListener();
+    void UnregisterDisplayInfoChangedListener();
+    void OnDisplayInfoChange(const sptr<IRemoteObject> &token, Rosen::DisplayId displayId, float density,
+        Rosen::DisplayOrientation orientation);
+
+    sptr<JsUIExtensionBaseDisplayListener> jsUIExtensionBaseDisplayListener_ = nullptr;
+#endif
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

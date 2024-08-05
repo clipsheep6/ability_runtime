@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -250,5 +250,35 @@ HWTEST_F(AbilityExtensionBaseTest, SetExtensionCommon_0100, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "SetExtensionCommon end");
 }
 
+/**
+ * @tc.name: AbilityExtensionBaseTest_SetConfiguration_0100
+ * @tc.desc: Test set the configuration successfully.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityExtensionBaseTest, SetConfiguration_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "SetConfiguration start");
+    ExtensionBase<ExtensionContext> extensionBase;
+    AppExecFwk::Configuration configuration;
+    extensionBase.SetConfiguration(configuration);
+    EXPECT_NE(extensionBase.configuration_, nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "SetConfiguration end");
+}
+
+/**
+ * @tc.name: AbilityExtensionBaseTest_GetConfiguration_0100
+ * @tc.desc: Test get the configuration successfully.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityExtensionBaseTest, GetConfiguration_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "GetConfiguration start");
+    ExtensionBase<ExtensionContext> extensionBase;
+    AppExecFwk::Configuration configuration;
+    extensionBase.SetConfiguration(configuration);
+    auto config = extensionBase.GetConfiguration();
+    EXPECT_NE(config, nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "GetConfiguration end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -5574,5 +5574,40 @@ int32_t AbilityManagerProxy::TerminateMission(int32_t missionId)
 
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::GetUIExtensionConfigurationByToken(const sptr<IRemoteObject> &token,
+    AppExecFwk::Configuration &config)
+{
+    if (!token) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data interface token failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_UI_EXTENSION_CONFIGURATION_BY_TOKEN, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    std::unique_ptr<AppExecFwk::Configuration> info(reply.ReadParcelable<AppExecFwk::Configuration>());
+    if (info == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetUIExtensionConfigurationByToken error: %{public}d", error);
+        return INNER_ERR;
+    }
+    config = *info;
+    return NO_ERROR;
+}
 } // namespace AAFwk
 } // namespace OHOS
