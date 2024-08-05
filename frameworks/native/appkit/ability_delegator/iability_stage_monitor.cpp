@@ -28,12 +28,12 @@ bool IAbilityStageMonitor::Match(const std::shared_ptr<DelegatorAbilityStageProp
         return false;
     }
     if (moduleName_.compare(abilityStage->moduleName_) != 0 || srcEntrance_.compare(abilityStage->srcEntrance_) != 0) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Different abilityStage");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "different abilityStage");
         return false;
     }
 
-    TAG_LOGI(AAFwkTag::DELEGATOR,
-        "Matched : abilityStage module name : %{public}s, srcEntrance : %{public}s, isNotify : %{public}s",
+    TAG_LOGD(AAFwkTag::DELEGATOR,
+        "matched : abilityStage module name : %{public}s, srcEntrance : %{public}s, isNotify : %{public}s",
         moduleName_.c_str(), srcEntrance_.c_str(), (isNotify ? "true" : "false"));
 
     if (isNotify) {
@@ -55,7 +55,7 @@ std::shared_ptr<DelegatorAbilityStageProperty> IAbilityStageMonitor::WaitForAbil
 {
     auto realTime = timeoutMs;
     if (timeoutMs <= 0) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Timeout should be a positive number");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "timeout should be a positive number");
         realTime = MAX_TIME_OUT;
     }
 
@@ -63,7 +63,7 @@ std::shared_ptr<DelegatorAbilityStageProperty> IAbilityStageMonitor::WaitForAbil
 
     auto condition = [this] { return this->matchedAbilityStage_ != nullptr; };
     if (!cvMatch_.wait_for(matchLock, std::chrono::milliseconds(realTime), condition)) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Wait abilityStage timeout");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "wait abilityStage timeout");
     }
     return matchedAbilityStage_;
 }

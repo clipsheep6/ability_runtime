@@ -82,7 +82,7 @@ napi_value OnContinuePromiseCallback(napi_env env, napi_callback_info info)
     NAPI_CALL_NO_THROW(napi_get_cb_info(env, info, &argc, &argv, nullptr, &data), nullptr);
     int32_t onContinueRes = 0;
     if (!ConvertFromJsValue(env, argv, onContinueRes)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get js return value failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get js return value failed");
         return nullptr;
     }
     auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<int32_t> *>(data);
@@ -96,20 +96,20 @@ napi_value OnContinuePromiseCallback(napi_env env, napi_callback_info info)
 
 napi_value AttachJsAbilityContext(napi_env env, void *value, void *extValue)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (value == nullptr || extValue == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Invalid parameter.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "invalid parameter");
         return nullptr;
     }
     auto ptr = reinterpret_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(value)->lock();
     if (ptr == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Invalid context.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "invalid context");
         return nullptr;
     }
     std::shared_ptr<NativeReference> systemModule = nullptr;
     auto screenModePtr = reinterpret_cast<std::weak_ptr<int32_t> *>(extValue)->lock();
     if (screenModePtr == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Invalid screenModePtr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "invalid screenModePtr");
         return nullptr;
     }
     if (*screenModePtr == AAFwk::IDLE_SCREEN_MODE) {
@@ -131,7 +131,7 @@ napi_value AttachJsAbilityContext(napi_env env, void *value, void *extValue)
     if (workContext != nullptr) {
         napi_wrap(env, contextObj, workContext,
             [](napi_env, void* data, void*) {
-              TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
+              TAG_LOGD(AAFwkTag::UIABILITY, "finalizer for weak_ptr ability context is called");
               delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
             },
             nullptr, nullptr);
@@ -170,12 +170,12 @@ void JsUIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (record == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "AbilityLocalRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "local ability record is nullptr");
         return;
     }
     auto abilityInfo = record->GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "AbilityInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "abilityInfo is nullptr");
         return;
     }
     UIAbility::Init(record, application, handler, token);
@@ -195,14 +195,14 @@ void JsUIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
         srcPath.append("/").append(abilityInfo->name).append(".abc");
     } else {
         if (abilityInfo->srcEntrance.empty()) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "SrcEntrance is empty.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "srcEntrance is empty");
             return;
         }
         srcPath.append("/");
         srcPath.append(abilityInfo->srcEntrance);
         srcPath.erase(srcPath.rfind("."));
         srcPath.append(".abc");
-        TAG_LOGD(AAFwkTag::UIABILITY, "JsAbility srcPath is %{public}s.", srcPath.c_str());
+        TAG_LOGD(AAFwkTag::UIABILITY, "js ability srcPath is %{public}s", srcPath.c_str());
     }
 
     std::string moduleName(abilityInfo->moduleName);
@@ -220,24 +220,24 @@ void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
     jsAbilityObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo->hapPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
     if (jsAbilityObj_ == nullptr || abilityContext_ == nullptr || want == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ or abilityContext_ or want is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ or abilityContext_ or want is nullptr");
         return;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to check type");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to check type");
         return;
     }
     napi_value contextObj = nullptr;
     int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::IDLE_SCREEN_MODE);
     CreateJSContext(env, contextObj, screenMode);
     if (shellContextRef_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "shellContextRef_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "shellContextRef_ is nullptr");
         return;
     }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get ability native object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get ability native object");
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(abilityContext_);
@@ -249,16 +249,16 @@ void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
         env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, workContext, workScreenMode);
     abilityContext_->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Set ability context");
+    TAG_LOGD(AAFwkTag::UIABILITY, "set ability context");
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
     }
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
+            TAG_LOGD(AAFwkTag::UIABILITY, "finalizer for weak_ptr ability context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
         }, nullptr, nullptr);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Init end.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::CreateJSContext(napi_env env, napi_value &contextObj, int32_t screenMode)
@@ -280,11 +280,11 @@ void JsUIAbility::CreateJSContext(napi_env env, napi_value &contextObj, int32_t 
 void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability is %{public}s", GetAbilityName().c_str());
     UIAbility::OnStart(want, sessionInfo);
 
     if (!jsAbilityObj_) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Not found Ability.js.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "not found Ability.js");
         return;
     }
 
@@ -293,13 +293,13 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
 
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Error to get Ability object");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get ability object failed");
         return;
     }
 
     napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, want);
     if (jsWant == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsWant is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWant is nullptr");
         return;
     }
 
@@ -326,7 +326,7 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformStart.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformStart");
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
     }
 
@@ -334,14 +334,14 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const
 {
     FreezeUtil::LifecycleFlow flow = { AbilityContext::token_, state };
     auto entry = std::to_string(TimeUtil::SystemTimeMillisecond()) + "; JsUIAbility::" + methodName +
-        "; the " + methodName + " begin.";
+        "; the " + methodName + " begin";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 }
 
@@ -349,22 +349,22 @@ void JsUIAbility::AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, c
 {
     FreezeUtil::LifecycleFlow flow = { AbilityContext::token_, state };
     auto entry = std::to_string(TimeUtil::SystemTimeMillisecond()) + "; JsUIAbility::" + methodName +
-        "; the " + methodName + " end.";
+        "; the " + methodName + " end";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 }
 
 int32_t JsUIAbility::OnShare(WantParams &wantParam)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get AbilityStage object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "ability object is nullptr");
         return ERR_INVALID_VALUE;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get ability napi value");
         return ERR_INVALID_VALUE;
     }
 
@@ -374,16 +374,16 @@ int32_t JsUIAbility::OnShare(WantParams &wantParam)
     };
     CallObjectMethod("onShare", argv, ArraySize(argv));
     OHOS::AppExecFwk::UnwrapWantParams(env, jsWantParams, wantParam);
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
     return ERR_OK;
 }
 
 void JsUIAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityContext_) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Set terminating true.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "set terminating true");
         abilityContext_->SetTerminating(true);
     }
     UIAbility::OnStop();
@@ -394,7 +394,7 @@ void JsUIAbility::OnStop()
     }
     CallObjectMethod("onDestroy");
     OnStopCallback();
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
@@ -406,9 +406,9 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
     }
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityContext_) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Set terminating true.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "set terminating true");
         abilityContext_->SetTerminating(true);
     }
 
@@ -430,7 +430,7 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
     auto asyncCallback = [abilityWeakPtr = weakPtr]() {
         auto ability = abilityWeakPtr.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "Ability is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr");
             return;
         }
         ability->OnStopCallback();
@@ -438,24 +438,24 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
     callbackInfo->Push(asyncCallback);
     isAsyncCallback = CallPromise(result, callbackInfo);
     if (!isAsyncCallback) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to call promise.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to call promise");
         OnStopCallback();
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::OnStopCallback()
 {
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformStop.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformStop");
         delegator->PostPerformStop(CreateADelegatorAbilityProperty());
     }
 
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        TAG_LOGD(AAFwkTag::UIABILITY, "The service connection is not disconnected.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "the service connection is not disconnected");
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -468,11 +468,11 @@ void JsUIAbility::OnStopCallback()
 void JsUIAbility::OnSceneCreated()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability is %{public}s", GetAbilityName().c_str());
     UIAbility::OnSceneCreated();
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsAppWindowStage is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAppWindowStage is nullptr");
         return;
     }
 
@@ -494,7 +494,7 @@ void JsUIAbility::OnSceneCreated()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceCreated.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformScenceCreated");
         delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
     }
 
@@ -503,7 +503,7 @@ void JsUIAbility::OnSceneCreated()
         applicationContext->DispatchOnWindowStageCreate(jsAbilityObj_, jsWindowStageObj_);
     }
 
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::OnSceneRestored()
@@ -514,7 +514,7 @@ void JsUIAbility::OnSceneRestored()
     HandleScope handleScope(jsRuntime_);
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsAppWindowStage is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAppWindowStage is nullptr");
         return;
     }
     UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
@@ -531,17 +531,17 @@ void JsUIAbility::OnSceneRestored()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceRestored.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformScenceRestored");
         delegator->PostPerformScenceRestored(CreateADelegatorAbilityProperty());
     }
 }
 
 void JsUIAbility::OnSceneWillDestroy()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability is %{public}s", GetAbilityName().c_str());
     HandleScope handleScope(jsRuntime_);
     if (jsWindowStageObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr");
         return;
     }
     napi_value argv[] = {jsWindowStageObj_->GetNapiValue()};
@@ -554,7 +554,7 @@ void JsUIAbility::OnSceneWillDestroy()
 
 void JsUIAbility::onSceneDestroyed()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability is %{public}s", GetAbilityName().c_str());
     UIAbility::onSceneDestroyed();
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -568,14 +568,14 @@ void JsUIAbility::onSceneDestroyed()
     if (scene_ != nullptr) {
         auto window = scene_->GetMainWindow();
         if (window != nullptr) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "Call UnregisterDisplayMoveListener.");
+            TAG_LOGD(AAFwkTag::UIABILITY, "un register display move listener");
             window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
         }
     }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceDestroyed.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformScenceDestroyed");
         delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
     }
 
@@ -583,13 +583,13 @@ void JsUIAbility::onSceneDestroyed()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageDestroy(jsAbilityObj_, jsWindowStageObj_);
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability is %{public}s", GetAbilityName().c_str());
     if (abilityInfo_) {
         jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
     }
@@ -607,18 +607,18 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsAbilityObj_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ is nullptr");
         return;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get Ability object");
         return;
     }
 
     napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, want);
     if (jsWant == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "jsWant is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWant is nullptr");
         return;
     }
 
@@ -635,7 +635,7 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformForeground.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformForeground");
         delegator->PostPerformForeground(CreateADelegatorAbilityProperty());
     }
 
@@ -643,13 +643,13 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability is %{public}s", GetAbilityName().c_str());
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityWillBackground(jsAbilityObj_);
@@ -664,7 +664,7 @@ void JsUIAbility::OnBackground()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformBackground.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "call delegator PostPerformBackground");
         delegator->PostPerformBackground(CreateADelegatorAbilityProperty());
     }
 
@@ -672,45 +672,45 @@ void JsUIAbility::OnBackground()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ability is %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 bool JsUIAbility::OnBackPress()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability: %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability: %{public}s", GetAbilityName().c_str());
     UIAbility::OnBackPress();
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true, false);
     bool defaultRet = BackPressDefaultValue();
     if (jsValue == nullptr) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "jsValue is nullptr, return defaultRet %{public}d.", defaultRet);
+        TAG_LOGD(AAFwkTag::UIABILITY, "jsValue is nullptr, return defaultRet %{public}d", defaultRet);
         return defaultRet;
     }
     bool ret = defaultRet;
     if (!ConvertFromJsValue(env, jsValue, ret)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get js value failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get js value failed");
         return defaultRet;
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ret is %{public}d.", ret);
+    TAG_LOGD(AAFwkTag::UIABILITY, "end, ret: %{public}d", ret);
     return ret;
 }
 
 bool JsUIAbility::OnPrepareTerminate()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability: %{public}s.", GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, ability: %{public}s", GetAbilityName().c_str());
     UIAbility::OnPrepareTerminate();
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onPrepareToTerminate", nullptr, 0, true);
     bool ret = false;
     if (!ConvertFromJsValue(env, jsValue, ret)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get js value failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get js value failed");
         return false;
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End ret is %{public}d.", ret);
+    TAG_LOGD(AAFwkTag::UIABILITY, "end ret: %{public}d", ret);
     return ret;
 }
 
@@ -721,7 +721,7 @@ std::unique_ptr<NativeReference> JsUIAbility::CreateAppWindowStage()
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsWindowStage = Rosen::CreateJsWindowStage(env, GetScene());
     if (jsWindowStage == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create jsWindowSatge object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to create jsWindowSatge object");
         return nullptr;
     }
     return JsRuntime::LoadSystemModuleByEngine(env, "application.WindowStage", &jsWindowStage, 1);
@@ -751,7 +751,7 @@ void JsUIAbility::RestorePageStack(const Want &want)
             scene_->GetMainWindow()->NapiSetUIContent(pageStack, env,
                 abilityContext_->GetContentStorage()->GetNapiValue(), Rosen::BackupAndRestoreType::CONTINUATION);
         } else {
-            TAG_LOGE(AAFwkTag::UIABILITY, "Content storage is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "content storage is nullptr");
         }
     }
 }
@@ -760,7 +760,7 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // multi-instance ability continuation
-    TAG_LOGD(AAFwkTag::UIABILITY, "Launch reason is %{public}d, last exit reasion is %{public}d.",
+    TAG_LOGD(AAFwkTag::UIABILITY, "launch reason is %{public}d, last exit reasion is %{public}d",
         launchParam_.launchReason, launchParam_.lastExitReason);
     if (IsRestoredInContinuation()) {
         RestorePageStack(want);
@@ -775,12 +775,12 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
             mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(),
                 Rosen::BackupAndRestoreType::APP_RECOVERY);
         } else {
-            TAG_LOGE(AAFwkTag::UIABILITY, "MainWindow is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "mainWindow is nullptr");
         }
         OnSceneRestored();
     } else {
         if (ShouldDefaultRecoverState(want) && abilityRecovery_ != nullptr && scene_ != nullptr) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "Need restore.");
+            TAG_LOGD(AAFwkTag::UIABILITY, "need restore");
             std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
             auto mainWindow = scene_->GetMainWindow();
             if (!pageStack.empty() && mainWindow != nullptr) {
@@ -796,7 +796,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "AbilityContext or sceneListener_ is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext or sceneListener_ is nullptr");
             return;
         }
         DoOnForegroundForSceneIsNull(want);
@@ -807,7 +807,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
                 Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
             window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
             windowMode_ = windowMode;
-            TAG_LOGD(AAFwkTag::UIABILITY, "Set window mode is %{public}d.", windowMode);
+            TAG_LOGD(AAFwkTag::UIABILITY, "set window mode is %{public}d", windowMode);
         }
     }
 
@@ -821,10 +821,10 @@ void JsUIAbility::DoOnForeground(const Want &want)
         return;
     }
 
-    TAG_LOGD(AAFwkTag::UIABILITY, "Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
+    TAG_LOGD(AAFwkTag::UIABILITY, "move scene to foreground, sceneFlag_: %{public}d", UIAbility::sceneFlag_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
@@ -838,9 +838,9 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
         bool flag = std::regex_match(strDisplayId, sm, formatRegex);
         if (flag && !strDisplayId.empty()) {
             displayId = strtol(strDisplayId.c_str(), nullptr, BASE_DISPLAY_ID_NUM);
-            TAG_LOGD(AAFwkTag::UIABILITY, "Success displayId is %{public}d.", displayId);
+            TAG_LOGD(AAFwkTag::UIABILITY, "displayId is %{public}d", displayId);
         } else {
-            TAG_LOGE(AAFwkTag::UIABILITY, "Failed to formatRegex: [%{public}s].", strDisplayId.c_str());
+            TAG_LOGE(AAFwkTag::UIABILITY, "failed to formatRegex: [%{public}s]", strDisplayId.c_str());
         }
     }
     auto option = GetWindowOption(want);
@@ -854,17 +854,17 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
         ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
     }
     if (ret != Rosen::WMError::WM_OK) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to init window scene.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to init window scene");
         return;
     }
 
     AbilityContinuationOrRecover(want);
     auto window = scene_->GetMainWindow();
     if (window) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Call RegisterDisplayMoveListener, windowId: %{public}d.", window->GetWindowId());
+        TAG_LOGD(AAFwkTag::UIABILITY, "register display move listener, windowId: %{public}d", window->GetWindowId());
         abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
         if (abilityDisplayMoveListener_ == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "abilityDisplayMoveListener_ is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "abilityDisplayMoveListener_ is nullptr");
             return;
         }
         window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
@@ -873,9 +873,9 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
 
 void JsUIAbility::RequestFocus(const Want &want)
 {
-    TAG_LOGI(AAFwkTag::UIABILITY, "Lifecycle: begin.");
+    TAG_LOGI(AAFwkTag::UIABILITY, "called");
     if (scene_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "scene_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "scene_ is nullptr");
         return;
     }
     auto window = scene_->GetMainWindow();
@@ -883,18 +883,18 @@ void JsUIAbility::RequestFocus(const Want &want)
         auto windowMode = want.GetIntParam(
             Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        TAG_LOGD(AAFwkTag::UIABILITY, "Set window mode is %{public}d.", windowMode);
+        TAG_LOGD(AAFwkTag::UIABILITY, "set window mode is %{public}d", windowMode);
     }
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
-    TAG_LOGI(AAFwkTag::UIABILITY, "Lifecycle: end.");
+    TAG_LOGI(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::ContinuationRestore(const Want &want)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (!IsRestoredInContinuation() || scene_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Is not in continuation or scene_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "is not in continuation or scene_ is nullptr");
         return;
     }
     RestorePageStack(want);
@@ -906,7 +906,7 @@ std::shared_ptr<NativeReference> JsUIAbility::GetJsWindowStage()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (jsWindowStageObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsWindowSatge is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr");
     }
     return jsWindowStageObj_;
 }
@@ -922,17 +922,17 @@ void JsUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
-        TAG_LOGW(AAFwkTag::UIABILITY, "Intent execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "param invalid");
         RequestFocus(want);
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;
     }
 
     auto asyncCallback = [weak = weak_from_this(), want](InsightIntentExecuteResult result) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Begin request focus.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "begin request focus");
         auto ability = weak.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr");
             return;
         }
         ability->RequestFocus(want);
@@ -942,7 +942,7 @@ void JsUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
     InsightIntentExecutorInfo executeInfo;
     auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get Intent executor failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get Intent executor failed");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return;
@@ -952,7 +952,7 @@ void JsUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
         jsRuntime_, executeInfo, std::move(callback));
     if (!ret) {
         // callback has removed, release in insight intent executor.
-        TAG_LOGE(AAFwkTag::UIABILITY, "Execute insight intent failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "execute insight intent failed");
     }
 }
 
@@ -962,7 +962,7 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
-        TAG_LOGW(AAFwkTag::UIABILITY, "Intent execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "param invalid");
         OnForeground(want);
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;
@@ -974,10 +974,10 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
     UIAbility::OnForeground(want);
 
     auto asyncCallback = [weak = weak_from_this(), want](InsightIntentExecuteResult result) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Begin call onForeground.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "begin call onForeground");
         auto ability = weak.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr");
             return;
         }
         ability->CallOnForegroundFunc(want);
@@ -987,7 +987,7 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
     InsightIntentExecutorInfo executeInfo;
     auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get Intent executor failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get Intent executor failed");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return;
@@ -997,7 +997,7 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
         jsRuntime_, executeInfo, std::move(callback));
     if (!ret) {
         // callback has removed, release in insight intent executor.
-        TAG_LOGE(AAFwkTag::UIABILITY, "Execute insight intent failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "execute insight intent failed");
     }
 }
 
@@ -1007,7 +1007,7 @@ void JsUIAbility::ExecuteInsightIntentBackground(const Want &want,
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (executeParam == nullptr) {
-        TAG_LOGW(AAFwkTag::UIABILITY, "Intent execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "intent execute param invalid");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;
     }
@@ -1019,7 +1019,7 @@ void JsUIAbility::ExecuteInsightIntentBackground(const Want &want,
     InsightIntentExecutorInfo executeInfo;
     auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get Intent executor failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "get Intent executor failed");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return;
@@ -1029,7 +1029,7 @@ void JsUIAbility::ExecuteInsightIntentBackground(const Want &want,
         jsRuntime_, executeInfo, std::move(callback));
     if (!ret) {
         // callback has removed, release in insight intent executor.
-        TAG_LOGE(AAFwkTag::UIABILITY, "Execute insight intent failed.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "execute insight intent failed");
     }
 }
 
@@ -1041,13 +1041,13 @@ bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
 
     auto context = GetAbilityContext();
     if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Param invalid.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "param invalid");
         return false;
     }
 
     if (executeParam->executeMode_ == AppExecFwk::ExecuteMode::UI_ABILITY_FOREGROUND
         && jsWindowStageObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Param invalid.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr");
         return false;
     }
 
@@ -1071,12 +1071,12 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get AbilityStage object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ is nullptr");
         return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get ability object");
         return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
 
@@ -1095,7 +1095,7 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
         }
     } else {
         if (!CallPromise(result, onContinueRes)) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "Failed to call promise.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "failed to call promise");
             return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
         }
     }
@@ -1103,7 +1103,7 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityContinue(jsAbilityObj_);
     }
-    TAG_LOGI(AAFwkTag::UIABILITY, "OnContinue end.");
+    TAG_LOGI(AAFwkTag::UIABILITY, "end");
     return onContinueRes;
 }
 
@@ -1112,12 +1112,12 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "AppRecoveryFailed to get AbilityStage object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ is nullptr");
         return -1;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "AppRecovery Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "appRecovery failed to get ability object");
         return -1;
     }
 
@@ -1129,7 +1129,7 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
     napi_value methodOnSaveState = nullptr;
     napi_get_named_property(env, obj, "onSaveState", &methodOnSaveState);
     if (methodOnSaveState == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "AppRecovery Failed to get 'onSaveState' from Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "appRecoveryfailed to get 'onSaveState' from ability object");
         return -1;
     }
 
@@ -1142,7 +1142,7 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 
     int32_t numberResult = 0;
     if (!ConvertFromJsValue(env, result, numberResult)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "AppRecovery no result return from onSaveState.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "appRecovery no result return from onSaveState");
         return -1;
     }
 
@@ -1159,7 +1159,7 @@ void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
     UIAbility::OnConfigurationUpdated(configuration);
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr");
         return;
     }
 
@@ -1167,7 +1167,7 @@ void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
     auto env = jsRuntime_.GetNapiEnv();
     auto fullConfig = abilityContext_->GetConfiguration();
     if (fullConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "configuration is nullptr");
         return;
     }
 
@@ -1186,12 +1186,12 @@ void JsUIAbility::OnMemoryLevel(int level)
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get AbilityStage object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ is nullptr");
         return;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get ability object");
         return;
     }
 
@@ -1204,7 +1204,7 @@ void JsUIAbility::UpdateContextConfiguration()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr");
         return;
     }
     HandleScope handleScope(jsRuntime_);
@@ -1214,7 +1214,7 @@ void JsUIAbility::UpdateContextConfiguration()
 
 void JsUIAbility::OnNewWant(const Want &want)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     UIAbility::OnNewWant(want);
 
 #ifdef SUPPORT_SCREEN
@@ -1226,18 +1226,18 @@ void JsUIAbility::OnNewWant(const Want &want)
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get AbilityStage object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ is nullptr");
         return;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get ability object");
         return;
     }
 
     napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, want);
     if (jsWant == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get want.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get want");
         return;
     }
 
@@ -1264,40 +1264,39 @@ void JsUIAbility::OnNewWant(const Want &want)
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnNewWant(jsAbilityObj_);
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void JsUIAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     UIAbility::OnAbilityResult(requestCode, resultCode, resultData);
     if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr");
         return;
     }
     abilityContext_->OnAbilityResult(requestCode, resultCode, resultData);
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 sptr<IRemoteObject> JsUIAbility::CallRequest()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Obj is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ is nullptr");
         return nullptr;
     }
 
     if (remoteCallee_ != nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "RemoteCallee is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "remoteCallee_ is not nullptr");
         return remoteCallee_;
     }
 
     HandleScope handleScope(jsRuntime_);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Set runtime scope.");
     auto env = jsRuntime_.GetNapiEnv();
     auto obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Value is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ napi value is nullptr");
         return nullptr;
     }
 
@@ -1306,19 +1305,19 @@ sptr<IRemoteObject> JsUIAbility::CallRequest()
     bool isCallable = false;
     napi_is_callable(env, method, &isCallable);
     if (!isCallable) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Method is %{public}s.", method == nullptr ? "nullptr" : "not func");
+        TAG_LOGE(AAFwkTag::UIABILITY, "method is %{public}s", method == nullptr ? "nullptr" : "not func");
         return nullptr;
     }
 
     napi_value remoteJsObj = nullptr;
     napi_call_function(env, obj, method, 0, nullptr, &remoteJsObj);
     if (remoteJsObj == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsObj is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "remoteJsObj is nullptr");
         return nullptr;
     }
 
     remoteCallee_ = SetNewRuleFlagToCallee(env, remoteJsObj);
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
     return remoteCallee_;
 }
 
@@ -1326,9 +1325,9 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
     bool showMethodNotFoundLog)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, std::string("CallObjectMethod:") + name);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the begin of %{public}s", name);
+    TAG_LOGD(AAFwkTag::UIABILITY, "called, name %{public}s", name);
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Not found Ability.js");
+        TAG_LOGE(AAFwkTag::UIABILITY, "not found ability.js");
         return nullptr;
     }
 
@@ -1337,7 +1336,7 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
 
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get ability object");
         return nullptr;
     }
 
@@ -1345,7 +1344,7 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
     napi_get_named_property(env, obj, name, &methodOnCreate);
     if (methodOnCreate == nullptr) {
         if (showMethodNotFoundLog) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get '%{public}s' from Ability object.", name);
+            TAG_LOGE(AAFwkTag::UIABILITY, "failed to get '%{public}s' from ability object", name);
         }
         return nullptr;
     }
@@ -1364,7 +1363,7 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
     if (tryCatch.HasCaught()) {
         reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
     }
-    TAG_LOGI(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s, time: %{public}s",
+    TAG_LOGD(AAFwkTag::UIABILITY, "end, name: %{public}s, time: %{public}s",
         name, std::to_string(timeEnd - timeStart).c_str());
     return nullptr;
 }
@@ -1372,14 +1371,14 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
 bool JsUIAbility::CheckPromise(napi_value result)
 {
     if (result == nullptr) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Result is null.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "result is null");
         return false;
     }
     auto env = jsRuntime_.GetNapiEnv();
     bool isPromise = false;
     napi_is_promise(env, result, &isPromise);
     if (!isPromise) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Result is not promise.");
+        TAG_LOGD(AAFwkTag::UIABILITY, "result is not promise");
         return false;
     }
     return true;
@@ -1389,19 +1388,19 @@ bool JsUIAbility::CallPromise(napi_value result, AppExecFwk::AbilityTransactionC
 {
     auto env = jsRuntime_.GetNapiEnv();
     if (!CheckTypeForNapiValue(env, result, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to convert native value to NativeObject.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to convert native value to NativeObject");
         return false;
     }
     napi_value then = nullptr;
     napi_get_named_property(env, result, "then", &then);
     if (then == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get property: then.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get property: then");
         return false;
     }
     bool isCallable = false;
     napi_is_callable(env, then, &isCallable);
     if (!isCallable) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Property then is not callable.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "property then is not callable");
         return false;
     }
     HandleScope handleScope(jsRuntime_);
@@ -1410,7 +1409,7 @@ bool JsUIAbility::CallPromise(napi_value result, AppExecFwk::AbilityTransactionC
         callbackInfo, &promiseCallback);
     napi_value argv[1] = { promiseCallback };
     napi_call_function(env, result, then, 1, argv, nullptr);
-    TAG_LOGD(AAFwkTag::UIABILITY, "CallPromise complete");
+    TAG_LOGD(AAFwkTag::UIABILITY, "call promise complete");
     return true;
 }
 
@@ -1418,13 +1417,13 @@ bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
 {
     auto env = jsRuntime_.GetNapiEnv();
     if (!CheckTypeForNapiValue(env, result, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Error to convert native value to NativeObject.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to convert native value to NativeObject");
         return false;
     }
     napi_value then = nullptr;
     napi_get_named_property(env, result, "then", &then);
     if (then == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Error to get property: then.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get property: then");
         return false;
     }
     bool isCallable = false;
@@ -1438,7 +1437,7 @@ bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
     auto asyncCallback = [abilityWeakPtr = weakPtr, this, &onContinueRes](int32_t &result) {
         auto ability = abilityWeakPtr.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "Ability is nullptr.");
+            TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr");
             return;
         }
         onContinueRes = result;
@@ -1454,14 +1453,14 @@ bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
         callbackInfo, &promiseCallback);
     napi_value argv[1] = { promiseCallback };
     napi_call_function(env, result, then, 1, argv, nullptr);
-    TAG_LOGD(AAFwkTag::UIABILITY, "CallPromise complete");
+    TAG_LOGD(AAFwkTag::UIABILITY, "call promise complete");
     return true;
 }
 
 std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsUIAbility::CreateADelegatorAbilityProperty()
 {
     if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext_ is nullptr");
         return nullptr;
     }
     auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
@@ -1495,7 +1494,7 @@ void JsUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::
     napi_value onDumpInfo = CallObjectMethod("onDump", argv, ArraySize(argv), true);
 
     GetDumpInfo(env, dumpInfo, onDumpInfo, info);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Dump info size: %{public}zu.", info.size());
+    TAG_LOGD(AAFwkTag::UIABILITY, "dump info size: %{public}zu", info.size());
 }
 
 void JsUIAbility::GetDumpInfo(
@@ -1509,7 +1508,7 @@ void JsUIAbility::GetDumpInfo(
             napi_value element = nullptr;
             napi_get_element(env, dumpInfo, i, &element);
             if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
-                TAG_LOGE(AAFwkTag::UIABILITY, "Parse dumpInfoStr failed.");
+                TAG_LOGE(AAFwkTag::UIABILITY, "failed to parse dumpInfoStr");
                 return;
             }
             info.push_back(dumpInfoStr);
@@ -1524,7 +1523,7 @@ void JsUIAbility::GetDumpInfo(
             napi_value element = nullptr;
             napi_get_element(env, onDumpInfo, i, &element);
             if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
-                TAG_LOGE(AAFwkTag::UIABILITY, "Parse dumpInfoStr from onDumpInfoNative failed");
+                TAG_LOGE(AAFwkTag::UIABILITY, "failed to parse dumpInfoStr from onDumpInfoNative");
                 return;
             }
             info.push_back(dumpInfoStr);
@@ -1536,7 +1535,7 @@ std::shared_ptr<NativeReference> JsUIAbility::GetJsAbility()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (jsAbilityObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "JsAbility object is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsAbilityObj_ object is nullptr");
     }
     return jsAbilityObj_;
 }
@@ -1544,7 +1543,7 @@ std::shared_ptr<NativeReference> JsUIAbility::GetJsAbility()
 sptr<IRemoteObject> JsUIAbility::SetNewRuleFlagToCallee(napi_env env, napi_value remoteJsObj)
 {
     if (!CheckTypeForNapiValue(env, remoteJsObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "CalleeObj is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "callee obj is nullptr");
         return nullptr;
     }
     napi_value setFlagMethod = nullptr;
@@ -1552,7 +1551,7 @@ sptr<IRemoteObject> JsUIAbility::SetNewRuleFlagToCallee(napi_env env, napi_value
     bool isCallable = false;
     napi_is_callable(env, setFlagMethod, &isCallable);
     if (!isCallable) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "SetFlagMethod is %{public}s", setFlagMethod == nullptr ? "nullptr" : "not func");
+        TAG_LOGE(AAFwkTag::UIABILITY, "setFlagMethod is %{public}s", setFlagMethod == nullptr ? "nullptr" : "not func");
         return nullptr;
     }
     auto flag = CreateJsValue(env, IsUseNewStartUpRule());
@@ -1561,7 +1560,7 @@ sptr<IRemoteObject> JsUIAbility::SetNewRuleFlagToCallee(napi_env env, napi_value
 
     auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, remoteJsObj);
     if (remoteObj == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Obj is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "remoteObj is nullptr");
         return nullptr;
     }
     return remoteObj;
@@ -1571,21 +1570,21 @@ void JsUIAbility::UpdateJsWindowStage(napi_value windowStage)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (shellContextRef_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "shellContextRef_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "shellContextRef_ is nullptr");
         return;
     }
     napi_value contextObj = shellContextRef_->GetNapiValue();
     napi_env env = jsRuntime_.GetNapiEnv();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get context native object.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "failed to get context native object");
         return;
     }
     if (windowStage == nullptr) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Set context windowStage is undefined.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "set context windowStage is undefined");
         napi_set_named_property(env, contextObj, "windowStage", CreateJsUndefined(env));
         return;
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "Set context windowStage object.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "set context windowStage object");
     napi_set_named_property(env, contextObj, "windowStage", windowStage);
 }
 #endif
@@ -1593,10 +1592,10 @@ bool JsUIAbility::CheckSatisfyTargetAPIVersion(int32_t version)
 {
     auto applicationInfo = GetApplicationInfo();
     if (!applicationInfo) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "CheckTargetAPIVersion applicationInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "targetAPIVersion applicationInfo is nullptr");
         return false;
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "TargetAPIVersion: %{public}d.", applicationInfo->apiTargetVersion);
+    TAG_LOGD(AAFwkTag::UIABILITY, "targetAPIVersion: %{public}d", applicationInfo->apiTargetVersion);
     return applicationInfo->apiTargetVersion % API_VERSION_MOD >= version;
 }
 

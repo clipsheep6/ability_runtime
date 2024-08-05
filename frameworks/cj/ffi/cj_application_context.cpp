@@ -29,7 +29,7 @@ int CJApplicationContext::GetArea()
 {
     auto context = applicationContext_.lock();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "application context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "application context is null");
         return INVALID_CODE;
     }
     return context->GetArea();
@@ -39,7 +39,7 @@ std::shared_ptr<AppExecFwk::ApplicationInfo> CJApplicationContext::GetApplicatio
 {
     auto context = applicationContext_.lock();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "application context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "application context is null");
         return nullptr;
     }
     return context->GetApplicationInfo();
@@ -50,7 +50,7 @@ int64_t FFIGetArea(int64_t id)
 {
     auto context = FFI::FFIData::GetData<CJApplicationContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "cj application context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "cj application context is null");
         return INVALID_CODE;
     }
     return context->GetArea();
@@ -60,13 +60,13 @@ CApplicationInfo* FFICJApplicationInfo(int64_t id)
 {
     auto context = FFI::FFIData::GetData<CJApplicationContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "cj application context is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "cj application context is null");
         return nullptr;
     }
     auto appInfo = context->GetApplicationInfo();
     CApplicationInfo* buffer = static_cast<CApplicationInfo*>(malloc(sizeof(CApplicationInfo)));
     if (buffer == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "fail to malloc appinfo.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "fail to malloc appinfo");
         return nullptr;
     }
     buffer->name = CreateCStringFromString(appInfo->name);

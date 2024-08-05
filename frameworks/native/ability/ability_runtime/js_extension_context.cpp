@@ -27,24 +27,24 @@ void JsExtensionContext::ConfigurationUpdated(napi_env env, const std::shared_pt
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     if (env == nullptr || jsContext == nullptr || config == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "engine or jsContext or config is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "engine or jsContext or config is nullptr");
         return;
     }
 
     napi_value object = jsContext->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "object is not object.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "object is not object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::CONTEXT, "failed to get onUpdateConfiguration from object");
         return;
     }
 
-    TAG_LOGD(AAFwkTag::CONTEXT, "call onUpdateConfiguration.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "call onUpdateConfiguration");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_call_function(env, object, method, 1, argv, nullptr);
 }
@@ -53,12 +53,12 @@ napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<Extensio
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to CreateJsExtensionContext, context is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "failed to CreateJsExtensionContext, context is nullptr");
         return nullptr;
     }
     napi_value object = CreateJsBaseContext(env, context);
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to CreateJsExtensionContext, object is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "failed to CreateJsExtensionContext, object is nullptr");
         return nullptr;
     }
     auto configuration = context->GetConfiguration();
@@ -75,7 +75,7 @@ napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<Extensio
         auto infoIter = std::find_if(
             hapModuleInfo->extensionInfos.begin(), hapModuleInfo->extensionInfos.end(), isExist);
         if (infoIter == hapModuleInfo->extensionInfos.end()) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "Set extensionAbilityInfo fail.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "set extensionAbilityInfo fail");
         } else {
             napi_set_named_property(env, object, "extensionAbilityInfo", CreateJsExtensionAbilityInfo(env, *infoIter));
         }

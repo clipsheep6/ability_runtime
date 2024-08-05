@@ -34,14 +34,14 @@ AbilityDelegator::~AbilityDelegator()
 void AbilityDelegator::AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input parames");
         return;
     }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     auto pos = std::find(abilityMonitors_.begin(), abilityMonitors_.end(), monitor);
     if (pos != abilityMonitors_.end()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Monitor has been added");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "monitor has been added");
         return;
     }
 
@@ -51,13 +51,13 @@ void AbilityDelegator::AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor> 
 void AbilityDelegator::AddAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input parames");
         return;
     }
     std::unique_lock<std::mutex> lck(mutexStageMonitor_);
     auto pos = std::find(abilityStageMonitors_.begin(), abilityStageMonitors_.end(), monitor);
     if (pos != abilityStageMonitors_.end()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Stage monitor has been added");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "stage monitor has been added");
         return;
     }
     abilityStageMonitors_.emplace_back(monitor);
@@ -66,7 +66,7 @@ void AbilityDelegator::AddAbilityStageMonitor(const std::shared_ptr<IAbilityStag
 void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -80,7 +80,7 @@ void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonito
 void AbilityDelegator::RemoveAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
     std::unique_lock<std::mutex> lck(mutexStageMonitor_);
@@ -113,7 +113,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
     const std::shared_ptr<IAbilityMonitor> &monitor)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return {};
     }
 
@@ -121,7 +121,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
 
     auto obtainedAbility = monitor->WaitForAbility();
     if (!obtainedAbility) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid obtained ability");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid obtained ability");
         return {};
     }
 
@@ -132,14 +132,14 @@ std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStag
     const std::shared_ptr<IAbilityStageMonitor> &monitor)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid monitor for waiting abilityStage");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid monitor for waiting abilityStage");
         return nullptr;
     }
 
     AddAbilityStageMonitor(monitor);
     auto stage = monitor->WaitForAbilityStage();
     if (!stage) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid obtained abilityStage");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid obtained abilityStage");
         return nullptr;
     }
     return stage;
@@ -149,7 +149,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
     const std::shared_ptr<IAbilityMonitor> &monitor, const int64_t timeoutMs)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return {};
     }
 
@@ -157,7 +157,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
 
     auto obtainedAbility = monitor->WaitForAbility(timeoutMs);
     if (!obtainedAbility) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid obtained ability");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid obtained ability");
         return {};
     }
 
@@ -168,13 +168,13 @@ std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStag
     const std::shared_ptr<IAbilityStageMonitor> &monitor, const int64_t timeoutMs)
 {
     if (!monitor) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid monitor for waiting abilityStage with timeout");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid monitor for waiting abilityStage with timeout");
         return nullptr;
     }
     AddAbilityStageMonitor(monitor);
     auto stage = monitor->WaitForAbilityStage(timeoutMs);
     if (!stage) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid obtained abilityStage");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid obtained abilityStage");
         return nullptr;
     }
     return stage;
@@ -188,14 +188,14 @@ std::shared_ptr<AbilityRuntime::Context> AbilityDelegator::GetAppContext() const
 AbilityDelegator::AbilityState AbilityDelegator::GetAbilityState(const sptr<IRemoteObject> &token)
 {
     if (!token) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return AbilityDelegator::AbilityState::UNINITIALIZED;
     }
 
     std::unique_lock<std::mutex> lck(mutexAbilityProperties_);
     auto existedProperty = FindPropertyByToken(token);
     if (!existedProperty) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Unknown ability token");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "unknown ability token");
         return AbilityDelegator::AbilityState::UNINITIALIZED;
     }
 
@@ -208,7 +208,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::GetCurrentTopAbilit
     std::string bundleName = elementName.GetBundleName();
     std::string abilityName = elementName.GetAbilityName();
     if (abilityName.empty()) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get top ability");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "failed to get top ability");
         return {};
     }
 
@@ -222,7 +222,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::GetCurrentTopAbilit
     std::unique_lock<std::mutex> lck(mutexAbilityProperties_);
     auto existedProperty = FindPropertyByName(abilityName);
     if (!existedProperty) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Unknown ability name");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "unknown ability name");
         return {};
     }
 
@@ -236,50 +236,49 @@ std::string AbilityDelegator::GetThreadName() const
 
 void AbilityDelegator::Prepare()
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
     if (!testRunner_) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid TestRunner");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid TestRunner");
         return;
     }
 
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Call TestRunner::Prepare()");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "call js onPrepare()");
     testRunner_->Prepare();
 
     if (!delegatorThread_) {
         delegatorThread_ = std::make_unique<DelegatorThread>(true);
         if (!delegatorThread_) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "Create delegatorThread failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "create delegatorThread failed");
             return;
         }
     }
 
     auto runTask = [this]() { this->OnRun(); };
     if (!delegatorThread_->Run(runTask)) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Run task on delegatorThread failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "run task on delegatorThread failed");
     }
 }
 
 void AbilityDelegator::OnRun()
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
     if (!testRunner_) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid TestRunner");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid TestRunner");
         return;
     }
 
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Call TestRunner::Run(), Start run");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "call js onRun");
     testRunner_->Run();
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Run finished");
 }
 
 ErrCode AbilityDelegator::StartAbility(const AAFwk::Want &want)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     auto realWant(want);
     auto delegatorArgs = AbilityDelegatorRegistry::GetArguments();
     if (delegatorArgs && delegatorArgs->FindDebugFlag()) {
-        TAG_LOGI(AAFwkTag::DELEGATOR, "Set Debug to the want which used for starting the ability");
+        TAG_LOGI(AAFwkTag::DELEGATOR, "set Debug to the want which used for starting the ability");
         realWant.SetParam("debugApp", true);
     }
     realWant.SetParam(IS_DELEGATOR_CALL, true);
@@ -289,16 +288,16 @@ ErrCode AbilityDelegator::StartAbility(const AAFwk::Want &want)
 
 bool AbilityDelegator::DoAbilityForeground(const sptr<IRemoteObject> &token)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     if (!token) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input parames");
         return false;
     }
 
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->DelegatorDoAbilityForeground(token);
     if (ret) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to call DelegatorDoAbilityForeground, reson : %{public}d", ret);
+        TAG_LOGE(AAFwkTag::DELEGATOR, "failed to call DelegatorDoAbilityForeground, reson : %{public}d", ret);
         return false;
     }
 
@@ -307,16 +306,16 @@ bool AbilityDelegator::DoAbilityForeground(const sptr<IRemoteObject> &token)
 
 bool AbilityDelegator::DoAbilityBackground(const sptr<IRemoteObject> &token)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     if (!token) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input parames");
         return false;
     }
 
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->DelegatorDoAbilityBackground(token);
     if (ret) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to call DelegatorDoAbilityBackground, reson : %{public}d", ret);
+        TAG_LOGE(AAFwkTag::DELEGATOR, "failed to call do ability background, reson : %{public}d", ret);
         return false;
     }
 
@@ -325,16 +324,16 @@ bool AbilityDelegator::DoAbilityBackground(const sptr<IRemoteObject> &token)
 
 std::unique_ptr<ShellCmdResult> AbilityDelegator::ExecuteShellCommand(const std::string &cmd, const int64_t timeoutSec)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "command : %{public}s, timeout : %{public}" PRId64, cmd.data(), timeoutSec);
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called, command : %{public}s, timeout : %{public}" PRId64, cmd.data(), timeoutSec);
 
     if (cmd.empty()) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid cmd");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "invalid cmd");
         return {};
     }
 
     auto testObserver = iface_cast<ITestObserver>(observer_);
     if (!testObserver) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid testObserver");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid testObserver");
         return {};
     }
 
@@ -344,17 +343,17 @@ std::unique_ptr<ShellCmdResult> AbilityDelegator::ExecuteShellCommand(const std:
 
 void AbilityDelegator::Print(const std::string &msg)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     auto testObserver = iface_cast<ITestObserver>(observer_);
     if (!testObserver) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid testObserver");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid testObserver");
         return;
     }
 
     auto realMsg(msg);
     if (realMsg.length() > DELEGATOR_PRINT_MAX_LENGTH) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Too long message");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "too long message");
         realMsg.resize(DELEGATOR_PRINT_MAX_LENGTH);
     }
     TAG_LOGI(AAFwkTag::DELEGATOR, "message to print : %{public}s", realMsg.data());
@@ -364,10 +363,10 @@ void AbilityDelegator::Print(const std::string &msg)
 
 void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input parames");
         return;
     }
 
@@ -375,7 +374,7 @@ void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityP
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Empty abilityMonitors");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityMonitors");
         return;
     }
 
@@ -392,15 +391,15 @@ void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityP
 
 void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     if (!abilityStage) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input parames");
         return;
     }
 
     std::unique_lock<std::mutex> lck(mutexStageMonitor_);
     if (abilityStageMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Empty abilityStageMonitors");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityStageMonitors");
         return;
     }
 
@@ -414,10 +413,10 @@ void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbil
 
 void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -425,7 +424,7 @@ void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegator
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Empty abilityMonitors.");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityMonitors");
         return;
     }
 
@@ -442,10 +441,10 @@ void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegator
 
 void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -453,7 +452,7 @@ void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegato
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "abilityMonitors is Empty");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityMonitors");
         return;
     }
 
@@ -470,10 +469,10 @@ void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegato
 
 void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -498,10 +497,10 @@ void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegat
 
 void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -509,7 +508,7 @@ void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbi
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "abilityMonitors is Empty.");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityMonitors");
         return;
     }
 
@@ -526,10 +525,10 @@ void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbi
 
 void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -537,7 +536,7 @@ void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbi
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "abilityMonitors is empty.");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityMonitors");
         return;
     }
 
@@ -554,10 +553,10 @@ void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbi
 
 void AbilityDelegator::PostPerformStop(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return;
     }
 
@@ -565,7 +564,7 @@ void AbilityDelegator::PostPerformStop(const std::shared_ptr<ADelegatorAbilityPr
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Empty abilityMonitors");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid abilityMonitors");
         return;
     }
 
@@ -610,10 +609,10 @@ AbilityDelegator::AbilityState AbilityDelegator::ConvertAbilityState(
 
 void AbilityDelegator::ProcessAbilityProperties(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid ability property");
         return;
     }
 
@@ -633,10 +632,10 @@ void AbilityDelegator::ProcessAbilityProperties(const std::shared_ptr<ADelegator
 
 void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!ability) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid ability property");
         return;
     }
 
@@ -651,21 +650,21 @@ void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbi
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken(const sptr<IRemoteObject> &token)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
 
     if (!token) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return {};
     }
 
     for (const auto &it : abilityProperties_) {
         if (!it) {
-            TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
+            TAG_LOGW(AAFwkTag::DELEGATOR, "invalid ability property");
             continue;
         }
 
         if (token == it->token_) {
-            TAG_LOGI(AAFwkTag::DELEGATOR, "Property exist");
+            TAG_LOGI(AAFwkTag::DELEGATOR, "property exist");
             return it;
         }
     }
@@ -675,21 +674,21 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(const std::string &name)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Find property by %{public}s.", name.c_str());
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called, find property by %{public}s", name.c_str());
 
     if (name.empty()) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "invalid input params");
         return {};
     }
 
     for (const auto &it : abilityProperties_) {
         if (!it) {
-            TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
+            TAG_LOGW(AAFwkTag::DELEGATOR, "invalid ability property");
             continue;
         }
 
         if (name == it->fullName_) {
-            TAG_LOGI(AAFwkTag::DELEGATOR, "Property exist");
+            TAG_LOGD(AAFwkTag::DELEGATOR, "property exist");
             return it;
         }
     }
@@ -699,37 +698,37 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(
 
 void AbilityDelegator::FinishUserTest(const std::string &msg, const int64_t resultCode)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter, msg : %{public}s, code : %{public}" PRId64, msg.data(), resultCode);
+    TAG_LOGI(AAFwkTag::DELEGATOR, "called, msg : %{public}s, code : %{public}" PRId64, msg.data(), resultCode);
 
     if (!observer_) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid observer");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "invalid observer");
         return;
     }
 
     auto delegatorArgs = AbilityDelegatorRegistry::GetArguments();
     if (!delegatorArgs) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid delegator args");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "invalid delegator args");
         return;
     }
 
     auto realMsg(msg);
     if (realMsg.length() > INFORMATION_MAX_LENGTH) {
-        TAG_LOGW(AAFwkTag::DELEGATOR, "Too long message");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "too long message");
         realMsg.resize(INFORMATION_MAX_LENGTH);
     }
 
     const auto &bundleName = delegatorArgs->GetTestBundleName();
     auto err = AAFwk::AbilityManagerClient::GetInstance()->FinishUserTest(realMsg, resultCode, bundleName);
     if (err) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to call FinishUserTest : %{public}d", err);
+        TAG_LOGE(AAFwkTag::DELEGATOR, "failed to call finish user test : %{public}d", err);
     }
 }
 
 void AbilityDelegator::RegisterClearFunc(ClearFunc func)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     if (!func) {
-        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid func");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "invalid func");
         return;
     }
 
@@ -738,7 +737,7 @@ void AbilityDelegator::RegisterClearFunc(ClearFunc func)
 
 inline void AbilityDelegator::CallClearFunc(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
 {
-    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
+    TAG_LOGD(AAFwkTag::DELEGATOR, "called");
     if (clearFunc_) {
         clearFunc_(ability);
     }

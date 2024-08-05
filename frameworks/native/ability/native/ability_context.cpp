@@ -50,28 +50,29 @@ const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 
 ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "requestCode: %{public}d", requestCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "called, requestCode = %{public}d", requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
-    TAG_LOGD(AAFwkTag::CONTEXT, "ret=%{public}d", err);
+    TAG_LOGD(AAFwkTag::CONTEXT, "end, ret=%{public}d", err);
     return err;
 }
 
 ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "requestCode: %{public}d", requestCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "called, requestCode = %{public}d",
+        requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err =
         AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, abilityStartSetting, token_, requestCode);
-    TAG_LOGD(AAFwkTag::CONTEXT, "ret=%{public}d", err);
+    TAG_LOGD(AAFwkTag::CONTEXT, "end, ret=%{public}d", err);
     return err;
 }
 
@@ -79,19 +80,20 @@ ErrCode AbilityContext::TerminateAbility()
 {
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "null info");
+        TAG_LOGE(AAFwkTag::CONTEXT, "ability info == nullptr");
         return ERR_NULL_OBJECT;
     }
 
     ErrCode err = ERR_OK;
     switch (info->type) {
         case AppExecFwk::AbilityType::PAGE:
-            TAG_LOGD(AAFwkTag::CONTEXT, "page type, ability: %{public}s", info->name.c_str());
+            TAG_LOGD(AAFwkTag::CONTEXT, "terminate ability begin, type is page, ability is %{public}s",
+                info->name.c_str());
 #ifdef SUPPORT_SCREEN
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
                 auto sessionToken = GetSessionToken();
                 if (sessionToken == nullptr) {
-                    TAG_LOGE(AAFwkTag::CONTEXT, "null sessionToken");
+                    TAG_LOGE(AAFwkTag::CONTEXT, "sessionToken is nullptr");
                     return ERR_INVALID_VALUE;
                 }
                 sptr<AAFwk::SessionInfo> sessionInfo = new AAFwk::SessionInfo();
@@ -108,16 +110,17 @@ ErrCode AbilityContext::TerminateAbility()
 #endif // SUPPORT_SCREEN
             break;
         case AppExecFwk::AbilityType::SERVICE:
-            TAG_LOGD(AAFwkTag::CONTEXT, "service type, ability: %{public}s", info->name.c_str());
+            TAG_LOGD(AAFwkTag::CONTEXT, "terminate ability begin, type is service, ability is %{public}s",
+                info->name.c_str());
             err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
             break;
         default:
-            TAG_LOGE(AAFwkTag::CONTEXT, "error type: %{public}d", info->type);
+            TAG_LOGE(AAFwkTag::CONTEXT, "terminate Ability info type error is %{public}d", info->type);
             break;
     }
 
     if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "failed %{public}d", err);
+        TAG_LOGE(AAFwkTag::CONTEXT, "terminate Ability is failed %{public}d", err);
     }
     return err;
 }
@@ -132,7 +135,7 @@ std::shared_ptr<ElementName> AbilityContext::GetElementName()
     TAG_LOGD(AAFwkTag::CONTEXT, "called");
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "null info");
+        TAG_LOGE(AAFwkTag::CONTEXT, "info is nullptr");
         return nullptr;
     }
 
@@ -164,11 +167,11 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
 
     std::shared_ptr<AbilityInfo> abilityInfo = GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "null info");
+        TAG_LOGE(AAFwkTag::CONTEXT, "info is nullptr");
         return false;
     }
 
-    TAG_LOGI(AAFwkTag::CONTEXT, "called, ability:%{public}s.", abilityInfo->name.c_str());
+    TAG_LOGD(AAFwkTag::CONTEXT, "connect ability begin, ability:%{public}s", abilityInfo->name.c_str());
 
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
@@ -176,7 +179,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
     }
 
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, conn, token_);
-    TAG_LOGD(AAFwkTag::CONTEXT, "ret=%{public}d", ret);
+    TAG_LOGD(AAFwkTag::CONTEXT, "ConnectAbility, ret=%{public}d", ret);
     bool value = ((ret == ERR_OK) ? true : false);
     if (!value) {
         TAG_LOGE(AAFwkTag::CONTEXT, "errorCode = %{public}d", ret);
@@ -200,7 +203,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "error, ret=%{public}d", ret);
+        TAG_LOGE(AAFwkTag::CONTEXT, "DisconnectAbility error, ret=%{public}d.", ret);
     }
     return ret;
 }
@@ -210,13 +213,13 @@ bool AbilityContext::StopAbility(const AAFwk::Want &want)
     TAG_LOGD(AAFwkTag::CONTEXT, "called");
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType: %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "abilityType = %{public}d", type);
         return false;
     }
 
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopServiceAbility(want, token_);
     if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "failed %{public}d", err);
+        TAG_LOGE(AAFwkTag::CONTEXT, "stopAbility is failed %{public}d", err);
         return false;
     }
 
@@ -232,7 +235,7 @@ AppExecFwk::AbilityType AbilityContext::GetAbilityInfoType()
 {
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "null info");
+        TAG_LOGE(AAFwkTag::CONTEXT, "info is nullptr");
         return AppExecFwk::AbilityType::UNKNOWN;
     }
 
@@ -247,11 +250,11 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
         return nullptr;
     }
 
-    TAG_LOGD(AAFwkTag::CONTEXT, "before getResourceManager");
+    TAG_LOGD(AAFwkTag::CONTEXT, "begin appContext->GetResourceManager");
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appContext->GetResourceManager();
-    TAG_LOGD(AAFwkTag::CONTEXT, "after getResourceManager");
+    TAG_LOGD(AAFwkTag::CONTEXT, "end appContext->GetResourceManager");
     if (resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "null resourceManager");
+        TAG_LOGE(AAFwkTag::CONTEXT, "resourceManager is nullptr");
         return nullptr;
     }
     return resourceManager;
@@ -259,7 +262,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
 
 int AbilityContext::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "permission=%{public}s, pid=%{public}d, uid=%{public}d",
+    TAG_LOGI(AAFwkTag::CONTEXT, "called, permission=%{public}s, pid=%{public}d, uid=%{public}d",
         permission.c_str(),
         pid,
         uid);
