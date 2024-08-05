@@ -312,6 +312,20 @@ public:
     }
 
     /**
+     * Start ui ability
+     *
+     * @param want the want of the ability to start.
+     * @param specifyTokenId The Caller ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityOnlyUIAbility(
+        const Want &want,
+        uint32_t specifyTokenId)
+    {
+        return 0;
+    }
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.

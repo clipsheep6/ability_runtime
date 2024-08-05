@@ -346,6 +346,17 @@ public:
         int requestCode) override;
 
     /**
+     * Start ui ability
+     *
+     * @param want the want of the ability to start.
+     * @param specifyTokenId The Caller ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityOnlyUIAbility(
+        const Want &want,
+        uint32_t specifyTokenId) override;
+
+    /**
      * Open link of ability and atomic service.
      *
      * @param want Ability want.

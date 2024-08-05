@@ -120,6 +120,9 @@ int AbilityManagerStub::OnRemoteRequestInnerSecond(uint32_t code, MessageParcel 
     if (interfaceCode == AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS) {
         return StartAbilityByUIContentSessionForOptionsInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_ONLY_UI_ABILITY) {
+        return StartAbilityOnlyUIAbility(data, reply);
+    }
     return ERR_CODE_NOT_EXIST;
 }
 

@@ -729,6 +729,11 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
     return StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
+int AbilityManagerService::StartAbilityOnlyUIAbility(const Want &want, uint32_t specifyTokenId)
+{
+
+}
+
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
     sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode)
 {
