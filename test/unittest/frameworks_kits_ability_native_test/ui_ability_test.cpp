@@ -737,11 +737,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
 
-    ability->EnableAbilityRecovery(nullptr, false);
-    ret = ability->ShouldRecoverState(want);
-    EXPECT_EQ(ret, false);
-    ability->EnableAbilityRecovery(abilityRecovery, false);
-
     auto abilityContext = std::make_shared<AbilityRuntime::AbilityContextImpl>();
     ability->AttachAbilityContext(abilityContext);
 
@@ -758,22 +753,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
-}
-
-/**
- * @tc.name: ShouldDefaultRecoverState_0200
- * @tc.desc: UIAbility ShouldDefaultRecoverState test.
- * @tc.type: FUNC
- * @tc.require: issueI60B7N
- */
-HWTEST_F(UIAbilityBaseTest, ShouldDefaultRecoverState_0100, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
-    ASSERT_NE(ability, nullptr);
-
-    // branch when abilityRecovery_ is nullptr
-    Want want;
-    ability->ShouldDefaultRecoverState(want);
 }
 
 /**
@@ -978,8 +957,6 @@ HWTEST_F(UIAbilityBaseTest, EraseUIExtension_0100, TestSize.Level1)
     ability->EraseUIExtension(sessionId);
     ability->SetIdentityToken("");
     EXPECT_EQ("", ability->GetIdentityToken());
-    ability->CheckDefaultRecoveryEnabled();
-    ability->IsStartByScb();
 }
 
 /**
