@@ -9275,7 +9275,51 @@ int AbilityManagerService::CheckUIExtensionPermission(const AbilityRequest &abil
             return CHECK_PERMISSION_FAILED;
         }
     }
+
+    if (!CheckUIExtensionCallerIsForeground(abilityRequest)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     return ERR_OK;
+}
+
+bool AbilityManagerService::CheckUIExtensionCallerIsForeground(const AbilityRequest &abilityRequest)
+{
+    // Check caller ability firstly.
+    auto callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Caller ability is %{public}s, state: %{public}d",
+            callerAbility->GetURI().c_str(), callerAbility->GetAbilityState());
+        if (callerAbility->IsForeground() || callerAbility->GetAbilityForegroundingFlag()) {
+            return true;
+        }
+
+        if (UIExtensionUtils::IsUIExtension(callerAbility->GetAbilityInfo().extensionAbilityType)) {
+            auto tokenId = callerAbility->GetApplicationInfo().accessTokenId;
+            bool isFocused = false;
+            if (CheckUIExtensionIsFocused(tokenId, isFocused) == ERR_OK && isFocused) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "Root caller is foreground");
+                return true;
+            }
+        }
+
+        if (callerAbility->IsSceneBoard()) {
+            return true;
+        }
+    }
+
+    // Check caller app.
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+    if (processInfo.isFocused || processInfo.isAbilityForegrounding) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Caller app %{public}s is foreground", processInfo.processName_.c_str());
+        return true;
+    }
+
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller app %{public}s is not foreground, can't start %{public}s",
+        processInfo.processName_.c_str(), abilityRequest.want.GetElement().GetURI().c_str());
+    return false;
 }
 
 int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityRequest &abilityRequest)

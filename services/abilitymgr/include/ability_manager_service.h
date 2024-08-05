@@ -2243,6 +2243,8 @@ private:
     int CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
         AppExecFwk::ExtensionAbilityType extensionType);
 
+    bool CheckUIExtensionCallerIsForeground(const AbilityRequest &abilityRequest);
+
     int CheckExtensionCallPermission(const Want& want, const AbilityRequest& abilityRequest);
 
     int CheckServiceCallPermission(const AbilityRequest& abilityRequest,
