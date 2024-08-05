@@ -14,10 +14,9 @@
  */
 
 #include "extension_record_factory.h"
+
 #include "ability_util.h"
 #include "app_utils.h"
-#include "extension_record_manager.h"
-#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

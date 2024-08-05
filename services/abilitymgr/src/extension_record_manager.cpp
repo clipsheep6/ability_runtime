@@ -16,7 +16,6 @@
 #include "extension_record_manager.h"
 
 #include "ability_util.h"
-#include "hilog_tag_wrapper.h"
 #include "ui_extension_utils.h"
 #include "ui_extension_record.h"
 #include "ui_extension_record_factory.h"

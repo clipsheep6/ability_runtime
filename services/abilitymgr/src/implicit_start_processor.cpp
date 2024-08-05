@@ -14,26 +14,15 @@
  */
 #include "implicit_start_processor.h"
 
-#include <string>
-
 #include "ability_manager_service.h"
 #include "ability_util.h"
-#include "app_gallery_enable_util.h"
 #include "app_utils.h"
-#include "default_app_interface.h"
 #include "dialog_session_manager.h"
-#include "errors.h"
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
-#include "event_report.h"
 #include "global_constant.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "in_process_call_wrapper.h"
-#include "parameters.h"
-#include "scene_board_judgement.h"
 #include "start_ability_utils.h"
 #include "startup_util.h"
-#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {

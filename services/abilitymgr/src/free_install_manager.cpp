@@ -15,24 +15,14 @@
 
 #include "free_install_manager.h"
 
-#include <chrono>
-
-#include "ability_info.h"
-#include "ability_manager_errors.h"
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "atomic_service_status_callback.h"
 #include "distributed_client.h"
-#include "free_install_observer_manager.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "insight_intent_execute_manager.h"
-#include "insight_intent_execute_param.h"
-#include "insight_intent_execute_result.h"
 #include "insight_intent_utils.h"
-#include "in_process_call_wrapper.h"
 #include "permission_constants.h"
-#include "start_ability_utils.h"
 #include "utils/app_mgr_util.h"
 #include "uri_utils.h"
 

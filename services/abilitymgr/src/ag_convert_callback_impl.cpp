@@ -15,8 +15,6 @@
 
 #include "ag_convert_callback_impl.h"
 
-#include <mutex>
-
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {

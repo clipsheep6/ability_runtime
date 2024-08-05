@@ -15,14 +15,10 @@
 
 #include "ability_auto_startup_data_manager.h"
 
-#include <algorithm>
 #include <unistd.h>
 
 #include "accesstoken_kit.h"
-#include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "nlohmann/json.hpp"
-#include "types.h"
 #include "os_account_manager_wrapper.h"
 
 namespace OHOS {

@@ -16,12 +16,9 @@
 #include "interceptor/start_other_app_interceptor.h"
 
 #include "ability_record.h"
-#include "app_scheduler.h"
 #include "hilog_tag_wrapper.h"
-#include "ipc_skeleton.h"
 #include "parameters.h"
 #include "permission_verification.h"
-#include "running_process_info.h"
 #include "start_ability_utils.h"
 #include "tokenid_kit.h"
 

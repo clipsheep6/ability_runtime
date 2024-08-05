@@ -15,15 +15,9 @@
 
 #include "app_exit_reason_data_manager.h"
 
-#include <algorithm>
-#include <chrono>
 #include <cstdint>
-#include <unistd.h>
 
 #include "accesstoken_kit.h"
-#include "errors.h"
-#include "hilog_tag_wrapper.h"
-#include "nlohmann/json.hpp"
 #include "os_account_manager_wrapper.h"
 
 namespace OHOS {

@@ -15,12 +15,6 @@
 
 #include "ecological_rule/ability_ecological_rule_mgr_service_param.h"
 
-#include <string>
-#include <vector>
-
-#include "iremote_broker.h"
-#include "iremote_object.h"
-
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {

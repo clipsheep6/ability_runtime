@@ -14,7 +14,7 @@
  */
 
 #include "ability_start_setting.h"
-#include <cstring>
+
 #include "string_ex.h"
 
 using namespace OHOS;
