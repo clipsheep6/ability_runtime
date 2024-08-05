@@ -51,6 +51,7 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
     resourceConfig.SetMnc(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC));
     resourceConfig.SetColorModeIsSetByApp(
         configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP));
+    resourceConfig.SetThemeId(configuration.GetItem(AAFwk::GlobalConfigurationKey::THEME_ID));
 }
 
 #ifdef SUPPORT_GRAPHICS
