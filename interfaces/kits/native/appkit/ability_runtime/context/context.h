@@ -224,8 +224,7 @@ public:
      * @return Returns a Context object created for the specified hap and app.
      */
     virtual std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName,
-                                                          const std::string &moduleName) = 0;
-
+                                                          const std::string &moduleName) = 0;                                                      
     /**
      * @brief Creates a ResourceManager object for a hap with the given hap name and app name.
      *

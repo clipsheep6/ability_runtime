@@ -24,6 +24,7 @@ namespace {
 constexpr const char* ERR_MSG_TOO_FEW_PARAM = "Parameter error. Too few parameters.";
 constexpr const char* ERR_MSG_NOT_MAINTHREAD = "Caller error. Caller from non-main thread.";
 constexpr const char* ERR_MSG_INVALID_NUM_PARAMS = "Parameter error. The number of parameters is invalid.";
+constexpr const char* NOT_SYSTEM_APP = "The application is not system-app, can not use system-api.";
 } // namespace
 
 void ThrowError(napi_env env, int32_t errCode, const std::string& errorMsg)
@@ -62,6 +63,13 @@ void ThrowNoPermissionError(napi_env env, const std::string& permission)
     napi_throw(env, CreateJsError(env,
         static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED),
         GetNoPermissionErrorMsg(permission)));
+}
+
+void ThrowNotSystemAppError(napi_env env)
+{
+    napi_throw(env, CreateJsError(env,
+        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP),
+        NOT_SYSTEM_APP));
 }
 
 void ThrowInvalidParamError(napi_env env, const std::string &message)
