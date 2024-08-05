@@ -92,6 +92,7 @@ private:
     uint64_t GetMilliseconds();
     std::map<int, std::set<int>> BinderParser(std::ifstream& fin, std::string& stack) const;
     void ParseBinderPids(const std::map<int, std::set<int>>& binderInfo, std::set<int>& pids, int pid, int layer) const;
+    bool isAncoPorc(int pid) const;
     std::set<int> GetBinderPeerPids(std::string& stack, int pid) const;
     void FindStackByPid(std::string& ret, int pid, const std::string& msg) const;
     std::string CatchJsonStacktrace(int pid, const std::string& faultType) const;
