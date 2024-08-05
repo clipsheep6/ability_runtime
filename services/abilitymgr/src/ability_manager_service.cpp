@@ -6985,6 +6985,9 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return StartRemoteAbilityByCall(want, callerToken, connect->AsObject());
     }
 
+    if (accountId == U0_USER_ID) {
+        accountId = DEFAULT_INVAL_VALUE;
+    }
     int32_t oriValidUserId = GetValidUserId(accountId);
     if (!JudgeMultiUserConcurrency(oriValidUserId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Multi-user non-concurrent mode is not satisfied.");
