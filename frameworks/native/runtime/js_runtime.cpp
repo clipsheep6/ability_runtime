@@ -837,11 +837,17 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
     std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
     std::string memConfigProperty = OHOS::system::GetParameter("persist.ark.mem_config_property", "");
+    size_t heapDefaultSize = OHOS::system::GetUintParameter<size_t>("persist.ark.heap.defaultsize", 0);
+    size_t heapSharedSize = OHOS::system::GetUintParameter<size_t>("persist.ark.heap.sharedsize", 0);
+    size_t heapWorkerSize = OHOS::system::GetUintParameter<size_t>("persist.ark.heap.workersize", 0);
     size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
     size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
     pandaOption.SetArkProperties(arkProperties);
     pandaOption.SetArkBundleName(bundleName);
     pandaOption.SetMemConfigProperty(memConfigProperty);
+    option.SetHeapDefaultSize(heapDefaultSize);
+    option.SetHeapSharedSize(heapSharedSize);
+    option.SetHeapWorkerSize(heapWorkerSize);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ark properties=%{public}d bundlename=%{public}s",
