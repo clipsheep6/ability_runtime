@@ -197,6 +197,7 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
     if (want_.HasParameter(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON)) {
         want_.RemoveParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON);
     }
+    SetDebugAppByWaitingDebugFlag();
 }
 
 AbilityRecord::~AbilityRecord()
@@ -215,11 +216,6 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
-
-    Want newWant = abilityRecord->GetWant();
-    SetDebugAppByWaitingDebugFlag(newWant, abilityRequest.appInfo.bundleName, abilityRequest.appInfo.debug);
-    abilityRecord->SetWant(newWant);
-
     abilityRecord->SetUid(abilityRequest.uid);
     int32_t appIndex = 0;
     (void)AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want, appIndex);
@@ -3628,15 +3624,16 @@ void AbilityRecord::SetSpecifyTokenId(uint32_t specifyTokenId)
     specifyTokenId_ = specifyTokenId;
 }
 
-void AbilityRecord::SetDebugAppByWaitingDebugFlag(Want &requestWant, const std::string &bundleName, bool isDebugApp)
+void AbilityRecord::SetDebugAppByWaitingDebugFlag()
 {
-    if (!isDebugApp || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+    if (!applicationInfo_.debug || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Not meeting the set debugging conditions.");
         return;
     }
 
-    if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName))) {
-        requestWant.SetParam(DEBUG_APP, true);
+    if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(
+        applicationInfo_.bundleName))) {
+        want_.SetParam(DEBUG_APP, true);
         IN_PROCESS_CALL_WITHOUT_RET(
             DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag());
     }
