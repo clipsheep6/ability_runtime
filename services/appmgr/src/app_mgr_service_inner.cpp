@@ -179,6 +179,7 @@ constexpr const char* FONT_SCALE = "persist.sys.font_scale_for_user0";
 constexpr const char* KILL_REASON_USER_REQUEST = "User Request";
 const std::string TOKEN_ID = "TOKEN_ID";
 const int32_t SIGNAL_KILL = 9;
+const int32_t HIVIEW_UID = 1201;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
@@ -5397,11 +5398,20 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
 
 bool AppMgrServiceInner::SetAppFreezeFilter(int32_t pid)
 {
-    int32_t callingPid = IPCSkeleton::GetCallingPid();
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t waitTime = 0;
+    int32_t callingPid = 0;
     auto callerRecord = GetAppRunningRecordByPid(pid);
     if (callerRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "SetAppFreezeFilter callerRecord is nullptr, can not get callerBundleName.");
         return false;
+    }
+    if (callerUid == HIVIEW_UID) {
+        waitTime = 900000;
+        callingPid = pid;
+    } else {
+        callingPid = IPCSkeleton::GetCallingPid();
+        waitTime = 120000; //wait 2 min
     }
     std::string bundleName = callerRecord->GetBundleName();
     if (callingPid == pid && AppExecFwk::AppfreezeManager::GetInstance()->IsValidFreezeFilter(pid, bundleName)) {
@@ -5409,7 +5419,6 @@ bool AppMgrServiceInner::SetAppFreezeFilter(int32_t pid)
         auto resetAppfreezeTask = [pid, bundleName, innerService = shared_from_this()]() {
             AppExecFwk::AppfreezeManager::GetInstance()->ResetAppfreezeState(pid, bundleName);
         };
-        constexpr int32_t waitTime = 120000; // wait 2min
         taskHandler_->SubmitTask(resetAppfreezeTask, "resetAppfreezeTask", waitTime);
         return cancelResult;
     }
