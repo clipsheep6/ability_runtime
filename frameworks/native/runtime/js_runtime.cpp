@@ -845,9 +845,9 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     pandaOption.SetArkProperties(arkProperties);
     pandaOption.SetArkBundleName(bundleName);
     pandaOption.SetMemConfigProperty(memConfigProperty);
-    option.SetHeapDefaultSize(heapDefaultSize);
-    option.SetHeapSharedSize(heapSharedSize);
-    option.SetHeapWorkerSize(heapWorkerSize);
+    pandaOption.SetHeapDefaultSize(heapDefaultSize);
+    pandaOption.SetHeapSharedSize(heapSharedSize);
+    pandaOption.SetHeapWorkerSize(heapWorkerSize);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ark properties=%{public}d bundlename=%{public}s",
