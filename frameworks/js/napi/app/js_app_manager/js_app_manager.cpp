@@ -810,7 +810,7 @@ private:
         return result;
     }
 
-    static void OnKillProcessesByBundleNameInner(std::string bundleName, bool clearPageStack,
+    static void OnKillProcessesByBundleNameInner(std::string bundleName,
         sptr<OHOS::AAFwk::IAbilityManager> abilityManager, napi_env env, NapiAsyncTask *task)
     {
         if (abilityManager == nullptr) {
@@ -818,7 +818,7 @@ private:
             task->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
             return;
         }
-        auto ret = abilityManager->KillProcess(bundleName, clearPageStack);
+        auto ret = abilityManager->KillProcess(bundleName);
         if (ret == 0) {
             task->ResolveWithNoError(env, CreateJsUndefined(env));
         } else {
@@ -839,26 +839,12 @@ private:
             ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
-        bool clearPageStack = false;
-        bool hasClearPageStack = false;
-        if (argc > ARGC_ONE && ConvertFromJsValue(env, argv[INDEX_ONE], clearPageStack)) {
-            hasClearPageStack = true;
-        }
-        int32_t appIndex = 0;
-        if (hasClearPageStack && argc == ARGC_THREE && !ConvertFromJsValue(env, argv[INDEX_TWO], appIndex)) {
-            TAG_LOGE(AAFwkTag::APPMGR, "get appIndex failed!");
-            ThrowInvalidParamError(env, "Parse param appIndex failed, must be a number.");
-            return CreateJsUndefined(env);
-        }
-        TAG_LOGI(AAFwkTag::APPMGR,
-            "kill [%{public}s], hasClearPageStack [%{public}d], clearPageStack [%{public}d],appIndex [%{public}d]",
-            bundleName.c_str(), hasClearPageStack, clearPageStack, appIndex);
-        napi_value lastParam = (argc == ARGC_TWO && !hasClearPageStack) ? argv[INDEX_ONE] : nullptr;
+        napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [bundleName, clearPageStack, abilityManager = abilityManager_,
+        auto asyncTask = [bundleName, abilityManager = abilityManager_,
             env, task = napiAsyncTask.get()]() {
-            OnKillProcessesByBundleNameInner(bundleName, clearPageStack, abilityManager, env, task);
+            OnKillProcessesByBundleNameInner(bundleName, abilityManager, env, task);
             delete task;
         };
         if (napi_status::napi_ok != napi_send_event(env, asyncTask, napi_eprio_immediate)) {
@@ -969,7 +955,7 @@ private:
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
-        
+
         int32_t missionId = 0;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], missionId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get missionId wrong!");
@@ -1068,23 +1054,11 @@ private:
             ThrowInvalidParamError(env, "Parse param accountId failed, must be a number.");
             return CreateJsUndefined(env);
         }
-        bool clearPageStack = false;
-        bool hasClearPageStack = false;
-        if (argc > ARGC_TWO && ConvertFromJsValue(env, argv[INDEX_TWO], clearPageStack)) {
-            hasClearPageStack = true;
-        }
-        int32_t appIndex = 0;
-        if (hasClearPageStack && argc == ARGC_FOUR && !ConvertFromJsValue(env, argv[INDEX_THREE], appIndex)) {
-            ThrowInvalidParamError(env, "Parse param appIndex failed, must be a number.");
-            return CreateJsUndefined(env);
-        }
-        TAG_LOGI(AAFwkTag::APPMGR,
-            "kill [%{public}s], hasClearPageStack [%{public}d], clearPageStack [%{public}d],appIndex [%{public}d]",
-            bundleName.c_str(), hasClearPageStack, clearPageStack, appIndex);
-        napi_value lastParam = (argc == ARGC_THREE && !hasClearPageStack) ? argv[INDEX_TWO] : nullptr;
+
+        napi_value lastParam = (argc == ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [appManager = appManager_, bundleName, accountId, clearPageStack,
+        auto asyncTask = [appManager = appManager_, bundleName, accountId,
             env, task = napiAsyncTask.get()]() {
             if (appManager == nullptr || appManager->GetAmsMgr() == nullptr) {
                 TAG_LOGW(AAFwkTag::APPMGR, "appManager is nullptr or amsMgr is nullptr.");
@@ -1092,7 +1066,7 @@ private:
                 delete task;
                 return;
             }
-            auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId, clearPageStack);
+            auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
             if (ret == 0) {
                 task->ResolveWithNoError(env, CreateJsUndefined(env));
             } else {

@@ -1871,7 +1871,6 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
     BindNativeFunction(env, object, "openAtomicService", moduleName,
         JsAbilityContext::OpenAtomicService);
     BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
-    BindNativeFunction(env, object, "setRestoreEnabled", moduleName, JsAbilityContext::SetRestoreEnabled);
     BindNativeFunction(env, object, "startUIServiceExtensionAbility", moduleName,
         JsAbilityContext::StartUIServiceExtension);
     BindNativeFunction(env, object, "connectUIServiceExtensionAbility", moduleName,

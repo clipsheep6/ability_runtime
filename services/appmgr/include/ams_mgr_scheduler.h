@@ -133,7 +133,7 @@ public:
      * @return ERR_OK, return back success, others fail.
      */
     virtual int32_t KillProcessWithAccount(
-        const std::string &bundleName, const int accountId, const bool clearPageStack = true) override;
+        const std::string &bundleName, const int accountId, const bool clearpagestack = false) override;
 
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
@@ -151,7 +151,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName,  const bool clearPageStack = true) override;
+    virtual int32_t KillApplication(const std::string &bundleName,  const bool clearpagestack = false) override;
 
     /**
      * ForceKillApplication, force kill the application.
@@ -181,7 +181,7 @@ public:
      */
     virtual int KillApplicationByUid(const std::string &bundleName, const int uid) override;
 
-    virtual int KillApplicationSelf(const bool clearPageStack = true) override;
+    virtual int KillApplicationSelf(const bool clearpagestack = false) override;
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) override;
 
