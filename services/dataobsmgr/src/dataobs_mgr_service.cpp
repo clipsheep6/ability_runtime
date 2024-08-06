@@ -49,22 +49,22 @@ DataObsMgrService::~DataObsMgrService()
 void DataObsMgrService::OnStart()
 {
     if (state_ == DataObsServiceRunningState::STATE_RUNNING) {
-        TAG_LOGI(AAFwkTag::DBOBSMGR, "Dataobs Manager Service has already started.");
+        TAG_LOGI(AAFwkTag::DBOBSMGR, "dms started.");
         return;
     }
     if (!Init()) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed to init service.");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "init failed!");
         return;
     }
     state_ = DataObsServiceRunningState::STATE_RUNNING;
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
     if (!Publish(DelayedSingleton<DataObsMgrService>::GetInstance().get())) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "Init Publish failed!");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "publish init failed!");
         return;
     }
 
-    TAG_LOGI(AAFwkTag::DBOBSMGR, "Dataobs Manager Service start success.");
+    TAG_LOGI(AAFwkTag::DBOBSMGR, "dms called");
 }
 
 bool DataObsMgrService::Init()
@@ -75,7 +75,7 @@ bool DataObsMgrService::Init()
 
 void DataObsMgrService::OnStop()
 {
-    TAG_LOGI(AAFwkTag::DBOBSMGR, "stop service");
+    TAG_LOGI(AAFwkTag::DBOBSMGR, "stop");
     handler_.reset();
     state_ = DataObsServiceRunningState::STATE_NOT_START;
 }
@@ -88,13 +88,13 @@ DataObsServiceRunningState DataObsMgrService::QueryServiceState() const
 int DataObsMgrService::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr, uri:%{public}s.",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver, uri:%{public}s.",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_ is nullptr, uri:%{public}s.",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObsMgrInner, uri:%{public}s.",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
@@ -107,7 +107,7 @@ int DataObsMgrService::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserve
     }
 
     if (status != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "Observer register failed: %{public}d, uri:%{public}s", status,
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "register failed: %{public}d, uri:%{public}s", status,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return status;
     }
@@ -117,13 +117,13 @@ int DataObsMgrService::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserve
 int DataObsMgrService::UnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr, uri:%{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver, uri:%{public}s",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_ is nullptr, uri:%{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObsMgrInner, uri:%{public}s",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
@@ -136,7 +136,7 @@ int DataObsMgrService::UnregisterObserver(const Uri &uri, sptr<IDataAbilityObser
     }
 
     if (status != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "Observer unregister failed: %{public}d, uri:%{public}s", status,
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "unregister failed: %{public}d, uri:%{public}s", status,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return status;
     }
@@ -147,12 +147,12 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
 {
     if (handler_ == nullptr) {
         TAG_LOGE(
-            AAFwkTag::DBOBSMGR, "handler is nullptr, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+            AAFwkTag::DBOBSMGR, "null handler, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_HANDLER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr || dataObsMgrInnerExt_ == nullptr || dataObsMgrInnerPref_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgr is nullptr, uri:%{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObsMgr, uri:%{public}s",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
@@ -160,7 +160,7 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
     {
         std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
-            TAG_LOGE(AAFwkTag::DBOBSMGR, "The number of task has reached the upper limit, uri:%{public}s",
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "task num reached limit, uri:%{public}s",
                 CommonUtils::Anonymous(uri.ToString()).c_str());
             return DATAOBS_SERVICE_TASK_LIMMIT;
         }
@@ -186,13 +186,13 @@ Status DataObsMgrService::RegisterObserverExt(const Uri &uri, sptr<IDataAbilityO
     bool isDescendants)
 {
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr, uri:%{public}s, isDescendants:%{public}d",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver, uri:%{public}s, isDescendants:%{public}d",
             CommonUtils::Anonymous(uri.ToString()).c_str(), isDescendants);
         return DATA_OBSERVER_IS_NULL;
     }
 
     if (dataObsMgrInnerExt_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_ is nullptr, uri:%{public}s, isDescendants:%{public}d",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObsMgrInner, uri:%{public}s, isDescendants:%{public}d",
             CommonUtils::Anonymous(uri.ToString()).c_str(), isDescendants);
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
@@ -204,13 +204,13 @@ Status DataObsMgrService::RegisterObserverExt(const Uri &uri, sptr<IDataAbilityO
 Status DataObsMgrService::UnregisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr, uri:%{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver, uri:%{public}s",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
 
     if (dataObsMgrInnerExt_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_ is nullptr, uri:%{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObsMgrInner, uri:%{public}s",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
@@ -222,12 +222,12 @@ Status DataObsMgrService::UnregisterObserverExt(const Uri &uri, sptr<IDataAbilit
 Status DataObsMgrService::UnregisterObserverExt(sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver");
         return DATA_OBSERVER_IS_NULL;
     }
 
     if (dataObsMgrInnerExt_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_ is nullptr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObsMgrInner");
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
 
@@ -257,12 +257,12 @@ Status DataObsMgrService::DeepCopyChangeInfo(const ChangeInfo &src, ChangeInfo &
 Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
 {
     if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "handler is nullptr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null handler");
         return DATAOBS_SERVICE_HANDLER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr || dataObsMgrInnerExt_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_:%{public}d or dataObsMgrInnerExt_ is nullptr",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObsMgrInner_:%{public}d or null dataObsMgrInnerExt",
             dataObsMgrInner_ == nullptr);
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
@@ -270,8 +270,8 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
     Status result = DeepCopyChangeInfo(changeInfo, changes);
     if (result != SUCCESS) {
         TAG_LOGE(AAFwkTag::DBOBSMGR,
-            "copy data failed, changeType:%{public}ud, num of uris:%{public}zu, data is "
-            "nullptr:%{public}d, size:%{public}ud",
+            "copy data failed, changeType:%{public}ud,uris num:%{public}zu, "
+            "null data:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return result;
     }
@@ -280,8 +280,8 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
         std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
             TAG_LOGE(AAFwkTag::DBOBSMGR,
-                "The number of task has reached the upper limit, changeType:%{public}ud, num of "
-                "uris:%{public}zu, data is nullptr:%{public}d, size:%{public}ud",
+                "task num reached limit, changeType:%{public}ud,"
+                "uris num:%{public}zu, null data:%{public}d, size:%{public}ud",
                 changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
             return DATAOBS_SERVICE_TASK_LIMMIT;
         }
@@ -306,7 +306,7 @@ int DataObsMgrService::Dump(int fd, const std::vector<std::u16string>& args)
     Dump(args, result);
     int ret = dprintf(fd, "%s\n", result.c_str());
     if (ret < 0) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "%{public}s, dprintf error.", __func__);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "dprintf error.");
         return DATAOBS_HIDUMP_ERROR;
     }
     return SUCCESS;

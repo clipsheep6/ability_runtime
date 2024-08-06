@@ -33,14 +33,14 @@ int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, sptr<IDataAbilityObs
     auto [obsPair, flag] = observers_.try_emplace(uri.ToString(), std::list<sptr<IDataAbilityObserver>>());
     if (!flag && obsPair->second.size() > OBS_NUM_MAX) {
         TAG_LOGE(AAFwkTag::DBOBSMGR,
-            "The number of subscribers for this uri : %{public}s has reached the upper limit.",
+            "subscribers num: %{public}s reached limit.",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_OBS_LIMMIT;
     }
 
     for (auto obs = obsPair->second.begin(); obs != obsPair->second.end(); obs++) {
         if ((*obs)->AsObject() == dataObserver->AsObject()) {
-            TAG_LOGE(AAFwkTag::DBOBSMGR, "the obs has registered on this uri : %{public}s",
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "obs registered: %{public}s",
                 CommonUtils::Anonymous(uri.ToString()).c_str());
             return OBS_EXIST;
         }
@@ -60,11 +60,11 @@ int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityO
     auto obsPair = observers_.find(uri.ToString());
     if (obsPair == observers_.end()) {
         TAG_LOGW(
-            AAFwkTag::DBOBSMGR, "no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+            AAFwkTag::DBOBSMGR, "uri no obs: %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return NO_OBS_FOR_URI;
     }
 
-    TAG_LOGD(AAFwkTag::DBOBSMGR, "obs num is %{public}zu on this uri : %{public}s", obsPair->second.size(),
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "obs num:%{public}zu: %{public}s", obsPair->second.size(),
         CommonUtils::Anonymous(uri.ToString()).c_str());
     auto obs = obsPair->second.begin();
     for (; obs != obsPair->second.end(); obs++) {
@@ -74,7 +74,7 @@ int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityO
     }
     if (obs == obsPair->second.end()) {
         TAG_LOGW(
-            AAFwkTag::DBOBSMGR, "no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+            AAFwkTag::DBOBSMGR, "uri no obs: %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return NO_OBS_FOR_URI;
     }
     obsPair->second.remove(*obs);
@@ -96,7 +96,7 @@ int DataObsMgrInner::HandleNotifyChange(const Uri &uri)
     {
         auto obsPair = observers_.find(uri.ToString());
         if (obsPair == observers_.end()) {
-            TAG_LOGD(AAFwkTag::DBOBSMGR, "there is no obs on the uri : %{public}s",
+            TAG_LOGD(AAFwkTag::DBOBSMGR, "uri no obs: %{public}s",
                 CommonUtils::Anonymous(uri.ToString()).c_str());
             return NO_OBS_FOR_URI;
         }
@@ -109,7 +109,7 @@ int DataObsMgrInner::HandleNotifyChange(const Uri &uri)
         }
     }
 
-    TAG_LOGD(AAFwkTag::DBOBSMGR, "called end on the uri : %{public}s,obs num: %{public}zu",
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "uri end: %{public}s,obs num: %{public}zu",
         CommonUtils::Anonymous(uri.ToString()).c_str(), obsList.size());
     return NO_ERROR;
 }
@@ -122,7 +122,7 @@ void DataObsMgrInner::AddObsDeathRecipient(sptr<IDataAbilityObserver> dataObserv
 
     auto it = obsRecipient_.find(dataObserver->AsObject());
     if (it != obsRecipient_.end()) {
-        TAG_LOGW(AAFwkTag::DBOBSMGR, "this death recipient has been added.");
+        TAG_LOGW(AAFwkTag::DBOBSMGR, "add death recipient");
         return;
     } else {
         std::weak_ptr<DataObsMgrInner> thisWeakPtr(shared_from_this());
@@ -134,7 +134,7 @@ void DataObsMgrInner::AddObsDeathRecipient(sptr<IDataAbilityObserver> dataObserv
                 }
             });
         if (!dataObserver->AsObject()->AddDeathRecipient(deathRecipient)) {
-            TAG_LOGE(AAFwkTag::DBOBSMGR, "AddDeathRecipient failed.");
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "addDeathRecipient failed.");
         }
         obsRecipient_.emplace(dataObserver->AsObject(), deathRecipient);
     }
@@ -163,7 +163,7 @@ void DataObsMgrInner::OnCallBackDied(const wptr<IRemoteObject> &remote)
     std::lock_guard<ffrt::mutex> lock(innerMutex_);
 
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr.");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver");
         return;
     }
 
@@ -176,7 +176,7 @@ void DataObsMgrInner::RemoveObs(sptr<IRemoteObject> dataObserver)
         auto &obsList = iter->second;
         for (auto it = obsList.begin(); it != obsList.end(); it++) {
             if ((*it)->AsObject() == dataObserver) {
-                TAG_LOGD(AAFwkTag::DBOBSMGR, "Erase an observer form list.");
+                TAG_LOGD(AAFwkTag::DBOBSMGR, "erase");
                 obsList.erase(it);
                 break;
             }

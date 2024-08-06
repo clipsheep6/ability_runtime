@@ -49,14 +49,14 @@ int DataObsManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
         TAG_LOGE(AAFwkTag::DBOBSMGR,
-            "local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
+            "local descriptor unequals to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
             CommonUtils::Anonymous(Str16ToStr8(descriptor)).c_str(),
             CommonUtils::Anonymous(Str16ToStr8(remoteDescriptor)).c_str());
         return ERR_INVALID_STATE;
     }
 
     if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "not support code:%{public}u, BUTT:%{public}d", code, TRANS_BUTT);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid code:%{public}u, BUTT:%{public}d", code, TRANS_BUTT);
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return (this->*HANDLES[code])(data, reply);
@@ -66,7 +66,7 @@ int DataObsManagerStub::RegisterObserverInner(MessageParcel &data, MessageParcel
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid uri");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -81,7 +81,7 @@ int DataObsManagerStub::UnregisterObserverInner(MessageParcel &data, MessageParc
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid uri");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -96,7 +96,7 @@ int DataObsManagerStub::NotifyChangeInner(MessageParcel &data, MessageParcel &re
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid uri");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -109,7 +109,7 @@ int32_t DataObsManagerStub::RegisterObserverExtInner(MessageParcel &data, Messag
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid uri");
         return IPC_STUB_INVALID_DATA_ERR;
     }
     auto remote = data.ReadRemoteObject();
@@ -123,7 +123,7 @@ int32_t DataObsManagerStub::UnregisterObserverExtInner(MessageParcel &data, Mess
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid uri");
         return IPC_STUB_INVALID_DATA_ERR;
     }
     auto remote = data.ReadRemoteObject();
