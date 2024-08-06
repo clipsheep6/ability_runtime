@@ -3627,6 +3627,8 @@ void AbilityRecord::SetDebugAppByWaitingDebugFlag()
 {
     if (!applicationInfo_.debug || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Not meeting the set debugging conditions");
+        return;
+    }
 
     if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(
         applicationInfo_.bundleName))) {
