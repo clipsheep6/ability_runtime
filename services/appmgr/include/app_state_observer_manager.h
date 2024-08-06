@@ -65,6 +65,8 @@ public:
     void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnWindowShow(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnWindowHidden(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord);
@@ -73,6 +75,8 @@ public:
     void OnPageHide(const PageStateData pageStateData);
     void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, ApplicationState state);
 private:
+    void HandleOnWindowShow(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnWindowHidden(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);
     void HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);

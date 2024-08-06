@@ -88,6 +88,9 @@ public:
      */
     void ScheduleForegroundRunning();
 
+    void ScheduleShowWindowRunning();
+    void ScheduleHiddenWindowRunning();
+
     /**
      * ScheduleBackgroundRunning, call ScheduleBackgroundApplication() through proxy project,
      * Notify application to switch to background.

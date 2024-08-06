@@ -111,6 +111,28 @@ void AppLifeCycleDeal::ScheduleForegroundRunning()
     appThread->ScheduleForegroundApplication();
 }
 
+void AppLifeCycleDeal::ScheduleShowWindowRunning()
+{
+    TAG_LOGE(AAFwkTag::APPMGR, "zhouxu ScheduleShowWindow");
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
+        return;
+    }
+    appThread->ScheduleShowWindow();
+}
+
+void AppLifeCycleDeal::ScheduleHiddenWindowRunning()
+{
+    TAG_LOGE(AAFwkTag::APPMGR, "zhouxu ScheduleHiddenWindow");
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
+        return;
+    }
+    appThread->ScheduleHiddenWindow();
+}
+
 void AppLifeCycleDeal::ScheduleBackgroundRunning()
 {
     auto appThread = GetApplicationClient();

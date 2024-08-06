@@ -143,6 +143,10 @@ public:
      */
     void ScheduleBackgroundApplication() override;
 
+    void ScheduleShowWindow() override;
+
+    void ScheduleHiddenWindow() override;
+
     /**
      *
      * @brief Schedule the terminate lifecycle of application.
@@ -437,6 +441,10 @@ private:
      *
      */
     void HandleBackgroundApplication();
+
+    void HandleShowWindow();
+
+    void HandleHiddenWindow();
 
     /**
      *

@@ -478,6 +478,40 @@ std::shared_ptr<EventHandler> MainThread::GetMainHandler() const
     return mainHandler_;
 }
 
+void MainThread::ScheduleShowWindow()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+            return;
+        }
+        appThread->HandleShowWindow();
+    };
+    if (!mainHandler_->PostTask(task, "MainThread:ShowWindow")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
+    }
+}
+
+void MainThread::ScheduleHiddenWindow()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+            return;
+        }
+        appThread->HandleHiddenWindow();
+    };
+    if (!mainHandler_->PostTask(task, "MainThread:HiddenWindow")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
+    }
+}
+
 /**
  *
  * @brief Schedule the foreground lifecycle of application.
@@ -2305,6 +2339,28 @@ void MainThread::HandleBackgroundApplication()
 #endif
 
     appMgr_->ApplicationBackgrounded(applicationImpl_->GetRecordId());
+}
+
+void MainThread::HandleShowWindow()
+{
+    TAG_LOGE(AAFwkTag::APPKIT, "zhouxu MainThread::HandleShowApplication called");
+    // Start accessing PurgeableMem if the event of foreground is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
+#endif
+
+    appMgr_->NotifyWindowShow(applicationImpl_->GetRecordId());
+}
+
+void MainThread::HandleHiddenWindow()
+{
+    TAG_LOGE(AAFwkTag::APPKIT, "zhouxu MainThread::HandleHiddenApplication called");
+    // End accessing PurgeableMem if the event of background is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
+#endif
+
+    appMgr_->NotifyWindowHidden(applicationImpl_->GetRecordId());
 }
 
 /**

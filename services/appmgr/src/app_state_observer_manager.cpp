@@ -316,6 +316,44 @@ void AppStateObserverManager::OnProcessStateChanged(const std::shared_ptr<AppRun
     handler_->SubmitTask(task);
 }
 
+void AppStateObserverManager::OnWindowShow(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnApplicationShow failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, OnApplicationShow failed.");
+            return;
+        }
+        TAG_LOGD(AAFwkTag::APPMGR, "OnWindowShow come.");
+        self->HandleOnWindowShow(appRecord);
+    };
+    handler_->SubmitTask(task);
+}
+
+void AppStateObserverManager::OnWindowHidden(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnApplicationHidden failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, OnApplicationHidden failed.");
+            return;
+        }
+        TAG_LOGD(AAFwkTag::APPMGR, "OnWindowHidden come.");
+        self->HandleOnWindowHidden(appRecord);
+    };
+    handler_->SubmitTask(task);
+}
+
 void AppStateObserverManager::OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     if (handler_ == nullptr) {
@@ -615,6 +653,41 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
             it->first->OnProcessStateChanged(data);
         }
     }
+}
+
+void AppStateObserverManager::HandleOnWindowShow(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "app record is null");
+        return;
+    }
+    ProcessData data = WrapProcessData(appRecord);
+    if (data.bundleName == XIAOYI_BUNDLE_NAME) {
+        TAG_LOGI(AAFwkTag::APPMGR, "bundleName is com.huawei.chmos.vassistant, change processType to NORMAL");
+        data.processType = ProcessType::NORMAL;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "bundle:%{public}s, pid:%{public}d, uid:%{public}d, state:%{public}d, "
+        "isContinuousTask:%{public}d, gpuPid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask, data.gpuPid);
+
+}
+
+void AppStateObserverManager::HandleOnWindowHidden(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "app record is null");
+        return;
+    }
+    ProcessData data = WrapProcessData(appRecord);
+    if (data.bundleName == XIAOYI_BUNDLE_NAME) {
+        TAG_LOGI(AAFwkTag::APPMGR, "bundleName is com.huawei.chmos.vassistant, change processType to NORMAL");
+        data.processType = ProcessType::NORMAL;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "bundle:%{public}s, pid:%{public}d, uid:%{public}d, state:%{public}d, "
+        "isContinuousTask:%{public}d, gpuPid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask, data.gpuPid);
 }
 
 void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord)

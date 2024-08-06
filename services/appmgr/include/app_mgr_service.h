@@ -93,6 +93,8 @@ public:
      */
     virtual void ApplicationForegrounded(const int32_t recordId) override;
 
+    virtual void NotifyWindowShow(const int32_t recordId) override;
+    virtual void NotifyWindowHidden(const int32_t recordId) override;
     /**
      * ApplicationBackgrounded, call ApplicationBackgrounded() through proxy object,
      * set the application to Backgrounded State.
