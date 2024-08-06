@@ -2019,7 +2019,7 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
     uint32_t callingTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Add caller record");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Add caller record, callingTokenId:%{public}u", callingTokenId);
     if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken, callingTokenId)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
@@ -3625,10 +3625,8 @@ void AbilityRecord::SetSpecifyTokenId(uint32_t specifyTokenId)
 
 void AbilityRecord::SetDebugAppByWaitingDebugFlag()
 {
-    if (!isDebugApp || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+    if (!applicationInfo_.debug || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Not meeting the set debugging conditions");
-        return;
-    }
 
     if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(
         applicationInfo_.bundleName))) {
