@@ -373,6 +373,18 @@ public:
     ErrCode TerminateAbility(sptr<IRemoteObject> token, int resultCode, const Want *resultWant);
 
     /**
+     * BackToCallerAbilityWithResult, return to the caller ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @param callerRequestCode, the requestCode of caller ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode BackToCallerAbilityWithResult(const sptr<IRemoteObject> &token, int resultCode,
+        const Want *resultWant, int64_t callerRequestCode);
+
+    /**
      * TerminateUIExtensionAbility with want, return want from ability manager service.
      *
      * @param extensionSessionInfo the extension session info of the ability to terminate.

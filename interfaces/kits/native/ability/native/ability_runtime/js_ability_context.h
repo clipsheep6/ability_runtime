@@ -57,6 +57,7 @@ public:
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
+    static napi_value BackToCallerAbilityWithResult(napi_env env, napi_callback_info info);
     static napi_value RestoreWindowStage(napi_env env, napi_callback_info info);
     static napi_value RequestDialogService(napi_env env, napi_callback_info info);
     static napi_value IsTerminating(napi_env env, napi_callback_info info);
@@ -108,6 +109,7 @@ private:
     napi_value OnStopExtensionAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStopExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnBackToCallerAbilityWithResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnConnectAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
@@ -150,9 +152,11 @@ private:
     bool CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         int32_t &userId, napi_value &lastParam);
     napi_value SyncSetMissionContinueState(napi_env env, NapiCallbackInfo& info, const AAFwk::ContinueState& state);
+    static int32_t GenerateRequestCode();
+    static int32_t curRequestCode_;
+    static std::mutex requestCodeMutex_;
 
     std::weak_ptr<AbilityContext> context_;
-    int curRequestCode_ = 0;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
     friend class JsEmbeddableUIAbilityContext;
 };

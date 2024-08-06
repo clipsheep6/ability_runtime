@@ -113,6 +113,8 @@ int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callb
     }
 
     connections_.erase(connect);
+    connect->ClearCallRecord();
+    localCallRecord->ClearData();
     if (abilityClient->ReleaseCall(connect, localCallRecord->GetElementName()) != ERR_OK) {
         TAG_LOGE(AAFwkTag::LOCAL_CALL, "ReleaseCall failed");
         return ERR_INVALID_VALUE;
@@ -328,6 +330,11 @@ void LocalCallContainer::SetMultipleCallLocalRecord(
     }
 
     iter->second.emplace(localCallRecord);
+}
+
+void CallerConnection::ClearCallRecord()
+{
+    localCallRecord_.reset();
 }
 
 void CallerConnection::SetRecordAndContainer(const std::shared_ptr<LocalCallRecord> &localCallRecord,

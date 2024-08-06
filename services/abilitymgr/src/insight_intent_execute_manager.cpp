@@ -15,9 +15,6 @@
 
 #include "insight_intent_execute_manager.h"
 
-#include <chrono>
-#include <cinttypes>
-
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
 #include "insight_intent_execute_callback_interface.h"

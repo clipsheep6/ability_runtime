@@ -165,6 +165,8 @@ public:
 
     virtual ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) = 0;
 
+    virtual ErrCode BackToCallerAbilityWithResult(const AAFwk::Want &want, int resultCode, int64_t requestCode) = 0;
+
     virtual ErrCode RestoreWindowStage(napi_env env, napi_value contentStorage) = 0;
 
     virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;

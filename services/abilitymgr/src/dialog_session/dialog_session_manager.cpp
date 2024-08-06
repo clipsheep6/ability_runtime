@@ -16,20 +16,14 @@
 #include "dialog_session_manager.h"
 
 #include <random>
-#include <string>
-#include <chrono>
 #include "ability_manager_service.h"
-#include "ability_record.h"
 #include "ability_util.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "int_wrapper.h"
 #include "modal_system_ui_extension.h"
-#include "parameters.h"
 #include "start_ability_utils.h"
 #include "string_wrapper.h"
 #include "want.h"
-#include "want_params_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

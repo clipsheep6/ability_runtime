@@ -31,6 +31,7 @@ public:
     explicit LocalCallRecord(const AppExecFwk::ElementName &elementName);
     virtual ~LocalCallRecord();
 
+    void ClearData();
     void SetRemoteObject(const sptr<IRemoteObject> &call);
     void SetRemoteObject(const sptr<IRemoteObject> &call, sptr<IRemoteObject::DeathRecipient> callRecipient);
     void AddCaller(const std::shared_ptr<CallerCallBack> &callback);

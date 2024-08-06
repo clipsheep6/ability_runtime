@@ -455,6 +455,18 @@ public:
      */
     virtual int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override;
+    
+    /**
+     * BackToCallerAbilityWithResult, return to the caller ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @param callerRequestCode, the requestCode of caller ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int BackToCallerAbilityWithResult(const sptr<IRemoteObject> &token, int resultCode,
+        const Want *resultWant, int64_t callerRequestCode) override;
 
     /**
      * TerminateAbility, terminate the special ui extension ability.
@@ -1167,6 +1179,8 @@ public:
     virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed) override;
 
     int CreateCloneSelectorDialog(AbilityRequest &request, int32_t userId, const std::string &replaceWantString = "");
+
+    void SetTargetCloneIndexInSameBundle(const Want &want, sptr<IRemoteObject> callerToken);
 
     virtual int RegisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
         const std::string &bundleName) override;
@@ -2228,6 +2242,8 @@ private:
 
     int CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
         AppExecFwk::ExtensionAbilityType extensionType);
+
+    bool CheckUIExtensionCallerIsForeground(const AbilityRequest &abilityRequest);
 
     int CheckExtensionCallPermission(const Want& want, const AbilityRequest& abilityRequest);
 

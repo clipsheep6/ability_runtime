@@ -14,8 +14,12 @@
  */
 
 #include <gtest/gtest.h>
+#define private public
+#define protected public
 #include "ability_manager_errors.h"
 #include "permission_verification.h"
+#undef private
+#undef protected
 
 using namespace testing;
 using namespace testing::ext;
@@ -27,6 +31,8 @@ namespace {
 #ifdef WITH_DLP
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 #endif // WITH_DLP
+const int32_t SHELL_START_EXTENSION_FLOOR = 0;
+const int32_t SHELL_START_EXTENSION_MAX = 22; // EMBEDDED_UI
 }
 class PermissionVerificationTest : public testing::Test {
 public:
@@ -697,6 +703,46 @@ HWTEST_F(PermissionVerificationTest, JudgeCallerIsAllowedToUseSystemAPI_1000, Te
 {
     bool result = AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI();
     EXPECT_EQ(result, true);
+}
+
+/**
+ * @tc.name: CheckObserverCallerPermission_0001
+ * @tc.desc: CheckObserverCallerPermission VerifyStartRecentAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require:   VerifyRunningInfoPerm CheckObserverCallerPermission  etc
+ */
+HWTEST_F(PermissionVerificationTest, CheckObserverCallerPermission_0001, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::GetInstance()->CheckObserverCallerPermission();
+    AAFwk::PermissionVerification::GetInstance()->VerifyStartRecentAbilityPermission();
+    AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+}
+
+/**
+ * @tc.name: JudgeStartInvisibleAbility_0001
+ * @tc.desc: JudgeStartInvisibleAbility VerifyPreStartAtomicServicePermission  Test
+ * @tc.type: FUNC  VerifyKillProcessDependedOnWebPermission
+ * @tc.require: VerifyPrepareTerminatePermission VerifyShellStartExtensionType VerifyPreloadApplicationPermission
+ */
+HWTEST_F(PermissionVerificationTest, JudgeStartInvisibleAbility_0001, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::GetInstance()->VerifyKillProcessDependedOnWebPermission();
+    AAFwk::PermissionVerification::GetInstance()->VerifyPreStartAtomicServicePermission();
+    AAFwk::PermissionVerification::GetInstance()->VerifyPreloadApplicationPermission();
+    AAFwk::PermissionVerification::GetInstance()->VerifyShellStartExtensionType(SHELL_START_EXTENSION_FLOOR);
+
+    AAFwk::PermissionVerification::GetInstance()->VerifyShellStartExtensionType(SHELL_START_EXTENSION_MAX);
+    int tokenId = 20;
+    AAFwk::PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission(tokenId);
+
+    uint32_t aTkId = 1;
+    uint32_t sTkId = 20;
+    bool ret = AAFwk::PermissionVerification::GetInstance()->JudgeStartInvisibleAbility(aTkId, true, sTkId);
+    EXPECT_EQ(ret, true);
+    ret = AAFwk::PermissionVerification::GetInstance()->JudgeStartInvisibleAbility(aTkId, false, sTkId);
+    aTkId = 20;
+    ret = AAFwk::PermissionVerification::GetInstance()->JudgeStartInvisibleAbility(aTkId, false, sTkId);
+    EXPECT_EQ(ret, true);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

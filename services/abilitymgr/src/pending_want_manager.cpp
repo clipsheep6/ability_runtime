@@ -15,17 +15,10 @@
 
 #include "pending_want_manager.h"
 
-#include <atomic>
-#include <chrono>
-#include <thread>
-
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "distributed_client.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "in_process_call_wrapper.h"
-#include "permission_verification.h"
 #include "permission_constants.h"
 
 namespace OHOS {

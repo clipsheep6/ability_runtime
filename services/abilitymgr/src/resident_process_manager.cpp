@@ -19,8 +19,6 @@
 #include "ability_resident_process_rdb.h"
 #include "ability_util.h"
 #include "ffrt.h"
-#include "hilog_tag_wrapper.h"
-#include "user_controller.h"
 
 namespace OHOS {
 namespace AAFwk {

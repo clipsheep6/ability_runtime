@@ -96,13 +96,15 @@ private:
     void FindStackByPid(std::string& ret, int pid, const std::string& msg) const;
     std::string CatchJsonStacktrace(int pid, const std::string& faultType) const;
     std::string CatcherStacktrace(int pid) const;
-    int AcquireStack(const FaultData& faultData, const AppInfo& appInfo);
-    int NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo, const std::string& binderInfo);
+    int AcquireStack(const FaultData& faultData, const AppInfo& appInfo, const std::string& memoryContent);
+    int NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo,
+        const std::string& binderInfo, const std::string& memoryContent);
     int64_t GetFreezeCurrentTime();
     void SetFreezeState(int32_t pid, int state);
     int GetFreezeState(int32_t pid);
     int64_t GetFreezeTime(int32_t pid);
     void ClearOldInfo();
+    void CollectFreezeSysMemory(std::string& memoryContent);
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;

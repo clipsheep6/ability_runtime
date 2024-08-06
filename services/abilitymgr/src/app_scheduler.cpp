@@ -15,14 +15,9 @@
 
 #include "app_scheduler.h"
 
-#include "ability_manager_errors.h"
 #include "ability_manager_service.h"
-#include "ability_record.h"
 #include "ability_util.h"
-#include "appmgr/app_mgr_constants.h"
 #include "hitrace_meter.h"
-#include "hilog_tag_wrapper.h"
-#include "in_process_call_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

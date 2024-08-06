@@ -16,9 +16,6 @@
 #include "want_receiver_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "ipc_types.h"
-
-#include "pac_map.h"
 
 namespace OHOS {
 namespace AAFwk {

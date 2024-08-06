@@ -133,6 +133,9 @@ private:
     std::mutex preloadUIExtensionMapMutex_;
     PreLoadUIExtensionMapType preloadUIExtensionMap_;
 
+    void SetCachedFocusedCallerToken(int32_t extensionRecordId, sptr<IRemoteObject> &focusedCallerToken);
+    sptr<IRemoteObject> GetCachedFocusedCallerToken(int32_t extensionRecordId) const;
+    sptr<IRemoteObject> GetCallerTokenList(int32_t extensionRecordId, std::list<sptr<IRemoteObject>> &callerList);
     sptr<IRemoteObject> GetRootCallerTokenLocked(int32_t extensionRecordId);
 
     int32_t GetOrCreateExtensionRecordInner(const AAFwk::AbilityRequest &abilityRequest,

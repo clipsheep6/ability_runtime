@@ -156,6 +156,12 @@ enum class AbilityErrorCode {
     // app clone index does not exist.
     ERROR_APP_CLONE_INDEX_INVALID = 16000073,
 
+    // Caller does not exists.
+    ERROR_CODE_CALLER_NOT_EXIST = 16000074,
+
+    // Not support back to caller.
+    ERROR_CODE_NOT_SUPPROT_BACK_TO_CALLER = 16000075,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 

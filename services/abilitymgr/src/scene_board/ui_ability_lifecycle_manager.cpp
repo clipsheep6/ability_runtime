@@ -16,23 +16,13 @@
 #include "scene_board/ui_ability_lifecycle_manager.h"
 
 #include "ability_manager_service.h"
-#include "ability_running_info.h"
-#include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
 #include "app_utils.h"
-#include "errors.h"
-#include "exit_reason.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "iability_info_callback.h"
-#include "in_process_call_wrapper.h"
-#include "mission_info.h"
 #include "permission_constants.h"
-#include "permission_verification.h"
 #include "process_options.h"
 #include "scene_board/status_bar_delegate_manager.h"
-#include "session_info.h"
 #include "session_manager_lite.h"
 #include "session/host/include/zidl/session_interface.h"
 #include "startup_util.h"
@@ -1139,6 +1129,33 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
             terminateAbility->Terminate(timeoutTask);
         }
     }
+}
+
+int UIAbilityLifecycleManager::BackToCallerAbilityWithResult(sptr<SessionInfo> currentSessionInfo,
+    std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    if (currentSessionInfo == nullptr || currentSessionInfo->sessionToken == nullptr) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "currentSessionInfo is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (abilityRecord == nullptr) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "callerAbility is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto callerSessionInfo = abilityRecord->GetSessionInfo();
+    if (callerSessionInfo == nullptr || callerSessionInfo->sessionToken == nullptr) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "callerSessionInfo is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto currentSession = iface_cast<Rosen::ISession>(currentSessionInfo->sessionToken);
+    callerSessionInfo->isBackTransition = true;
+    auto ret = static_cast<int>(currentSession->PendingSessionActivation(callerSessionInfo));
+    callerSessionInfo->isBackTransition = false;
+    return ret;
 }
 
 int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,

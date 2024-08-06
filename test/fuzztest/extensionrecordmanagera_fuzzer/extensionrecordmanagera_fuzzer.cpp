@@ -146,6 +146,8 @@ void FuzztestExtensionRecordManagerFunc2(std::shared_ptr<ExtensionRecordManager>
     mgr->GetUIExtensionRootHostInfo(nullptr);
     sptr<Token> token = GetFuzzAbilityToken();
     mgr->GetUIExtensionRootHostInfo(token);
+    std::list<sptr<IRemoteObject>> callerList;
+    mgr->GetCallerTokenList(int32Param, callerList);
     mgr->extensionRecords_.clear();
 }
 

@@ -15,11 +15,9 @@
 
 #include "interceptor/extension_control_interceptor.h"
 
-#include "ability_info.h"
 #include "ability_util.h"
 #include "app_scheduler.h"
 #include "extension_config.h"
-#include "hilog_tag_wrapper.h"
 #include "start_ability_utils.h"
 
 namespace OHOS {

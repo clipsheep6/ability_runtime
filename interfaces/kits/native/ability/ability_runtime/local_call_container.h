@@ -76,6 +76,8 @@ public:
     CallerConnection() = default;
     virtual ~CallerConnection() = default;
 
+    void ClearCallRecord();
+
     void SetRecordAndContainer(const std::shared_ptr<LocalCallRecord> &localCallRecord,
         const std::weak_ptr<LocalCallContainer> &container);
 

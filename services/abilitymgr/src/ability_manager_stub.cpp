@@ -15,20 +15,10 @@
 
 #include "ability_manager_stub.h"
 
-#include "errors.h"
-#include "string_ex.h"
-
-#include "ability_connect_callback_proxy.h"
-#include "ability_connect_callback_stub.h"
-#include "ability_manager_collaborator_proxy.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_radar.h"
-#include "ability_scheduler_proxy.h"
-#include "ability_scheduler_stub.h"
-#include "configuration.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "session_info.h"
 #include "status_bar_delegate_interface.h"
 #include <iterator>
 
@@ -82,6 +72,9 @@ int AbilityManagerStub::OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &
     }
     if (interfaceCode == AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY) {
         return ReleaseDataAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::BACK_TO_CALLER_UIABILITY) {
+        return BackToCallerInner(data, reply);
     }
     return ERR_CODE_NOT_EXIST;
 }
@@ -955,6 +948,23 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     } else {
         result = CloseAbility(token, resultCode, resultWant);
     }
+    reply.WriteInt32(result);
+    if (resultWant != nullptr) {
+        delete resultWant;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::BackToCallerInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int resultCode = data.ReadInt32();
+    Want *resultWant = data.ReadParcelable<Want>();
+    int64_t callerRequestCode = data.ReadInt64();
+    int32_t result = BackToCallerAbilityWithResult(token, resultCode, resultWant, callerRequestCode);
     reply.WriteInt32(result);
     if (resultWant != nullptr) {
         delete resultWant;

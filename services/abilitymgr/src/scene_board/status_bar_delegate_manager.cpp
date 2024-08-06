@@ -16,12 +16,8 @@
 #include "scene_board/status_bar_delegate_manager.h"
 
 #include "ability_util.h"
-#include "errors.h"
-#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "in_process_call_wrapper.h"
 #include "process_options.h"
-#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {

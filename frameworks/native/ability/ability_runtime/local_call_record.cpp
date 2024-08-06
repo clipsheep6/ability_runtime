@@ -31,9 +31,22 @@ LocalCallRecord::LocalCallRecord(const AppExecFwk::ElementName& elementName)
 
 LocalCallRecord::~LocalCallRecord()
 {
-    if (remoteObject_ && callRecipient_) {
-        remoteObject_->RemoveDeathRecipient(callRecipient_);
+    ClearData();
+}
+
+void LocalCallRecord::ClearData()
+{
+    if (remoteObject_ == nullptr) {
+        return;
     }
+
+    if (callRecipient_) {
+        remoteObject_->RemoveDeathRecipient(callRecipient_);
+        callRecipient_ = nullptr;
+    }
+
+    callers_.clear();
+    remoteObject_ = nullptr;
 }
 
 void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call)

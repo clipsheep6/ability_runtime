@@ -15,8 +15,6 @@
 
 #include "ability_cache_manager.h"
 
-#include <algorithm>
-
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {

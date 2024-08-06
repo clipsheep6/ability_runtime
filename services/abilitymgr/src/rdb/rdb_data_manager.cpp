@@ -16,8 +16,6 @@
 #include "rdb_data_manager.h"
 
 #include "hilog_tag_wrapper.h"
-#include "rdb_errno.h"
-#include "rdb_store_config.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

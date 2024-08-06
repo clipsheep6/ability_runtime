@@ -80,6 +80,7 @@ public:
     ErrCode StartServiceExtensionAbility(const Want &want, int32_t accountId = -1) override;
     ErrCode StopServiceExtensionAbility(const Want& want, int32_t accountId = -1) override;
     ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) override;
+    ErrCode BackToCallerAbilityWithResult(const AAFwk::Want &want, int resultCode, int64_t requestCode) override;
     void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) override;
     ErrCode ConnectAbility(const AAFwk::Want &want,
                         const sptr<AbilityConnectCallback> &connectCallback) override;

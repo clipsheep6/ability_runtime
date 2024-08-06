@@ -120,6 +120,7 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, params, "ohos.param.atomicservice.pageSourceFile", "PAGE_SOURCE_FILE");
     SetNamedProperty(env, params, "ohos.param.atomicservice.buildFunction", "BUILD_FUNCTION");
     SetNamedProperty(env, params, "ohos.param.atomicservice.subpackageName", "SUB_PACKAGE_NAME");
+    SetNamedProperty(env, params, "ohos.extra.param.key.callerRequestCode", "CALLER_REQUEST_CODE");
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_PROPERTY("Action", action),
         DECLARE_NAPI_PROPERTY("Entity", entity),

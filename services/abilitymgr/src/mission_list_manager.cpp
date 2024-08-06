@@ -749,11 +749,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionListByDefault(
         return nullptr;
     }
 
-    auto missionListMgr = AbilityManagerService::GetPubInstance()->GetMissionListManagerByUserId(
-        callerAbility->GetOwnerMissionUserId());
-    CHECK_POINTER_AND_RETURN(missionListMgr, nullptr);
-    auto callerMission = reinterpret_cast<MissionListManager*>(missionListMgr.get())->GetMissionById(
-        callerAbility->GetMissionId());
+    auto callerMission = GetMissionById(callerAbility->GetMissionId());
     CHECK_POINTER_AND_RETURN(callerMission, nullptr);
     auto callerList = callerMission->GetMissionList();
     CHECK_POINTER_AND_RETURN(callerList, nullptr);

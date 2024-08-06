@@ -139,6 +139,9 @@ public:
      */
     std::shared_ptr<AbilityRecord> GetUIAbilityRecordBySessionInfo(const sptr<SessionInfo> &sessionInfo);
 
+    int BackToCallerAbilityWithResult(sptr<SessionInfo> currentSessionInfo,
+        std::shared_ptr<AbilityRecord> abilityRecord);
+
     /**
      * CloseUIAbility, close the special ability by scb.
      *
