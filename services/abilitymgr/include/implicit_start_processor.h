@@ -63,10 +63,6 @@ public:
 
     void ResetCallingIdentityAsCaller(int32_t tokenId);
 
-    void SetUriReservedFlag(const bool flag);
-
-    void SetUriReservedBundle(const std::string bundleName);
-
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
         std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList, bool &findDefaultApp);
@@ -106,7 +102,7 @@ private:
     void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
 
     void OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
-        std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos);
+        std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos, const AbilityRequest &request);
 
     bool IsActionImplicitStart(const Want &want, bool findDeafultApp);
 
@@ -116,8 +112,6 @@ private:
     std::shared_ptr<AppExecFwk::BundleMgrHelper> iBundleManagerHelper_;
     ffrt::mutex identityListLock_;
     std::list<IdentityNode> identityList_;
-    bool uriReservedFlag_ = false;
-    std::string reservedBundleName_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -795,7 +795,8 @@ HWTEST_F(AbilityManagerServiceFourthTest, SetReserveInfo_001, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SetReserveInfo_001 start");
     std::string linkString{""};
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->SetReserveInfo(linkString);
+    AbilityRequest abilityRequest;
+    abilityMs_->SetReserveInfo(linkString, abilityRequest);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SetReserveInfo_001 end");
 }
 
