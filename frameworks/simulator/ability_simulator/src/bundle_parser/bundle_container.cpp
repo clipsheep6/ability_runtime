@@ -33,7 +33,7 @@ void BundleContainer::LoadBundleInfos(const std::vector<uint8_t> &buffer)
 {
     bundleInfo_ = std::make_shared<InnerBundleInfo>();
     if (!bundleInfo_) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "bundleInfo_ is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "null bundleInfo_");
         return;
     }
 

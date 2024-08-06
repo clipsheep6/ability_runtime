@@ -202,7 +202,7 @@ void AbilityStageContext::SwitchArea(int mode)
 {
     TAG_LOGD(AAFwkTag::ABILITY_SIM, "called, mode:%{public}d.", mode);
     if (mode < 0 || mode >= static_cast<int>(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0]))) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "mode is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "invalid mode");
         return;
     }
     currArea_ = CONTEXT_ELS[mode];
@@ -219,7 +219,7 @@ int AbilityStageContext::GetArea()
         }
     }
     if (mode == -1) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Not find mode.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "no mode.");
         return EL_DEFAULT;
     }
     return mode;
@@ -243,11 +243,11 @@ std::string AbilityStageContext::GetPreviewPath()
 
 bool AbilityStageContext::Access(const std::string &path)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Access: dir: %{public}s", path.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "access: dir: %{public}s", path.c_str());
     std::unique_ptr<uv_fs_t, decltype(AbilityStageContext::FsReqCleanup)*> access_req = {
         new uv_fs_t, AbilityStageContext::FsReqCleanup };
     if (!access_req) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to request heap memory.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "request heap memory failed");
         return false;
     }
 
@@ -256,29 +256,29 @@ bool AbilityStageContext::Access(const std::string &path)
 
 void AbilityStageContext::Mkdir(const std::string &path)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Mkdir: dir: %{public}s", path.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "mkdir: dir: %{public}s", path.c_str());
     std::unique_ptr<uv_fs_t, decltype(AbilityStageContext::FsReqCleanup)*> mkdir_req = {
         new uv_fs_t, AbilityStageContext::FsReqCleanup };
     if (!mkdir_req) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to request heap memory.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "request heap memory failed");
         return;
     }
 
     int ret = uv_fs_mkdir(nullptr, mkdir_req.get(), path.c_str(), DIR_DEFAULT_PERM, nullptr);
     if (ret < 0) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create directory");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create directory failed");
     }
 }
 
 bool AbilityStageContext::CreateMultiDir(const std::string &path)
 {
     if (path.empty()) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "path is empty");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "empty path");
         return false;
     }
 
     if (Access(path)) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "path is already exist");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "path exists");
         return true;
     }
 

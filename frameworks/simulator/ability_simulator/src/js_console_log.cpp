@@ -43,20 +43,20 @@ std::string MakeLogContent(napi_env env, napi_callback_info info)
         }
 
         if (value == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to convert to string object");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "convert string object failed");
             continue;
         }
 
         size_t bufferLen = 0;
         napi_status status = napi_get_value_string_utf8(env, value, nullptr, 0, &bufferLen);
         if (status != napi_ok || bufferLen == 0 || bufferLen >= JS_CONSOLE_LOG_MAX_LOG_LEN) {
-            TAG_LOGD(AAFwkTag::ABILITY_SIM, "Log length exceeds maximum");
+            TAG_LOGD(AAFwkTag::ABILITY_SIM, "Log length maxed");
             return content;
         }
 
         auto buff = new (std::nothrow) char[bufferLen + 1];
         if (buff == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to allocate buffer, size = %zu", bufferLen + 1);
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "allocate buffer failed, size = %zu", bufferLen + 1);
             break;
         }
 
@@ -76,7 +76,7 @@ template<LogLevel LEVEL>
 napi_value ConsoleLog(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "env or callback info is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null env or callback info");
         return nullptr;
     }
 
@@ -92,7 +92,7 @@ void InitConsoleLogModule(napi_env env, napi_value globalObject)
     napi_value consoleObj = nullptr;
     napi_create_object(env, &consoleObj);
     if (consoleObj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create console object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create console failed");
         return;
     }
     const char *moduleName = "console";

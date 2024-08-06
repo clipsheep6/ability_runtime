@@ -133,9 +133,9 @@ InnerBundleInfo::InnerBundleInfo()
 {
     baseApplicationInfo_ = std::make_shared<ApplicationInfo>();
     if (baseApplicationInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "baseApplicationInfo_ is nullptr, create failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null baseApplicationInfo_, create failed");
     }
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "inner bundle info instance is created");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "inner bundle info instance created");
 }
 
 InnerBundleInfo &InnerBundleInfo::operator=(const InnerBundleInfo &info)
@@ -742,7 +742,7 @@ void from_json(const nlohmann::json &jsonObject, Dependency &dependency)
 
 void from_json(const nlohmann::json &jsonObject, Distro &distro)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "from_json start.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "start.");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<bool>(jsonObject,
@@ -894,7 +894,7 @@ std::optional<HapModuleInfo> InnerBundleInfo::FindHapModuleInfo(const std::strin
 {
     auto it = innerModuleInfos_.find(modulePackage);
     if (it == innerModuleInfos_.end()) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "can not find module %{public}s", modulePackage.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "missing module %{public}s", modulePackage.c_str());
         return std::nullopt;
     }
     HapModuleInfo hapInfo;
@@ -1018,7 +1018,7 @@ ErrCode InnerBundleInfo::FindAbilityInfo(
         }
     }
     TAG_LOGE(AAFwkTag::ABILITY_SIM,
-        "bundleName:%{public}s not find moduleName:%{public}s, abilityName:%{public}s, isModuleFind:%{public}d",
+        "bundleName:%{public}s miss moduleName:%{public}s, abilityName:%{public}s, isModuleFind:%{public}d",
         GetBundleName().c_str(), moduleName.c_str(), abilityName.c_str(), isModuleFind);
     if (isModuleFind) {
         return ERR_BUNDLE_MANAGER_ABILITY_NOT_EXIST;

@@ -43,7 +43,7 @@ public:
         uv_loop_s* loop = nullptr;
         napi_get_uv_event_loop(env_, &loop);
         if (loop == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "loop == nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "null loop");
             return;
         }
         uv_timer_init(loop, &timerReq_);
@@ -96,7 +96,7 @@ private:
 napi_value StartTimeoutOrInterval(napi_env env, napi_callback_info info, bool isInterval)
 {
     if (env == nullptr || info == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Start timeout or interval failed with env or callback info is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed with null env or callback info");
         return nullptr;
     }
     size_t argc = ARGC_MAX_COUNT;
@@ -107,7 +107,7 @@ napi_value StartTimeoutOrInterval(napi_env env, napi_callback_info info, bool is
     // parameter check, must have at least 2 params
     if (argc < 2 ||!CheckTypeForNapiValue(env, argv[0], napi_function)
         || !CheckTypeForNapiValue(env, argv[1], napi_number)) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Set callback timer failed with invalid parameter.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed with invalid parameter.");
         return CreateJsUndefined(env);
     }
 
@@ -154,7 +154,7 @@ napi_value StartInterval(napi_env env, napi_callback_info info)
 napi_value StopTimeoutOrInterval(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Stop timeout or interval failed with env or callback info is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed with env or callback info is nullptr.");
         return nullptr;
     }
     size_t argc = ARGC_MAX_COUNT;
@@ -164,7 +164,7 @@ napi_value StopTimeoutOrInterval(napi_env env, napi_callback_info info)
 
     // parameter check, must have at least 1 param
     if (argc < 1 || !CheckTypeForNapiValue(env, argv[0], napi_number)) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Clear callback timer failed with invalid parameter.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed with invalid parameter.");
         return CreateJsUndefined(env);
     }
     uint32_t callbackId = 0;

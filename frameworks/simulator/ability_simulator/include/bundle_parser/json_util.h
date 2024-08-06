@@ -57,7 +57,7 @@ void CheckArrayType(
         case ArrayType::STRING:
             for (const auto &array : arrays) {
                 if (!array.is_string()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not string type", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not string", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                 }
             }
@@ -68,7 +68,7 @@ void CheckArrayType(
         case ArrayType::OBJECT:
             for (const auto &array : arrays) {
                 if (!array.is_object()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not object type", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not object", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                     break;
                 }
@@ -80,7 +80,7 @@ void CheckArrayType(
         case ArrayType::NUMBER:
             for (const auto &array : arrays) {
                 if (!array.is_number()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not number type", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not number", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                 }
             }
@@ -89,7 +89,7 @@ void CheckArrayType(
             }
             break;
         case ArrayType::NOT_ARRAY:
-            TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not string type", key.c_str());
+            TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s is not string", key.c_str());
             break;
         default:
             TAG_LOGD(AAFwkTag::ABILITY_SIM, "array %{public}s type error", key.c_str());
@@ -109,7 +109,7 @@ void GetValueIfFindKey(const nlohmann::json &jsonObject, const nlohmann::detail:
         switch (jsonType) {
             case JsonType::BOOLEAN:
                 if (!jsonObject.at(key).is_boolean()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is not boolean", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s is not bool", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                     break;
                 }
@@ -117,7 +117,7 @@ void GetValueIfFindKey(const nlohmann::json &jsonObject, const nlohmann::detail:
                 break;
             case JsonType::NUMBER:
                 if (!jsonObject.at(key).is_number()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is not number", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, " %{public}s is not number", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                     break;
                 }
@@ -125,7 +125,7 @@ void GetValueIfFindKey(const nlohmann::json &jsonObject, const nlohmann::detail:
                 break;
             case JsonType::OBJECT:
                 if (!jsonObject.at(key).is_object()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is not object", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s is not object", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                     break;
                 }
@@ -133,7 +133,7 @@ void GetValueIfFindKey(const nlohmann::json &jsonObject, const nlohmann::detail:
                 break;
             case JsonType::ARRAY:
                 if (!jsonObject.at(key).is_array()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is not array", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s is not array", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                     break;
                 }
@@ -141,7 +141,7 @@ void GetValueIfFindKey(const nlohmann::json &jsonObject, const nlohmann::detail:
                 break;
             case JsonType::STRING:
                 if (!jsonObject.at(key).is_string()) {
-                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is not string", key.c_str());
+                    TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s is not string", key.c_str());
                     parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
                     break;
                 }
@@ -151,10 +151,10 @@ void GetValueIfFindKey(const nlohmann::json &jsonObject, const nlohmann::detail:
                 }
                 break;
             case JsonType::NULLABLE:
-                TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is nullable", key.c_str());
+                TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s is nullable", key.c_str());
                 break;
             default:
-                TAG_LOGD(AAFwkTag::ABILITY_SIM, "type is error %{public}s is not jsonType", key.c_str());
+                TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s is not jsonType", key.c_str());
                 parseResult = ERR_APPEXECFWK_PARSE_PROFILE_PROP_TYPE_ERROR;
         }
         return;
@@ -176,13 +176,13 @@ template<typename T>
 bool ParseInfoFromJsonStr(const char *data, T &t)
 {
     if (data == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s failed due to data is nullptr", __func__);
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "null data"y);
         return false;
     }
 
     nlohmann::json jsonObject = nlohmann::json::parse(data, nullptr, false);
     if (jsonObject.is_discarded()) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "%{public}s failed due to data is discarded", __func__);
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "discard data");
         return false;
     }
 
