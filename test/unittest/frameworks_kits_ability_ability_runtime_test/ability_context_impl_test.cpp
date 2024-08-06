@@ -1526,6 +1526,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RequestDialog_0100, Functi
     int32_t missionId = -1;
     ErrCode ret = context_->GetMissionId(missionId);
     EXPECT_FALSE(ret == ERR_OK);
+    EXPECT_CALL(*g_mockAbilityMs, GetMissionIdByToken(testing::_)).WillRepeatedly(testing::Return(8));
     int32_t missionId2 = 1;
     EXPECT_EQ(context_->GetMissionId(missionId2), ERR_OK);
     RuntimeTask task2 = [](const int32_t count, const Want& want, bool isInner)
@@ -1543,6 +1544,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RequestDialog_0100, Functi
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetMissionId_0100, Function | MediumTest | Level1)
 {
     int32_t missionId = 1;
+    EXPECT_CALL(*g_mockAbilityMs, GetMissionIdByToken(testing::_)).WillRepeatedly(testing::Return(0));
     ErrCode ret = context_->GetMissionId(missionId);
     EXPECT_FALSE(ret == ERR_OK);
     int32_t left = 1;
@@ -1637,6 +1639,21 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OpenLink_0100, Function | 
     context_->SetRestoreEnabled(true);
     EXPECT_EQ(context_->GetRestoreEnabled(), true);
 }
+
+/**
+ * @tc.number: Ability_Context_Impl_StartUIServiceExtensionAbility_0100
+ * @tc.name: StartUIServiceExtensionAbility
+ * @tc.desc: Start Ability For Result With Account
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartUIServiceExtensionAbility_0100,
+    Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    int32_t accountId{1};
+    auto ret = context_->StartUIServiceExtensionAbility(want, accountId);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
 } // namespace AppExecFwk
 } // namespace OHOS
 
