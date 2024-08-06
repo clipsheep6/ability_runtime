@@ -164,6 +164,11 @@ public:
         int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
         std::shared_ptr<PendingWant> &pendingWant);
 
+    static ErrCode GetServiceExtension(
+        const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+        std::shared_ptr<PendingWant> &pendingWant);
+
     /**
      * Retrieve a PendingWant that will start a foreground service.
      *

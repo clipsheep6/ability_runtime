@@ -106,6 +106,9 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
         case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):
             res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_, callerTokenId_);
             break;
+        case static_cast<int32_t>(OperationType::START_SERVICE_EXTENSION):
+            res = pendingWantManager->PendingWantStartServiceExtension(want, callerToken_);
+            break;
         default:
             break;
     }

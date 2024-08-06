@@ -182,6 +182,15 @@ ErrCode PendingWant::GetService(
         WantAgentConstant::OperationType::START_SERVICE, pendingWant);
 }
 
+ErrCode PendingWant::GetServiceExtension(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+    int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+    std::shared_ptr<PendingWant> &pendingWant)
+{
+    return BuildServicePendingWant(context, requestCode, want, flags,
+        WantAgentConstant::OperationType::START_SERVICE_EXTENSION, pendingWant);
+}
+
 ErrCode PendingWant::GetForegroundService(
     const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
     const std::shared_ptr<Want> &want, unsigned int flags,

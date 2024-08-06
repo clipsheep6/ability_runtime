@@ -122,7 +122,9 @@ public:
         /// <summary>
         /// Starts a foreground ability without a UI.
         /// </summary>
-        START_FOREGROUND_SERVICE
+        START_FOREGROUND_SERVICE,
+
+        START_SERVICE_EXTENSION
     };
 
 private:

@@ -1363,6 +1363,8 @@ napi_value WantAgentOperationTypeInit(napi_env env)
         CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_FOUR)));
     napi_set_named_property(env, objValue, "START_FOREGROUND_SERVICE",
         CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_FIVE)));
+    napi_set_named_property(env, objValue, "START_SERVICE_EXTENSION",
+        CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_SIX)));
 
     return objValue;
 }
