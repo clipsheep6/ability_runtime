@@ -729,9 +729,37 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
     return StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
-int AbilityManagerService::StartAbilityOnlyUIAbility(const Want &want, uint32_t specifyTokenId)
+int AbilityManagerService::StartAbilityOnlyUIAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    uint32_t specifyTokenId)
 {
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with specialId, the current process is not foundation process.");
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    auto flags = want.GetFlags();
+    EventInfo eventInfo = BuildEventInfo(want, DEFAULT_INVAL_VALUE);
+    SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with continuation flags is not allowed.");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
+
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "Start ability come, ability is %{public}s, userId is %{public}d, specifyTokenId is %{public}u.",
+        want.GetElement().GetAbilityName().c_str(), DEFAULT_INVAL_VALUE, specifyTokenId);
+
+    int32_t ret = StartAbilityWrap(want, callerToken, DEFAULT_INVAL_VALUE, false, DEFAULT_INVAL_VALUE, false, specifyTokenId, false, false, true);
+    if (ret != ERR_OK) {
+        eventInfo.errCode = ret;
+        SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return ret;
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -982,7 +1010,7 @@ int AbilityManagerService::CheckCallPermission(const Want& want, const AppExecFw
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int requestCode, bool isPendingWantCaller, int32_t userId, bool isStartAsCaller, uint32_t specifyTokenId,
-    bool isForegroundToRestartApp, bool isImplicit)
+    bool isForegroundToRestartApp, bool isImplicit, bool isUIAbilityOnly)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
@@ -1124,6 +1152,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
+    if (isUIAbilityOnly && abilityInfo.type != AbilityType::PAGE) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability type is not UIAbility");
+        return ERR_INVALID_VALUE;
+    }
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));

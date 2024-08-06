@@ -582,26 +582,40 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartAbilityOnlyUIAbility(const Want &want, uint32_t specifyTokenId)
+int AbilityManagerProxy::StartAbilityOnlyUIAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    uint32_t specifyTokenId)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
+    if (callerToken == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid callertoken.");
         return INNER_ERR;
     }
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return INNER_ERR;
+    }
+
     if (!data.WriteParcelable(&want)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteInt32(specifyTokenId)) {
+
+    if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken and flag write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteUint32(specifyTokenId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "specifyTokenId write failed.");
         return INNER_ERR;
     }
-    error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_ONLY_UI_ABILITY, data, reply, option);
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_ONLY_UI_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start ability err: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();

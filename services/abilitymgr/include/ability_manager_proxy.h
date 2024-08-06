@@ -237,11 +237,13 @@ public:
      * Start ui ability
      *
      * @param want the want of the ability to start.
+     * @param callerToken, caller ability token.
      * @param specifyTokenId The Caller ID.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartAbilityOnlyUIAbility(
         const Want &want,
+        const sptr<IRemoteObject> &callerToken,
         uint32_t specifyTokenId) override;
 
     /**
