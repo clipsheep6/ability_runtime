@@ -39,7 +39,7 @@ public:
     };
     void UnregisterObserver(const std::string &bundleName);
 private:
-    bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule);
+    bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule, int32_t appIndex);
     bool CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
     ErrCode StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
     sptr<AppExecFwk::IAppMgr> GetAppMgr();
