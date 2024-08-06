@@ -415,5 +415,22 @@ HWTEST_F(UIExtensionContextTest, AddFreeInstallObserver_0100, TestSize.Level1)
     EXPECT_TRUE(context != nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AddFreeInstallObserver_0100 end");
 }
+
+/**
+ * @tc.number: StartUIServiceExtension_0100
+ * @tc.name: StartUIServiceExtension
+ * @tc.desc: StartUIServiceExtension.
+ */
+HWTEST_F(UIExtensionContextTest, StartUIServiceExtension_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "StartUIServiceExtension_0100 start");
+    AAFwk::Want want;
+    int32_t accountId = 1;
+    auto context = std::make_shared<UIExtensionContext>();
+    EXPECT_NE(context, nullptr);
+    auto ans = context->StartUIServiceExtension(want, accountId);
+    EXPECT_TRUE(ans != ERR_OK);
+    TAG_LOGI(AAFwkTag::TEST, "StartUIServiceExtension_0100 end");
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
