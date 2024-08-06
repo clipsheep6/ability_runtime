@@ -1745,6 +1745,15 @@ void AbilityRecord::SendResult(bool isSandboxApp, uint32_t tokeId)
 void AbilityRecord::SendResultByBackToCaller(const std::shared_ptr<AbilityResult> &result)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s", abilityInfo_.name.c_str());
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    CHECK_POINTER(scheduler_);
+    CHECK_POINTER(result);
+    scheduler_->SendResult(result->requestCode_, result->resultCode_, result->resultWant_);
+}
+
+void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, int requestCode)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s", abilityInfo_.name.c_str());
 
     auto uriParam = want.GetParams().GetParam(PARAMS_FILE_SAVING_URL_KEY);
     auto uriArray = AAFwk::IArray::Query(uriParam);
