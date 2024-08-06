@@ -243,6 +243,8 @@ constexpr int32_t NO_ABILITY_RECORD_ID = -1;
 constexpr int32_t EXIT_REASON_UNKNOWN = 0;
 
 constexpr int32_t MAX_SPECIFIED_PROCESS_NAME_LENGTH = 255;
+constexpr int32_t LEAK_WAIT = 900000;
+constexpr int32_t NORMAL_WAIT = 120000;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -5407,11 +5409,11 @@ bool AppMgrServiceInner::SetAppFreezeFilter(int32_t pid)
         return false;
     }
     if (callerUid == HIVIEW_UID) {
-        waitTime = 900000;
+        waitTime = LEAK_WAIT;
         callingPid = pid;
     } else {
         callingPid = IPCSkeleton::GetCallingPid();
-        waitTime = 120000; //wait 2 min
+        waitTime = NORMAL_WAIT; //wait 2 min
     }
     std::string bundleName = callerRecord->GetBundleName();
     if (callingPid == pid && AppExecFwk::AppfreezeManager::GetInstance()->IsValidFreezeFilter(pid, bundleName)) {
