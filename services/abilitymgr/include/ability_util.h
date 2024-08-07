@@ -54,19 +54,19 @@ constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPk
 
 #define CHECK_POINTER_CONTINUE(object)                         \
     if (!object) {                                             \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "nullptr"); \
         continue;                                              \
     }
 
 #define CHECK_POINTER_IS_NULLPTR(object)                       \
     if (object == nullptr) {                                   \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "nullptr"); \
         return;                                                \
     }
 
 #define CHECK_POINTER(object)                                  \
     if (!object) {                                             \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "nullptr"); \
         return;                                                \
     }
 
@@ -78,7 +78,7 @@ constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPk
 
 #define CHECK_POINTER_AND_RETURN(object, value)                \
     if (!object) {                                             \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "nullptr"); \
         return value;                                          \
     }
 
@@ -90,7 +90,7 @@ constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPk
 
 #define CHECK_POINTER_RETURN_BOOL(object)                      \
     if (!object) {                                             \
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "nullptr"); \
         return false;                                          \
     }
 

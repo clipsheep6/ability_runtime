@@ -3431,7 +3431,7 @@ void MainThread::ParseAppConfigurationParams(const std::string configuration, Co
     TAG_LOGD(AAFwkTag::APPKIT, "start");
     appConfig.AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE, DEFAULT_APP_FONT_SIZE_SCALE);
     if (configuration.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "the configuration is empty");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "empty configuration");
         return;
     }
     nlohmann::json configurationJson = nlohmann::json::parse(configuration, nullptr, false);
