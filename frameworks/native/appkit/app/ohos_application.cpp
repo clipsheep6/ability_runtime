@@ -465,7 +465,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     bool isUpdateAppLanguage = isUpdateLanguage(config, language, languageIsSetByApp, globalLanguageIsSetByApp);
     // If size is not equal to 0, other keys need to be updated.
     if (!isUpdateAppColor && !isUpdateAppFontSize && !isUpdateAppLanguage && config.GetItemSize() == 0) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Configuration does not need to be updated");
+        TAG_LOGD(AAFwkTag::APPKIT, "configuration does not need to be updated");
         return;
     }
     std::vector<std::string> changeKeyV;
@@ -474,7 +474,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         configuration_->CompareDifferent(changeKeyV, config);
         configuration_->Merge(changeKeyV, config);
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "configuration_: %{public}s", configuration_->GetName().c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "configuration_: %{public}s", configuration_->GetName().c_str());
 
     // Update resConfig of resource manager, which belongs to application context.
     UpdateAppContextResMgr(config);
