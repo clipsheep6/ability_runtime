@@ -1504,6 +1504,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             AbilityRuntime::CJRuntime::SetAsanVersion();
         } else if (appInfo.tsanEnabled) {
             AbilityRuntime::CJRuntime::SetTsanVersion();
+        } else if (appInfo.hwasanEnabled) {
+            AbilityRuntime::CJRuntime::SetHWAsanVersion();
         }
     } else {
 #endif
