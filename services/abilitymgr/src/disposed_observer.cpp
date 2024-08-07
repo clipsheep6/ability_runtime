@@ -87,7 +87,14 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr");
                 return;
             }
-            int ret = abilityRecord->CreateModalUIExtension(*disposedRule_.want);
+            Want want = *disposedRule_.want;
+            auto sessionInfo = abilityRecord->GetSessionInfo();
+            if (sessionInfo != nullptr) {
+                want.SetParam(INTERCEPT_MISSION_ID, sessionInfo->persistentId);
+            } else {
+                want.SetParam(INTERCEPT_MISSION_ID, abilityRecord->GetMissionId());
+            }
+            int ret = abilityRecord->CreateModalUIExtension(want);
             if (ret != ERR_OK) {
                 interceptor_->UnregisterObserver(pageStateData.bundleName);
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
