@@ -30,7 +30,7 @@ int DialogRequestCallbackStub::OnRemoteRequest(
     std::u16string descriptor = DialogRequestCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGI(AAFwkTag::DIALOG, "Local descriptor is not equal to remote");
+        TAG_LOGI(AAFwkTag::DIALOG, "Local descriptor not remote");
         return ERR_INVALID_STATE;
     }
 
@@ -46,7 +46,7 @@ int DialogRequestCallbackStub::SendResultInner(MessageParcel &data, MessageParce
     auto resultCode = data.ReadInt32();
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::DIALOG, "want is nullptr");
+        TAG_LOGE(AAFwkTag::DIALOG, "want null");
         return ERR_INVALID_VALUE;
     }
 

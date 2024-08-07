@@ -38,7 +38,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "JsDialogSession::Finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "call");
         std::unique_ptr<JsDialogSession>(static_cast<JsDialogSession*>(data));
     }
 
@@ -55,7 +55,7 @@ public:
 private:
     napi_value OnGetDialogSessionInfo(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "argc:%{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < 1) {
             TAG_LOGE(AAFwkTag::DIALOG, "invalid argc");
             ThrowTooFewParametersError(env);
@@ -63,7 +63,7 @@ private:
         }
         std::string dialogSessionId = "";
         if (!ConvertFromJsValue(env, info.argv[0], dialogSessionId)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap dialogSessionId");
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed unwrap dialogSessionId");
             ThrowInvalidParamError(env, "Parameter error: dialogSessionId must be a valid string.");
             return CreateJsUndefined(env);
         }
@@ -82,7 +82,7 @@ private:
 
     napi_value OnSendDialogResult(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "argc:%{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < ARGC_THREE) {
             TAG_LOGE(AAFwkTag::DIALOG, "invalid argc");
             ThrowTooFewParametersError(env);
@@ -90,20 +90,20 @@ private:
         }
         std::string dialogSessionId = "";
         if (!ConvertFromJsValue(env, info.argv[0], dialogSessionId)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap dialogSessionId");
-            ThrowInvalidParamError(env, "Parameter error: dialogSessionId must be a valid string.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed unwrap dialogSessionId");
+            ThrowInvalidParamError(env, "Parameter error: dialogSessionId must be a valid string");
             return CreateJsUndefined(env);
         }
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[1], want)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap want");
-            ThrowInvalidParamError(env, "Parameter error: want must be a Want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed unwrap want");
+            ThrowInvalidParamError(env, "Parameter error: want must be a Want");
             return CreateJsUndefined(env);
         }
         bool isAllow = false;
         if (!ConvertFromJsValue(env, info.argv[ARGC_TWO], isAllow)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap isAllow");
-            ThrowInvalidParamError(env, "Parameter error: isAllow must be a Boolean.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed unwrap isAllow");
+            ThrowInvalidParamError(env, "Parameter error: isAllow must be a Boolean");
             return CreateJsUndefined(env);
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -127,9 +127,9 @@ private:
 
 napi_value JsDialogSessionInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "JsDialogSessionInit is called");
+    TAG_LOGI(AAFwkTag::DIALOG, "call");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input parameters");
+        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input");
         return nullptr;
     }
 
