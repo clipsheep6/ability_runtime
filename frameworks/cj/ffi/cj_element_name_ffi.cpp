@@ -31,7 +31,7 @@ ElementNameHandle FFICJElementNameCreateWithContent(
 void FFICJElementNameDelete(ElementNameHandle elementNameHandle)
 {
     if (elementNameHandle == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "input element name handle is null.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null elementNameHandle");
         return;
     }
     auto actualElementName = reinterpret_cast<ElementName*>(elementNameHandle);
@@ -44,7 +44,7 @@ ElementNameParams* FFICJElementNameGetElementNameInfo(ElementNameHandle elementN
 {
     ElementNameParams* buffer = static_cast<ElementNameParams*>(malloc(sizeof(ElementNameParams)));
     if (buffer == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "fail to malloc element name params.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null buffer");
         return nullptr;
     }
 

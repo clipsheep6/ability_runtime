@@ -40,7 +40,7 @@ CJAbilityCallbacks* g_cjAbilityCallbacks = nullptr;
 void UnWrapStartOption(CJStartOptions* source, AAFwk::StartOptions& target)
 {
     if (source == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "UnWrapStartOption failed, source is nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null source");
         return;
     }
     target.SetWindowMode(source->windowMode);
@@ -51,11 +51,11 @@ std::function<void(int32_t, CJAbilityResult*)> WrapCJAbilityResultTask(int64_t l
 {
     auto cjTask = [lambdaId](int32_t error, CJAbilityResult* abilityResult) {
         if (g_cjAbilityCallbacks == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityForResult failed, cangjie callbacks are not registered");
+            TAG_LOGE(AAFwkTag::CONTEXT, "failed, cangjie callbacks are not registered");
             return;
         }
         g_cjAbilityCallbacks->invokeAbilityResultCallback(lambdaId, error, abilityResult);
-        TAG_LOGD(AAFwkTag::CONTEXT, "WrapCJAbilityResultTask: error is %{public}d", error);
+        TAG_LOGD(AAFwkTag::CONTEXT, "error: %{public}d", error);
     };
     return cjTask;
 }
@@ -66,7 +66,7 @@ RuntimeTask WrapRuntimeTask(std::function<void(int32_t, CJAbilityResult*)> cjTas
         WantHandle wantHandle = const_cast<AAFwk::Want*>(&want);
         CJAbilityResult abilityResult = { resultCode, wantHandle };
         cjTask(error, &abilityResult);
-        TAG_LOGD(AAFwkTag::CONTEXT, "WrapRuntimeTask: error is %{public}d", error);
+        TAG_LOGD(AAFwkTag::CONTEXT, "error: %{public}d", error);
     };
     return task;
 }
@@ -75,12 +75,12 @@ extern "C" {
 void RegisterCJAbilityCallbacks(void (*registerFunc)(CJAbilityCallbacks*))
 {
     if (g_cjAbilityCallbacks != nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Repeated registration for cj functions of CJAbility.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "repeated registration for cj functions of CJAbility");
         return;
     }
 
     if (registerFunc == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "RegisterCJAbilityCallbacks failed, registerFunc is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null registerFunc");
         return;
     }
 
@@ -102,7 +102,7 @@ int64_t FFIAbilityContextGetAbilityInfo(int64_t id)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "GetAbilityInfo failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return INVALID_DATA_ID;
     }
     return NOT_SUPPORT;
@@ -112,7 +112,7 @@ int64_t FFIAbilityContextGetHapModuleInfo(int64_t id)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "GetHapModuleInfo failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return INVALID_DATA_ID;
     }
     auto hapModuleInfo = context->GetHapModuleInfo();
@@ -123,7 +123,7 @@ int64_t FFIAbilityContextGetConfiguration(int64_t id)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "GetConfiguration failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return INVALID_DATA_ID;
     }
     auto configuration = context->GetConfiguration();
@@ -134,7 +134,7 @@ int32_t FFIAbilityContextStartAbility(int64_t id, WantHandle want)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -147,7 +147,7 @@ int32_t FFIAbilityContextStartAbilityWithOption(int64_t id, WantHandle want, CJS
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -161,7 +161,7 @@ int32_t FFIAbilityContextStartAbilityWithAccount(int64_t id, WantHandle want, in
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityWithAccount failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -174,7 +174,7 @@ int32_t FFIAbilityContextStartAbilityWithAccountAndOption(
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityWithAccount failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -188,7 +188,7 @@ int32_t FFIAbilityContextStartServiceExtensionAbility(int64_t id, WantHandle wan
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartServiceExtensionAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -199,7 +199,7 @@ int32_t FFIAbilityContextStartServiceExtensionAbilityWithAccount(int64_t id, Wan
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartServiceExtensionAbilityWithAccount failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -210,7 +210,7 @@ int32_t FFIAbilityContextStopServiceExtensionAbility(int64_t id, WantHandle want
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StopServiceExtensionAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -221,7 +221,7 @@ int32_t FFIAbilityContextStopServiceExtensionAbilityWithAccount(int64_t id, Want
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StopServiceExtensionAbilityWithAccount failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -232,7 +232,7 @@ int32_t FFIAbilityContextTerminateSelf(int64_t id)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "TerminateSelf failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context->TerminateSelf();
@@ -242,7 +242,7 @@ int32_t FFIAbilityContextTerminateSelfWithResult(int64_t id, WantHandle want, in
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "TerminateSelfWithResult failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -254,7 +254,7 @@ RetDataBool FFIAbilityContextIsTerminating(int64_t id)
     RetDataBool res = { ERR_INVALID_INSTANCE_CODE, false };
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "IsTerminating failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return res;
     }
 
@@ -268,7 +268,7 @@ int32_t FFIAbilityContextConnectAbility(int64_t id, WantHandle want, int64_t con
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "ConnectAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<AAFwk::Want*>(want);
@@ -280,7 +280,7 @@ int32_t FFIAbilityContextConnectAbilityWithAccount(int64_t id, WantHandle want, 
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "ConnectAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<AAFwk::Want*>(want);
@@ -292,7 +292,7 @@ int32_t FFIAbilityContextDisconnectAbility(int64_t id, WantHandle want, int64_t 
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "ConnectAbility failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto actualWant = reinterpret_cast<AAFwk::Want*>(want);
@@ -307,7 +307,7 @@ int32_t FFIAbilityContextStartAbilityForResult(int64_t id, WantHandle want, int3
 
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityForResult failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         cjTask(ERR_INVALID_INSTANCE_CODE, nullptr);
         return ERR_INVALID_INSTANCE_CODE;
     }
@@ -325,7 +325,7 @@ int32_t FFIAbilityContextStartAbilityForResultWithOption(
 
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityForResult failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         cjTask(ERR_INVALID_INSTANCE_CODE, nullptr);
         return ERR_INVALID_INSTANCE_CODE;
     }
@@ -345,7 +345,7 @@ int32_t FFIAbilityContextStartAbilityForResultWithAccount(
 
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityForResult failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid id of cj ability context");
         cjTask(ERR_INVALID_INSTANCE_CODE, nullptr);
         return ERR_INVALID_INSTANCE_CODE;
     }
@@ -363,7 +363,7 @@ int32_t FFIAbilityContextStartAbilityForResultWithAccountAndOption(
 
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "StartAbilityForResult failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "startAbilityForResult failed, invalid id of CJAbilityContext");
         cjTask(ERR_INVALID_INSTANCE_CODE, nullptr);
         return ERR_INVALID_INSTANCE_CODE;
     }
@@ -380,11 +380,11 @@ int32_t FFIAbilityContextRequestPermissionsFromUser(
 {
     auto cjTask = [lambdaId](int32_t error, CJPermissionRequestResult* cjPermissionRequestResult) {
         if (g_cjAbilityCallbacks == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "RequestPermissionsFromUser failed, cangjie callbacks are not registered");
+            TAG_LOGE(AAFwkTag::CONTEXT, "failed, cangjie callbacks are not registered");
             return;
         }
         g_cjAbilityCallbacks->invokePermissionRequestResultCallback(lambdaId, error, cjPermissionRequestResult);
-        TAG_LOGD(AAFwkTag::CONTEXT, "RequestPermissionsFromUser callback is called, error is %{public}d", error);
+        TAG_LOGD(AAFwkTag::CONTEXT, "callback is called, error is %{public}d", error);
     };
     PermissionRequestTask task = [cjTask](const std::vector<std::string>& permissions,
                                      const std::vector<int>& grantResults) {
@@ -396,14 +396,14 @@ int32_t FFIAbilityContextRequestPermissionsFromUser(
 
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "RequestPermissionsFromUser failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null CJAbilityContext");
         cjTask(ERR_INVALID_INSTANCE_CODE, nullptr);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto actualPermissions = reinterpret_cast<std::vector<std::string>*>(permissions);
     if (actualPermissions->empty()) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Params do not meet specification, permissions is empty.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "params do not meet specification, permissions is empty");
         cjTask(ERR_INVALID_INSTANCE_CODE, nullptr);
         return ERR_INVALID_INSTANCE_CODE;
     }
@@ -415,7 +415,7 @@ int32_t FFIAbilityContextSetMissionLabel(int64_t id, const char* label)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "SetMissionLabel failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null CJAbilityContext");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return context->SetMissionLabel(label);
@@ -425,7 +425,7 @@ int32_t FFIAbilityContextSetMissionIcon(int64_t id, int64_t pixelMapId)
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "SetMissionIcon failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "setMissionIcon failed, invalid id of CJAbilityContext");
         return ERR_INVALID_INSTANCE_CODE;
     }
     return 0;
@@ -436,12 +436,12 @@ int32_t FFIAbilityContextRequestDialogService(int64_t id, WantHandle want, int64
 {
     auto context = FFIData::GetData<CJAbilityContext>(id);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "RequestDialogService failed, invalid id of CJAbilityContext");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null CJAbilityContext");
         return ERR_INVALID_INSTANCE_CODE;
     }
     RequestDialogResultTask task = [lambdaId](int32_t resultCode, const AAFwk::Want &resultWant) {
         if (g_cjAbilityCallbacks == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "RequestDialogService failed, cangjie callbacks are not registered");
+            TAG_LOGE(AAFwkTag::CONTEXT, "failed, cangjie callbacks are not registered");
             return;
         }
         CJDialogRequestResult dialogRequestResult = {
@@ -449,7 +449,7 @@ int32_t FFIAbilityContextRequestDialogService(int64_t id, WantHandle want, int64
             .wantHandle = (WantHandle)&resultWant
         };
         g_cjAbilityCallbacks->invokeDialogRequestResultCallback(lambdaId, resultCode, &dialogRequestResult);
-        TAG_LOGD(AAFwkTag::CONTEXT, "RequestDialogService callback is called, resultCode is %{public}d", resultCode);
+        TAG_LOGD(AAFwkTag::CONTEXT, "callback is called, resultCode is %{public}d", resultCode);
     };
     auto actualWant = reinterpret_cast<AAFwk::Want*>(want);
     return context->RequestDialogService(*actualWant, std::move(task));
@@ -504,7 +504,7 @@ EXPORT napi_value FFICreateNapiValue(void *env, void *context)
     napi_value result = nullptr;
     napi_create_object((napi_env)env, &result);
     if (result == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "FFICreateNapiValue create object failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "create object failed");
         return nullptr;
     }
     auto nativeFinalize = [](napi_env env, void* data, void* hint) {

@@ -59,7 +59,7 @@ void RemoveUIServiceExtensionConnection(const int64_t& connectId)
     } else {
         TAG_LOGI(AAFwkTag::UI_EXT, "not found");
     }
-    TAG_LOGI(AAFwkTag::CONTEXT, "Connects new size:%{public}zu", gUiServiceExtConnects.size());
+    TAG_LOGI(AAFwkTag::UI_EXT, "connects new size:%{public}zu", gUiServiceExtConnects.size());
 }
 
 void FindUIServiceExtensionConnection(const int64_t& connectId, AAFwk::Want& want,

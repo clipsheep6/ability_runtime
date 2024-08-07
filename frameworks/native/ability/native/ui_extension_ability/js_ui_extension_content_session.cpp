@@ -1056,7 +1056,7 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
         freeInstallObserver_ = new JsFreeInstallObserver(env);
         auto context = context_.lock();
         if (!context) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "context is nullptr.");
+            TAG_LOGE(AAFwkTag::UI_EXT, "null context");
             return;
         }
         ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(context->GetToken(),
