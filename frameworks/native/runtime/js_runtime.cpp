@@ -920,7 +920,8 @@ void JsRuntime::DoCleanWorkAfterStageCleaned()
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     RemoveTask("ability_destruct_gc");
     auto gcTask = [this]() {
-        panda::JSNApi::TriggerGC(GetEcmaVm(), panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
+        panda::JSNApi::TriggerGC(GetEcmaVm(), panda::ecmascript::GCReason::TRIGGER_BY_ABILITY,
+            panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
     };
     PostTask(gcTask, "ability_destruct_gc", TRIGGER_GC_AFTER_CLEAR_STAGE_MS);
 }
@@ -1290,7 +1291,8 @@ void JsRuntime::ForceFullGC()
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    panda::JSNApi::TriggerGC(vm, panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
+    panda::JSNApi::TriggerGC(vm, panda::ecmascript::GCReason::TRIGGER_BY_ABILITY,
+        panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
 }
 
 void JsRuntime::AllowCrossThreadExecution()
