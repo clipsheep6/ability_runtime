@@ -214,7 +214,6 @@ int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &curre
 int MissionListManager::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "fromUser:%{public}d.", fromUser);
-    std::lock_guard guard(managerLock_);
     // check if ability is in list to avoid user create fake token.
     CHECK_POINTER_AND_RETURN_LOG(GetAbilityRecordByTokenInner(token), INNER_ERR,
         "Minimize ability fail, ability is not in mission list.");
