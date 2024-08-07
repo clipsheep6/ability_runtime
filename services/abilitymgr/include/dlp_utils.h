@@ -47,7 +47,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability has already been destroyed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null record");
         return true;
     }
     if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {

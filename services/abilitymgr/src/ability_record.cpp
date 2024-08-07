@@ -1317,7 +1317,7 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
     auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
         collaboratorType_);
     if (collaborator != nullptr) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "start notify collaborator, missionId:%{public}d, state:%{public}d", missionId_,
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "notify collaborator, missionId:%{public}d, state:%{public}d", missionId_,
             static_cast<int32_t>(state));
         int ret = ERR_OK;
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1688,7 +1688,7 @@ void AbilityRecord::SaveAbilityState()
 
 void AbilityRecord::SaveAbilityState(const PacMap &inState)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     stateDatas_ = inState;
 }
 
@@ -2014,7 +2014,7 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
     uint32_t callingTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Add caller record, callingTokenId is %{public}u", callingTokenId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call, callingTokenId:%{public}u", callingTokenId);
     if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken, callingTokenId)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;

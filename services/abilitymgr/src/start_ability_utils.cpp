@@ -50,7 +50,7 @@ bool StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> caller
         appIndex = abilityRecord->GetAppIndex();
         return true;
     }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "appCloneIndex: %{public}d.", want.GetIntParam(Want::PARAM_APP_CLONE_INDEX_KEY, 0));
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "appCloneIndex:%{public}d", want.GetIntParam(Want::PARAM_APP_CLONE_INDEX_KEY, 0));
     return AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex);
 }
 
@@ -224,7 +224,7 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
                 abilityInfoFlag, userId, extensionInfos));
         }
         if (extensionInfos.size() <= 0) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension info failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extensionInfo failed");
             request->status = RESOLVE_ABILITY_ERR;
             return request;
         }

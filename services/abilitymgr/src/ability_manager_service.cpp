@@ -2468,9 +2468,9 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
 void AbilityManagerService::ReportAbilitAssociatedStartInfoToRSS(
     const AppExecFwk::AbilityInfo &abilityInfo, int64_t type, const sptr<IRemoteObject> &callerToken)
 {
-    CHECK_POINTER_LOG(callerToken, "associated start caller token is nullptr");
+    CHECK_POINTER_LOG(callerToken, "null callerToken");
     auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
-    CHECK_POINTER_LOG(callerAbility, "associated start caller ability is nullptr");
+    CHECK_POINTER_LOG(callerAbility, "null callerAbility");
     int32_t callerUid = callerAbility->GetUid();
     int32_t callerPid = callerAbility->GetPid();
     ResSchedUtil::GetInstance().ReportAbilitAssociatedStartInfoToRSS(abilityInfo, type, callerUid, callerPid);
@@ -2548,7 +2548,7 @@ int AbilityManagerService::PreloadUIExtensionAbilityInner(const Want &want, std:
     ErrCode result = ERR_OK;
     result = GenerateExtensionAbilityRequest(want, abilityRequest, nullptr, validUserId);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate abilityReq error");
         return result;
     }
     abilityRequest.want.SetParam(IS_PRELOAD_UIEXTENSION_ABILITY, true);
@@ -4485,7 +4485,7 @@ int AbilityManagerService::GetPendingWantUserId(const sptr<IWantSender> &target)
 
 std::string AbilityManagerService::GetPendingWantBundleName(const sptr<IWantSender> &target)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Get pending want bundle name.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     AbilityManagerXCollie abilityManagerXCollie("AbilityManagerService::GetPendingWantBundleName");
     auto pendingWantManager = GetCurrentPendingWantManager();
     CHECK_POINTER_AND_RETURN(pendingWantManager, "");
@@ -4507,7 +4507,7 @@ int AbilityManagerService::GetPendingWantCode(const sptr<IWantSender> &target)
 
 int AbilityManagerService::GetPendingWantType(const sptr<IWantSender> &target)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s:begin.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     AbilityManagerXCollie abilityManagerXCollie("AbilityManagerService::GetPendingWantType");
     auto pendingWantManager = GetCurrentPendingWantManager();
     CHECK_POINTER_AND_RETURN(pendingWantManager, -1);
