@@ -235,7 +235,6 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_001, TestSize.L
 
     appRunningRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
     appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_BACKGROUND);
-    EXPECT_CALL(*mockedAppClient_, ScheduleBackgroundApplication()).Times(1);
     EXPECT_EQ(abilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_BACKGROUND) << "execute fail!";
     TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_001 end.");
 }

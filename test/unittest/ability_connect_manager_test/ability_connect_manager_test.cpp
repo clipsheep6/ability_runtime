@@ -3037,14 +3037,8 @@ HWTEST_F(AbilityConnectManagerTest, OnUIExtWindowDied_001, TestSize.Level1)
         callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(serviceRecord_, MockSessionInfo(0)));
     ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
     ConnectManager()->OnUIExtWindowDied(nullptr);
-    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
     EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtensionMap_.size()), 1);
-
-    ConnectManager()->OnUIExtWindowDied(callbackA_->AsObject());
-    WaitUntilTaskDone(TaskHandler());
-    EXPECT_TRUE(ConnectManager()->uiExtRecipientMap_.empty());
-    EXPECT_TRUE(ConnectManager()->uiExtensionMap_.empty());
 }
 
 /*

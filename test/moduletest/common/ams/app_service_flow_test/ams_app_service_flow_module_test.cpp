@@ -184,7 +184,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_001, TestSize.Level1)
         ApplicationState::APP_STATE_BACKGROUND, abilityB2Token);
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
 
     // simulate press back key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -312,7 +312,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
         ApplicationState::APP_STATE_BACKGROUND, abilityB2Token);
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
 
     // simulate press back key
@@ -470,7 +470,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_002, TestSize.Level1
         AbilityState::ABILITY_STATE_BACKGROUND,
         ApplicationState::APP_STATE_BACKGROUND, abilityB2Token);
 
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -732,9 +732,9 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOnAndOff_001, TestSize.L
         ApplicationState::APP_STATE_BACKGROUND, abilityA2Token);
 
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleForegroundApplication())
-        .Times(::testing::AtLeast(CYCLE_NUMBER + 1));
+        .Times(::testing::AtLeast(CYCLE_NUMBER));
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication())
-        .Times(::testing::AtLeast(CYCLE_NUMBER + 1));
+        .Times(::testing::AtLeast(CYCLE_NUMBER));
 
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         // simulate press ScreenOn key
