@@ -1646,6 +1646,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
     std::map<std::string, std::vector<std::vector<std::string>>> &pkgContextInfoMap,
     std::map<std::string, std::string> &pkgAliasMap)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     for (auto it = contextInfoMap.begin(); it != contextInfoMap.end(); it++) {
         std::vector<std::vector<std::string>> pkgContextInfoList;
         std::string filePath = it->second;
@@ -1770,6 +1771,7 @@ std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
 
 void JsRuntime::UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto iterator = pkgContextInfoJsonStringMap_.find(moduleName);
     if (iterator == pkgContextInfoJsonStringMap_.end()) {
         pkgContextInfoJsonStringMap_[moduleName] = hapPath;
