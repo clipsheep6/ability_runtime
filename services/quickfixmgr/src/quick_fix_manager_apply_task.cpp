@@ -177,7 +177,7 @@ public:
     explicit RevokeQuickFixTaskCallback(std::shared_ptr<QuickFixManagerApplyTask> applyTask)
         : QuickFixManagerStatusCallback(applyTask)
     {}
-    virtual ~RevokeQuickFixTaskCallback() = default;
+    ~RevokeQuickFixTaskCallback() override {};
 
     void OnPatchDeployed(const std::shared_ptr<AppExecFwk::QuickFixResult> &result) override
     {
@@ -293,7 +293,7 @@ public:
         : QuickFixNotifyCallback(applyTask)
     {}
 
-    virtual ~RevokeQuickFixNotifyCallback() = default;
+    ~RevokeQuickFixNotifyCallback() override {};
 
     void OnLoadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {}
