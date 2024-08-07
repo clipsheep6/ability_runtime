@@ -60,6 +60,7 @@ ohos_shared_library("ability_context_native") {
     "ability_runtime/js_extension_context.cpp",
     "ability_runtime/local_call_container.cpp",
     "ability_runtime/local_call_record.cpp",
+    "ability_runtime/ui_holder.cpp",
     "native/js_ui_extension_callback.cpp",
   ]
 

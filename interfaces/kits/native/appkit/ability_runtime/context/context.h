@@ -269,6 +269,11 @@ public:
      */
     virtual Global::Resource::DeviceType GetDeviceType() const = 0;
 
+    virtual bool IsUIHolder()
+    {
+        return false;
+    }
+
     /**
      * @brief Getting derived class
      *
