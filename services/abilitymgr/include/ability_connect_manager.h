@@ -377,7 +377,8 @@ private:
      *
      * @param abilityRecord, the ptr of the ability to connect.
      */
-    void ConnectUIServiceExtAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, const Want &want);
+    void ConnectUIServiceExtAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        int connectRecordId, const Want &want);
 
     /**
      * ConnectAbility.Schedule Resume Connect ability
@@ -531,6 +532,7 @@ private:
      * @param messageId, message id.
      */
     void PostTimeOutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t messageId);
+    void PostTimeOutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int connectRecordId, uint32_t messageId);
 
     void CompleteForeground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);

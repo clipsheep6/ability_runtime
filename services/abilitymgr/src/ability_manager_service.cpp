@@ -3948,6 +3948,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
     result = CheckPermissionForUIService(want, abilityRequest);
     if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckPermissionForUIService failed");
         return result;
     }
 
@@ -8388,7 +8389,8 @@ int AbilityManagerService::CheckPermissionForUIService(const Want &want, const A
     if (want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Target ability is not UI_SERVICE");
         return ERR_WRONG_INTERFACE_CALL;
-    } else if (!want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+    }
+    if (!want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "need UISERVICEHOSTPROXY_KEY to connect UI_SERVICE");
         return ERR_WRONG_INTERFACE_CALL;
     }
@@ -8397,15 +8399,9 @@ int AbilityManagerService::CheckPermissionForUIService(const Want &want, const A
         return ERR_OK;
     }
 
-    AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
-    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
-        return ERR_INVALID_VALUE;
-    }
-
-    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
-    if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckCallServiceExtensionPermission failed");
-        return result;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "!IsSceneBoardEnabled");
+        return ERR_CAPABILITY_NOT_SUPPORT;
     }
 
     return ERR_OK;

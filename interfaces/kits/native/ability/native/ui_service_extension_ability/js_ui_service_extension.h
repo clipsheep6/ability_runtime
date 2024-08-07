@@ -40,8 +40,8 @@ class JsUIServiceExtension;
 
 class UIServiceStubImpl : public AAFwk::UIServiceStub {
 public:
-    UIServiceStubImpl(std::weak_ptr<JsUIServiceExtension>& ext);
-    ~UIServiceStubImpl();
+    explicit UIServiceStubImpl(std::weak_ptr<JsUIServiceExtension>& ext);
+    virtual ~UIServiceStubImpl();
     virtual int32_t SendData(sptr<IRemoteObject> hostProxy, OHOS::AAFwk::WantParams &data) override;
 
 protected:
@@ -170,17 +170,11 @@ private:
     void AbilityWindowConfigTransition(sptr<Rosen::WindowOption>& option,
         const std::shared_ptr<Rosen::ExtensionWindowConfig>& extensionWindowConfig);
 
-    sptr<IRemoteObject> CallOnConnect(const AAFwk::Want &want);
-
-    napi_value CallOnDisconnect(const AAFwk::Want &want);
-
     napi_value CallObjectMethod(const char* name, napi_value const *argv = nullptr, size_t argc = 0);
 
     napi_value WrapWant(napi_env env, const AAFwk::Want &want);
 
     void HandleSendData(sptr<IRemoteObject> hostProxy, const OHOS::AAFwk::WantParams &data);
-
-    void SetupServiceStub();
 
     sptr<IRemoteObject> GetHostProxyFromWant(const AAFwk::Want &want);
 
@@ -195,7 +189,7 @@ private:
     std::shared_ptr<AbilityContext> aContext_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
-    sptr<UIServiceStubImpl> extensionStub_ = nullptr;
+    sptr<UIServiceStubImpl> extensionStub_;
     std::map<sptr<IRemoteObject>, std::unique_ptr<NativeReference>> hostProxyMap_;
     bool firstRequest_ = true;
 #ifdef SUPPORT_GRAPHICS

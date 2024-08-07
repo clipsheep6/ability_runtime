@@ -118,6 +118,12 @@ public:
     void ScheduleConnectAbilityDone();
 
     /**
+     * cancel connect timeout task.
+     *
+     */
+    void CancelConnectTimeoutTask();
+
+    /**
      * get connection record id.
      *
      */
@@ -141,7 +147,7 @@ public:
     sptr<IRemoteObject> GetConnection() const;
 
     void SetConnectWant(const Want &want);
-    Want GetConnectWant();
+    Want GetConnectWant() const;
 private:
     static int64_t connectRecordId;
     int recordId_ = 0;                                  // record id

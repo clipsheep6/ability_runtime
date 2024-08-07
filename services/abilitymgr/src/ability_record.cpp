@@ -1611,16 +1611,10 @@ void AbilityRecord::ShareData(const int32_t &uniqueId)
 void AbilityRecord::ConnectAbility()
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Connect ability.");
-    CHECK_POINTER(lifecycleDeal_);
-    if (isConnected) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "connect state error.");
-    }
-    GrantUriPermissionForServiceExtension();
-    lifecycleDeal_->ConnectAbility(GetWant());
-    isConnected = true;
+    ConnectAbilityWithWant(GetWant());
 }
 
-void AbilityRecord::ConnectUIServiceExtAbility(const Want &want)
+void AbilityRecord::ConnectAbilityWithWant(const Want &want)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Connect ability.");
     CHECK_POINTER(lifecycleDeal_);
@@ -1647,7 +1641,7 @@ void AbilityRecord::DisconnectAbility()
     }
 }
 
-void AbilityRecord::DisconnectUIServiceExtAbility(const Want &want)
+void AbilityRecord::DisconnectAbilityWithWant(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
@@ -2161,7 +2155,7 @@ uint32_t AbilityRecord::GetInProgressRecordCount()
     for (auto record : connRecordList_) {
         if (record && (record->GetConnectState() == ConnectionState::CONNECTING ||
             record->GetConnectState() == ConnectionState::CONNECTED)) {
-            count ++;
+            count++;
         }
     }
     return count;
