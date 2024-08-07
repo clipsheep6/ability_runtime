@@ -54,6 +54,34 @@ ohos_unittest("aa_command_test") {
   ]
 }
 
+ohos_unittest("aa_command_ability_first_test") {
+  module_out_path = module_output_path
+
+  sources = [ "aa_command_ability_first_test.cpp" ]
+  sources += tools_aa_mock_sources
+
+  configs = [ ":tools_aa_config_mock" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ohos_unittest("aa_command_start_test") {
   module_out_path = module_output_path
 
@@ -340,6 +368,7 @@ group("unittest") {
   testonly = true
 
   deps = [
+    ":aa_command_ability_first_test",
     ":aa_command_attach_test",
     ":aa_command_dump_test",
     ":aa_command_dumpsys_test",
