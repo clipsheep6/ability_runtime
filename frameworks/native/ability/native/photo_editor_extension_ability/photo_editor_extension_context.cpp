@@ -16,8 +16,11 @@
 #include "photo_editor_extension_context.h"
 #include <cstdlib>
 #include <fstream>
+#include <cerrno>
+#include <cstring>
 #include "media_errors.h"
 #include "hilog_tag_wrapper.h"
+#include "file_uri.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -25,8 +28,6 @@ namespace AbilityRuntime {
 const size_t PhotoEditorExtensionContext::CONTEXT_TYPE_ID(std::hash<const char *>{}("PhotoEditorExtensionContext"));
 constexpr const char *PANEL_TRANSFER_FILE_PATH = "transferFile";
 const uint64_t MAX_IMAGE_SIZE = 50 * 1024 * 1024;
-const std::string PATH_SHARE = "/data/storage/el2/share";
-const std::string MODE_RW = "/rw/";
 
 PhotoEditorErrorCode PhotoEditorExtensionContext::SaveEditedContent(const std::string &uri, AAFwk::Want &newWant)
 {
@@ -50,16 +51,14 @@ PhotoEditorErrorCode PhotoEditorExtensionContext::SaveEditedContent(const std::s
                                                                     AAFwk::Want &newWant)
 {
     const std::string panelUri = want_->GetStringParam(PANEL_TRANSFER_FILE_PATH);
-    TAG_LOGD(AAFwkTag::UI_EXT, "PanelUri: %{public}s", panelUri.c_str());
-
-    std::string panelPhysicalPath = panelUri;
-    std::string bundleName = GetRealPath(panelPhysicalPath);
-    panelPhysicalPath = PATH_SHARE + MODE_RW + bundleName + panelPhysicalPath;
+    AppFileService::ModuleFileUri::FileUri fileUri(panelUri);
+    std::string panelPhysicalPath = fileUri.GetRealPath();
+    TAG_LOGD(AAFwkTag::UI_EXT, "PanelPhysicalPath: %{public}s", panelPhysicalPath.c_str());
 
     std::ofstream panelFile;
     panelFile.open(panelPhysicalPath, std::ios::binary);
     if (!panelFile.is_open()) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "Can not open panel file");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Can not open panel file, reason: %{public}s", strerror(errno));
         panelFile.close();
         return PhotoEditorErrorCode::ERROR_CODE_INTERNAL_ERROR;
     }
@@ -108,10 +107,8 @@ void PhotoEditorExtensionContext::SetWant(const std::shared_ptr<AAFwk::Want> &wa
 PhotoEditorErrorCode PhotoEditorExtensionContext::CopyImageToPanel(const std::string &imageUri,
                                                                    const std::string &panelUri)
 {
-    std::string panelPhysicalPath = panelUri;
-    std::string bundleName = GetRealPath(panelPhysicalPath);
-    panelPhysicalPath = PATH_SHARE + MODE_RW + bundleName + panelPhysicalPath;
-
+    AppFileService::ModuleFileUri::FileUri fileUri(panelUri);
+    std::string panelPhysicalPath = fileUri.GetRealPath();
     TAG_LOGD(AAFwkTag::UI_EXT, "ImageUri: %{public}s, panelPhysicalPath: %{public}s", imageUri.c_str(),
              panelPhysicalPath.c_str());
 
@@ -156,16 +153,6 @@ PhotoEditorErrorCode PhotoEditorExtensionContext::CopyImageToPanel(const std::st
 
     TAG_LOGD(AAFwkTag::UI_EXT, "Copy succeed");
     return PhotoEditorErrorCode::ERROR_OK;
-}
-
-std::string PhotoEditorExtensionContext::GetRealPath(std::string &uri)
-{
-    const std::string filePrefix = "file://";
-    uri.replace(0, filePrefix.size(), "");
-    auto pos = uri.find_first_of("//");
-    std::string bundleName = uri.substr(0, pos);
-    uri = uri.substr(pos);
-    return bundleName;
 }
 
 } // namespace AbilityRuntime

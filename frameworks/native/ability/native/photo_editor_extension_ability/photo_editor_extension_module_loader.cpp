@@ -34,7 +34,7 @@ std::map<std::string, std::string> PhotoEditorExtensionModuleLoader::GetParams()
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of
     // extension_ability_info.h, 266 means photoEditorExtension.
-    params.insert(std::pair<std::string, std::string>("type", "266"));
+    params.insert(std::pair<std::string, std::string>("type", "23"));
     params.insert(std::pair<std::string, std::string>("name", "PhotoEditorExtensionAbility"));
     return params;
 }
