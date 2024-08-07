@@ -52,8 +52,8 @@ const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE
 
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
-const mode_t MODE = 0770;
-const mode_t GROUP_MODE = 02770;
+const mode_t MODE = 0771;
+const mode_t GROUP_MODE = 02771;
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
 const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
