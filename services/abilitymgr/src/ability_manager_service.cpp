@@ -2040,7 +2040,7 @@ int AbilityManagerService::StartUIAbilityBySCBDefault(sptr<SessionInfo> sessionI
     }
     StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId, appIndex, sessionInfo->callerToken);
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "interceptorExecuter_ called");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "interceptorExecuter_ called");
         AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(sessionInfo->want, requestCode,
             currentUserId, true, nullptr);
         auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -3285,7 +3285,7 @@ int AbilityManagerService::BackToCallerAbilityWithResult(const sptr<IRemoteObjec
     TAG_LOGI(AAFwkTag::ABILITYMGR, "pid is %{public}d, backFlag is %{public}d, requestCode is %{public}d.",
         requestInfo.pid, requestInfo.backFlag, requestInfo.requestCode);
 
-    if (requestInfo.requestCode < 0 || requestInfo.pid <= 0) {
+    if (requestInfo.requestCode <= 0 || requestInfo.pid <= 0) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Cant't find caller by requestCode.");
         return ERR_CALLER_NOT_EXISTS;
     }
@@ -3304,6 +3304,18 @@ int AbilityManagerService::BackToCallerAbilityWithResult(const sptr<IRemoteObjec
     if (!requestInfo.backFlag) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Not support back to caller.");
         return ERR_NOT_SUPPORT_BACK_TO_CALLER;
+    }
+    if (callerAbilityRecord == abilityRecord) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "caller is self.");
+        return ERR_OK;
+    }
+    auto tokenId = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "tokenId: %{public}d.", tokenId);
+    if (!abilityRecord->IsForeground() && !abilityRecord->GetAbilityForegroundingFlag() && 
+        !PermissionVerification::GetInstance()->VerifyPermissionByTokenId(tokenId,
+        PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "can't start ability from background.");
+        return CHECK_PERMISSION_FAILED;
     }
     auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {

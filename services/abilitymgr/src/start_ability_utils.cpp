@@ -33,6 +33,7 @@ constexpr const char* PARAM_RESV_ANCO_CALLER_BUNDLENAME = "ohos.anco.param.calle
 constexpr int32_t REQUEST_CODE_LENGTH = 32;
 constexpr int32_t PID_LENGTH = 16;
 constexpr int32_t REQUEST_CODE_PID_LENGTH = 48;
+constexpr int32_t VALID_REQUEST_CODE_LENGTH = 49;
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
@@ -354,7 +355,8 @@ int64_t StartAbilityUtils::GenerateFullRequestCode(int32_t pid, bool backFlag, i
 CallerRequestInfo StartAbilityUtils::ParseFullRequestCode(int64_t fullRequestCode)
 {
     CallerRequestInfo requestInfo;
-    if (fullRequestCode <= 0) {
+    if (fullRequestCode <= 0 || (fullRequestCode >> VALID_REQUEST_CODE_LENGTH) > 0) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "fullRequestCode is invalid.");
         return requestInfo;
     }
     uint64_t tempNum = 1;
