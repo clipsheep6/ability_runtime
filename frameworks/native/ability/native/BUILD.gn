@@ -892,6 +892,7 @@ ohos_shared_library("ui_service_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":service_extension",
     ":ui_service_extension_connection",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",

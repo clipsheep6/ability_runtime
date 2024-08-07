@@ -52,7 +52,7 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
-    
+
     /**
      * @brief Destroys the current ability.
      *
@@ -70,6 +70,29 @@ public:
     */
     ErrCode StartAbilityByType(const std::string &type,
     AAFwk::WantParams &wantParam, const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks);
+
+    /**
+     * @brief Connects the current ServiceExtensionAbility to an ability using the AbilityInfo.AbilityType.SERVICE template.
+     *
+     * @param want Indicates the want containing information about the ability to connect
+     *
+     * @param conn Indicates the callback object when the target ability is connected.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    ErrCode ConnectServiceExtensionAbility(
+        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
+
+            /**
+     * @brief Disconnects the current ServiceExtensionAbility from an ability.
+     *
+     * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
+     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    ErrCode DisConnectServiceExtensionAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback,
+        int32_t accountId = -1) const;
 
     /**
      * @brief Get ui content object.
