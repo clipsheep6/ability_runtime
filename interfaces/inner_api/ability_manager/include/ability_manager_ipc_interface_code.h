@@ -413,6 +413,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for clean uiability from user
     CLEAN_UI_ABILITY_BY_SCB = 1066,
 
+    START_ABILITY_ONLY_UI_ABILITY = 1077,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

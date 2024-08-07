@@ -289,6 +289,8 @@ private:
     int StartAbilityForResultAsCallerInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForResultAsCallerForOptionsInner(MessageParcel &data, MessageParcel &reply);
 
+    int32_t StartAbilityOnlyUIAbilityInner(MessageParcel &data, MessageParcel &reply);
+
     //insight intent related
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);

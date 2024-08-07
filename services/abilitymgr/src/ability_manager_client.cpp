@@ -269,6 +269,18 @@ ErrCode AbilityManagerClient::StartAbilityByUIContentSession(const Want &want, s
     return abms->StartAbilityByUIContentSession(want, callerToken, sessionInfo, userId, requestCode);
 }
 
+ErrCode AbilityManagerClient::StartAbilityOnlyUIAbility(const Want &want, sptr<IRemoteObject> callerToken,
+    uint32_t specifyTokenId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s",
+        want.GetElement().GetAbilityName().c_str());
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityOnlyUIAbility(want, callerToken, specifyTokenId);
+}
+
 ErrCode AbilityManagerClient::SendResultToAbility(int requestCode, int resultCode, Want& resultWant)
 {
     auto abms = GetAbilityManager();
