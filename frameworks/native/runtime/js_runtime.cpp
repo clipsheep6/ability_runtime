@@ -834,6 +834,39 @@ bool JsRuntime::Initialize(const Options& options)
 bool JsRuntime::CreateJsEnv(const Options& options)
 {
     panda::RuntimeOption pandaOption;
+    InitJsOption(pandaOption);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify CreateJsEnv, jitEnabled: %{public}d", options.jitEnabled);
+    pandaOption.SetEnableJIT(options.jitEnabled);
+
+    if (options.isMultiThread) {
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi Thread Mode: %{public}d", options.isMultiThread);
+        panda::JSNApi::SetMultiThreadCheck();
+    }
+
+    if (options.isErrorInfoEnhance) {
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Error Info Enhance Mode: %{public}d.", options.isErrorInfoEnhance);
+        panda::JSNApi::SetErrorInfoEnhance();
+    }
+
+    if (IsUseAbilityRuntime(options)) { 
+        // aot related
+        bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
+        pandaOption.SetEnableAOT(aotEnabled);
+        pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
+    }
+
+    OHOSJsEnvLogger::RegisterJsEnvLogger();
+    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
+    if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Init jsEnv failed");
+        return false;
+    }
+
+    return true;
+}
+
+void JsRuntime::InitJsOption(panda::RuntimeOption& pandaOption)
+{
     int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
     std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
     std::string memConfigProperty = OHOS::system::GetParameter("persist.ark.mem_config_property", "");
@@ -861,33 +894,6 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
     pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
     pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify CreateJsEnv, jitEnabled: %{public}d", options.jitEnabled);
-    pandaOption.SetEnableJIT(options.jitEnabled);
-
-    if (options.isMultiThread) {
-        TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi Thread Mode: %{public}d", options.isMultiThread);
-        panda::JSNApi::SetMultiThreadCheck();
-    }
-
-    if (options.isErrorInfoEnhance) {
-        TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Error Info Enhance Mode: %{public}d.", options.isErrorInfoEnhance);
-        panda::JSNApi::SetErrorInfoEnhance();
-    }
-
-    if (IsUseAbilityRuntime(options)) { // aot related
-        bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
-        pandaOption.SetEnableAOT(aotEnabled);
-        pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
-    }
-
-    OHOSJsEnvLogger::RegisterJsEnvLogger();
-    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
-    if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Init jsEnv failed");
-        return false;
-    }
-
-    return true;
 }
 
 void JsRuntime::PreloadAce(const Options& options)
