@@ -1357,5 +1357,23 @@ HWTEST_F(AbilityManagerServiceFourthTest, ChangeUIAbilityVisibilityBySCB_001, Te
     abilityMs_->ChangeUIAbilityVisibilityBySCB(MockSessionInfo(0), isShow);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest ChangeUIAbilityVisibilityBySCB_001 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetAbilityRequestSessionInfo
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetAbilityRequestSessionInfo
+ */
+HWTEST_F(AbilityManagerServiceFourthTest, SetAbilityRequestSessionInfo_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SetAbilityRequestSessionInfo_001 start");
+
+    AbilityRequest abilityRequest;
+    AppExecFwk::ExtensionAbilityType extensionType{AppExecFwk::ExtensionAbilityType::VPN};
+
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->SetAbilityRequestSessionInfo(abilityRequest, extensionType);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFourthTest SetAbilityRequestSessionInfo_001 end");
+}
 } // namespace AAFwk
 } // namespace OHOS
