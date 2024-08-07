@@ -873,10 +873,11 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     } else {
         appStateData.callerBundleName = "";
     }
-    TAG_LOGD(AAFwkTag::APPMGR, "Handle state change, bundle:%{public}s, state:%{public}d,"
-        "pid:%{public}d ,uid:%{public}d, isFocused:%{public}d, callerBUndleName: %{public}s",
-        appStateData.bundleName.c_str(), appStateData.state,
-        appStateData.pid, appStateData.uid, appStateData.isFocused, appStateData.callerBundleName.c_str());
+    appStateData.appIndex = appRecord->GetAppIndex();
+    TAG_LOGD(AAFwkTag::APPMGR, "Handle state change, bundle:%{public}s, state:%{public}d, pid:%{public}d,"
+        "uid:%{public}d, appIndex:%{public}d, isFocused:%{public}d, callerBUndleName: %{public}s",
+        appStateData.bundleName.c_str(), appStateData.state, appStateData.pid,
+        appStateData.uid, appStateData.appIndex, appStateData.isFocused, appStateData.callerBundleName.c_str());
     return appStateData;
 }
 

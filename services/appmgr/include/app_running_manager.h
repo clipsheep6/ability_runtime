@@ -272,7 +272,7 @@ public:
     int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
     int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
     bool IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord);
-    bool IsApplicationBackground(const std::string &bundleName);
+    bool IsApplicationBackground(const AppRunningRecord &backgroundingRecord);
     bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationUnfocused(const std::string &bundleName);
 #ifdef SUPPORT_SCREEN
