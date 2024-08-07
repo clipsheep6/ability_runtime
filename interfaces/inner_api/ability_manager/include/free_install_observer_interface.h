@@ -25,6 +25,7 @@ class IFreeInstallObserver : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.IFreeInstallObserver");
 
+    static sptr<IFreeInstallObserver> BuildFreeInstallObserver(sptr<IRemoteObject> remoteObject);
     /**
      * OnInstallFinished, return free install result.
      *

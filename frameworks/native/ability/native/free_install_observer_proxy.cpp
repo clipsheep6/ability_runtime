@@ -92,5 +92,11 @@ void FreeInstallObserverProxy::OnInstallFinishedByUrl(const std::string &startTi
         return;
     }
 }
+
+sptr<IFreeInstallObserver> IFreeInstallObserver::BuildFreeInstallObserver(sptr<IRemoteObject> remoteObject)
+{
+    return iface_cast<IFreeInstallObserver>(remoteObject);
+}
+
 } // namespace AbilityRuntime
 } // namespace OHOS

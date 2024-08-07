@@ -2754,7 +2754,7 @@ int AbilityManagerStub::AddFreeInstallObserverInner(MessageParcel &data, Message
         }
     }
     sptr<AbilityRuntime::IFreeInstallObserver> observer =
-        iface_cast<AbilityRuntime::IFreeInstallObserver>(data.ReadRemoteObject());
+        AbilityRuntime::IFreeInstallObserver::BuildFreeInstallObserver(data.ReadRemoteObject());
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "observer is nullptr");
         return ERR_INVALID_VALUE;
