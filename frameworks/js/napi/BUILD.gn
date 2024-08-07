@@ -77,6 +77,8 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/js_dialog_request:dialogrequest_napi",
     "${ability_runtime_napi_path}/js_dialog_session:dialogsession_napi",
     "${ability_runtime_napi_path}/js_mission_manager:missionmanager",
+    "${ability_runtime_napi_path}/live_form_extension_ability:liveformextensionability_napi",
+    "${ability_runtime_napi_path}/live_form_extension_context:liveformextensioncontext_napi",
     "${ability_runtime_napi_path}/mission_manager:distributedmissionmanager",
     "${ability_runtime_napi_path}/mission_manager:missionmanager_napi",
     "${ability_runtime_napi_path}/particleAbility:particleability",

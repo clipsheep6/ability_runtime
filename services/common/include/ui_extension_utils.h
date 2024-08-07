@@ -64,7 +64,8 @@ inline std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet()
         AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
         AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
-        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL,
+        AppExecFwk::ExtensionAbilityType::LIVE_FORM
     };
 }
 
@@ -116,7 +117,8 @@ inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::SHARE,
         AppExecFwk::ExtensionAbilityType::ACTION,
         AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
-        AppExecFwk::ExtensionAbilityType::VOIP
+        AppExecFwk::ExtensionAbilityType::VOIP,
+        AppExecFwk::ExtensionAbilityType::LIVE_FORM
     };
     return uiExtensionStartingSet.find(type) != uiExtensionStartingSet.end();
 }

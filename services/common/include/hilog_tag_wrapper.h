@@ -77,7 +77,8 @@ enum class AAFwkLogTag : uint32_t {
     ACTION_EXT,
     EMBEDDED_EXT,
     UISERVC_EXT,
-
+    LIVE_FORM_EXT,
+    
     WANTAGENT = DEFAULT + 0x50, // 0xD001350
     AUTOFILLMGR,
     EXTMGR,
