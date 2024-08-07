@@ -371,8 +371,8 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
         if (startMsg.ownerId.size()) {
             ret = AppSpawnReqMsgSetAppOwnerId(reqHandle, startMsg.ownerId.c_str());
             if (ret) {
-                TAG_LOGE(AAFwkTag::APPMGR, "SetOwnerId %{public}s failed, ret: %{public}d",
-                    startMsg.ownerId.c_str(), ret);
+              //  TAG_LOGE(AAFwkTag::APPMGR, "SetOwnerId %{public}s failed, ret: %{public}d",
+              //     startMsg.ownerId.c_str(), ret);
                 break;
             }
         }
