@@ -127,6 +127,9 @@ ErrCode WantAgentHelper::GetWantAgent(
         case WantAgentConstant::OperationType::SEND_COMMON_EVENT:
             result = PendingWant::GetCommonEvent(context, requestCode, wants[0], flags, pendingWant);
             break;
+        case WantAgentConstant::OperationType::START_SERVICE_EXTENSION:
+            result = PendingWant::GetServiceExtension(context, requestCode, wants[0], flags, pendingWant);
+            break;
         default:
             TAG_LOGE(AAFwkTag::WANTAGENT, "operation type is error");
             result = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
