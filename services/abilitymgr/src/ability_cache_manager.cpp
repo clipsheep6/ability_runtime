@@ -59,7 +59,7 @@ void AbilityCacheManager::RemoveAbilityRecInProcList(std::shared_ptr<AbilityReco
     uint32_t accessTokenId = abilityRecord->GetApplicationInfo().accessTokenId;
     auto findProcInfo = procLruMap_.find(accessTokenId);
     if (findProcInfo == procLruMap_.end()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Can't found the abilityRecord in process list for remove.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Can't find record");
         return;
     }
     auto it = findProcInfo->second.recList.begin();
