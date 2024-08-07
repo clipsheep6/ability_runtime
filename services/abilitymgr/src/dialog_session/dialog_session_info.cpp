@@ -36,7 +36,7 @@ std::string DialogAbilityInfo::GetURI() const
 bool DialogAbilityInfo::ParseURI(const std::string &uri)
 {
     if (std::count(uri.begin(), uri.end(), '/') != MEMBER_NUM - 1) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Invalid uri: %{public}s.", uri.c_str());
+        TAG_LOGE(AAFwkTag::DIALOG, "Invalid uri: %{public}s", uri.c_str());
         return false;
     }
 
@@ -84,7 +84,7 @@ bool DialogSessionInfo::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, targetAbilityInfoSize);
     CONTAINER_SECURITY_VERIFY(parcel, targetAbilityInfoSize, &targetAbilityInfos);
     if (targetAbilityInfoSize > CYCLE_LIMIT) {
-        TAG_LOGE(AAFwkTag::DIALOG, "size is too large.");
+        TAG_LOGE(AAFwkTag::DIALOG, "size too large");
         return false;
     }
     for (auto i = 0; i < targetAbilityInfoSize; i++) {

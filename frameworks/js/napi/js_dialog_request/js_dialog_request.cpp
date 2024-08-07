@@ -33,16 +33,16 @@ constexpr int32_t RESULT_CANCEL = 1;
 
 napi_value ResultCodeInit(napi_env env)
 {
-    TAG_LOGD(AAFwkTag::DIALOG, "called");
+    TAG_LOGD(AAFwkTag::DIALOG, "call");
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Invalid input parameters.");
+        TAG_LOGE(AAFwkTag::DIALOG, "Invalid input parameters");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Failed to get object");
+        TAG_LOGE(AAFwkTag::DIALOG, "Failed get object");
         return nullptr;
     }
 
@@ -59,7 +59,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "JsDialogRequest::Finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "call");
         std::unique_ptr<JsDialogRequest>(static_cast<JsDialogRequest*>(data));
     }
 
@@ -76,7 +76,7 @@ public:
 private:
     napi_value OnGetRequestInfo(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::DIALOG, "call");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::DIALOG, "Params not match");
             ThrowTooFewParametersError(env);
@@ -85,14 +85,14 @@ private:
 
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Parse param want failed, must be a Want.");
-            ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "UnwrapWant failed");
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> callerToken = want.GetRemoteObject(RequestConstants::REQUEST_TOKEN_KEY);
         if (!callerToken) {
-            TAG_LOGE(AAFwkTag::DIALOG, "get token from target want failed.");
+            TAG_LOGE(AAFwkTag::DIALOG, "get token from target want failed");
             ThrowInvalidParamError(env, "Parameter error: get token from target want failed.");
             return CreateJsUndefined(env);
         }
@@ -104,7 +104,7 @@ private:
         auto requestInfo = new RequestInfo(callerToken, left, top, width, height);
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(env, requestInfo);
         if (jsRequestInfo == nullptr) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Wrap Param requestInfo failed, must be a RequestInfo.");
+            TAG_LOGE(AAFwkTag::DIALOG, "WrapRequestInfo failed");
             ThrowInvalidParamError(env, "Wrap Param requestInfo failed, must be a RequestInfo.");
             return CreateJsUndefined(env);
         }
@@ -114,7 +114,7 @@ private:
 
     napi_value OnGetRequestCallback(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::DIALOG, "call");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::DIALOG, "Params is not match");
             ThrowTooFewParametersError(env);
@@ -123,21 +123,21 @@ private:
 
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
-            ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid");
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> remoteObj = want.GetRemoteObject(RequestConstants::REQUEST_CALLBACK_KEY);
         if (!remoteObj) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Wrap Param requestCallback failed, must be a RequestCallback.");
-            ThrowInvalidParamError(env, "Wrap Param requestCallback failed, must be a RequestCallback.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Wrap Param requestCallback failed, must be a RequestCallback");
+            ThrowInvalidParamError(env, "Wrap Param requestCallback failed, must be a RequestCallback");
             return CreateJsUndefined(env);
         }
 
         sptr<IDialogRequestCallback> callback = iface_cast<IDialogRequestCallback>(remoteObj);
         if (!callback) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Cast to IDialogRequestCallback failed.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Cast to IDialogRequestCallback failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
@@ -148,9 +148,9 @@ private:
 
 napi_value JsDialogRequestInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::DIALOG, "called");
+    TAG_LOGD(AAFwkTag::DIALOG, "call");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input parameters");
+        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input");
         return nullptr;
     }
 

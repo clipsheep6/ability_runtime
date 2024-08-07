@@ -141,8 +141,7 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemote
 
     std::string descriptor = Str16ToStr8(token->GetObjectDescriptor());
     if (descriptor != "ohos.aafwk.AbilityToken") {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token is not an AbilityToken, token->GetObjectDescriptor(): %{public}s",
-            descriptor.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "not AbilityToken, descriptor:%{public}s", descriptor.c_str());
         return nullptr;
     }
 
@@ -1323,7 +1322,7 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             auto sessionInfo = GetSessionInfo();
             if (sessionInfo == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is nullptr");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "null session");
                 return;
             }
             int32_t persistentId = sessionInfo->persistentId;

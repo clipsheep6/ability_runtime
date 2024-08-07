@@ -21,9 +21,9 @@ namespace OHOS {
 namespace AbilityRuntime {
 void DialogRequestCallbackImpl::SendResult(int32_t resultCode, const AAFwk::Want &want)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "called");
+    TAG_LOGI(AAFwkTag::DIALOG, "call");
     if (task_) {
-        TAG_LOGD(AAFwkTag::DIALOG, "result code:%{public}d.", resultCode);
+        TAG_LOGD(AAFwkTag::DIALOG, "result code:%{public}d", resultCode);
         task_(resultCode, want);
     }
 }

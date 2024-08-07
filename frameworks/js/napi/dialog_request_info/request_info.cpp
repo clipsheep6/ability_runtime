@@ -41,7 +41,7 @@ sptr<IRemoteObject> RequestInfo::GetToken()
 
 napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
 {
-    TAG_LOGD(AAFwkTag::DIALOG, "called");
+    TAG_LOGD(AAFwkTag::DIALOG, "call");
     if (request == nullptr) {
         TAG_LOGE(AAFwkTag::DIALOG, "null request");
         return nullptr;
@@ -69,7 +69,7 @@ napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
     }
 
     auto nativeFinalize = [](napi_env env, void* data, void* hint) {
-        TAG_LOGI(AAFwkTag::DIALOG, "finalizer called");
+        TAG_LOGI(AAFwkTag::DIALOG, "finalizer call");
         auto requestInfo = static_cast<RequestInfo*>(data);
         if (requestInfo) {
             delete requestInfo;
@@ -85,7 +85,7 @@ napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
 napi_value RequestInfo::CreateJsWindowRect(
     napi_env env, int32_t left, int32_t top, int32_t width, int32_t height)
 {
-    TAG_LOGD(AAFwkTag::DIALOG, "left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d",
+    TAG_LOGD(AAFwkTag::DIALOG, "left:%{public}d, top:%{public}d, width:%{public}d, height:%{public}d",
         left, top, width, height);
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
@@ -102,7 +102,7 @@ napi_value RequestInfo::CreateJsWindowRect(
 
 std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(napi_env env, napi_value jsParam)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "called");
+    TAG_LOGI(AAFwkTag::DIALOG, "call");
     if (jsParam == nullptr) {
         TAG_LOGE(AAFwkTag::DIALOG, "null jsParam");
         return nullptr;

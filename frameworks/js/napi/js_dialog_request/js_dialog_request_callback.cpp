@@ -33,14 +33,14 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGD(AAFwkTag::DIALOG, "called");
+        TAG_LOGD(AAFwkTag::DIALOG, "call");
         std::unique_ptr<JsDialogRequestCallback>(static_cast<JsDialogRequestCallback*>(data));
     }
 
     static napi_value SetRequestResult(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            TAG_LOGE(AAFwkTag::DIALOG, "input parameters %{public}s is nullptr", ((env == nullptr) ? "env" : "info"));
+            TAG_LOGE(AAFwkTag::DIALOG, "null %{public}s", ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
 
@@ -50,7 +50,7 @@ public:
 private:
     napi_value OnSetRequestResult(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::DIALOG, "function called");
+        TAG_LOGI(AAFwkTag::DIALOG, "call");
         if (info.argc < 1) {
             TAG_LOGE(AAFwkTag::DIALOG, "Params not match");
             ThrowTooFewParametersError(env);
@@ -58,7 +58,7 @@ private:
         }
 
         if (!CheckTypeForNapiValue(env, info.argv[0], napi_object)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "param type mismatch!");
+            TAG_LOGE(AAFwkTag::DIALOG, "param type error");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -67,7 +67,7 @@ private:
         napi_get_named_property(env, info.argv[0], "result", &resultCode);
         int32_t resultCodeValue = 0;
         if (!ConvertFromJsValue(env, resultCode, resultCodeValue)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Convert result failed!");
+            TAG_LOGE(AAFwkTag::DIALOG, "Convert result failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -98,16 +98,16 @@ private:
 
 napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequestCallback> &remoteObj)
 {
-    TAG_LOGI(AAFwkTag::DIALOG, "CreateJsDialogRequestCallback");
+    TAG_LOGI(AAFwkTag::DIALOG, "call");
     if (!remoteObj) {
-        TAG_LOGE(AAFwkTag::DIALOG, "remoteObj is invalid.");
+        TAG_LOGE(AAFwkTag::DIALOG, "remoteObj invalid.");
         return CreateJsUndefined(env);
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        TAG_LOGE(AAFwkTag::DIALOG, "object is invalid.");
+        TAG_LOGE(AAFwkTag::DIALOG, "object invalid.");
         return CreateJsUndefined(env);
     }
 
@@ -116,7 +116,7 @@ napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequest
     const char *moduleName = "JsDialogRequestCallback";
     BindNativeFunction(env, objValue, "setRequestResult", moduleName, JsDialogRequestCallback::SetRequestResult);
 
-    TAG_LOGI(AAFwkTag::DIALOG, "CreateJsDialogRequestCallback end");
+    TAG_LOGI(AAFwkTag::DIALOG, "end");
     return objValue;
 }
 } // AbilityRuntime
