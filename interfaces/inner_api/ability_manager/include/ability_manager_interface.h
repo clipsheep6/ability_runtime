@@ -1537,9 +1537,10 @@ public:
     /**
      * @brief Restart app self.
      * @param want The ability type must be UIAbility.
+     * @param isAppRecovery True indicates that the app is restarted because of recovery.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RestartApp(const AAFwk::Want &want)
+    virtual int32_t RestartApp(const AAFwk::Want &want, bool isAppRecovery = false)
     {
         return 0;
     }

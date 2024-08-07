@@ -3860,7 +3860,8 @@ int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &
         TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
         return IPC_STUB_ERR;
     }
-    auto result = RestartApp(*want);
+    bool isAppRecovery = data.ReadBool();
+    auto result = RestartApp(*want, isAppRecovery);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to write result.");
         return IPC_STUB_ERR;
