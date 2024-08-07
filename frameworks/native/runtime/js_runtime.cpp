@@ -848,7 +848,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
         panda::JSNApi::SetErrorInfoEnhance();
     }
 
-    if (IsUseAbilityRuntime(options)) { 
+    if (IsUseAbilityRuntime(options)) {
         // aot related
         bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
         pandaOption.SetEnableAOT(aotEnabled);

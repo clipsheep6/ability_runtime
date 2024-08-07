@@ -170,6 +170,7 @@ private:
 
 private:
     bool CreateJsEnv(const Options& options);
+    void InitJsOption(panda::RuntimeOption& pandaOption);
     void PreloadAce(const Options& options);
     bool InitLoop(bool isStage = true);
     inline bool IsUseAbilityRuntime(const Options& options) const;
