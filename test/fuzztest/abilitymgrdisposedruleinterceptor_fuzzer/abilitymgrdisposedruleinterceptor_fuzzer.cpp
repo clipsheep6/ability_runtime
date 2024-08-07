@@ -79,7 +79,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int32_t bundleType = static_cast<int32_t>(GetU32Data(data));
 
     executer-> DoProcess(param);
-    executer-> CheckControl(want, userId, disposedRule);
+    executer-> CheckControl(want, userId, disposedRule, 0);
     executer-> CheckDisposedRule(want, disposedRule);
     executer-> StartNonBlockRule(want, disposedRule);
     executer-> GetAppMgr();
