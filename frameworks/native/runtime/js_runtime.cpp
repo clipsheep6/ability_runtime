@@ -1511,15 +1511,18 @@ void JsRuntime::InitWorkerModule(const Options& options)
 {
     CHECK_POINTER(jsEnv_);
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-    workerInfo->codePath = options.codePath;
+    // workerInfo->codePath = options.codePath;
+    workerInfo->codePath = JsEnv::StringPacProtect(options.codePath);
     workerInfo->isDebugVersion = options.isDebugVersion;
     workerInfo->isBundle = options.isBundle;
     workerInfo->packagePathStr = options.packagePathStr;
     workerInfo->assetBasePathStr = options.assetBasePathStr;
-    workerInfo->hapPath = options.hapPath;
+    // workerInfo->hapPath = options.hapPath;
+    workerInfo->hapPath = JsEnv::StringPacProtect(options.hapPath);
     workerInfo->isStageModel = options.isStageModel;
     workerInfo->moduleName = options.moduleName;
-    workerInfo->apiTargetVersion = options.apiTargetVersion;
+    // workerInfo->apiTargetVersion = options.apiTargetVersion;
+    workerInfo->apiTargetVersion = JsEnv::DataProtect(static_cast<uintptr_t>(options.apiTargetVersion));
     if (options.isJsFramework) {
         SetJsFramework();
     }

@@ -22,18 +22,23 @@
 
 #include "native_engine/native_engine.h"
 
+#include "data_protect.h"
+
 namespace OHOS {
 namespace JsEnv {
 struct WorkerInfo {
-    std::string codePath;
+    // std::string codePath;
+    StringPacProtect codePath;
     bool isDebugVersion = false;
     bool isBundle = true;
     std::string packagePathStr;
     std::vector<std::string> assetBasePathStr;
-    std::string hapPath;
+    // std::string hapPath;
+    StringPacProtect hapPath;
     bool isStageModel = true;
     std::string moduleName;
-    int32_t apiTargetVersion = 0;
+    // int32_t apiTargetVersion = 0;
+    DataProtect apiTargetVersion = DataProtect();
 };
 
 class JsEnvironmentImpl {

@@ -169,7 +169,7 @@ void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_p
     engine->SetInitWorkerFunc(InitWorkerFunc);
     engine->SetOffWorkerFunc(OffWorkerFunc);
     engine->SetGetAssetFunc(AssetHelper(workerInfo));
-    engine->SetApiVersion(workerInfo->apiTargetVersion);
+    engine->SetApiVersion(static_cast<int32_t>(workerInfo->apiTargetVersion.GetOriginPointer()));
 
     engine->SetGetContainerScopeIdFunc(GetContainerId);
     engine->SetInitContainerScopeFunc(UpdateContainerScope);

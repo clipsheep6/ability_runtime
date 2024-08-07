@@ -33,6 +33,8 @@ config("runtime_config") {
   }
 
   include_dirs = []
+
+  cflags_cc = [ "-march=armv8.3a" ]
 }
 
 config("runtime_public_config") {
