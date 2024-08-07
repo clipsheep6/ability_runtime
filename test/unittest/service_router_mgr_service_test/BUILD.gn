@@ -35,6 +35,7 @@ ohos_unittest("service_router_mgr_service_test") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
