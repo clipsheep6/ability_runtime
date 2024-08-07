@@ -29,18 +29,18 @@ void ConnectionObserverProxy::OnExtensionConnected(const ConnectionData& connect
 
     TAG_LOGD(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write token failed");
         return;
     }
 
     if (!data.WriteParcelable(&connectionData)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write ConnectionData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write ConnectionData error");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_EXTENSION_CONNECTED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnExtensionConnected sned request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "send request error: %{public}d", error);
         return;
     }
 }
@@ -53,18 +53,18 @@ void ConnectionObserverProxy::OnExtensionDisconnected(const ConnectionData& conn
 
     TAG_LOGD(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write token failed");
         return;
     }
 
     if (!data.WriteParcelable(&connectionData)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write ConnectionData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write ConnectionData error");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_EXTENSION_DISCONNECTED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnExtensionDisconnected send request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "send request error: %{public}d", error);
         return;
     }
 }
@@ -76,20 +76,20 @@ void ConnectionObserverProxy::OnDlpAbilityOpened(const DlpStateData& dlpData)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverProxy OnDlpAbilityOpened.");
+    TAG_LOGI(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write token failed");
         return;
     }
 
     if (!data.WriteParcelable(&dlpData)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write DlpStateData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write DlpStateData error");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_DLP_ABILITY_OPENED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityOpened send request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "send request error: %{public}d", error);
         return;
     }
 }
@@ -100,20 +100,20 @@ void ConnectionObserverProxy::OnDlpAbilityClosed(const DlpStateData& dlpData)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverProxy OnDlpAbilityClosed.");
+    TAG_LOGI(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write token failed");
         return;
     }
 
     if (!data.WriteParcelable(&dlpData)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "Write DlpStateData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write DlpStateData error");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_DLP_ABILITY_CLOSED, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityClosed send request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "send request error: %{public}d", error);
         return;
     }
 }
@@ -124,13 +124,13 @@ int32_t ConnectionObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &d
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "null remote");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::CONNECTION, "SendRequest failed. code: %{public}d, ret: %{public}d.", code, ret);
         return ret;
     }
     return NO_ERROR;

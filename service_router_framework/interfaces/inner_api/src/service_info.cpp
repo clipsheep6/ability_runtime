@@ -44,7 +44,7 @@ AppInfo *AppInfo::Unmarshalling(Parcel &parcel)
 {
     AppInfo *info = new (std::nothrow) AppInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "Read from parcel failed");
         delete info;
         info = nullptr;
     }
@@ -71,7 +71,7 @@ BusinessAbilityFilter *BusinessAbilityFilter::Unmarshalling(Parcel &parcel)
 {
     BusinessAbilityFilter *filter = new (std::nothrow) BusinessAbilityFilter();
     if (filter && !filter->ReadFromParcel(parcel)) {
-        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "Read from parcel failed");
         delete filter;
         filter = nullptr;
     }
@@ -98,7 +98,7 @@ bool BusinessAbilityInfo::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, size);
     CONTAINER_SECURITY_VERIFY(parcel, size, &permissions);
     if (size > CYCLE_LIMIT) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "size is too large.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Size too large");
         return false;
     }
     for (int32_t i = 0; i < size; i++) {
@@ -129,7 +129,7 @@ BusinessAbilityInfo *BusinessAbilityInfo::Unmarshalling(Parcel &parcel)
 {
     BusinessAbilityInfo *info = new (std::nothrow) BusinessAbilityInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "Read from parcel failed");
         delete info;
         info = nullptr;
     }
@@ -153,7 +153,7 @@ bool PurposeInfo::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, supportDimensionSize);
     CONTAINER_SECURITY_VERIFY(parcel, supportDimensionSize, &supportDimensions);
     if (supportDimensionSize > CYCLE_LIMIT) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "supportDimensionSize is too large.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "SupportDimensionSize too large");
         return false;
     }
     for (int32_t i = 0; i < supportDimensionSize; i++) {
@@ -184,7 +184,7 @@ PurposeInfo *PurposeInfo::Unmarshalling(Parcel &parcel)
 {
     PurposeInfo *info = new (std::nothrow) PurposeInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "Read from parcel failed");
         delete info;
         info = nullptr;
     }

@@ -35,10 +35,10 @@ void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
     TAG_LOGI(AAFwkTag::DATA_ABILITY,
-        "DataAbilityImpl::sourceState:%{public}d; targetState: %{public}d; isNewWant: %{public}d", lifecycleState_,
+        "sourceState:%{public}d; targetState:%{public}d; isNewWant:%{public}d", lifecycleState_,
         targetState.state, targetState.isNewWant);
     if ((lifecycleState_ == targetState.state) && !targetState.isNewWant) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Org lifeCycleState equals to Dst lifeCycleState.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "lifeCycleState equals");
         return;
     }
 
@@ -54,7 +54,7 @@ void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
             break;
         }
         default: {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::HandleAbilityTransaction state is error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "state error");
             return;
         }
     }
@@ -74,7 +74,7 @@ std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri &uri, const std
 {
     std::vector<std::string> types;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::GetFileTypes ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return types;
     }
 
@@ -97,7 +97,7 @@ int DataAbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
 {
     int fd = -1;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::OpenFile ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return fd;
     }
 
@@ -125,7 +125,7 @@ int DataAbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     int fd = -1;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::OpenRawFile ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return fd;
     }
 
@@ -149,12 +149,12 @@ int DataAbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value
 {
     int index = -1;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Insert ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return index;
     }
 
     if (!CheckReadAndWritePermission(WRITE)) {
-        TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Insert failed, do not have write permission");
+        TAG_LOGW(AAFwkTag::DATA_ABILITY, "no write permission");
         return index;
     }
 
@@ -176,12 +176,12 @@ int DataAbilityImpl::Update(
 {
     int index = -1;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Update ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return index;
     }
 
     if (!CheckReadAndWritePermission(WRITE)) {
-        TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Update failed, do not have write permission");
+        TAG_LOGW(AAFwkTag::DATA_ABILITY, "no write permission");
         return index;
     }
 
@@ -201,12 +201,12 @@ int DataAbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicat
 {
     int index = -1;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Delete ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return index;
     }
 
     if (!CheckReadAndWritePermission(WRITE)) {
-        TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Delete failed, do not have write permission");
+        TAG_LOGW(AAFwkTag::DATA_ABILITY, "no write permission");
         return index;
     }
 
@@ -227,12 +227,12 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Query ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return nullptr;
     }
 
     if (!CheckReadAndWritePermission(READ)) {
-        TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Query failed, do not have read permission");
+        TAG_LOGW(AAFwkTag::DATA_ABILITY, "no read permission");
         return nullptr;
     }
 
@@ -243,7 +243,7 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityImpl::Call(
     const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Call ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return nullptr;
     }
 
@@ -262,7 +262,7 @@ std::string DataAbilityImpl::GetType(const Uri &uri)
 {
     std::string type;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::GetType ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return type;
     }
     type = ability_->GetType(uri);
@@ -283,7 +283,7 @@ bool DataAbilityImpl::Reload(const Uri &uri, const PacMap &extras)
 {
     bool ret = false;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::Reload ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return ret;
     }
     ret = ability_->Reload(uri, extras);
@@ -302,12 +302,12 @@ int DataAbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Va
 {
     int ret = -1;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::BatchInsert​ ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return ret;
     }
 
     if (!CheckReadAndWritePermission(WRITE)) {
-        TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::BatchInsert failed, do not have write permission");
+        TAG_LOGW(AAFwkTag::DATA_ABILITY, "no write permission");
         return ret;
     }
 
@@ -330,12 +330,12 @@ Uri DataAbilityImpl::NormalizeUri(const Uri &uri)
 {
     Uri urivalue("");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::NormalizeUri ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return urivalue;
     }
 
     if (!CheckReadAndWritePermission(READ)) {
-        TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::NormalizeUri failed, do not have read permission");
+        TAG_LOGW(AAFwkTag::DATA_ABILITY, "no read permission");
         return urivalue;
     }
 
@@ -359,12 +359,12 @@ Uri DataAbilityImpl::DenormalizeUri(const Uri &uri)
 {
     Uri urivalue("");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::DenormalizeUri ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         return urivalue;
     }
 
     if (!CheckReadAndWritePermission(READ)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::DenormalizeUri failed, do not have read permission");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "no read permission");
         return urivalue;
     }
 
@@ -375,10 +375,10 @@ Uri DataAbilityImpl::DenormalizeUri(const Uri &uri)
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::ExecuteBatch start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::ExecuteBatch ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null ability_");
         results.clear();
         return results;
     }
@@ -389,7 +389,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
     }
 
     results = ability_->ExecuteBatch(operations);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::ExecuteBatch end, results size:%{public}zu", results.size());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "end, results size:%{public}zu", results.size());
     return results;
 }
 
@@ -403,7 +403,7 @@ bool DataAbilityImpl::CheckExecuteBatchPermission(
     for (size_t i = 0; i < size; i++) {
         std::shared_ptr<DataAbilityOperation> operation = operations[i];
         if (operation == nullptr) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "operation[i] is nullptr, index: %{public}d", static_cast<int32_t>(i));
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "null operation, index: %{public}d", static_cast<int32_t>(i));
             return false;
         }
         if (operation->IsInsertOperation() || operation->IsUpdateOperation() || operation->IsDeleteOperation()) {
@@ -418,14 +418,14 @@ bool DataAbilityImpl::CheckExecuteBatchPermission(
 
     if (needCheckReadPermission) {
         if (!CheckReadAndWritePermission(READ)) {
-            TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::ExecuteBatch failed, do not have read permission");
+            TAG_LOGW(AAFwkTag::DATA_ABILITY, "no read permission");
             return false;
         }
     }
 
     if (needCheckWritePermission) {
         if (!CheckReadAndWritePermission(WRITE)) {
-            TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::ExecuteBatch failed, do not have write permission");
+            TAG_LOGW(AAFwkTag::DATA_ABILITY, "no write permission");
             return false;
         }
     }
@@ -437,12 +437,12 @@ bool DataAbilityImpl::CheckOpenFilePermission(const std::string &mode) const
 {
     if (mode.find(READ) != string::npos) {
         if (!CheckReadAndWritePermission(READ)) {
-            TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::OpenFile failed, do not have read permission");
+            TAG_LOGW(AAFwkTag::DATA_ABILITY, "no read permission");
             return false;
         }
     } else if (mode.find(WRITE) != string::npos) {
         if (!CheckReadAndWritePermission(WRITE)) {
-            TAG_LOGW(AAFwkTag::DATA_ABILITY, "DataAbilityImpl::OpenFile failed, do not have write permission");
+            TAG_LOGW(AAFwkTag::DATA_ABILITY, "no write permission");
             return false;
         }
     }

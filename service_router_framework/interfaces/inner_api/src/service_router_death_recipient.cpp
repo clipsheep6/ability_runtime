@@ -21,7 +21,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 void ServiceRouterDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "OnRemoteDied.");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     ServiceRouterMgrHelper::GetInstance().OnRemoteDiedHandle();
 }
 } // namespace AbilityRuntime

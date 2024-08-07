@@ -135,7 +135,7 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ObjValue nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null ObjValue");
         return nullptr;
     }
     napi_set_named_property(env, object, "bundleName", CreateJsValue(env, abilityStateData.bundleName));

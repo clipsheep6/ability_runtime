@@ -24,15 +24,15 @@ void AbilityBackgroundConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     if (resultCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, abilityName:%{public}s, resultCode:%{public}d",
-            __func__, element.GetAbilityName().c_str(), resultCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName:%{public}s, resultCode:%{public}d",
+            element.GetAbilityName().c_str(), resultCode);
         return;
     }
 }
 
 void AbilityBackgroundConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "OnAbilityDisconnectDone");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

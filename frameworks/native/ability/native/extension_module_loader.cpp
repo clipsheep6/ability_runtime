@@ -47,7 +47,7 @@ DummyExtensionModuleLoader::~DummyExtensionModuleLoader() = default;
 ExtensionModuleLoader& GetExtensionModuleLoader(const char* sharedLibrary)
 {
     if (sharedLibrary == nullptr) {
-        TAG_LOGE(AAFwkTag::EXT, "Name of shared extension library MUST NOT be null pointer");
+        TAG_LOGE(AAFwkTag::EXT, "null sharedLibrary");
         return DummyExtensionModuleLoader::GetInstance();
     }
 

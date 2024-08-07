@@ -42,7 +42,7 @@ bool CheckContinueKeyExist(napi_env &env, const napi_value &value)
     bool isWantParam = false;
     napi_has_named_property(env, value, "wantParam", &isWantParam);
     if (!isSrcDeviceId && !isDstDeviceId && !isMissionId && !isWantParam) {
-        TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Wrong argument key.", __func__);
+        TAG_LOGE(AAFwkTag::MISSION, "Wrong argument key");
         return false;
     }
     return true;

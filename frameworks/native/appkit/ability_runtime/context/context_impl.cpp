@@ -1320,17 +1320,17 @@ int32_t ContextImpl::SetSupportedProcessCacheSelf(bool isSupport)
 void ContextImpl::PrintTokenInfo() const
 {
     if (token_ == nullptr) {
-        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility token is null");
+        TAG_LOGI(AAFwkTag::EXT, "null token");
         return;
     }
     if (!token_->IsProxyObject()) {
-        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility token is not proxy");
+        TAG_LOGI(AAFwkTag::EXT, "token not proxy");
         return;
     }
     IPCObjectProxy *tokenProxyObject = reinterpret_cast<IPCObjectProxy *>(token_.GetRefPtr());
     if (tokenProxyObject != nullptr) {
         std::string remoteDescriptor = Str16ToStr8(tokenProxyObject->GetInterfaceDescriptor());
-        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility handle: %{public}d, descriptor: %{public}s",
+        TAG_LOGI(AAFwkTag::EXT, "handle: %{public}d, descriptor: %{public}s",
             tokenProxyObject->GetHandle(), remoteDescriptor.c_str());
     }
 }

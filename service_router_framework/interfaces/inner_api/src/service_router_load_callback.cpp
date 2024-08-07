@@ -25,21 +25,21 @@ void ServiceRouterLoadCallback::OnLoadSystemAbilitySuccess(int32_t systemAbility
 {
     if (systemAbilityId != OHOS::SERVICE_ROUTER_MGR_SERVICE_ID) {
         TAG_LOGE(AAFwkTag::SER_ROUTER,
-            "OnLoadSystemAbilitySuccess, not matched systemAbilityId: %{public}d", systemAbilityId);
+            "Not matched systemAbilityId: %{public}d", systemAbilityId);
         return;
     }
     if (remoteObject == nullptr) {
         TAG_LOGE(AAFwkTag::SER_ROUTER,
-            "OnLoadSystemAbilitySuccess, remoteObject is null, systemAbilityId: %{public}d", systemAbilityId);
+            "null remoteObject, systemAbilityId: %{public}d", systemAbilityId);
         return;
     }
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "OnLoadSystemAbilitySuccess, systemAbilityId: %{public}d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "SystemAbilityId: %{public}d", systemAbilityId);
     ServiceRouterMgrHelper::GetInstance().FinishStartSASuccess(remoteObject);
 }
 
 void ServiceRouterLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
-    TAG_LOGE(AAFwkTag::SER_ROUTER, "OnLoadSystemAbilitySuccess systemAbilityId: %{public}d", systemAbilityId);
+    TAG_LOGE(AAFwkTag::SER_ROUTER, "SystemAbilityId: %{public}d", systemAbilityId);
     ServiceRouterMgrHelper::GetInstance().FinishStartSAFail();
 }
 } // namespace AbilityRuntime

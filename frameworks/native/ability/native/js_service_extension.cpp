@@ -53,17 +53,17 @@ namespace {
 sptr<IRemoteObject> GetNativeRemoteObject(napi_env env, napi_value obj)
 {
     if (env == nullptr || obj == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null obj");
         return nullptr;
     }
     napi_valuetype type;
     napi_typeof(env, obj, &type);
     if (type == napi_undefined || type == napi_null) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is invalid type.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj type invalid");
         return nullptr;
     }
     if (type != napi_object) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is not an object.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj not object");
         return nullptr;
     }
     return NAPI_ohos_rpc_getNativeRemoteObject(env, obj);
@@ -105,19 +105,19 @@ using namespace OHOS::AppExecFwk;
 napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
 {
     if (value == nullptr) {
-        TAG_LOGW(AAFwkTag::SERVICE_EXT, "invalid parameter.");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "invalid param");
         return nullptr;
     }
     auto ptr = reinterpret_cast<std::weak_ptr<ServiceExtensionContext> *>(value)->lock();
     if (ptr == nullptr) {
-        TAG_LOGW(AAFwkTag::SERVICE_EXT, "invalid context.");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "invalid context");
         return nullptr;
     }
     napi_value object = CreateJsServiceExtensionContext(env, ptr);
     auto sysModule = JsRuntime::LoadSystemModuleByEngine(env,
         "application.ServiceExtensionContext", &object, 1);
     if (sysModule == nullptr) {
-        TAG_LOGW(AAFwkTag::SERVICE_EXT, "load module failed.");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "load module failed");
         return nullptr;
     }
     auto contextObj = sysModule->GetNapiValue();
@@ -141,7 +141,7 @@ JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& r
 JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsServiceExtension::~JsServiceExtension()
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Js service extension destructor.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     auto context = GetContext();
     if (context) {
         context->Unbind();
@@ -159,13 +159,13 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::string srcPath = "";
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get srcPath");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get srcPath failed");
         return;
     }
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "JsServiceExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called, moduleName:%{public}s,srcPath:%{public}s",
         moduleName.c_str(), srcPath.c_str());
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -173,14 +173,14 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get jsObj_");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null jsObj_");
         return;
     }
 
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ConvertNativeValueTo.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ConvertNativeValueTo");
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get JsServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get JsServiceExtension obj failed");
         return;
     }
 
@@ -207,32 +207,32 @@ void JsServiceExtension::ListenWMS()
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "RegisterDisplayListener");
     auto abilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (abilityManager == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get SaMgr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get SaMgr failed");
         return;
     }
 
     auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
     displayListener_ = sptr<JsServiceExtensionDisplayListener>::MakeSptr(jsServiceExtension);
     if (displayListener_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to create display listener.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "create displayListener failed");
         return;
     }
 
     auto context = GetContext();
     if (context == nullptr || context->GetToken() == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid");
         return;
     }
 
     auto listener = sptr<SystemAbilityStatusChangeListener>::MakeSptr(displayListener_, context->GetToken());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to create status change listener.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "create status change listener failed");
         return;
     }
 
     auto ret = abilityManager->SubscribeSystemAbility(WINDOW_MANAGER_SERVICE_ID, listener);
     if (ret != 0) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "subscribe system ability failed, ret = %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "subscribe system ability error:%{public}d.", ret);
     }
 #endif
 }
@@ -251,7 +251,7 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
 {
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get context");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get context failed");
         return;
     }
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
@@ -259,18 +259,18 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
     if (shellContextRef_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to load module");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "load module failed");
         return;
     }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get context native object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get context native obj failed");
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, workContext, nullptr);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Bind.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Bind");
     context->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
 
@@ -280,7 +280,7 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
         },
         nullptr, nullptr);
 
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end");
 }
 
 void JsServiceExtension::OnStart(const AAFwk::Want &want)
@@ -321,12 +321,12 @@ void JsServiceExtension::OnStop()
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "The service extension connection is not disconnected.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "service extension connection not disconnected");
     }
     TAG_LOGI(AAFwkTag::SERVICE_EXT, "UnregisterDisplayInfoChangedListener");
     auto context = GetContext();
     if (context == nullptr || context->GetToken() == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid");
         return;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -343,7 +343,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
     napi_env env = jsRuntime_.GetNapiEnv();
     auto remoteObj = GetNativeRemoteObject(env, result);
     if (remoteObj == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteObj null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteObj null");
     }
     return remoteObj;
 }
@@ -359,7 +359,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
         isAsyncCallback = false;
         sptr<IRemoteObject> remoteObj = GetNativeRemoteObject(env, result);
         if (remoteObj == nullptr) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteObj null.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteObj null");
         }
         return remoteObj;
     }
@@ -367,19 +367,19 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     bool callResult = false;
     do {
         if (!CheckTypeForNapiValue(env, result, napi_object)) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, error to convert native value to NativeObject.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, error to convert native value to NativeObject");
             break;
         }
         napi_value then = nullptr;
         napi_get_named_property(env, result, "then", &then);
         if (then == nullptr) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, error to get property: then.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, error to get property then");
             break;
         }
         bool isCallable = false;
         napi_is_callable(env, then, &isCallable);
         if (!isCallable) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, property then is not callable");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, property then not callable");
             break;
         }
         napi_value promiseCallback = nullptr;
@@ -391,7 +391,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     } while (false);
 
     if (!callResult) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to call promise.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to call promise");
         isAsyncCallback = false;
     } else {
         isAsyncCallback = true;
@@ -424,7 +424,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     }
     bool callResult = CallPromise(result, callbackInfo);
     if (!callResult) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to call promise.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to call promise");
         isAsyncCallback = false;
     } else {
         isAsyncCallback = true;
@@ -436,7 +436,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
 void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     Extension::OnCommand(want, restart, startId);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "restart=%{public}s,startId=%{public}d.",
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "restart=%{public}s,startId=%{public}d",
         restart ? "true" : "false",
         startId);
     // wrap want
@@ -457,13 +457,13 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
     auto callback = std::make_unique<InsightIntentExecutorAsyncCallback>();
     callback.reset(InsightIntentExecutorAsyncCallback::Create());
     if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Create async callback failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Create async callback failed");
         return false;
     }
     auto executeParam = std::make_shared<AppExecFwk::InsightIntentExecuteParam>();
     bool ret = AppExecFwk::InsightIntentExecuteParam::GenerateFromWant(want, *executeParam);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Generate execute param failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Generate execute param failed");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
@@ -477,19 +477,19 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "intentId %{public}" PRIu64"", intentId);
         auto extension = weak.lock();
         if (extension == nullptr) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "extension is nullptr.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "null extension");
             return;
         }
         auto ret = extension->OnInsightIntentExecuteDone(intentId, result);
         if (!ret) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnInsightIntentExecuteDone failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnInsightIntentExecuteDone failed");
         }
     };
     callback->Push(asyncCallback);
     InsightIntentExecutorInfo executorInfo;
     ret = GetInsightIntentExecutorInfo(want, executeParam, executorInfo);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Get Intent executor failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Get Intent executor failed");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
@@ -497,7 +497,7 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
     ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
         jsRuntime_, executorInfo, std::move(callback));
     if (!ret) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Execute insight intent failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Execute insight intent failed");
         return false;
     }
     return true;
@@ -510,7 +510,7 @@ bool JsServiceExtension::GetInsightIntentExecutorInfo(const Want &want,
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     auto context = GetContext();
     if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid");
         return false;
     }
 
@@ -529,12 +529,12 @@ bool JsServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
     TAG_LOGI(AAFwkTag::SERVICE_EXT, "Notify execute done, intentId %{public}" PRIu64"", intentId);
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "context is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
         return false;
     }
     auto token = context->GetToken();
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "token is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null token");
         return false;
     }
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->ExecuteInsightIntentDone(token, intentId, result);
@@ -559,14 +559,14 @@ napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value con
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get ServiceExtension obj failed");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, name, &method);
     if (!CheckTypeForNapiValue(env, method, napi_function)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get '%{public}s' from ServiceExtension object", name);
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get '%{public}s' from ServiceExtension obj failed", name);
         return nullptr;
     }
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "CallFunction(%{public}s) ok", name);
@@ -577,7 +577,7 @@ napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value con
 
 void JsServiceExtension::GetSrcPath(std::string &srcPath)
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "GetSrcPath start.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     if (!Extension::abilityInfo_->isModuleJson) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);
@@ -612,20 +612,20 @@ napi_value JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get ServiceExtension obj failed");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, "onConnect", &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onConnect from ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get onConnect from ServiceExtension obj failed");
         return nullptr;
     }
     napi_value remoteNative = nullptr;
     napi_call_function(env, obj, method, ARGC_ONE, argv, &remoteNative);
     if (remoteNative == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteNative nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null remoteNative");
     }
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "ok");
     return remoteNative;
@@ -644,14 +644,14 @@ napi_value JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool wi
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get ServiceExtension obj failed");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, "onDisconnect", &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onDisconnect from ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get onDisconnect from ServiceExtension obj failed");
         return nullptr;
     }
 
@@ -668,14 +668,14 @@ napi_value JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool wi
 bool JsServiceExtension::CheckPromise(napi_value result)
 {
     if (result == nullptr) {
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "CheckPromise, result is nullptr, no need to call promise.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "null result, no need to call promise");
         return false;
     }
     napi_env env = jsRuntime_.GetNapiEnv();
     bool isPromise = false;
     napi_is_promise(env, result, &isPromise);
     if (!isPromise) {
-        TAG_LOGD(AAFwkTag::SERVICE_EXT, "CheckPromise, result is not promise, no need to call promise.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "result not promise, no need to call promise");
         return false;
     }
     return true;
@@ -685,19 +685,19 @@ bool JsServiceExtension::CallPromise(napi_value result, AppExecFwk::AbilityTrans
 {
     napi_env env = jsRuntime_.GetNapiEnv();
     if (!CheckTypeForNapiValue(env, result, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, Error to convert native value to NativeObject.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Error to convert native value to NativeObject");
         return false;
     }
     napi_value then = nullptr;
     napi_get_named_property(env, result, "then", &then);
     if (then == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, Error to get property: then.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Error to get property: then");
         return false;
     }
     bool isCallable = false;
     napi_is_callable(env, then, &isCallable);
     if (!isCallable) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, Property then is not callable.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Property then is not callable");
         return false;
     }
     HandleScope handleScope(jsRuntime_);
@@ -716,7 +716,7 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid Context");
         return;
     }
 
@@ -742,7 +742,7 @@ void JsServiceExtension::ConfigurationUpdated()
     // Notify extension context
     auto fullConfig = GetContext()->GetConfiguration();
     if (!fullConfig) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null configuration");
         return;
     }
 
@@ -768,7 +768,7 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "get ServiceExtension obj failed");
         return;
     }
 
@@ -778,7 +778,7 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
         method = nullptr;
         napi_get_named_property(env, obj, "dump", &method);
         if (!CheckTypeForNapiValue(env, method, napi_function)) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onConnect from ServiceExtension object");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "get onConnect from ServiceExtension obj failed");
             return;
         }
     }
@@ -786,7 +786,7 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
     napi_value dumpInfo = nullptr;
     napi_call_function(env, obj, method, ARGC_ONE, argv, &dumpInfo);
     if (dumpInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "dumpInfo nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null dumpInfo");
         return;
     }
     uint32_t len = 0;
@@ -796,7 +796,7 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
         napi_value element = nullptr;
         napi_get_element(env, dumpInfo, i, &element);
         if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
-            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Parse dumpInfoStr failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Parse dumpInfoStr failed");
             return;
         }
         info.push_back(dumpInfoStr);
@@ -807,12 +807,12 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
 #ifdef SUPPORT_GRAPHICS
 void JsServiceExtension::OnCreate(Rosen::DisplayId displayId)
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "enter.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "enter");
 }
 
 void JsServiceExtension::OnDestroy(Rosen::DisplayId displayId)
 {
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "exit.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "exit");
 }
 
 void JsServiceExtension::OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId,
@@ -821,13 +821,13 @@ void JsServiceExtension::OnDisplayInfoChange(const sptr<IRemoteObject>& token, R
     TAG_LOGI(AAFwkTag::SERVICE_EXT, "displayId: %{public}" PRIu64, displayId);
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
         return;
     }
 
     auto contextConfig = context->GetConfiguration();
     if (contextConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Configuration is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid Configuration");
         return;
     }
 
@@ -849,7 +849,7 @@ void JsServiceExtension::OnDisplayInfoChange(const sptr<IRemoteObject>& token, R
         }
     }
 
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "finished.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "finished");
 }
 
 void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
@@ -857,13 +857,13 @@ void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "displayId: %{public}" PRIu64"", displayId);
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
         return;
     }
 
     auto contextConfig = context->GetConfiguration();
     if (contextConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Configuration is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "invalid Configuration");
         return;
     }
 
@@ -885,7 +885,7 @@ void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
         }
     }
 
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "finished.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "finished");
 }
 #endif
 } // AbilityRuntime

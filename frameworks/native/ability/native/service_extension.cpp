@@ -58,7 +58,7 @@ void ServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<ServiceExtensionContext>::Init(record, application, handler, token);
-    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ServiceExtension begin init context");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "begin init context");
 }
 
 std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
@@ -70,7 +70,7 @@ std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
     std::shared_ptr<ServiceExtensionContext> context =
         ExtensionBase<ServiceExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "ServiceExtension::CreateAndInitContext context is nullptr");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
         return context;
     }
     return context;
@@ -82,7 +82,7 @@ void ServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &c
 
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null context");
         return;
     }
 

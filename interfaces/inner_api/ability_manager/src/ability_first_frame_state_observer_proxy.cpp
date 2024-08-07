@@ -28,7 +28,7 @@ AbilityFirstFrameStateObserverProxy::AbilityFirstFrameStateObserverProxy(const s
 bool AbilityFirstFrameStateObserverProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityFirstFrameStateObserverProxy::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed");
         return false;
     }
     return true;
@@ -39,16 +39,16 @@ void AbilityFirstFrameStateObserverProxy::OnAbilityFirstFrameState(
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write Token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write Token failed");
         return;
     }
     if (!data.WriteParcelable(&abilityFirstFrameStateData)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to write abilityFirstFrameStateData.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write abilityFirstFrameStateData failed");
         return;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote is NULL.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null remote");
         return;
     }
     MessageParcel reply;
@@ -57,7 +57,7 @@ void AbilityFirstFrameStateObserverProxy::OnAbilityFirstFrameState(
         static_cast<uint32_t>(IAbilityFirstFrameStateObserver::Message::ON_ABILITY_FIRST_FRAME_STATE),
         data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest is failed, error code: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", ret);
     }
 }
 } // namespace AppExecFwk

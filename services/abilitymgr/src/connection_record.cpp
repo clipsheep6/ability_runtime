@@ -88,7 +88,7 @@ void ConnectionRecord::ClearConnCallBack()
 int ConnectionRecord::DisconnectAbility()
 {
     if (state_ != ConnectionState::CONNECTED) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "The connection has not established, connectionState: %{public}d.",
+        TAG_LOGE(AAFwkTag::CONNECTION, "connection not established, state: %{public}d",
             static_cast<int32_t>(state_));
         return INVALID_CONNECTION_STATE;
     }
@@ -108,7 +108,7 @@ int ConnectionRecord::DisconnectAbility()
             std::string taskName("DisconnectTimeout_");
             taskName += std::to_string(recordId_);
             auto disconnectTask = [connectionRecord = shared_from_this()]() {
-                TAG_LOGE(AAFwkTag::CONNECTION, "Disconnect ability timeout");
+                TAG_LOGE(AAFwkTag::CONNECTION, "Disconnect timeout");
                 connectionRecord->DisconnectTimeout();
             };
             int disconnectTimeout =
@@ -124,7 +124,7 @@ int ConnectionRecord::DisconnectAbility()
         }
     } else {
         TAG_LOGD(AAFwkTag::CONNECTION,
-            "The current connection count is %{public}zu, no need to disconnect, just remove connection.", connectNums);
+            "current connection count: %{public}zu, no need disconnect, just remove", connectNums);
         targetService_->RemoveConnectRecordFromList(shared_from_this());
         SetConnectState(ConnectionState::DISCONNECTED);
     }
@@ -146,7 +146,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     auto callback = GetAbilityConnectCallback();
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (remoteObject == nullptr) {
-        TAG_LOGW(AAFwkTag::CONNECTION, "extension returned null object: %{public}s", element.GetURI().c_str());
+        TAG_LOGW(AAFwkTag::CONNECTION, "extension returned null: %{public}s", element.GetURI().c_str());
         if (handler) {
             SetConnectState(ConnectionState::DISCONNECTING);
             handler->SubmitTask([service = targetService_]() {
@@ -164,7 +164,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
             });
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddConnection(shared_from_this());
-    TAG_LOGI(AAFwkTag::CONNECTION, "result: %{public}d. connectState:%{public}d.", resultCode, state_);
+    TAG_LOGI(AAFwkTag::CONNECTION, "result: %{public}d, connectState:%{public}d", resultCode, state_);
 }
 
 void ConnectionRecord::CompleteDisconnect(int resultCode, bool isCallerDied, bool isTargetDied)
@@ -178,27 +178,27 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isCallerDied, boo
         abilityInfo.name, abilityInfo.moduleName);
     auto code = isTargetDied ? (resultCode - 1) : resultCode;
     auto onDisconnectDoneTask = [connCallback = GetAbilityConnectCallback(), element, code]() {
-        TAG_LOGD(AAFwkTag::CONNECTION, "OnAbilityDisconnectDone.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "OnAbilityDisconnectDone");
         if (!connCallback) {
-            TAG_LOGD(AAFwkTag::CONNECTION, "connCallback is nullptr.");
+            TAG_LOGD(AAFwkTag::CONNECTION, "null connCallback");
             return;
         }
         connCallback->OnAbilityDisconnectDone(element, code);
     };
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "handler is nullptr.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "null handler");
         return;
     }
     handler->SubmitTask(onDisconnectDoneTask);
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isCallerDied);
-    TAG_LOGD(AAFwkTag::CONNECTION, "result: %{public}d. connectState:%{public}d.", resultCode, state_);
+    TAG_LOGD(AAFwkTag::CONNECTION, "result: %{public}d, connectState:%{public}d", resultCode, state_);
 }
 
 void ConnectionRecord::ScheduleDisconnectAbilityDone()
 {
     if (state_ != ConnectionState::DISCONNECTING) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "fail to schedule disconnect ability done, current state is not disconnecting.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "failed, current state not disconnecting");
         return;
     }
 
@@ -216,7 +216,7 @@ void ConnectionRecord::ScheduleDisconnectAbilityDone()
 void ConnectionRecord::ScheduleConnectAbilityDone()
 {
     if (state_ != ConnectionState::CONNECTING) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "fail to schedule connect ability done, current state is not connecting.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "failed, current state not connecting");
         return;
     }
 

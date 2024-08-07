@@ -89,7 +89,7 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
         if (jsSubValue != nullptr && napi_set_element(env, jsArray, index, jsSubValue) == napi_ok) {
             index++;
         } else {
-            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Set element fail.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Set element fail");
         }
     }
 
@@ -196,7 +196,7 @@ void JsAutoFillExtensionUtil::UnwrapViewData(
     if (jsValue != nullptr) {
         uint32_t jsProCount = 0;
         if (!IsArrayForNapiValue(env, jsValue, jsProCount)) {
-            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Get PAGE_NODE_INFOS from JS failed.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Get PAGE_NODE_INFOS from JS failed");
             return;
         }
 
@@ -255,7 +255,7 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     if (jsObject == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create jsObject.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "create jsObject failed");
         return nullptr;
     }
 
@@ -270,7 +270,7 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
     if (want.HasParameter(WANT_PARAMS_VIEW_DATA)) {
         std::string viewDataString = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
         if (viewDataString.empty()) {
-            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "View data is empty.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "empty view data");
             return jsObject;
         }
 
@@ -290,11 +290,11 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
     if (want.HasParameter(WANT_PARAMS_CUSTOM_DATA)) {
         std::string customDataString = want.GetStringParam(WANT_PARAMS_CUSTOM_DATA);
         if (customDataString.empty()) {
-            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Custom data is empty.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "empty custom data");
             return jsObject;
         }
         if (!AAFwk::WantParamWrapper::ValidateStr(customDataString)) {
-            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Custom data string is invalid.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "invalid Custom data string");
             return jsObject;
         }
         AAFwk::WantParams param = AAFwk::WantParamWrapper::ParseWantParams(customDataString);
@@ -311,13 +311,13 @@ napi_value JsAutoFillExtensionUtil::WrapUpdateRequest(const AAFwk::WantParams &w
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     if (jsObject == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create Object.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create Object");
         return nullptr;
     }
 
     std::string viewDataString = wantParams.GetStringParam(WANT_PARAMS_VIEW_DATA);
     if (viewDataString.empty()) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "View data is empty.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "empty view data");
         return jsObject;
     }
 

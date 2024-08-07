@@ -32,12 +32,12 @@ constexpr const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 [[maybe_unused]] static void AppFwkBootEventCallback(const char *key, const char *value, void *context)
 {
     if (strcmp(key, "bootevent.boot.completed") == 0 && strcmp(value, "true") == 0) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s %{public}s is true", __func__, key);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is true", key);
         Want want;
         want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_BOOT_COMPLETED);
         EventFwk::CommonEventData commonData {want};
         EventFwk::CommonEventManager::PublishCommonEvent(commonData);
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s BootEvent completed", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "BootEvent completed");
     }
 }
 

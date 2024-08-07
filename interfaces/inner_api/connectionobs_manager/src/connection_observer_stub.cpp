@@ -29,7 +29,7 @@ int ConnectionObserverStub::OnRemoteRequest(
     std::u16string descriptor = ConnectionObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverStub Local descriptor is not equal to remote.");
+        TAG_LOGI(AAFwkTag::CONNECTION, "invalid descriptor");
         return ERR_INVALID_STATE;
     }
     if (code < IConnectionObserver::CMD_MAX && code >= 0) {
@@ -53,7 +53,7 @@ int ConnectionObserverStub::OnExtensionConnectedInner(MessageParcel &data, Messa
 {
     std::unique_ptr<ConnectionData> connectionData(data.ReadParcelable<ConnectionData>());
     if (!connectionData) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnExensionConnected ReadParcelable<ConnectionData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "error connectionData");
         return ERR_INVALID_VALUE;
     }
 
@@ -65,7 +65,7 @@ int ConnectionObserverStub::OnExtensionDisconnectedInner(MessageParcel &data, Me
 {
     std::unique_ptr<ConnectionData> connectionData(data.ReadParcelable<ConnectionData>());
     if (!connectionData) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnExtensionDisconnected ReadParcelable<ConnectionData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "error connectionData");
         return ERR_INVALID_VALUE;
     }
 
@@ -78,7 +78,7 @@ int ConnectionObserverStub::OnDlpAbilityOpenedInner(MessageParcel &data, Message
 {
     std::unique_ptr<DlpStateData> dlpData(data.ReadParcelable<DlpStateData>());
     if (!dlpData) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityOpened ReadParcelable<DlpStateData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "error dlpData");
         return ERR_INVALID_VALUE;
     }
 
@@ -90,7 +90,7 @@ int ConnectionObserverStub::OnDlpAbilityClosedInner(MessageParcel &data, Message
 {
     std::unique_ptr<DlpStateData> dlpData(data.ReadParcelable<DlpStateData>());
     if (!dlpData) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityClosed ReadParcelable<DlpStateData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "error dlpData");
         return ERR_INVALID_VALUE;
     }
 

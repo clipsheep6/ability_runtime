@@ -45,7 +45,7 @@ void AbilityConnection::OnAbilityConnectDone(
     mutex_.unlock();
     sptr<AbilityConnection> connection(this);
     if (ConnectionManager::GetInstance().DisconnectNonexistentService(element, connection)) {
-        TAG_LOGW(AAFwkTag::CONNECTION, "No need to call onConnect callback.");
+        TAG_LOGW(AAFwkTag::CONNECTION, "No need onConnect callback");
         return;
     }
 
@@ -54,7 +54,7 @@ void AbilityConnection::OnAbilityConnectDone(
         (*item)->OnAbilityConnectDone(element, remoteObject, resultCode);
         item++;
     }
-    TAG_LOGD(AAFwkTag::CONNECTION, "end, bundleName:%{public}s, abilityName:%{public}s.",
+    TAG_LOGD(AAFwkTag::CONNECTION, "end, bundleName:%{public}s, abilityName:%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 
@@ -78,7 +78,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         bool ret = ConnectionManager::GetInstance().RemoveConnection(connection);
         if (ret) {
             ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-            TAG_LOGI(AAFwkTag::CONNECTION, "The service connection is not disconnected.");
+            TAG_LOGI(AAFwkTag::CONNECTION, "not disconnected");
         }
         resultCode = DIED + 1;
     }
@@ -88,7 +88,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         (*item)->OnAbilityDisconnectDone(element, resultCode);
         item++;
     }
-    TAG_LOGD(AAFwkTag::CONNECTION, "bundleName:%{public}s, abilityName:%{public}s.",
+    TAG_LOGD(AAFwkTag::CONNECTION, "bundleName:%{public}s, abilityName:%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 

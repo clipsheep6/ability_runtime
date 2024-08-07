@@ -70,20 +70,20 @@ void JsSaveRequestCallback::SendResultCodeAndViewData(const JsAutoFillExtensionU
 {
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (uiWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UI window is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "null uiWindow_");
         return;
     }
 
     AAFwk::Want want;
     auto ret = uiWindow_->TransferAbilityResult(resultCode, want);
     if (ret != Rosen::WMError::WM_OK) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "TransferAbilityResult failed");
         return;
     }
 
     auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo_);
     if (errorCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "TerminateUIExtensionAbility error: %{public}d", errorCode);
     }
 }
 
@@ -94,7 +94,7 @@ napi_value JsSaveRequestCallback::CreateJsSaveRequestCallback(napi_env env,
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Object is null");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "null object");
         return CreateJsUndefined(env);
     }
 

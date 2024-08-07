@@ -72,7 +72,7 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
 {
     auto *info = new (std::nothrow) AbilityCallerInfo();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "new callerInfo failed, return nullptr");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "info null");
         return nullptr;
     }
 
