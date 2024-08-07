@@ -8111,6 +8111,12 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
 void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken,
     sptr<IRemoteObject> callerToken)
 {
+#ifdef SUPPORT_SCREEN
+    if (UpdateAsCallerInfoFromDialog(want)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info from dialog.");
+        return;
+    }
+#endif // SUPPORT_SCREEN
     if (asCallerSourceToken != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info from token.");
         UpdateAsCallerInfoFromToken(want, asCallerSourceToken);
@@ -8135,9 +8141,7 @@ void AbilityManagerService::UpdateAsCallerInfoFromToken(Want& want, sptr<IRemote
 
     auto abilityRecord = Token::GetAbilityRecordByToken(asCallerSourceToken);
     if (abilityRecord == nullptr) {
-#ifdef SUPPORT_SCREEN
-        UpdateAsCallerInfoFromDialog(want);
-#endif // SUPPORT_SCREEN
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to update as caller info from token");
         return;
     }
     AppExecFwk::RunningProcessInfo processInfo = {};
@@ -8176,13 +8180,13 @@ void AbilityManagerService::UpdateAsCallerInfoFromCallerRecord(Want& want, sptr<
     want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, sourceInfo->callerAbilityName);
 }
 
-void AbilityManagerService::UpdateAsCallerInfoFromDialog(Want& want)
+bool AbilityManagerService::UpdateAsCallerInfoFromDialog(Want& want)
 {
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     auto dialogCallerInfo = DialogSessionManager::GetInstance().GetDialogCallerInfo(dialogSessionId);
     if (dialogCallerInfo == nullptr) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "failed to get dialog caller info.");
-        return;
+        return false;
     }
     Want dialogCallerWant = dialogCallerInfo->targetWant;
     int32_t tokenId = dialogCallerWant.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
@@ -8195,6 +8199,7 @@ void AbilityManagerService::UpdateAsCallerInfoFromDialog(Want& want)
     want.SetParam(Want::PARAM_RESV_CALLER_PID, pid);
     want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
+    return true;
 }
 
 void AbilityManagerService::UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token)
