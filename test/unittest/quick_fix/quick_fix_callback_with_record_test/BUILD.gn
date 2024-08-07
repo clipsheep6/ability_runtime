@@ -17,7 +17,12 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_unittest("quick_fix_callback_with_record_test") {
   module_out_path = "ability_runtime/quick_fix"
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../cfi_blocklist.txt"
+  }
   include_dirs = [ "${ability_runtime_services_path}/appmgr/include" ]
 
   sources = [ "quick_fix_callback_with_record_test.cpp" ]

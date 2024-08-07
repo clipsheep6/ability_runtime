@@ -52,7 +52,6 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "${windowmanager_path}/utils:libwmutil_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -69,6 +68,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "image_framework:image_native",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "window_manager:libwsutils",
   ]
 
   if (ability_runtime_graphics) {

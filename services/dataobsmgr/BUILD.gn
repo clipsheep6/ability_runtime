@@ -69,6 +69,7 @@ ohos_static_library("dataobsms_static") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    blocklist = "../../test/cfi_blocklist.txt"
   }
   sources = dataobsms_files
 

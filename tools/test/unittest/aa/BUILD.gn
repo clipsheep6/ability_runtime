@@ -196,7 +196,12 @@ ohos_unittest("aa_command_screen_test") {
 
 ohos_unittest("aa_command_force_stop_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../../test/cfi_blocklist.txt"
+  }
   sources = [ "aa_command_force_stop_test.cpp" ]
   sources += tools_aa_mock_sources
 
@@ -252,7 +257,12 @@ ohos_unittest("aa_command_force_timeout_test") {
 
 ohos_unittest("aa_command_test_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../../test/cfi_blocklist.txt"
+  }
   sources = [ "aa_command_test_test.cpp" ]
   sources += tools_aa_mock_sources
 
