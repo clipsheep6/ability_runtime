@@ -874,8 +874,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
         panda::JSNApi::SetErrorInfoEnhance();
     }
 
-    if (IsUseAbilityRuntime(options)) {
-        // aot related
+    if (IsUseAbilityRuntime(options)) { // aot related
         bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
         pandaOption.SetEnableAOT(aotEnabled);
         pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
