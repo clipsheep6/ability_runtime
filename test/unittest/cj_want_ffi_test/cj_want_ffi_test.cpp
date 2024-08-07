@@ -21,6 +21,11 @@
 #include <string>
 #include <vector>
 
+#define URI_SIZE 9
+#define ACTION_SIZE 11
+#define WANT_TYPE_SIZE 12
+#define PARAMETERS_SIZE 11
+
 #include "cj_utils_ffi.h"
 #include "want.h"
 #include "want_params_wrapper.h"
@@ -72,17 +77,17 @@ HWTEST_F(CjWantFfiTest, CjWantFfiTestFFICJWantCreateWithWantInfo_0100, TestSize.
     params.elementName = elementNameHandle;
     params.flags = 123;
 
-    params.uri = new char[9];
-    strcpy_s(params.uri, 9, "deviceId");
+    params.uri = new char[URI_SIZE];
+    strcpy_s(params.uri,URI_SIZE9, "deviceId");
 
-    params.action = new char[11];
-    strcpy_s(params.action, 11, "bundleName");
+    params.action = new char[ACTION_SIZE];
+    strcpy_s(params.action, ACTION_SIZE, "bundleName");
 
-    params.wantType = new char[12];
-    strcpy_s(params.wantType, 12, "abilityName");
+    params.wantType = new char[WANT_TYPE_SIZE];
+    strcpy_s(params.wantType, WANT_TYPE_SIZE, "abilityName");
 
-    params.parameters = new char[11];
-    strcpy_s(params.parameters, 11, "moduleName");
+    params.parameters = new char[PARAMETERS_SIZE];
+    strcpy_s(params.parameters, PARAMETERS_SIZE, "moduleName");
 
     WantHandle want = FFICJWantCreateWithWantInfo(params);
     EXPECT_NE(want, nullptr);
@@ -105,17 +110,17 @@ HWTEST_F(CjWantFfiTest, CjWantFfiTestFFICJWantDelete_0100, TestSize.Level1)
     params.elementName = elementNameHandle;
     params.flags = 123;
 
-    params.uri = new char[9];
-    strcpy_s(params.uri, 9, "deviceId");
+    params.uri = new char[URI_SIZE];
+    strcpy_s(params.uri, URI_SIZE, "deviceId");
 
-    params.action = new char[11];
-    strcpy_s(params.action, 11, "bundleName");
+    params.action = new char[ACTION_SIZE];
+    strcpy_s(params.action, ACTION_SIZE, "bundleName");
 
-    params.wantType = new char[12];
-    strcpy_s(params.wantType, 12, "abilityName");
+    params.wantType = new char[WANT_TYPE_SIZE];
+    strcpy_s(params.wantType, WANT_TYPE_SIZE, "abilityName");
 
-    params.parameters = new char[11];
-    strcpy_s(params.parameters, 11, "moduleName");
+    params.parameters = new char[PARAMETERS_SIZE];
+    strcpy_s(params.parameters, PARAMETERS_SIZE, "moduleName");
     WantHandle want = FFICJWantCreateWithWantInfo(params);
     FFICJWantDelete(want);
 }
@@ -137,17 +142,17 @@ HWTEST_F(CjWantFfiTest, CjWantFfiTestFFICJWantGetWantInfo_0100, TestSize.Level1)
     params.elementName = elementNameHandle;
     params.flags = 123;
 
-    params.uri = new char[9];
-    strcpy_s(params.uri, 9, "deviceId");
+    params.uri = new char[URI_SIZE];
+    strcpy_s(params.uri, URI_SIZE, "deviceId");
 
-    params.action = new char[11];
-    strcpy_s(params.action, 11, "bundleName");
+    params.action = new char[ACTION_SIZE];
+    strcpy_s(params.action, ACTION_SIZE, "bundleName");
 
-    params.wantType = new char[12];
-    strcpy_s(params.wantType, 12, "abilityName");
+    params.wantType = new char[WANT_TYPE_SIZE];
+    strcpy_s(params.wantType, WANT_TYPE_SIZE, "abilityName");
 
-    params.parameters = new char[11];
-    strcpy_s(params.parameters, 11, "moduleName");
+    params.parameters = new char[PARAMETERS_SIZE];
+    strcpy_s(params.parameters, PARAMETERS_SIZE, "moduleName");
     WantHandle want = FFICJWantCreateWithWantInfo(params);
 
     CJWantParams* paramsResult = FFICJWantGetWantInfo(want);
@@ -173,17 +178,17 @@ HWTEST_F(CjWantFfiTest, CjWantFfiTestFFICJWantAddEntity_0100, TestSize.Level1)
     params.elementName = elementNameHandle;
     params.flags = 123;
 
-    params.uri = new char[9];
-    strcpy_s(params.uri, 9, "deviceId");
+    params.uri = new char[URI_SIZE];
+    strcpy_s(params.uri, URI_SIZE, "deviceId");
 
-    params.action = new char[11];
-    strcpy_s(params.action, 11, "bundleName");
+    params.action = new char[ACTION_SIZE];
+    strcpy_s(params.action, ACTION_SIZE, "bundleName");
 
-    params.wantType = new char[12];
-    strcpy_s(params.wantType, 12, "abilityName");
+    params.wantType = new char[WANT_TYPE_SIZE];
+    strcpy_s(params.wantType, WANT_TYPE_SIZE, "abilityName");
 
-    params.parameters = new char[11];
-    strcpy_s(params.parameters, 11, "moduleName");
+    params.parameters = new char[PARAMETERS_SIZE];
+    strcpy_s(params.parameters, PARAMETERS_SIZE, "moduleName");
     WantHandle want = FFICJWantCreateWithWantInfo(params);
 
     const char* entity = "test_entity";
