@@ -41,7 +41,7 @@ Status DataObsMgrInnerExt::HandleRegisterObserver(Uri &uri, sptr<IDataAbilityObs
     uri.GetPathSegments(path);
     if (root_ != nullptr && !root_->AddObserver(path, 0, Entry(dataObserver, deathRecipientRef, isDescendants))) {
         TAG_LOGE(AAFwkTag::DBOBSMGR,
-            "The number of subscribers for this uri : %{public}s has reached the upper limits.",
+            "subscribers: %{public}s num maxed",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         RemoveObsDeathRecipient(dataObserver->AsObject());
         return DATAOBS_SERVICE_OBS_LIMMIT;
@@ -52,7 +52,7 @@ Status DataObsMgrInnerExt::HandleRegisterObserver(Uri &uri, sptr<IDataAbilityObs
 Status DataObsMgrInnerExt::HandleUnregisterObserver(Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver->AsObject() == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is null, uri : %{public}s has reached the upper limit.",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver, uri : %{public}s num maxed",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
@@ -69,7 +69,7 @@ Status DataObsMgrInnerExt::HandleUnregisterObserver(Uri &uri, sptr<IDataAbilityO
 Status DataObsMgrInnerExt::HandleUnregisterObserver(sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver->AsObject() == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is null");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "null dataObserver");
         return DATA_OBSERVER_IS_NULL;
     }
     std::lock_guard<ffrt::mutex> lock(nodeMutex_);
@@ -96,8 +96,8 @@ Status DataObsMgrInnerExt::HandleNotifyChange(const ChangeInfo &changeInfo)
     }
     if (changeRes.empty()) {
         TAG_LOGD(AAFwkTag::DBOBSMGR,
-            "no obs for this uris, changeType:%{public}ud, num of uris:%{public}zu, data is "
-            "nullptr:%{public}d, size:%{public}ud",
+            "uris no obs, changeType:%{public}ud, uris num:%{public}zu,"
+            "null data:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return NO_OBS_FOR_URI;
     }
@@ -117,7 +117,7 @@ std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddOb
     auto it = obsRecipientRefs.find(dataObserver);
     if (it != obsRecipientRefs.end()) {
         if (std::numeric_limits<uint32_t>::max() - 1 < it->second->ref) {
-            TAG_LOGE(AAFwkTag::DBOBSMGR, "the num of observer reach max limit");
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "observer num maxed");
             return nullptr;
         }
     } else {
@@ -132,7 +132,7 @@ std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddOb
         dataObserver->AddDeathRecipient(deathRecipient);
         it = obsRecipientRefs.emplace(dataObserver, std::make_shared<DeathRecipientRef>(deathRecipient)).first;
     }
-    TAG_LOGD(AAFwkTag::DBOBSMGR, "this observer will be added, sum:%{public}ud",
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "will add observer, sum:%{public}ud",
         it->second->ref.load(std::memory_order_relaxed));
     return it->second;
 }
@@ -145,7 +145,7 @@ void DataObsMgrInnerExt::RemoveObsDeathRecipient(const sptr<IRemoteObject> &data
     }
 
     if (isForce || it->second->ref <= 1) {
-        TAG_LOGD(AAFwkTag::DBOBSMGR, "this observer deathRecipient will be remove, sum:%{public}ud",
+        TAG_LOGD(AAFwkTag::DBOBSMGR, "will remove deathRecipient, sum:%{public}ud",
             it->second->ref.load(std::memory_order_relaxed));
         dataObserver->RemoveDeathRecipient(it->second->deathRecipient);
         obsRecipientRefs.erase(it);
@@ -155,7 +155,7 @@ void DataObsMgrInnerExt::RemoveObsDeathRecipient(const sptr<IRemoteObject> &data
 
 void DataObsMgrInnerExt::OnCallBackDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGD(AAFwkTag::DBOBSMGR, "this observer died");
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "observer died");
     auto dataObserver = remote.promote();
     if (dataObserver == nullptr) {
         return;

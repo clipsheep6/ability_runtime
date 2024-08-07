@@ -42,14 +42,14 @@ int DataAbilityObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
         TAG_LOGE(AAFwkTag::DBOBSMGR,
-            "local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
+            "local descriptor unequals to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
             CommonUtils::Anonymous(Str16ToStr8(descriptor)).c_str(),
             CommonUtils::Anonymous(Str16ToStr8(remoteDescriptor)).c_str());
         return ERR_INVALID_STATE;
     }
 
     if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "not support code:%u, BUTT:%d", code, TRANS_BUTT);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "invalid code:%u, BUTT:%d", code, TRANS_BUTT);
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return (this->*HANDLES[code])(data, reply);
