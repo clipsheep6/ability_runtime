@@ -91,6 +91,7 @@ private:
     AppfreezeManager(const AppfreezeManager&) = delete;
     uint64_t GetMilliseconds();
     std::map<int, std::set<int>> BinderParser(std::ifstream& fin, std::string& stack) const;
+    bool IsAncoProc(int pid) const;
     void ParseBinderPids(const std::map<int, std::set<int>>& binderInfo, std::set<int>& pids, int pid, int layer) const;
     std::set<int> GetBinderPeerPids(std::string& stack, int pid) const;
     void FindStackByPid(std::string& ret, int pid, const std::string& msg) const;
