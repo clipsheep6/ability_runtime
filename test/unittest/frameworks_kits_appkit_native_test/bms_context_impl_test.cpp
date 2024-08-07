@@ -100,6 +100,10 @@ HWTEST_F(BmsContextImplTest, CreateBundleContext_0100, TestSize.Level1)
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
+    auto config = std::make_shared<AppExecFwk::Configuration>();
+    EXPECT_NE(config, nullptr);
+    contextImpl->SetConfiguration(config);
+
     // bundle name is empty
     auto context = contextImpl->CreateBundleContext("");
     EXPECT_EQ(context, nullptr);
