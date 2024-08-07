@@ -27,9 +27,9 @@ namespace OHOS {
 namespace AAFwk {
 
 struct CallerRequestInfo {
-    int32_t requestCode;
-    int32_t pid;
-    bool backFlag;
+    int32_t requestCode = 0;
+    int32_t pid = 0;
+    bool backFlag = false;
 };
 
 struct StartAbilityInfo {

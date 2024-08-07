@@ -1833,12 +1833,8 @@ std::shared_ptr<AbilityRecord> AbilityRecord::GetCallerByRequestCode(int32_t req
                 callerAbilityRecord->GetPid(), pid);
             continue;
         }
-        auto recordList = caller->GetRequestCodeList();
-        for (auto code: recordList) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "callerRequestCode is %{public}d", code);
-        }
         if (caller->IsHistoryRequestCode(requestCode)) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "requestcode is invalid");
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "found caller by requestCode.");
             return callerAbilityRecord;
         }
     }
