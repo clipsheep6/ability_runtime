@@ -35,6 +35,7 @@ constexpr const char* OPEN_LINK_SCENE_IDENTIFICATION = "appLinkingOnly";
 ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
 {
     if (StartAbilityUtils::skipStartOther) {
+        StartAbilityUtils::skipStartOther = false;
         return ERR_OK;
     }
     std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "true");

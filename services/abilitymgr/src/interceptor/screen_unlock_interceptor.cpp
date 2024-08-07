@@ -61,7 +61,7 @@ ErrCode ScreenUnlockInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
 #ifdef SUPPORT_SCREEN
-    if (OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked()) {
+    if (!OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked()) {
         return ERR_OK;
     }
 #endif

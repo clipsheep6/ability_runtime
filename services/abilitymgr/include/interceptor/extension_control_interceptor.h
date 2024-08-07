@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_EXTENSION_CONTROL_INTERCEPTOR_H
 
 #include "ability_interceptor_interface.h"
+#include "ability_info.h"
 #include "want.h"
 
 namespace OHOS {
@@ -29,6 +30,10 @@ public:
 private:
     bool IsExtensionStartThirdPartyAppEnable(std::string extensionTypeName, std::string targetBundleName);
     bool IsExtensionStartServiceEnable(std::string extensionTypeName, std::string targetUri);
+    bool GetCallerAbilityInfo(const AbilityInterceptorParam& param,
+        AppExecFwk::AbilityInfo& callerAbilityInfo);
+    bool GetTargetAbilityInfo(const AbilityInterceptorParam& param,
+        AppExecFwk::AbilityInfo& callerAbilityInfo);
 };
 } // namespace AAFwk
 } // namespace OHOS

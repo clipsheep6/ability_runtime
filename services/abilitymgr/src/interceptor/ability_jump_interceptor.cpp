@@ -49,7 +49,9 @@ ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
     AppExecFwk::AbilityInfo targetAbilityInfo;
-    if (StartAbilityUtils::startAbilityInfo != nullptr) {
+    if (StartAbilityUtils::startAbilityInfo != nullptr &&
+        StartAbilityUtils::startAbilityInfo->abilityInfo.bundleName == param.want.GetBundle() &&
+        StartAbilityUtils::startAbilityInfo->abilityInfo.name == param.want.GetElement().GetAbilityName()) {
         targetAbilityInfo = StartAbilityUtils::startAbilityInfo->abilityInfo;
     } else {
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,

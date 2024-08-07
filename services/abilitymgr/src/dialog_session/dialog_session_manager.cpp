@@ -378,6 +378,7 @@ bool DialogSessionManager::IsCreateCloneSelectorDialog(const std::string &bundle
 {
     if (StartAbilityUtils::isWantWithAppCloneIndex) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "want with app clone index.");
+        StartAbilityUtils::isWantWithAppCloneIndex = false;
         return false;
     }
     auto appIndexes = StartAbilityUtils::GetCloneAppIndexes(bundleName, userId);

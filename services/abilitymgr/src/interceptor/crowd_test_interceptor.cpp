@@ -26,6 +26,7 @@ constexpr const char* ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTes
 ErrCode CrowdTestInterceptor::DoProcess(AbilityInterceptorParam param)
 {
     if (StartAbilityUtils::skipCrowTest) {
+        StartAbilityUtils::skipCrowTest = false;
         return ERR_OK;
     }
     if (CheckCrowdtest(param.want, param.userId)) {

@@ -35,35 +35,17 @@ ErrCode ExtensionControlInterceptor::DoProcess(AbilityInterceptorParam param)
     }
     // get caller ability info
     AppExecFwk::AbilityInfo callerAbilityInfo;
-    if (StartAbilityUtils::GetCallerAbilityInfo(param.callerToken, callerAbilityInfo)) {
-        if (callerAbilityInfo.type != AppExecFwk::AbilityType::EXTENSION ||
-            callerAbilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE ||
-            callerAbilityInfo.bundleName == param.want.GetElement().GetBundleName()) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "not other extension.");
-            return ERR_OK;
-        }
-        auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-        AppExecFwk::RunningProcessInfo processInfo;
-        if (appScheduler != nullptr) {
-            appScheduler->GetRunningProcessInfoByToken(param.callerToken, processInfo);
-            if (!processInfo.isStrictMode && !param.want.GetBoolParam(STRICT_MODE, false)) {
-                return ERR_OK;
-            }
-        }
+    if (GetCallerAbilityInfo(param, callerAbilityInfo)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "caller enable.");
+        return ERR_OK;
     }
     // get target ability info
     AppExecFwk::AbilityInfo targetAbilityInfo;
-    if (StartAbilityUtils::startAbilityInfo != nullptr) {
-        targetAbilityInfo = StartAbilityUtils::startAbilityInfo->abilityInfo;
-    } else {
-        auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-        if (bundleMgrHelper == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
-            return ERR_OK;
-        }
-        IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
-            AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
+    if (GetTargetAbilityInfo(param, targetAbilityInfo)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "target enable.");
+        return ERR_OK;
     }
+
     // check blocked list
     if (!targetAbilityInfo.applicationInfo.isSystemApp &&
         !DelayedSingleton<ExtensionConfig>::GetInstance()->IsExtensionStartThirdPartyAppEnable(
@@ -80,6 +62,47 @@ ErrCode ExtensionControlInterceptor::DoProcess(AbilityInterceptorParam param)
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "other ok.");
     return ERR_OK;
+}
+
+bool ExtensionControlInterceptor::GetCallerAbilityInfo(const AbilityInterceptorParam& param,
+    AppExecFwk::AbilityInfo& callerAbilityInfo)
+{
+    if (StartAbilityUtils::GetCallerAbilityInfo(param.callerToken, callerAbilityInfo)) {
+        if (callerAbilityInfo.type != AppExecFwk::AbilityType::EXTENSION ||
+            callerAbilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE ||
+            callerAbilityInfo.bundleName == param.want.GetElement().GetBundleName()) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "not other extension.");
+            return true;
+        }
+        auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+        AppExecFwk::RunningProcessInfo processInfo;
+        if (appScheduler != nullptr) {
+            appScheduler->GetRunningProcessInfoByToken(param.callerToken, processInfo);
+            if (!processInfo.isStrictMode && !param.want.GetBoolParam(STRICT_MODE, false)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool ExtensionControlInterceptor::GetTargetAbilityInfo(const AbilityInterceptorParam& param,
+    AppExecFwk::AbilityInfo& targetAbilityInfo)
+{
+    if (StartAbilityUtils::startAbilityInfo != nullptr &&
+        StartAbilityUtils::startAbilityInfo->abilityInfo.bundleName == param.want.GetBundle() &&
+        StartAbilityUtils::startAbilityInfo->abilityInfo.name == param.want.GetElement().GetAbilityName()) {
+        targetAbilityInfo = StartAbilityUtils::startAbilityInfo->abilityInfo;
+    } else {
+        auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+        if (bundleMgrHelper == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
+            return true;
+        }
+        IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
+            AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
+    }
+    return false;
 }
 } // namespace AAFwk
 } // namespace OHOS
