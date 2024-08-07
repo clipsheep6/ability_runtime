@@ -1734,7 +1734,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, SetReserveInfo_001, TestSize.Level1)
 {
     auto abilityMs = std::make_shared<AbilityManagerService>();
     std::string linkString = "";
-    abilityMs->SetReserveInfo(linkString);
+    AbilityRequest abilityRequest;
+    abilityMs->SetReserveInfo(linkString, abilityRequest);
     EXPECT_TRUE(abilityMs != nullptr);
 }
 

@@ -316,20 +316,10 @@ static void ProcessLinkType(std::vector<AppExecFwk::AbilityInfo> &abilityInfos)
     }
 }
 
-void ImplicitStartProcessor::SetUriReservedFlag(const bool flag)
-{
-    uriReservedFlag_ = flag;
-}
-
-void ImplicitStartProcessor::SetUriReservedBundle(const std::string bundleName)
-{
-    reservedBundleName_ = bundleName;
-}
-
 void ImplicitStartProcessor::OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
-    std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos)
+    std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos, const AbilityRequest &request)
 {
-    if (!uriReservedFlag_) {
+    if (!request.uriReservedFlag) {
         return;
     }
     if (extensionInfos.size() > 0) {
@@ -337,12 +327,12 @@ void ImplicitStartProcessor::OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityI
     }
 
     for (auto it = abilityInfos.begin(); it != abilityInfos.end();) {
-        if (it->bundleName == reservedBundleName_) {
+        if (it->bundleName == request.reservedBundleName) {
             it++;
             continue;
         } else {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "Reserve App %{public}s dismatch with bundleName %{public}s.",
-                reservedBundleName_.c_str(), it->bundleName.c_str());
+                request.reservedBundleName.c_str(), it->bundleName.c_str());
             it = abilityInfos.erase(it);
         }
     }
@@ -383,7 +373,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_WITH_APP_LINKING);
     }
 
-    if (uriReservedFlag_) {
+    if (request.uriReservedFlag) {
         abilityInfoFlag = static_cast<uint32_t>(abilityInfoFlag) |
             static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_ONLY_SYSTEM_APP);
     }
@@ -398,7 +388,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos, findDefaultApp));
 
-    OnlyKeepReserveApp(abilityInfos, extensionInfos);
+    OnlyKeepReserveApp(abilityInfos, extensionInfos, request);
     if (isOpenLink && extensionInfos.size() > 0) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Clear extensionInfos when isOpenLink.");
         extensionInfos.clear();

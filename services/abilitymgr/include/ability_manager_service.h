@@ -2335,7 +2335,7 @@ private:
 
     void CloseAssertDialog(const std::string &assertSessionId);
 
-    void SetReserveInfo(const std::string &linkString);
+    void SetReserveInfo(const std::string &linkString, AbilityRequest& abilityRequest);
 
     void ReportPreventStartAbilityResult(const AppExecFwk::AbilityInfo &callerAbilityInfo,
         const AppExecFwk::AbilityInfo &abilityInfo);
