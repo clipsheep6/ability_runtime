@@ -43,8 +43,6 @@ ohos_shared_library("extension_manager") {
   configs = [ ":extension_manager_config" ]
   public_configs = [ ":extension_manager_public_config" ]
 
-  public_deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub" ]
-
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
@@ -55,6 +53,7 @@ ohos_shared_library("extension_manager") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  public_external_deps = [ "ability_runtime:ability_connect_callback_stub" ]
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
