@@ -19,6 +19,7 @@
 #include <regex>
 
 #include "ability_manager_client.h"
+#include "ability_util.h"
 #include "app_mgr_client.h"
 #include "application_context.h"
 #include "bundle_mgr_helper.h"
@@ -922,6 +923,11 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
     }
 #endif
     resConfig->SetDeviceType(GetDeviceType());
+    if(!config_)
+    {
+        TAG_LOGE(AAFwkTag::APPKIT, "The config_ is nullptr");
+        return;
+    }
     std::string mcc = config_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC);
     std::string mnc = config_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC);
     try {
