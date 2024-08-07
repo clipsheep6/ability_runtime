@@ -77,6 +77,7 @@ namespace AppExecFwk {
 using OHOS::AAFwk::Want;
 class WindowFocusChangedListener;
 class WindowVisibilityChangedListener;
+class WindowStateChangedListener;
 using LoabAbilityTaskFunc = std::function<void()>;
 constexpr int32_t BASE_USER_RANGE = 200000;
 
@@ -223,6 +224,10 @@ public:
      * @return
      */
     virtual void ApplicationBackgrounded(const int32_t recordId);
+
+    virtual void NotifyWindowShow(const int32_t recordId);
+
+    virtual void NotifyWindowHidden(const int32_t recordId);
 
     /**
      * ApplicationTerminated, terminate the application.
@@ -767,6 +772,8 @@ public:
      */
     void HandleWindowVisibilityChanged(
             const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
+
+    void HandleWindowStateChanged(int32_t pid, Rosen::WindowStateInfo windowStateInfo);
 #endif //SUPPORT_SCREEN
     /**
      * Set the current userId, only used by abilityMgr.
@@ -853,6 +860,16 @@ public:
      * Init window visibility changed listener.
      */
     void InitWindowVisibilityChangedListener();
+
+    /**
+     * Init window state observer.
+     */
+    void InitWindowStateChangedListener();
+
+    /**
+     * Free window state changed listener.
+     */
+    void FreeWindowStateChangedListener();
 
     /**
      * Free window visibility changed listener.
@@ -1499,6 +1516,7 @@ private:
 #ifdef SUPPORT_SCREEN
     sptr<WindowFocusChangedListener> focusListener_;
     sptr<WindowVisibilityChangedListener> windowVisibilityChangedListener_;
+    sptr<WindowStateChangedListener> windowStateChangedListener_;
 #endif //SUPPORT_SCREEN
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;

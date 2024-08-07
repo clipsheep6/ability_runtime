@@ -65,6 +65,20 @@ public:
     virtual void OnProcessStateChanged(const ProcessData &processData) {}
 
     /**
+     * Will be called when the window show.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnWindowShow(const ProcessData &processData) {}
+
+    /**
+     * Will be called when the window hidden.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnWindowHidden(const ProcessData &processData) {}
+
+    /**
      * Will be called when the process die.
      *
      * @param processData Process data.
@@ -139,6 +153,8 @@ public:
         TRANSACT_ON_PAGE_SHOW,
         TRANSACT_ON_PAGE_HIDE,
         TRANSACT_ON_APP_CACHE_STATE_CHANGED,
+        TRANSACT_ON_WINDOW_SHOW,
+        TRANSACT_ON_WINDOW_HIDDEN,
     };
 };
 }  // namespace AppExecFwk

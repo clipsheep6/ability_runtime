@@ -1243,6 +1243,7 @@ void AppMgrService::OnAddSystemAbility(int32_t systemAbilityId, const std::strin
     appMgrServiceInner_->InitFocusListener();
 #ifdef SUPPORT_SCREEN
     appMgrServiceInner_->InitWindowVisibilityChangedListener();
+    appMgrServiceInner_->InitWindowStateChangedListener();
 #endif
 }
 
@@ -1297,6 +1298,24 @@ int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const Pa
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyPageHide(token, pageStateData);
+}
+
+void AppMgrService::NotifyWindowShow(const int32_t recordId)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return;
+    }
+    appMgrServiceInner_->NotifyWindowShow(recordId);
+}
+
+void AppMgrService::NotifyWindowHidden(const int32_t recordId)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return;
+    }
+    appMgrServiceInner_->NotifyWindowHidden(recordId);
 }
 
 int32_t AppMgrService::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)

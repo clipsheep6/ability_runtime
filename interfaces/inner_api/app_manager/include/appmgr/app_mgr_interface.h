@@ -529,6 +529,16 @@ public:
         return 0;
     }
 
+    virtual void  NotifyWindowShow(const int32_t recordId)
+    {
+        return;
+    }
+
+    virtual void  NotifyWindowHidden(const int32_t recordId)
+    {
+        return;
+    }
+
     /**
      * @brief Notify NativeEngine GC of status change.
      *

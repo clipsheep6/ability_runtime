@@ -71,6 +71,20 @@ public:
     virtual void OnProcessStateChanged(const ProcessData &processData) override;
 
     /**
+     * Will be called when the window show.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnWindowShow(const ProcessData &processData) override;
+
+    /**
+     * Will be called when the window hidden.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnWindowHidden(const ProcessData &processData) override;
+
+    /**
      * Will be called when the process die.
      *
      * @param processData Process data.
@@ -140,6 +154,10 @@ private:
     int32_t HandleOnProcessCreated(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnProcessStateChanged(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnWindowShow(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnWindowHidden(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnProcessDied(MessageParcel &data, MessageParcel &reply);
 

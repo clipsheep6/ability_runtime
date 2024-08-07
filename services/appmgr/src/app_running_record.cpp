@@ -2001,6 +2001,20 @@ void AppRunningRecord::OnWindowVisibilityChanged(
         }
     }
 }
+
+void AppRunningRecord::OnWindowStateChanged(Rosen::WindowStateInfo windowStateInfo)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
+    if (!appLifeCycleDeal_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return;
+    }
+    if (windowStateInfo == Rosen::WindowStateInfo::SHOW) {
+        appLifeCycleDeal_->ScheduleShowWindowRunning();
+    } else {
+        appLifeCycleDeal_->ScheduleHiddenWindowRunning();
+    }
+}
 #endif //SUPPORT_SCREEN
 
 bool AppRunningRecord::IsContinuousTask()

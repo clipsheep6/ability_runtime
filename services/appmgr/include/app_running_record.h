@@ -44,6 +44,7 @@
 #include "app_spawn_client.h"
 #include "app_malloc_info.h"
 #include "app_jsheap_mem_info.h"
+#include "window_manager.h"
 
 namespace OHOS {
 namespace Rosen {
@@ -686,6 +687,7 @@ public:
     int32_t NotifyAppFault(const FaultData &faultData);
 #ifdef SUPPORT_SCREEN
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
+    void OnWindowStateChanged(Rosen::WindowStateInfo windowStateInfo);
 #endif //SUPPORT_SCREEN
     bool IsAbilitytiesBackground();
 
@@ -991,6 +993,7 @@ private:
     bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
     bool processCacheBlocked = false; // temporarily block process cache feature
+    Rosen::WindowStateInfo windowState;
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;

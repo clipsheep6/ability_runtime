@@ -64,6 +64,20 @@ public:
     virtual void OnProcessStateChanged(const ProcessData &processData) override;
 
     /**
+     * Will be called when the window show.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnWindowShow(const ProcessData &processData) override;
+
+    /**
+     * Will be called when the window hidden.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnWindowHidden(const ProcessData &processData) override;
+
+    /**
      * Will be called when the process die.
      *
      * @param processData Process data.

@@ -69,6 +69,7 @@ ohos_shared_library("libappms") {
     "src/remote_client_manager.cpp",
     "src/render_state_observer_manager.cpp",
     "src/window_focus_changed_listener.cpp",
+    "src/window_state_changed_listener.cpp",
     "src/window_visibility_changed_listener.cpp",
   ]
 

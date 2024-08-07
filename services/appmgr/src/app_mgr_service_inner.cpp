@@ -87,6 +87,7 @@
 #include "app_mgr_service_dump_error_code.h"
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
+#include "window_state_changed_listener.h"
 #include "cache_process_manager.h"
 #ifdef APP_NO_RESPONSE_DIALOG
 #include "fault_data.h"
@@ -135,6 +136,7 @@ constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 200;
 // delay register focus listener to wms
 constexpr int REGISTER_FOCUS_DELAY = 5000;
 constexpr int REGISTER_VISIBILITY_DELAY = 5000;
+constexpr int REGISTER_STATE_DELAY = 5000;
 // Max render process number limitation for phone device.
 constexpr int PHONE_MAX_RENDER_PROCESS_NUM = 40;
 constexpr int PROCESS_RESTART_MARGIN_MICRO_SECONDS = 2000;
@@ -1055,6 +1057,32 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     TAG_LOGI(AAFwkTag::APPMGR, "application is backgrounded");
     auto eventInfo = BuildEventInfo(appRecord);
     AAFwk::EventReport::SendAppBackgroundEvent(AAFwk::EventName::APP_BACKGROUND, eventInfo);
+}
+
+void AppMgrServiceInner::NotifyWindowShow(const int32_t recordId)
+{
+    auto appRecord = GetAppRunningRecordByAppRecordId(recordId);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "get app record failed");
+        return;
+    }
+
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnWindowShow(appRecord);
+
+    return;
+}
+
+void AppMgrServiceInner::NotifyWindowHidden(const int32_t recordId)
+{
+    auto appRecord = GetAppRunningRecordByAppRecordId(recordId);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "get app record failed");
+        return;
+    }
+
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnWindowHidden(appRecord);
+
+    return;
 }
 
 AAFwk::EventInfo AppMgrServiceInner::BuildEventInfo(std::shared_ptr<AppRunningRecord> appRecord) const
@@ -5044,6 +5072,61 @@ void AppMgrServiceInner::HandleWindowVisibilityChanged(
         return;
     }
     appRunningManager_->OnWindowVisibilityChanged(windowVisibilityInfos);
+}
+
+void AppMgrServiceInner::InitWindowStateChangedListener()
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Begin.");
+    if (windowStateChangedListener_ != nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "state listener has been initiated.");
+        return;
+    }
+    windowStateChangedListener_ =
+        new (std::nothrow) WindowStateChangedListener(weak_from_this(), taskHandler_);
+    auto registerTask = [innerService = weak_from_this()] () {
+        auto inner = innerService.lock();
+        if (inner == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Service inner is nullptr.");
+            return;
+        }
+        if (inner->windowStateChangedListener_ == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Window state changed listener is nullptr.");
+            return;
+        }
+        WindowManager::GetInstance().RegisterStateChangedListener(inner->windowStateChangedListener_);
+    };
+
+    if (taskHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Task handler is nullptr.");
+        return;
+    }
+    taskHandler_->SubmitTask(registerTask, "RegisterStateListener.", REGISTER_STATE_DELAY);
+    TAG_LOGD(AAFwkTag::APPMGR, "End.");
+}
+
+void AppMgrServiceInner::FreeWindowStateChangedListener()
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+    if (windowStateChangedListener_ == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "state listener has been freed.");
+        return;
+    }
+    WindowManager::GetInstance().UnregisterWindowChangedListener(windowStateChangedListener_);
+}
+
+void AppMgrServiceInner::HandleWindowStateChanged(int32_t pid, Rosen::WindowStateInfo windowStateInfo)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+    if (appRunningManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "App running manager is nullptr.");
+        return;
+    }
+
+    auto appRecord = appRunningManager_->GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Get app running record by pid failed. pid: %{public}d", pid);
+    }
+    appRecord->OnWindowStateChanged(windowStateInfo);
 }
 #endif // SUPPORT_SCREEN
 void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char *value, void *context)

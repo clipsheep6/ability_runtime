@@ -33,6 +33,8 @@ class IAppScheduler : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.AppScheduler");
 
+    virtual void ScheduleShowWindow() {};
+    virtual void ScheduleHiddenWindow() {};
     /**
      * ScheduleForegroundApplication, call ScheduleForegroundApplication() through proxy project,
      * Notify application to switch to foreground.
