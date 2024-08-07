@@ -137,15 +137,19 @@ int AbilityConnectionStub::OnRemoteRequest(
                 return ERR_INVALID_VALUE;
             }
             auto resultCode = data.ReadInt32();
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub:%{public}s ON_ABILITY_CONNECT_DONE",
+                element->GetAbilityName().c_str());
             OnAbilityConnectDone(*element, remoteObject, resultCode);
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub ON_ABILITY_CONNECT_DONE end");
+            TAG_LOGD(AAFwkTag::ABILITYMGR,
+                "AbilityConnectionStub:%{public}s ON_ABILITY_CONNECT_DONE end",
+                element->GetAbilityName().c_str());
             return NO_ERROR;
         }
         case IAbilityConnection::ON_ABILITY_DISCONNECT_DONE: {
             auto resultCode = data.ReadInt32();
             OnAbilityDisconnectDone(*element, resultCode);
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub ON_ABILITY_DISCONNECT_DONE");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub:%{public}s ON_ABILITY_DISCONNECT_DONE",
+                element->GetAbilityName().c_str());
             return NO_ERROR;
         }
         case IAbilityConnection::ON_REMOTE_STATE_CHANGED: {
