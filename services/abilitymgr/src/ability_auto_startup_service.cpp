@@ -245,10 +245,11 @@ int32_t AbilityAutoStartupService::QueryAllAutoStartupApplicationsWithoutPermiss
         userId);
 }
 
-int32_t AbilityAutoStartupService::DeleteAutoStartupData(const std::string &bundleName, const int32_t uid)
+int32_t AbilityAutoStartupService::DeleteAutoStartupData(const std::string &bundleName, const int32_t accessTokenId)
 {
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
-    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(bundleName, uid);
+    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(
+        bundleName, accessTokenId);
 }
 
 int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundleName, int32_t uid)
@@ -285,7 +286,8 @@ int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundl
 
     if (!isFound) {
         TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current bundleName not found in Datebase.");
-        return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(bundleName, uid);
+        return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(
+            bundleName, tokenId);
     }
     return ERR_OK;
 }

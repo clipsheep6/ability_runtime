@@ -257,8 +257,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, DeleteAutoStartupData_001, TestSize.Leve
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest DeleteAutoStartupData_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::string bundleName = AUTO_STARTUP_SERVICE_BUNDLENAME;
-    int32_t uid = 0;
-    auto result = abilityAutoStartupService->DeleteAutoStartupData(bundleName, uid);
+    int32_t accessTokenId = 0;
+    auto result = abilityAutoStartupService->DeleteAutoStartupData(bundleName, accessTokenId);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest DeleteAutoStartupData_001 end";
 }
