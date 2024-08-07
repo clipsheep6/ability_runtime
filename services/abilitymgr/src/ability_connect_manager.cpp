@@ -981,6 +981,16 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
 }
 
+int AbilityConnectManager::AbilityWindowConfigTransactionDone(const sptr<IRemoteObject> &token,
+    const WindowConfig &windowConfig)
+{
+    std::lock_guard<ffrt::mutex> guard(serialMutex_);
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    abilityRecord->SaveAbilityWindowConfig(windowConfig);
+    return ERR_OK;
+}
+
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
 {
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();

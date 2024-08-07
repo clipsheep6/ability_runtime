@@ -166,6 +166,16 @@ public:
     int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state);
 
     /**
+     * @brief execute after the ability schedule the lifecycle
+     *
+     * @param token the ability token
+     * @param windowConfig the windowconfig
+     * @return execute error code
+     */
+    int AbilityWindowConfigTransactionDone(
+        const sptr<IRemoteObject> &token, const AppExecFwk::WindowConfig &windowConfig);
+
+    /**
      * ScheduleConnectAbilityDoneLocked, service ability call this interface while session was connected.
      *
      * @param token, service ability's token.
