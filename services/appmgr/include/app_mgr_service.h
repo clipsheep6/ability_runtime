@@ -338,6 +338,13 @@ public:
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
 
+    /**
+     * Register KIA interceptor.
+     * @param interceptor KIA interceptor.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor) override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.

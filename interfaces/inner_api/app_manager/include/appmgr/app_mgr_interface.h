@@ -28,6 +28,7 @@
 #include "child_process_info.h"
 #include "child_process_request.h"
 #include "fault_data.h"
+#include "kia_interceptor_interface.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
@@ -637,6 +638,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) = 0;
+
+    /**
+     * Register KIA interceptor.
+     * @param interceptor KIA interceptor.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor) = 0;
 
     /**
      * Update render state.

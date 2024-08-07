@@ -57,6 +57,7 @@
 #include "iremote_object.h"
 #include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
+#include "kia_interceptor_interface.h"
 #include "record_query_result.h"
 #include "refbase.h"
 #include "remote_client_manager.h"
@@ -1137,6 +1138,8 @@ public:
 
     bool IsProcessContainsOnlyUIAbility(const pid_t pid);
 
+    int32_t RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor);
+
 private:
     int32_t ForceKillApplicationInner(const std::string &bundleName, const int userId = -1,
         const int appIndex = 0);
@@ -1525,6 +1528,7 @@ private:
 
     std::mutex loadTaskListMutex_;
     std::vector<LoabAbilityTaskFunc> loadAbilityTaskFuncList_;
+    sptr<IKiaInterceptor> kiaInterceptor_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

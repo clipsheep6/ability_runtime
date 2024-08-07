@@ -571,6 +571,13 @@ public:
     virtual int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
 
     /**
+     * Register KIA interceptor.
+     * @param interceptor KIA interceptor.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterKiaInterceptor(const sptr<IKiaInterceptor> &interceptor) override;
+
+    /**
      * Update render state.
      * @param renderPid Render pid.
      * @param state foreground or background state.

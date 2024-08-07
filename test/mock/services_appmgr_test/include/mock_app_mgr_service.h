@@ -110,6 +110,7 @@ public:
     MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupport));
     MOCK_METHOD3(StartNativeChildProcess, int32_t(const std::string &libName, int32_t childProcessCount,
         const sptr<IRemoteObject> &callback));
+    MOCK_METHOD1(RegisterKiaInterceptor, int32_t(const sptr<IKiaInterceptor> &interceptor));
     virtual int StartUserTestProcess(
         const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)
     {
