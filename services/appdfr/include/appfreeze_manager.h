@@ -105,6 +105,8 @@ private:
     int64_t GetFreezeTime(int32_t pid);
     void ClearOldInfo();
     void CollectFreezeSysMemory(std::string& memoryContent);
+    std::string CatchJsonStackContent(int pid, const std::string& stack);
+    std::string CatcherStackContent(int pid, const std::string& stack);
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;
@@ -116,6 +118,8 @@ private:
     static std::map<int, std::string> catchStackMap_;
     static ffrt::mutex freezeFilterMutex_;
     std::map<std::string, AppFreezeInfo> appfreezeFilterMap_;
+    static ffrt::mutex stackContentMutex_;
+    std::string stackContent_ = "";
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
