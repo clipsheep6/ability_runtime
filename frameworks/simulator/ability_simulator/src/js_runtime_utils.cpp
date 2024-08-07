@@ -149,7 +149,7 @@ void NapiAsyncTask::Schedule(const std::string &name, napi_env env, std::unique_
 
 void NapiAsyncTask::Resolve(napi_env env, napi_value value)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called NapiAsyncTask::Resolve");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -165,12 +165,12 @@ void NapiAsyncTask::Resolve(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called end NapiAsyncTask::Resolve");
 }
 
 void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called NapiAsyncTask::Resolve");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -186,7 +186,7 @@ void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called end NapiAsyncTask::Resolve");
 }
 
 void NapiAsyncTask::Reject(napi_env env, napi_value error)
@@ -210,7 +210,7 @@ void NapiAsyncTask::Reject(napi_env env, napi_value error)
 
 void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_value value)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::ResolveWithCustomize is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called NapiAsyncTask::ResolveWithCustomize");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -226,12 +226,12 @@ void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_va
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::ResolveWithCustomize is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called end NapiAsyncTask::ResolveWithCustomize");
 }
 
 void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_value value)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::RejectWithCustomize is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called NapiAsyncTask::RejectWithCustomize");
     if (deferred_) {
         napi_reject_deferred(env, deferred_, error);
         deferred_ = nullptr;
@@ -247,7 +247,7 @@ void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_val
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::RejectWithCustomize is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called end NapiAsyncTask::RejectWithCustomize");
 }
 
 void NapiAsyncTask::Execute(napi_env env, void *data)
@@ -339,9 +339,9 @@ std::unique_ptr<NapiAsyncTask> CreateEmptyAsyncTask(napi_env env, napi_value las
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(napi_env env,
     const std::string &moduleName, napi_value const *argv, size_t argc)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "jsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     if (env == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "JsRuntime::LoadSystemModule: invalid env.");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "jsRuntime::LoadSystemModule: invalid env.");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -354,7 +354,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(napi_env en
     napi_create_reference(env, ref, 1, &methodRequireNapiRef);
     methodRequireNapiRef_.reset(reinterpret_cast<NativeReference *>(methodRequireNapiRef));
     if (!methodRequireNapiRef_) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create reference for global.requireNapi");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create reference for global.requireNapi failed");
         return nullptr;
     }
     napi_value className = nullptr;
@@ -365,7 +365,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(napi_env en
     napi_value instanceValue = nullptr;
     napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create object instance");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create object instance failed");
         return std::unique_ptr<NativeReference>();
     }
 

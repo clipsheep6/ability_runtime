@@ -57,7 +57,7 @@ const std::unordered_map<std::string, ExtensionAbilityType> EXTENSION_TYPE_MAP =
 
 ExtensionAbilityType ConvertToExtensionAbilityType(const std::string &type)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ConvertToExtensionAbilityType start");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "start");
     if (EXTENSION_TYPE_MAP.find(type) != EXTENSION_TYPE_MAP.end()) {
         return EXTENSION_TYPE_MAP.at(type);
     }
@@ -67,7 +67,7 @@ ExtensionAbilityType ConvertToExtensionAbilityType(const std::string &type)
 
 std::string ConvertToExtensionTypeName(ExtensionAbilityType type)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ConvertToExtensionTypeName start");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "start");
     for (const auto &[key, val] : EXTENSION_TYPE_MAP) {
         if (val == type) {
             return key;
@@ -285,7 +285,7 @@ struct ModuleJson {
 
 void from_json(const nlohmann::json &jsonObject, Metadata &metadata)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read metadata tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read metadata tag");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -315,7 +315,7 @@ void from_json(const nlohmann::json &jsonObject, Metadata &metadata)
 
 void from_json(const nlohmann::json &jsonObject, Ability &ability)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read ability tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read ability tag");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -590,7 +590,7 @@ void from_json(const nlohmann::json &jsonObject, Ability &ability)
 
 void from_json(const nlohmann::json &jsonObject, Extension &extension)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read extension tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read extension tag");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -816,7 +816,7 @@ void from_json(const nlohmann::json &jsonObject, DeviceConfig &deviceConfig)
 
 void from_json(const nlohmann::json &jsonObject, App &app)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read app tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read app tag");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -1145,7 +1145,7 @@ void from_json(const nlohmann::json &jsonObject, App &app)
 
 void from_json(const nlohmann::json &jsonObject, Module &module)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read module tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read module tag");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -1424,7 +1424,7 @@ bool CheckModuleNameIsValid(const std::string &moduleName)
         return false;
     }
     if (moduleName.find(Constants::MODULE_NAME_SEPARATOR) != std::string::npos) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module name should not contain ,");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module name should not contain");
         return false;
     }
     return true;
@@ -1725,7 +1725,7 @@ bool ParseExtensionInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &
     for (const Profile::Extension &extension : moduleJson.module.extensionAbilities) {
         ExtensionAbilityInfo extensionInfo;
         if (!ToExtensionInfo(moduleJson, extension, transformParam, extensionInfo)) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "To extensionInfo failed");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed");
             return false;
         }
 

@@ -130,7 +130,7 @@ void to_json(nlohmann::json &jsonObject, const Metadata &metadata)
 
 void to_json(nlohmann::json &jsonObject, const AbilityInfo &abilityInfo)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "AbilityInfo to_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "begin");
     jsonObject = nlohmann::json {
         {JSON_KEY_NAME, abilityInfo.name},
         {JSON_KEY_LABEL, abilityInfo.label},
@@ -294,7 +294,7 @@ void from_json(const nlohmann::json &jsonObject, Metadata &metadata)
 
 void from_json(const nlohmann::json &jsonObject, AbilityInfo &abilityInfo)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "AbilityInfo from_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "begin");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<std::string>(jsonObject,

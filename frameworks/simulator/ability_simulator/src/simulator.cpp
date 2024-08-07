@@ -73,7 +73,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dylib";
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char *message)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ArkLog: %{public}s", message);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "arkLog: %{public}s", message);
     return 0;
 }
 
@@ -159,7 +159,7 @@ void DebuggerTask::HandleTask(const uv_async_t *req)
 {
     auto *debuggerTask = reinterpret_cast<DebuggerTask*>(req->data);
     if (debuggerTask == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "HandleTask debuggerTask is null");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null HandleTask debuggerTask");
         return;
     }
     debuggerTask->func();
@@ -183,7 +183,7 @@ SimulatorImpl::~SimulatorImpl()
         if (uvLoop != nullptr) {
             uv_work_t work;
             uv_queue_work(uvLoop, &work, [](uv_work_t*) {}, [](uv_work_t *work, int32_t status) {
-                TAG_LOGE(AAFwkTag::ABILITY_SIM, "Simulator stop uv loop");
+                TAG_LOGE(AAFwkTag::ABILITY_SIM, "stop uv loop");
                 uv_stop(work->loop);
             });
         }
@@ -200,7 +200,7 @@ SimulatorImpl::~SimulatorImpl()
 bool SimulatorImpl::Initialize(const Options &options)
 {
     if (nativeEngine_) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Simulator is already initialized");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "initialized");
         return true;
     }
 
@@ -226,18 +226,18 @@ bool SimulatorImpl::Initialize(const Options &options)
 void CallObjectMethod(napi_env env, napi_value obj, const char *name, napi_value const *argv, size_t argc)
 {
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "%{public}s, Failed to get Ability object", __func__);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "get Ability object failed");
         return;
     }
     napi_value methodOnCreate = nullptr;
     napi_get_named_property(env, obj, name, &methodOnCreate);
     if (methodOnCreate == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get '%{public}s' from Ability object", name);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "get '%{public}s' failed", name);
         return;
     }
     napi_status status = napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to napi call function");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "napi call function failed");
     }
 }
 
@@ -245,7 +245,7 @@ napi_value SimulatorImpl::LoadScript(const std::string &srcPath)
 {
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, srcPath, "default");
     if (objRef->IsNull()) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Get export object failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "get export failed");
         return nullptr;
     }
 
@@ -260,7 +260,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     AppExecFwk::BundleContainer::GetInstance().LoadBundleInfos(options_.moduleJsonBuffer);
     appInfo_ = AppExecFwk::BundleContainer::GetInstance().GetApplicationInfo();
     if (appInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "appinfo parse failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "appinfo parse failed");
         return false;
     }
     nlohmann::json appInfoJson;
@@ -275,7 +275,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     options_.compileMode = "esmodule";
 
     if (appInfo_->moduleInfos.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module name is not exist");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module name not exist");
         return false;
     }
     options_.moduleName = appInfo_->moduleInfos[0].moduleName;
@@ -283,7 +283,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
 
     moduleInfo_ = AppExecFwk::BundleContainer::GetInstance().GetHapModuleInfo(options_.moduleName);
     if (moduleInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module info parse failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module info parse failed");
         return false;
     }
     nlohmann::json moduleInfoJson;
@@ -342,7 +342,7 @@ int64_t SimulatorImpl::StartAbility(
 
     std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
     if (!stream.is_open()) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to open: %{public}s", options_.modulePath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "open: %{public}s failed", options_.modulePath.c_str());
         return -1;
     }
 
@@ -354,19 +354,19 @@ int64_t SimulatorImpl::StartAbility(
 
     auto buf = buffer.release();
     if (!LoadAbilityStage(buf, len)) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Load ability stage failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "load ability stage failed.");
         return -1;
     }
 
     abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
     if (!reinterpret_cast<NativeEngine*>(nativeEngine_)->RunScriptBuffer(abilityPath_, buf, len, false)) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to run script: %{public}s", abilityPath_.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "run script: %{public}s failed", abilityPath_.c_str());
         return -1;
     }
 
     napi_value instanceValue = LoadScript(abilityPath_);
     if (instanceValue == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create object instance");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create object instance failed");
         return -1;
     }
 
@@ -384,17 +384,17 @@ int64_t SimulatorImpl::StartAbility(
 bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
 {
     if (moduleInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "moduleInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null moduleInfo");
         return false;
     }
 
     if (moduleInfo_->srcEntrance.empty()) {
-        TAG_LOGD(AAFwkTag::ABILITY_SIM, "module src path is empty.");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "empty module src path");
         return true;
     }
 
     if (nativeEngine_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "nativeEngine_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null nativeEngine_");
         return false;
     }
     std::string srcEntrance = moduleInfo_->srcEntrance;
@@ -403,15 +403,15 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
     srcEntrance = srcEntrance.substr(srcEntrance.find('/') + 1, srcEntrance.length());
 
     auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + srcEntrance;
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "moduleSrcPath is %{public}s", moduleSrcPath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "moduleSrcPath: %{public}s", moduleSrcPath.c_str());
     if (!reinterpret_cast<NativeEngine*>(nativeEngine_)->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "run ability stage script: %{public}s failed", moduleSrcPath.c_str());
         return false;
     }
 
     napi_value instanceValue = LoadScript(moduleSrcPath);
     if (instanceValue == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create ability stage instance");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create ability stage instance failed");
         return false;
     }
 
@@ -432,25 +432,25 @@ void SimulatorImpl::InitJsAbilityStageContext(napi_value obj)
 {
     napi_value contextObj = CreateJsAbilityStageContext(nativeEngine_, stageContext_);
     if (contextObj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "contextObj is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null contextObj");
         return;
     }
 
     jsStageContext_ = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.AbilityStageContext", &contextObj, 1));
     if (jsStageContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get LoadSystemModuleByEngine");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "get LoadSystemModuleByEngine failed");
         return;
     }
 
     contextObj = jsStageContext_->GetNapiValue();
     if (contextObj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "contextObj is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null contextObj.");
         return;
     }
 
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "obj is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null obj");
         return;
     }
     napi_set_named_property(nativeEngine_, obj, "context", contextObj);
@@ -500,7 +500,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     if (abilityStage_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "abilityStage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null abilityStage_");
         return;
     }
 
@@ -519,7 +519,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 
     auto abilityStage = abilityStage_->GetNapiValue();
     if (abilityStage == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "abilityStage is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null abilityStage");
         return;
     }
     CallObjectMethod(nativeEngine_, abilityStage, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
@@ -529,7 +529,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
     for (auto iter = abilities_.begin(); iter != abilities_.end(); iter++) {
         auto ability = iter->second->GetNapiValue();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "ability is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "null ability");
             continue;
         }
 
@@ -541,7 +541,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 
 void SimulatorImpl::SetMockList(const std::map<std::string, std::string> &mockList)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called. mockList size: %{public}zu", mockList.size());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called mockList size: %{public}zu", mockList.size());
     panda::JSNApi::SetMockModuleList(vm_, mockList);
 }
 
@@ -550,14 +550,14 @@ void SimulatorImpl::InitResourceMgr()
     TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     resourceMgr_ = std::shared_ptr<Global::Resource::ResourceManager>(Global::Resource::CreateResourceManager());
     if (resourceMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "resourceMgr is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null resourceMgr");
         return;
     }
 
     if (!resourceMgr_->AddResource(options_.resourcePath.c_str())) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Add resource failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "add resource failed.");
     }
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Add resource success.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "add resource success.");
 }
 
 void SimulatorImpl::InitJsAbilityContext(napi_env env, napi_value obj)
@@ -574,17 +574,17 @@ void SimulatorImpl::InitJsAbilityContext(napi_env env, napi_value obj)
     auto systemModule = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.AbilityContext", &contextObj, 1));
     if (systemModule == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "systemModule is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null systemModule.");
         return;
     }
     contextObj = systemModule->GetNapiValue();
     if (contextObj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "contextObj is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null contextObj.");
         return;
     }
 
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "obj is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null obj");
         return;
     }
     napi_set_named_property(env, obj, "context", contextObj);
@@ -656,7 +656,7 @@ std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
 {
     napi_value jsWindowStage = Rosen::CreateJsWindowStage(nativeEngine_, windowScene);
     if (jsWindowStage == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create jsWindowSatge object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create jsWindowSatge object failed");
         return nullptr;
     }
     return JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.WindowStage", &jsWindowStage, 1);
@@ -696,7 +696,7 @@ bool SimulatorImpl::OnInit()
 
     auto nativeEngine = new (std::nothrow) ArkNativeEngine(vm_, nullptr);
     if (nativeEngine == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "nativeEngine is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "null nativeEngine");
         return false;
     }
     napi_env env = reinterpret_cast<napi_env>(nativeEngine);
@@ -704,12 +704,12 @@ bool SimulatorImpl::OnInit()
         TAG_LOGE(AAFwkTag::ABILITY_SIM, "uncaught exception");
         auto self = weak.lock();
         if (self == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "SimulatorImpl is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "null SimulatorImpl.");
             return;
         }
         self->ReportJsError(value);
         if (self->terminateCallback_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY_SIM, "terminateCallback is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "null terminateCallback.");
             return;
         }
         self->terminateCallback_(self->currentId_);
@@ -720,13 +720,13 @@ bool SimulatorImpl::OnInit()
     napi_get_global(env, &globalObj);
     if (globalObj == nullptr) {
         delete nativeEngine;
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get global object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "get global object failed");
         return false;
     }
 
     if (!LoadRuntimeEnv(env, globalObj)) {
         delete nativeEngine;
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Load runtime env failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "load runtime env failed.");
         return false;
     }
 
@@ -769,7 +769,7 @@ void SimulatorImpl::LoadJsMock(const std::string &fileName)
 {
     std::ifstream stream(fileName, std::ios::ate | std::ios::binary);
     if (!stream.is_open()) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to open: %{public}s", fileName.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "open: %{public}s failed", fileName.c_str());
         return;
     }
     size_t len = stream.tellg();
@@ -785,7 +785,7 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
     JsSysModule::Console::InitConsoleModule(env);
     auto ret = JsSysModule::Timer::RegisterTime(env);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Register timer failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "register timer failed");
     }
     napi_value object = nullptr;
     napi_create_object(env, &object);
@@ -941,7 +941,7 @@ void SimulatorImpl::GetPkgContextInfoListInner(nlohmann::json &itemObject, std::
 std::string SimulatorImpl::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
 {
     if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get value from key.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "get value from key failed");
         return "";
     }
 
@@ -950,7 +950,7 @@ std::string SimulatorImpl::GetNativeStrFromJsTaggedObj(napi_value obj, const cha
     napi_valuetype valueType = napi_undefined;
     napi_typeof(nativeEngine_, valueStr, &valueType);
     if (valueType != napi_string) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to convert value from key.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "convert value from key  failed");
         return "";
     }
 
@@ -960,7 +960,7 @@ std::string SimulatorImpl::GetNativeStrFromJsTaggedObj(napi_value obj, const cha
     size_t valueStrLength = 0;
     napi_get_value_string_utf8(nativeEngine_, valueStr, valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
     std::string ret(valueCStr.get(), valueStrLength);
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "GetNativeStrFromJsTaggedObj Success.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "success.");
     return ret;
 }
 

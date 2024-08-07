@@ -52,7 +52,7 @@ const std::string UID = "uid";
 }; // namespace
 void to_json(nlohmann::json &jsonObject, const ExtensionAbilityInfo &extensionInfo)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ExtensionAbilityInfo to_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "begin");
     jsonObject = nlohmann::json {
         {Constants::BUNDLE_NAME, extensionInfo.bundleName},
         {Constants::MODULE_NAME, extensionInfo.moduleName},
@@ -83,7 +83,7 @@ void to_json(nlohmann::json &jsonObject, const ExtensionAbilityInfo &extensionIn
 
 void from_json(const nlohmann::json &jsonObject, ExtensionAbilityInfo &extensionInfo)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ExtensionAbilityInfo from_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "begin");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<std::string>(jsonObject,

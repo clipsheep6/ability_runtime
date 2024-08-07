@@ -30,7 +30,7 @@ enum class MemoryLevel {
 
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "SetEnumItem start");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "start");
     napi_status status;
     napi_value itemName;
     napi_value itemValue;
@@ -40,7 +40,7 @@ static napi_status SetEnumItem(napi_env env, napi_value object, const char* name
 
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemName, itemValue), status);
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemValue, itemName), status);
-    TAG_LOGD(AAFwkTag::ABILITY_SIM, "SetEnumItem end");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "end");
 
     return napi_ok;
 }
@@ -151,43 +151,43 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
 {
     napi_value launchReason = InitLaunchReasonObject(env);
     if (launchReason == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create launch reason object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create launch reason object failed");
         return nullptr;
     }
 
     napi_value lastExitReason = InitLastExitReasonObject(env);
     if (lastExitReason == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create last exit reason object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create last exit reason object failed");
         return nullptr;
     }
 
     napi_value onContinueResult = InitOnContinueResultObject(env);
     if (onContinueResult == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create onContinue result object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create onContinue result object failed");
         return nullptr;
     }
 
     napi_value windowMode = InitWindowModeObject(env);
     if (windowMode == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create window mode object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create window mode object failed");
         return nullptr;
     }
 
     napi_value memoryLevel = InitMemoryLevelObject(env);
     if (memoryLevel == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create memory level object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create memory level object failed");
         return nullptr;
     }
 
     napi_value stateType = InitStateTypeEnum(env);
     if (stateType == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create state type object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create state type object failed");
         return nullptr;
     }
 
     napi_value saveResult = InitOnSaveResultEnum(env);
     if (saveResult == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create save result object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "create save result object failed");
         return nullptr;
     }
 
@@ -202,7 +202,7 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to define properties for exports");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "define properties for exports failed");
         return nullptr;
     }
 
