@@ -260,7 +260,7 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData,
     }
     for (auto& pidTemp : pids) {
         TAG_LOGI(AAFwkTag::APPDFR, "pidTemp pids:%{public}d", pidTemp);
-        if (pidTemp != pid) {
+        if (pidTemp != pid && isAncoPorc(pidTemp)) {
             std::string content = "PeerBinder catcher stacktrace for pid : " + std::to_string(pidTemp) + "\n";
             content += CatcherStacktrace(pidTemp);
             binderInfo += content;
@@ -405,10 +405,25 @@ void AppfreezeManager::ParseBinderPids(const std::map<int, std::set<int>>& binde
     }
     if (it != binderInfo.end()) {
         for (auto& each : it->second) {
-            pids.insert(each);
+            if (!isAncoPorc(pid)) {
+                pids.insert(each);
+            }
             ParseBinderPids(binderInfo, pids, each, layer);
         }
     }
+}
+
+bool AppfreezeManager::isAncoPorc(int pid) const
+{
+    std::string cgroupPath = "/proc/" + std::to_string(pid) + "/cgroup";
+    std::ifstream inFile(cgroupPath.c_str());
+    if (!inFile) {
+        return false;
+    }
+    std::string firstLine;
+    getline(inFile, firstLine);
+    inFile.close();
+    return firstLine.find("isulad") != std::string::npos;
 }
 
 void AppfreezeManager::DeleteStack(int pid)
