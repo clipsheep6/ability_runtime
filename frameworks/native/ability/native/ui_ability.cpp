@@ -411,11 +411,13 @@ void UIAbility::OnRestoreAbilityState(const AppExecFwk::PacMap &inState)
 
 void UIAbility::SetWant(const AAFwk::Want &want)
 {
+    std::lock_guard<std::mutex> lock(wantMutexlock_);
     setWant_ = std::make_shared<AAFwk::Want>(want);
 }
 
 std::shared_ptr<AAFwk::Want> UIAbility::GetWant()
 {
+    std::lock_guard<std::mutex> lock(wantMutexlock_);
     return setWant_;
 }
 
@@ -551,6 +553,7 @@ sptr<IRemoteObject> UIAbility::CallRequest()
 
 bool UIAbility::IsUseNewStartUpRule()
 {
+    std::lock_guard<std::mutex> lock(wantMutexlock_);
     if (!isNewRuleFlagSetted_ && setWant_) {
         startUpNewRule_ = setWant_->GetBoolParam(COMPONENT_STARTUP_NEW_RULES, false);
         isNewRuleFlagSetted_ = true;
