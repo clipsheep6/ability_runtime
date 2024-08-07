@@ -3693,8 +3693,8 @@ int AbilityManagerService::ConnectAbilityCommon(
     AppExecFwk::ExtensionAbilityType extensionType, int32_t userId, bool isQueryExtensionOnly)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "call, element uri:%{public}s.", want.GetElement().GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "elementUri:%{public}s", want.GetElement().GetURI().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
     if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE && IsCrossUserCall(userId)) {
@@ -5587,7 +5587,7 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
 
     auto abilityInfo = abilityRecord->GetAbilityInfo();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability: %{public}s.", abilityRecord->GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s", abilityRecord->GetURI().c_str());
     auto type = abilityInfo.type;
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     // force timeout ability for test
@@ -5659,7 +5659,7 @@ int AbilityManagerService::AbilityWindowConfigTransitionDone(
         return CHECK_PERMISSION_FAILED;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s", abilityRecord->GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s", abilityRecord->GetURI().c_str());
     int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
     auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerMissionUserId);
     CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);

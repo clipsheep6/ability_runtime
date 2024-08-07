@@ -401,7 +401,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s", GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s", GetURI().c_str());
     CHECK_POINTER(lifecycleDeal_);
     // grant uri permission
     {
@@ -1184,7 +1184,7 @@ void AbilityRecord::SetColdStartFlag(bool isColdStart)
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s.", GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s", GetURI().c_str());
     if (lifecycleDeal_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Move the ability to background fail, lifecycleDeal_ is null.");
         return;

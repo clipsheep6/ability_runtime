@@ -231,7 +231,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
     }
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability:%{public}s", targetService->GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "StartAbility:%{public}s", targetService->GetURI().c_str());
 
     targetService->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
 
@@ -830,7 +830,7 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability:%{public}s", element.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability:%{public}s", element.c_str());
     if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("LoadTimeout_") + std::to_string(recordId);
@@ -934,7 +934,7 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability:%{public}s, state:%{public}s", element.c_str(), abilityState.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability:%{public}s, state:%{public}s", element.c_str(), abilityState.c_str());
 
     switch (targetState) {
         case AbilityState::INACTIVE: {
@@ -1177,7 +1177,7 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
         "Ability:%{public}s, persistentId:%{private}d, winCmd:%{public}d, abilityCmd:%{public}d", element.c_str(),
         sessionInfo->persistentId, winCmd, abilityCmd);
 
@@ -1841,8 +1841,8 @@ void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<Abil
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
     auto abilitystateStr = abilityRecord->ConvertAbilityState(abilityRecord->GetAbilityState());
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "Background ability:%{public}s, persistentId:%{public}d, abilityState:%{public}s",
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "ability:%{public}s, persistentId:%{public}d, abilityState:%{public}s",
         abilityRecord->GetURI().c_str(), sessionInfo->persistentId, abilitystateStr.c_str());
     if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
         MoveToBackground(abilityRecord);
@@ -1862,8 +1862,8 @@ void AbilityConnectManager::TerminateAbilityWindowLocked(const std::shared_ptr<A
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
     auto abilitystateStr = abilityRecord->ConvertAbilityState(abilityRecord->GetAbilityState());
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "Terminate ability:%{public}s, persistentId:%{public}d, abilityState:%{public}s",
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "ability:%{public}s, persistentId:%{public}d, abilityState:%{public}s",
         abilityRecord->GetURI().c_str(), sessionInfo->persistentId, abilitystateStr.c_str());
     EventInfo eventInfo;
     eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
@@ -2947,7 +2947,7 @@ void AbilityConnectManager::HandleProcessFrozen(const std::vector<int32_t> &pidL
         TAG_LOGE(AAFwkTag::ABILITYMGR, "taskHandler null");
         return;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleProcessFrozen:%{public}d", uid);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "uid:%{public}d", uid);
     std::unordered_set<int32_t> pidSet(pidList.begin(), pidList.end());
     std::lock_guard lock(serviceMapMutex_);
     auto weakThis = weak_from_this();

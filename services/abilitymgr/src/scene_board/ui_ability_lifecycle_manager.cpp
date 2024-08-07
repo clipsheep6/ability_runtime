@@ -82,7 +82,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     }
     abilityRequest.sessionInfo = sessionInfo;
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "session id:%{public}d. bundle:%{public}s, ability:%{public}s",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "session:%{public}d. bundle:%{public}s, ability:%{public}s",
         sessionInfo->persistentId, abilityRequest.abilityInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
     std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
