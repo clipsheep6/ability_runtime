@@ -243,7 +243,7 @@ AccessibilityAbilityShellCommand::AccessibilityAbilityShellCommand(int argc, cha
         TAG_LOGI(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s", i, argv_[i]);
     }
     if (abilityClientPtr_ == nullptr) {
-        abilityClientPtr_ = Accessibility::AccessibilitySystemAbilityClient::GetInstance();
+        abilityClientPtr_ = Accessibility::AccessibilitySystemAbilityClient::GetShellCommandInstance();
         if (abilityClientPtr_ == nullptr) {
             TAG_LOGE(AAFwkTag::AA_TOOL, "Get access ability system ability client failed.");
         }
