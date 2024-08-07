@@ -60,6 +60,7 @@ public:
     MOCK_METHOD2(GetExtensionRunningSaList, int32_t(const std::string&, std::vector<sptr<IRemoteObject>>&));
     MOCK_METHOD2(GetRunningSaExtensionInfoList, int32_t(const std::string&, std::vector<SaExtensionInfo>&));
     MOCK_METHOD3(GetCommonEventExtraDataIdlist, int32_t(int32_t, std::vector<int64_t>&, const std::string&));
+    MOCK_METHOD2(GetSaAttributeInfo, int32_t(int32_t, SaAttributeInfo &));
 };
 } // namespace AppExecFwk
 } // namespace OHOS
