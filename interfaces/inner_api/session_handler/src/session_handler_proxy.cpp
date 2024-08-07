@@ -25,21 +25,21 @@ void SessionHandlerProxy::OnSessionMovedToFront(int32_t sessionId)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!data.WriteInterfaceToken(ISessionHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "write token failed");
         return;
     }
     if (!data.WriteInt32(sessionId)) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "sessionId write failed.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "sessionId write failed");
         return;
     }
     auto remote = Remote();
     if (!remote) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "remote null");
         return;
     }
     int32_t ret = remote->SendRequest(ISessionHandler::ON_SESSION_MOVED_TO_FRONT, data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "OnSessionMovedToFront fail to Send request, err: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::DEFAULT, "request failed: %{public}d", ret);
     }
 }
 }

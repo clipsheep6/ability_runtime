@@ -43,15 +43,14 @@ int32_t JsStartupTask::Init()
 int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback)
 {
     if (state_ != State::CREATED) {
-        TAG_LOGE(AAFwkTag::STARTUP,
-            "%{public}s, state is wrong %{public}d", name_.c_str(), static_cast<int32_t>(state_));
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, state wrong %{public}d", name_.c_str(), static_cast<int32_t>(state_));
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     state_ = State::INITIALIZING;
     callback->Push([weak = weak_from_this()](const std::shared_ptr<StartupTaskResult> &result) {
         auto startupTask = weak.lock();
         if (startupTask == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "startupTask is nullptr.");
+            TAG_LOGE(AAFwkTag::STARTUP, "startupTask null");
             return;
         }
         startupTask->SaveResult(result);
@@ -63,7 +62,7 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
     }
 
     if (LoadJsAsyncTaskExcutor() != ERR_OK) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Load async task excutor is failed.");
+        TAG_LOGE(AAFwkTag::STARTUP, "LoadJsAsyncTaskExcutor failed");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     LoadJsAsyncTaskCallback();
@@ -88,7 +87,7 @@ int32_t JsStartupTask::LoadJsAsyncTaskExcutor()
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Object is nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Object null");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
 
@@ -123,7 +122,7 @@ void JsStartupTask::OnAsyncTaskCompleted(const std::shared_ptr<StartupTaskResult
 {
     TAG_LOGD(AAFwkTag::STARTUP, "called");
     if (startupTaskResultCallback_ == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Startup task result callback object is nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "null startupTaskResultCallback");
         return;
     }
     startupTaskResultCallback_->Call(result);
@@ -136,7 +135,7 @@ int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependenc
     auto env = jsRuntime_.GetNapiEnv();
 
     if (startupJsRef_ == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, startup task is null", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "null ref_:%{public}s", name_.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value startupValue = startupJsRef_->GetNapiValue();
@@ -148,13 +147,13 @@ int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependenc
     napi_get_named_property(env, startupValue, "onDependencyCompleted", &startupOnDepCompleted);
     if (startupOnDepCompleted == nullptr) {
         TAG_LOGE(AAFwkTag::STARTUP,
-            "%{public}s, failed to get property onDependencyCompleted from startup task.", name_.c_str());
+            "%{public}s, get onDependencyCompleted failed", name_.c_str());
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     bool isCallable = false;
     napi_is_callable(env, startupOnDepCompleted, &isCallable);
     if (!isCallable) {
-        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, startup task onDependencyCompleted is not callable.", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "onDependencyCompleted not callable:%{public}s", name_.c_str());
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
 
@@ -174,7 +173,7 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
     } else {
         std::shared_ptr<JsStartupTaskResult> jsResultPtr = std::static_pointer_cast<JsStartupTaskResult>(result);
         if (jsResultPtr == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to convert to js result.", dependencyName.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, convert failed", dependencyName.c_str());
             return CreateJsUndefined(env);
         }
         std::shared_ptr<NativeReference> jsResultRef = jsResultPtr->GetJsStartupResultRef();
@@ -195,7 +194,7 @@ napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_inf
 
     std::string startupName;
     if (!ConvertFromJsValue(env, argv[INDEX_ZERO], startupName)) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Convert from js startupName error.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Convert error");
         return CreateJsUndefined(env);
     }
 

@@ -53,24 +53,24 @@ int32_t JsStartupTaskExecutor::RunOnTaskPool(
     auto env = jsRuntime.GetNapiEnv();
 
     if (startup == nullptr || context == nullptr || asyncTaskExcutor == nullptr || asyncTaskCallback == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "AsyncTaskExcutor or startup or context or async task callback is null.");
+        TAG_LOGE(AAFwkTag::STARTUP, "args null");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value asyncTaskExcutorValue = asyncTaskExcutor->GetNapiValue();
     if (!CheckTypeForNapiValue(env, asyncTaskExcutorValue, napi_object)) {
-        TAG_LOGE(AAFwkTag::STARTUP, "AsyncTaskExcutor is not napi object.");
+        TAG_LOGE(AAFwkTag::STARTUP, "not napi object");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value asyncPushTask = nullptr;
     napi_get_named_property(env, asyncTaskExcutorValue, "asyncPushTask", &asyncPushTask);
     if (asyncPushTask == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Failed to get property asyncPushTask from AsyncTaskExcutor.");
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncPushTask null");
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     bool isCallable = false;
     napi_is_callable(env, asyncPushTask, &isCallable);
     if (!isCallable) {
-        TAG_LOGE(AAFwkTag::STARTUP, "AsyncPushTask is not callable.");
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncPushTask not callable");
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     napi_value returnVal = nullptr;

@@ -34,12 +34,12 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
     const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback)
 {
     if (sortResult_ == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "sortResult_ is nullptr");
+        TAG_LOGE(AAFwkTag::STARTUP, "sortResult null");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     for (auto &iter : tasks_) {
         if (iter.second == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "startup task %{public}s is nullptr", iter.first.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "startup task %{public}s null", iter.first.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         inDegreeMap_.emplace(iter.first, iter.second->getDependenciesCount());
@@ -52,7 +52,7 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
     mainThreadAwaitCallback_ = mainThreadAwaitCallback;
 
     if (mainThreadAwaitCount_ == 0) {
-        TAG_LOGD(AAFwkTag::STARTUP, "no main thread await task. call mainThreadAwaitCallback");
+        TAG_LOGD(AAFwkTag::STARTUP, "no main thread await task");
         if (mainThreadAwaitCallback_ != nullptr) {
             auto result = std::make_shared<StartupTaskResult>();
             mainThreadAwaitCallback_->Call(result);
@@ -66,7 +66,7 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         if (findResult->second == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "startup task %{public}s is nullptr", iter.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "startup task %{public}s null", iter.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         int32_t result = RunTaskInit(iter, findResult->second);
@@ -79,7 +79,7 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
 
 void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "run startup task %{public}s dispatch.", name.c_str());
+    TAG_LOGD(AAFwkTag::STARTUP, "run startup task %{public}s dispatch", name.c_str());
     if (result == nullptr) {
         OnError(ERR_STARTUP_INTERNAL_ERROR, name + ": result is null");
         return;
@@ -99,7 +99,7 @@ void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_
 
     if (findResult->second->GetWaitOnMainThread()) {
         mainThreadAwaitCount_--;
-        TAG_LOGD(AAFwkTag::STARTUP, "mainThreadAwaitCount_ %{public}d.", mainThreadAwaitCount_);
+        TAG_LOGD(AAFwkTag::STARTUP, "mainThreadAwaitCount %{public}d", mainThreadAwaitCount_);
         if (mainThreadAwaitCount_ == 0) {
             if (mainThreadAwaitCallback_ != nullptr) {
                 mainThreadAwaitCallback_->Call(result);
@@ -107,7 +107,7 @@ void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_
         }
     }
     tasksCount_--;
-    TAG_LOGD(AAFwkTag::STARTUP, "tasksCount_ %{public}d.", tasksCount_);
+    TAG_LOGD(AAFwkTag::STARTUP, "tasksCount %{public}d", tasksCount_);
     if (tasksCount_ == 0) {
         if (completedCallback_ != nullptr) {
             completedCallback_->Call(result);
@@ -159,12 +159,12 @@ int32_t StartupTaskDispatcher::NotifyChildren(const std::string &name, const std
 
 int32_t StartupTaskDispatcher::RunTaskInit(const std::string &name, const std::shared_ptr<StartupTask> &task)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "run startup task %{public}s init.", name.c_str());
+    TAG_LOGD(AAFwkTag::STARTUP, "%{public}s init", name.c_str());
     std::unique_ptr<StartupTaskResultCallback> callback = std::make_unique<StartupTaskResultCallback>();
     callback->Push([weak = weak_from_this(), name](const std::shared_ptr<StartupTaskResult> &result) {
         auto startupTaskDispatcher = weak.lock();
         if (startupTaskDispatcher == nullptr) {
-            TAG_LOGD(AAFwkTag::STARTUP, "startupTaskDispatcher may have been release due to previous error.");
+            TAG_LOGD(AAFwkTag::STARTUP, "startupTaskDispatcher may have been release due to previous error");
             return;
         }
         startupTaskDispatcher->Dispatch(name, result);
@@ -179,7 +179,7 @@ int32_t StartupTaskDispatcher::RunTaskInit(const std::string &name, const std::s
         return task->AddExtraCallback(std::move(callback));
     } else {
         // state: INVALID
-        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s task state is: INVALID", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s task state: INVALID", name.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
 }

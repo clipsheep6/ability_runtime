@@ -46,7 +46,7 @@ void TaskHandle::Sync() const
 {
     auto handler = handler_.lock();
     if (!status_ || !handler || !innerTaskHandle_) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid state");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid status");
         return;
     }
     auto &status = *status_;

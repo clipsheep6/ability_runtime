@@ -44,7 +44,7 @@ int64_t ResSchedUtil::convertType(int64_t resSchedType)
         return static_cast<int64_t>(AssociatedStartType::MISSION_LIST_START_ABILITY);
     }
 #endif
-    TAG_LOGE(AAFwkTag::DEFAULT, "res sched type invalid");
+    TAG_LOGE(AAFwkTag::DEFAULT, "sched invalid");
     return -1;
 }
 

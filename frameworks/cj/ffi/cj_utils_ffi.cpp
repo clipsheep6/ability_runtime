@@ -27,12 +27,12 @@ char* CreateCStringFromString(const std::string& source)
     size_t length = source.size() + 1;
     auto res = static_cast<char*>(malloc(length));
     if (res == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "fail to mallc string.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "null res");
         return nullptr;
     }
     if (strcpy_s(res, length, source.c_str()) != 0) {
         free(res);
-        TAG_LOGE(AAFwkTag::DEFAULT, "fail to strcpy source.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Strcpy failed");
         return nullptr;
     }
     return res;

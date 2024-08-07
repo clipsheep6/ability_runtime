@@ -42,12 +42,12 @@ napi_value AttachFormExtensionContext(napi_env env, void* value, void*)
 {
     TAG_LOGI(AAFwkTag::FORM_EXT, "call");
     if (value == nullptr) {
-        TAG_LOGW(AAFwkTag::FORM_EXT, "invalid parameter");
+        TAG_LOGW(AAFwkTag::FORM_EXT, "null value ");
         return nullptr;
     }
     auto ptr = reinterpret_cast<std::weak_ptr<FormExtensionContext>*>(value)->lock();
     if (ptr == nullptr) {
-        TAG_LOGW(AAFwkTag::FORM_EXT, "invalid context");
+        TAG_LOGW(AAFwkTag::FORM_EXT, "null context");
         return nullptr;
     }
     napi_value object = CreateJsFormExtensionContext(env, ptr);
@@ -79,7 +79,7 @@ JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime
 JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsFormExtension::~JsFormExtension()
 {
-    TAG_LOGD(AAFwkTag::FORM_EXT, "Js form extension destructor.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "destructor");
     auto context = GetContext();
     if (context) {
         context->Unbind();
@@ -99,27 +99,27 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::string srcPath;
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Failed to get srcPath");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "get srcPath failed");
         return;
     }
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    TAG_LOGD(AAFwkTag::FORM_EXT, "JsFormExtension::Init moduleName:%{public}s,srcPath:%{public}s,"
-        "compileMode :%{public}d.", moduleName.c_str(), srcPath.c_str(), abilityInfo_->compileMode);
+    TAG_LOGD(AAFwkTag::FORM_EXT, "moduleName:%{public}s,srcPath:%{public}s,"
+        "compileMode :%{public}d", moduleName.c_str(), srcPath.c_str(), abilityInfo_->compileMode);
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Error to get jsObj_");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "null jsObj");
         return;
     }
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Error to get JsFormExtension object");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "get JsFormExtension error");
         return;
     }
 
@@ -130,19 +130,19 @@ void JsFormExtension::BindContext(napi_env env, napi_value obj)
 {
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Failed to get context");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "get context error");
         return;
     }
     TAG_LOGD(AAFwkTag::FORM_EXT, "call");
     napi_value contextObj = CreateJsFormExtensionContext(env, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.FormExtensionContext", &contextObj, 1);
     if (shellContextRef_ == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Failed to load module");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "load module failed");
         return;
     }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Failed to get context native object");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "get context failed");
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(context);
@@ -172,19 +172,19 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
 
     OHOS::AppExecFwk::FormProviderInfo formProviderInfo;
     if (!CheckTypeForNapiValue(env, nativeResult, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult null");
         return formProviderInfo;
     }
 
     napi_value nativeDataValue = nullptr;
     napi_get_named_property(env, nativeResult, "data", &nativeDataValue);
     if (nativeDataValue == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult get data is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult null");
         return formProviderInfo;
     }
     std::string formDataStr;
     if (!ConvertFromJsValue(env, nativeDataValue, formDataStr)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "convert formDataStr failed.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Convert formDataStr failed");
         return formProviderInfo;
     }
     AppExecFwk::FormProviderData formData = AppExecFwk::FormProviderData(formDataStr);
@@ -194,7 +194,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
     napi_get_named_property(env, nativeResult, "proxies", &nativeProxies);
     std::vector<FormDataProxy> formDataProxies;
     if (nativeProxies != nullptr && !ConvertFromDataProxies(env, nativeProxies, formDataProxies)) {
-        TAG_LOGW(AAFwkTag::FORM_EXT, "convert formDataProxies failed.");
+        TAG_LOGW(AAFwkTag::FORM_EXT, "Convert formDataProxies failed");
         return formProviderInfo;
     }
     formProviderInfo.SetFormDataProxies(formDataProxies);
@@ -204,7 +204,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
 
 void JsFormExtension::OnDestroy(const int64_t formId)
 {
-    TAG_LOGI(AAFwkTag::FORM_EXT, "OnDestroy, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGI(AAFwkTag::FORM_EXT, "formId: %{public}" PRId64, formId);
     FormExtension::OnDestroy(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -224,13 +224,13 @@ void JsFormExtension::OnStop()
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        TAG_LOGI(AAFwkTag::FORM_EXT, "The service extension connection is not disconnected.");
+        TAG_LOGI(AAFwkTag::FORM_EXT, "disconnected failed");
     }
 }
 
 void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 {
-    TAG_LOGI(AAFwkTag::FORM_EXT, "OnEvent, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGI(AAFwkTag::FORM_EXT, "formId: %{public}" PRId64, formId);
     FormExtension::OnEvent(formId, message);
 
     HandleScope handleScope(jsRuntime_);
@@ -248,7 +248,7 @@ void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 
 void JsFormExtension::OnUpdate(const int64_t formId, const AAFwk::WantParams &wantParams)
 {
-    TAG_LOGI(AAFwkTag::FORM_EXT, "OnUpdate, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGI(AAFwkTag::FORM_EXT, "formId: %{public}" PRId64, formId);
     FormExtension::OnUpdate(formId, wantParams);
 
     HandleScope handleScope(jsRuntime_);
@@ -265,7 +265,7 @@ void JsFormExtension::OnUpdate(const int64_t formId, const AAFwk::WantParams &wa
 
 void JsFormExtension::OnCastToNormal(const int64_t formId)
 {
-    TAG_LOGI(AAFwkTag::FORM_EXT, "OnCastToNormal, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGI(AAFwkTag::FORM_EXT, "formId: %{public}" PRId64, formId);
     FormExtension::OnCastToNormal(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -298,13 +298,12 @@ sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
     TAG_LOGD(AAFwkTag::FORM_EXT, "call");
     Extension::OnConnect(want);
     if (providerRemoteObject_ == nullptr) {
-        TAG_LOGD(AAFwkTag::FORM_EXT, "providerRemoteObject_ is nullptr, need init.");
+        TAG_LOGD(AAFwkTag::FORM_EXT, "null providerRemoteObject");
         sptr<FormExtensionProviderClient> providerClient = new (std::nothrow) FormExtensionProviderClient();
         std::shared_ptr<JsFormExtension> formExtension = std::static_pointer_cast<JsFormExtension>(shared_from_this());
         providerClient->SetOwner(formExtension);
         providerRemoteObject_ = providerClient->AsObject();
     }
-    TAG_LOGD(AAFwkTag::FORM_EXT, "ok");
     return providerRemoteObject_;
 }
 
@@ -313,7 +312,7 @@ napi_value JsFormExtension::CallObjectMethod(const char* name, const char *bakNa
 {
     TAG_LOGD(AAFwkTag::FORM_EXT, "CallObjectMethod(%{public}s)", name);
     if (!jsObj_) {
-        TAG_LOGW(AAFwkTag::FORM_EXT, "jsObj_ is nullptr");
+        TAG_LOGW(AAFwkTag::FORM_EXT, "jsObj null");
         return nullptr;
     }
 
@@ -322,14 +321,14 @@ napi_value JsFormExtension::CallObjectMethod(const char* name, const char *bakNa
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Failed to get FormExtension object");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "get FormExtension failed");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, name, &method);
     if (!CheckTypeForNapiValue(env, method, napi_function)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Failed to get '%{public}s' from FormExtension object", name);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "get '%{public}s' failed", name);
         if (bakName == nullptr) {
             return nullptr;
         }
@@ -378,7 +377,7 @@ void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& co
     // Notify extension context
     auto fullConfig = GetContext()->GetConfiguration();
     if (!fullConfig) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "configuration null");
         return;
     }
     JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
@@ -398,12 +397,12 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     napi_value argv[] = { napiWant };
     napi_value nativeResult = CallObjectMethod("onAcquireFormState", nullptr, argv, 1);
     if (nativeResult == nullptr) {
-        TAG_LOGI(AAFwkTag::FORM_EXT, "function onAcquireFormState not found.");
+        TAG_LOGI(AAFwkTag::FORM_EXT, "onAcquireFormState not found");
         return FormState::DEFAULT;
     }
 
     if (!ConvertFromJsValue(env, nativeResult, state)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "convert form state failed.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "convert failed");
         return FormState::UNKNOWN;
     }
 
@@ -414,16 +413,15 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     } else {
         return static_cast<AppExecFwk::FormState>(state);
     }
-    TAG_LOGD(AAFwkTag::FORM_EXT, "end");
 }
 
 bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::FORM_EXT, "OnShare, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGD(AAFwkTag::FORM_EXT, "formId: %{public}" PRId64, formId);
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "env is null.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "env null");
         return false;
     }
 
@@ -431,31 +429,30 @@ bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     napi_value argv[] = { CreateJsValue(env, formIdStr) };
     napi_value nativeResult = CallObjectMethod("onShareForm", "onShare", argv, 1);
     if (nativeResult == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "OnShare return value is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult null");
         return false;
     }
 
     if (!CheckTypeForNapiValue(env, nativeResult, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "OnShare return value`s type is not object.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult not object");
         return false;
     }
 
     if (!OHOS::AppExecFwk::UnwrapWantParams(env, nativeResult, wantParams)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Unwrap want params error.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "unwrap want failed");
         return false;
     }
 
-    TAG_LOGD(AAFwkTag::FORM_EXT, "OnShare called end.");
     return true;
 }
 
 bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::FORM_EXT, "OnAcquireData, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGD(AAFwkTag::FORM_EXT, "formId: %{public}" PRId64, formId);
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     if (env == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "env is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "env null");
         return false;
     }
 
@@ -463,21 +460,19 @@ bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParam
     napi_value argv[] = { CreateJsValue(env, formIdStr) };
     napi_value nativeResult = CallObjectMethod("onAcquireFormData", "OnAcquireData", argv, 1);
     if (nativeResult == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "return value is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult null");
         return false;
     }
 
     if (!CheckTypeForNapiValue(env, nativeResult, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "return value`s type is not object.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "nativeResult not object");
         return false;
     }
 
     if (!OHOS::AppExecFwk::UnwrapWantParams(env, nativeResult, wantParams)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Unwrap want params failed.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "argc failed");
         return false;
     }
-
-    TAG_LOGD(AAFwkTag::FORM_EXT, "OnAcquireData called end.");
     return true;
 }
 
@@ -485,7 +480,7 @@ bool JsFormExtension::ConvertFromDataProxies(napi_env env, napi_value jsValue,
     std::vector<FormDataProxy> &formDataProxies)
 {
     if (jsValue == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "%{public}s, jsValue is nullptr not array", __func__);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "jsValue null");
         return false;
     }
 
@@ -507,7 +502,7 @@ bool JsFormExtension::ConvertFromDataProxies(napi_env env, napi_value jsValue,
 bool JsFormExtension::ConvertFormDataProxy(napi_env env, napi_value jsValue, FormDataProxy &formDataProxy)
 {
     if (!CheckTypeForNapiValue(env, jsValue, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "%{public}s, jsValue is nullptr not object", __func__);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "jsValue null");
         return false;
     }
 
@@ -520,7 +515,7 @@ bool JsFormExtension::ConvertFormDataProxy(napi_env env, napi_value jsValue, For
     napi_value subscribeId = nullptr;
     napi_get_named_property(env, jsValue, "subscriberId", &subscribeId);
     if (subscribeId != nullptr && !ConvertFromJsValue(env, subscribeId, formDataProxy.subscribeId)) {
-        TAG_LOGW(AAFwkTag::FORM_EXT, "Parse subscriberId failed, use empty as default value.");
+        TAG_LOGW(AAFwkTag::FORM_EXT, "Parse subscriberId failed");
         formDataProxy.subscribeId = "";
     }
     TAG_LOGI(AAFwkTag::FORM_EXT, "key is %{public}s, subscriberId is %{public}s", formDataProxy.key.c_str(),

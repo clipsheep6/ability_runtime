@@ -32,7 +32,7 @@ WantHandle FFICJWantCreateWithWantInfo(CJWantParams params)
 {
     Want* want = new (std::nothrow) Want();
     if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "fail to new want.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "null want");
         return nullptr;
     }
 
@@ -50,7 +50,7 @@ WantHandle FFICJWantCreateWithWantInfo(CJWantParams params)
 void FFICJWantDelete(WantHandle want)
 {
     if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "input want handle is null.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "null want");
         return;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -62,7 +62,7 @@ CJWantParams* FFICJWantGetWantInfo(WantHandle want)
 {
     CJWantParams* buffer = static_cast<CJWantParams*>(malloc(sizeof(CJWantParams)));
     if (buffer == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "fail to malloc want params.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "null buffer");
         return nullptr;
     }
 
@@ -72,7 +72,7 @@ CJWantParams* FFICJWantGetWantInfo(WantHandle want)
         element.GetDeviceID(), element.GetBundleName(), element.GetAbilityName(), element.GetModuleName());
     if (elementName == nullptr) {
         free(buffer);
-        TAG_LOGE(AAFwkTag::DEFAULT, "fail to new element name.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "element name null");
         return nullptr;
     }
     buffer->elementName = elementName;
@@ -88,7 +88,7 @@ CJWantParams* FFICJWantGetWantInfo(WantHandle want)
 void FFICJWantParamsDelete(CJWantParams* params)
 {
     if (params == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "input want params is null.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "argc null");
         return;
     }
     auto actualElementName = reinterpret_cast<ElementName*>(params->elementName);
@@ -106,7 +106,7 @@ void FFICJWantParamsDelete(CJWantParams* params)
 void FFICJWantAddEntity(WantHandle want, const char* entity)
 {
     if (want == nullptr || entity == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "input want handle or entity is null.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Want or entity null");
         return;
     }
     auto actualWant = reinterpret_cast<Want*>(want);
@@ -116,7 +116,7 @@ void FFICJWantAddEntity(WantHandle want, const char* entity)
 WantHandle FFICJWantParseUri(const char* uri)
 {
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "input uri is null.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Uri null");
         return nullptr;
     }
     return Want::ParseUri(uri);

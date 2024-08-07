@@ -27,7 +27,7 @@ int32_t SessionHandlerStub::OnRemoteRequest(
     std::u16string descriptor = SessionHandlerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "descriptor not equal remote");
         return ERR_INVALID_STATE;
     }
 
@@ -48,7 +48,7 @@ int32_t SessionHandlerStub::OnSessionMovedToFrontInner(MessageParcel &data, Mess
 
 void SessionHandlerStub::OnSessionMovedToFront(int32_t sessionId)
 {
-    TAG_LOGI(AAFwkTag::DEFAULT, "call, sessionId:%{public}d", sessionId);
+    TAG_LOGI(AAFwkTag::DEFAULT, "sessionId:%{public}d", sessionId);
 }
 }
 }

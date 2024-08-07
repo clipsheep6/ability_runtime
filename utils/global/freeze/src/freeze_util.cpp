@@ -68,6 +68,6 @@ void FreezeUtil::DeleteLifecycleEventInner(const LifecycleFlow &flow)
     if (lifecycleFlow_.count(flow)) {
         lifecycleFlow_.erase(flow);
     }
-    TAG_LOGD(AAFwkTag::DEFAULT, "lifecycleFlow_ size: %{public}zu", lifecycleFlow_.size());
+    TAG_LOGD(AAFwkTag::DEFAULT, "lifecycleFlow size: %{public}zu", lifecycleFlow_.size());
 }
 }  // namespace OHOS::AbilityRuntime

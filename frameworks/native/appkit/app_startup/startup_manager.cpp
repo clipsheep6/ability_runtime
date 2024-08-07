@@ -32,7 +32,7 @@ int32_t StartupManager::RegisterStartupTask(const std::string &name, const std::
 {
     auto result = startupTasks_.emplace(name, startupTask);
     if (!result.second) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Failed to register startup task, name: %{public}s already exist.", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s exist", name.c_str());
         return ERR_STARTUP_INVALID_VALUE;
     }
     return ERR_OK;
@@ -44,7 +44,7 @@ int32_t StartupManager::BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskM
     std::set<std::string> dependenciesSet;
     for (auto &iter : startupTasks_) {
         if (iter.second == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "startup task is null");
+            TAG_LOGE(AAFwkTag::STARTUP, "startup task null");
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         if (iter.second->GetIsExcludeFromAutoStart()) {
@@ -85,7 +85,7 @@ int32_t StartupManager::BuildStartupTaskManager(const std::vector<std::string> &
             return ERR_STARTUP_DEPENDENCY_NOT_FOUND;
         }
         if (findResult->second == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "%{public}s startup task is null", iter.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "%{public}s startup task null", iter.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         currentStartupTasks.emplace(iter, findResult->second);
@@ -114,7 +114,7 @@ int32_t StartupManager::OnStartupTaskManagerComplete(uint32_t id)
 {
     auto result = startupTaskManagerMap_.find(id);
     if (result == startupTaskManagerMap_.end()) {
-        TAG_LOGE(AAFwkTag::STARTUP, "StartupTaskManager id: %{public}u not found.", id);
+        TAG_LOGE(AAFwkTag::STARTUP, "StartupTaskManager id: %{public}u not found", id);
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     TAG_LOGD(AAFwkTag::STARTUP, "erase StartupTaskManager id: %{public}u", id);
@@ -148,7 +148,7 @@ int32_t StartupManager::RemoveResult(const std::string &name)
     TAG_LOGD(AAFwkTag::STARTUP, "called, name: %{public}s", name.c_str());
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "name: %{public}s, not found", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s not found", name.c_str());
         return ERR_STARTUP_INVALID_VALUE;
     }
     return findResult->second->RemoveResult();
@@ -159,12 +159,12 @@ int32_t StartupManager::GetResult(const std::string &name, std::shared_ptr<Start
     TAG_LOGD(AAFwkTag::STARTUP, "called, name: %{public}s", name.c_str());
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "name: %{public}s, not found", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s not found", name.c_str());
         return ERR_STARTUP_INVALID_VALUE;
     }
     StartupTask::State state = findResult->second->GetState();
     if (state != StartupTask::State::INITIALIZED) {
-        TAG_LOGE(AAFwkTag::STARTUP, "name: %{public}s, not initialized", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s not initialized", name.c_str());
         return ERR_STARTUP_INVALID_VALUE;
     }
     result = findResult->second->GetResult();
@@ -176,7 +176,7 @@ int32_t StartupManager::IsInitialized(const std::string &name, bool &isInitializ
     TAG_LOGD(AAFwkTag::STARTUP, "called, name: %{public}s", name.c_str());
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "name: %{public}s, not found", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, not found", name.c_str());
         return ERR_STARTUP_INVALID_VALUE;
     }
     StartupTask::State state = findResult->second->GetState();
@@ -187,7 +187,7 @@ int32_t StartupManager::IsInitialized(const std::string &name, bool &isInitializ
 int32_t StartupManager::PostMainThreadTask(const std::function<void()> &task)
 {
     if (mainHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "failed to get mainHandler_");
+        TAG_LOGE(AAFwkTag::STARTUP, "get mainHandler failed");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     mainHandler_->PostTask(task);
@@ -214,7 +214,7 @@ int32_t StartupManager::AddStartupTask(const std::string &name,
         }
         taskMap.emplace(taskName, findResult->second);
         if (findResult->second == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "startup task is null, %{public}s", taskName.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "null task:%{public}s", taskName.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         auto dependencies = findResult->second->GetDependencies();

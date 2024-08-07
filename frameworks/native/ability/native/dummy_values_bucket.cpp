@@ -43,7 +43,7 @@ ValuesBucket ValuesBucket::Unmarshalling(Parcel &parcel)
 {
     ValuesBucket valuesBucket;
     if (!valuesBucket.ReadFromParcel(parcel)) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "ValuesBucket::Unmarshalling ReadFromParcel failed");
+        TAG_LOGE(AAFwkTag::DEFAULT, "ReadFromParcel failed");
     }
     return valuesBucket;
 }
@@ -56,7 +56,7 @@ ValuesBucket ValuesBucket::Unmarshalling(Parcel &parcel)
 bool ValuesBucket::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString16(Str8ToStr16(testInf_))) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "valuesBucket::Marshalling WriteString16 failed");
+        TAG_LOGE(AAFwkTag::DEFAULT, "WriteString16 failed");
         return false;
     }
     return true;

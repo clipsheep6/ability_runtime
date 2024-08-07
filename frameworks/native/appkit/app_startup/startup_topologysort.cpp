@@ -23,14 +23,14 @@ int32_t StartupTopologySort::Sort(const std::map<std::string, std::shared_ptr<St
 {
     startupSortResult = std::make_shared<StartupSortResult>();
     if (startupSortResult == nullptr) {
-        TAG_LOGE(AAFwkTag::STARTUP, "Create StartupSortResult obj fail.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Create result obj fail");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     std::deque<std::string> zeroDeque;
     std::map<std::string, std::uint32_t> inDegreeMap;
     for (auto &iter : startupMap) {
         if (iter.second == nullptr) {
-            TAG_LOGE(AAFwkTag::STARTUP, "StartupTask is nullptr.");
+            TAG_LOGE(AAFwkTag::STARTUP, "StartupTask null");
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         int32_t result = SortZeroDeque(iter.second, startupMap, inDegreeMap, zeroDeque, startupSortResult);
@@ -81,7 +81,7 @@ int32_t StartupTopologySort::SortZeroDeque(const std::shared_ptr<StartupTask> &s
     std::string key = startup->GetName();
     auto result = inDegreeMap.emplace(key, startup->getDependenciesCount());
     if (!result.second) {
-        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to emplace to inDegreeMap.", key.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, emplace to inDegreeMap failed", key.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     std::vector<std::string> dependencies = startup->GetDependencies();
@@ -92,7 +92,7 @@ int32_t StartupTopologySort::SortZeroDeque(const std::shared_ptr<StartupTask> &s
         for (auto &parentName : dependencies) {
             if (startupMap.find(parentName) == startupMap.end()) {
                 TAG_LOGE(AAFwkTag::STARTUP,
-                    "%{public}s, failed to find dep: %{public}s.", key.c_str(), parentName.c_str());
+                    "%{public}s, failed to find dep: %{public}s", key.c_str(), parentName.c_str());
                 return ERR_STARTUP_DEPENDENCY_NOT_FOUND;
             }
             auto &childStartVector = startupSortResult->startupChildrenMap_[parentName];

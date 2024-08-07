@@ -161,7 +161,7 @@ bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::st
     napi_value error = nullptr;
     napi_create_error(env, CreateJsValue(env, errCode), CreateJsValue(env, eMes), &error);
     if (error == nullptr) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "Failed to create error.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "create error");
         return false;
     }
     napi_throw(env, error);
@@ -171,7 +171,7 @@ bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::st
 bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(napi_env env, int32_t errCode)
 {
     if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid inner errCode, check ERROR_CODE_MAP");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid errCode");
         return false;
     }
     return Throw(env, ERROR_CODE_MAP.at(errCode));
@@ -180,7 +180,7 @@ bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(napi_env env, int32_t errCo
 napi_value AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(napi_env env, int32_t errCode)
 {
     if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid inner errCode, check ERROR_CODE_MAP");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid errCode");
         return nullptr;
     }
     int32_t externalErrCode = ERROR_CODE_MAP.at(errCode);

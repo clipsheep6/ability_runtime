@@ -44,7 +44,7 @@ void FormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<FormExtensionContext>::Init(record, application, handler, token);
-    TAG_LOGD(AAFwkTag::FORM_EXT, "FormExtension begin init");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "init");
 }
 
 std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
@@ -56,7 +56,7 @@ std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
     std::shared_ptr<FormExtensionContext> context =
         ExtensionBase<FormExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (record == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "FormExtension::CreateAndInitContext record is nullptr");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "null record");
         return context;
     }
     context->SetAbilityInfo(record->GetAbilityInfo());
@@ -119,7 +119,7 @@ void FormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &conf
 
     auto context = GetContext();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "Context is invalid.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "null context");
         return;
     }
 

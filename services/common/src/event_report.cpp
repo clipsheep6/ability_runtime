@@ -79,7 +79,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
             break;
         case EventName::DRAWN_COMPLETED:
             TAG_LOGI(AAFwkTag::DEFAULT,
-                "HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",
+                "DRAWN_COMPLETED, bundle: %{public}s, ability: %{public}s",
                 eventInfo.bundleName.c_str(), eventInfo.abilityName.c_str());
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -181,7 +181,7 @@ void EventReport::LogAbilityOnActiveEvent(const std::string &name, HiSysEventTyp
 
 void EventReport::LogStartStandardEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
 {
-    TAG_LOGD(AAFwkTag::DEFAULT, "EventInfo is [%{public}d, %{public}s, %{public}s, %{public}s]",
+    TAG_LOGD(AAFwkTag::DEFAULT, "EventInfo: [%{public}d, %{public}s, %{public}s, %{public}s]",
         eventInfo.userId, eventInfo.bundleName.c_str(), eventInfo.moduleName.c_str(),
         eventInfo.abilityName.c_str());
     HiSysEventWrite(
