@@ -85,7 +85,7 @@ void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         ability_->HandleCreateAsRecovery(want);
     }
 #endif
-    TAG_LOGD(AAFwkTag::ABILITY, "call onStart");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     ability_->OnStart(want, sessionInfo);
 #ifdef SUPPORT_SCREEN
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
@@ -109,7 +109,7 @@ void AbilityImpl::Stop()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "nullability_ or abilityLifecycleCallbacks_");
         return;
     }
 
@@ -122,7 +122,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_ or abilityLifecycleCallbacks_");
         isAsyncCallback = false;
         return;
     }
@@ -138,7 +138,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
     auto asyncCallback = [abilityImplWeakPtr = weakPtr, state = ABILITY_STATE_INITIAL]() {
         auto abilityImpl = abilityImplWeakPtr.lock();
         if (abilityImpl == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "abilityImpl is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY, "null abilityImpl");
             return;
         }
         abilityImpl->StopCallback();
@@ -158,7 +158,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
 void AbilityImpl::StopCallback()
 {
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_ or abilityLifecycleCallbacks_");
         return;
     }
 #ifdef SUPPORT_SCREEN
@@ -178,7 +178,7 @@ void AbilityImpl::Active()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::Active ability_ or abilityLifecycleCallbacks_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_ or abilityLifecycleCallbacks_");
         return;
     }
 
@@ -197,7 +197,7 @@ void AbilityImpl::Inactive()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::Inactive ability_ or abilityLifecycleCallbacks_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_ or abilityLifecycleCallbacks_");
         return;
     }
 
@@ -217,7 +217,7 @@ int32_t AbilityImpl::Share(WantParams &wantParam)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::OnShare ability_ is nullptr ");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_ ");
         return ERR_INVALID_VALUE;
     }
     return ability_->OnShare(wantParam);
@@ -233,7 +233,7 @@ void AbilityImpl::DispatchSaveAbilityState()
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr || abilityLifecycleCallbacks_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY,
-            "AbilityImpl::DispatchSaveAbilityState ability_ or abilityLifecycleCallbacks_ is nullptr");
+            "null ability_ or abilityLifecycleCallbacks_");
         return;
     }
 
@@ -245,7 +245,7 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::DispatchRestoreAbilityState ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
 
@@ -268,7 +268,7 @@ sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::ConnectAbility ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return nullptr;
     }
     sptr<IRemoteObject> object = ability_->OnConnect(want);
@@ -281,10 +281,10 @@ sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
 void AbilityImpl::DisconnectAbility(const Want &want)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Disconnect ability error, ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_.");
         return;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Disconnect ability begin, ability:%{public}s.", ability_->GetAbilityName().c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "begin, ability:%{public}s.", ability_->GetAbilityName().c_str());
     ability_->OnDisconnect(want);
 }
 
@@ -292,7 +292,7 @@ void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::CommandAbility ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
     ability_->OnCommand(want, restart, startId);
@@ -304,7 +304,7 @@ bool AbilityImpl::PrepareTerminateAbility()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "call");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_.");
         return false;
     }
     bool ret = ability_->OnPrepareTerminate();
@@ -321,7 +321,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::SendResult ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
 
@@ -335,7 +335,7 @@ void AbilityImpl::NewWant(const Want &want)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::NewWant ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
     ability_->SetWant(want);
@@ -348,59 +348,59 @@ void AbilityImpl::NewWant(const Want &want)
 
 std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::GetFileTypes");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     std::vector<std::string> types;
     return types;
 }
 
 int AbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::OpenFile");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return -1;
 }
 
 int AbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::OpenRawFile");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return -1;
 }
 
 int AbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::Insert");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return -1;
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityImpl::Call(
     const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::Call");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return nullptr;
 }
 
 int AbilityImpl::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::Update");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return -1;
 }
 
 int AbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::Delete");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return -1;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::Query");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return nullptr;
 }
 
 std::string AbilityImpl::GetType(const Uri &uri)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::GetType");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return "";
 }
 
@@ -411,15 +411,15 @@ bool AbilityImpl::Reload(const Uri &uri, const PacMap &extras)
 
 int AbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::BatchInsert");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return -1;
 }
 
 void AbilityImpl::SetUriString(const std::string &uri)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "called");
+    TAG_LOGD(AAFwkTag::ABILITY, "start");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::SetUriString ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
     ability_->SetUriString(uri);
@@ -429,7 +429,7 @@ void AbilityImpl::SetUriString(const std::string &uri)
 void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::SetLifeCycleStateInfo ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null AbilityImpl::SetLifeCycleStateInfo ability_");
         return;
     }
     ability_->SetLifeCycleStateInfo(info);
@@ -437,32 +437,32 @@ void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 
 bool AbilityImpl::CheckAndRestore()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::CheckAndRestore called start");
+    TAG_LOGD(AAFwkTag::ABILITY, "start");
     if (!hasSaveData_) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::CheckAndRestore hasSaveData_ is false");
+        TAG_LOGE(AAFwkTag::ABILITY, "false hasSaveData_");
         return false;
     }
 
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::CheckAndRestore ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null AbilityImpl::CheckAndRestore ability_");
         return false;
     }
     ability_->OnRestoreAbilityState(restoreData_);
 
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::CheckAndRestore called end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return true;
 }
 
 bool AbilityImpl::CheckAndSave()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::CheckAndSave called start");
+    TAG_LOGD(AAFwkTag::ABILITY, "start");
     if (!needSaveDate_) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::CheckAndSave needSaveDate_ is false");
+        TAG_LOGE(AAFwkTag::ABILITY, "false AbilityImpl::CheckAndSave needSaveDate_");
         return false;
     }
 
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::CheckAndSave ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return false;
     }
 
@@ -470,7 +470,7 @@ bool AbilityImpl::CheckAndSave()
 
     needSaveDate_ = false;
 
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::CheckAndSave called end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return true;
 }
 
@@ -489,13 +489,13 @@ void AbilityImpl::SetCallingContext(const std::string &deviceId, const std::stri
 
 Uri AbilityImpl::NormalizeUri(const Uri &uri)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::NormalizeUri");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return uri;
 }
 
 Uri AbilityImpl::DenormalizeUri(const Uri &uri)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::DenormalizeUri");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return uri;
 }
 
@@ -503,7 +503,7 @@ void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::ScheduleUpdateConfiguration ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null AbilityImpl::ScheduleUpdateConfiguration ability_");
         return;
     }
 
@@ -518,7 +518,7 @@ void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
 std::shared_ptr<AbilityPostEventTimeout> AbilityImpl::CreatePostEventTimeouter(std::string taskstr)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::CreatePostEventTimeouter ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return nullptr;
     }
 
@@ -528,7 +528,7 @@ std::shared_ptr<AbilityPostEventTimeout> AbilityImpl::CreatePostEventTimeouter(s
 std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityImpl::ExecuteBatch");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     return results;
 }
@@ -536,7 +536,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
 void AbilityImpl::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::ContinueAbility ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null AbilityImpl::ContinueAbility ability_");
         return;
     }
     ability_->ContinueAbilityWithStack(deviceId, versionCode);
@@ -545,7 +545,7 @@ void AbilityImpl::ContinueAbility(const std::string& deviceId, uint32_t versionC
 void AbilityImpl::NotifyContinuationResult(int32_t result)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::NotifyContinuationResult ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
     ability_->OnCompleteContinuation(result);
@@ -554,7 +554,7 @@ void AbilityImpl::NotifyContinuationResult(int32_t result)
 void AbilityImpl::NotifyMemoryLevel(int32_t level)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::NotifyMemoryLevel ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_");
         return;
     }
     ability_->OnMemoryLevel(level);
@@ -581,7 +581,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
 
         if (!impl->ability_ || !impl->ability_->GetAbilityInfo()) {
             TAG_LOGW(AAFwkTag::ABILITY,
-                "AbilityImpl::%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
+                "abilityImpl::%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
             return;
         }
         TAG_LOGI(AAFwkTag::ABILITY, "isStageBasedModel: %{public}d",
@@ -606,7 +606,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
         }
 
         if (impl->ability_->GetWant() == nullptr) {
-            TAG_LOGW(AAFwkTag::ABILITY, "want is nullptr.");
+            TAG_LOGW(AAFwkTag::ABILITY, "want.");
             return;
         }
         auto info = impl->ability_->GetLifeCycleStateInfo();
@@ -628,10 +628,10 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITY, "Lifecycle: Call.");
+    TAG_LOGI(AAFwkTag::ABILITY, "called");
     auto owner = owner_.lock();
     if (owner == nullptr || !owner->IsStageBasedModel()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Not stage mode ability or abilityImpl is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null stage mode ability or abilityImpl.");
         return;
     }
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
@@ -646,13 +646,13 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
             owner->notifyForegroundByAbility_ = false;
             needNotifyAMS = true;
         } else {
-            TAG_LOGD(AAFwkTag::ABILITY, "Notify foreground by window, but client's foreground is running.");
+            TAG_LOGD(AAFwkTag::ABILITY, "notify foreground by window, but client's foreground is running");
             owner->notifyForegroundByWindow_ = true;
         }
     }
 
     if (needNotifyAMS) {
-        TAG_LOGI(AAFwkTag::ABILITY, "Lifecycle: window notify ability manager service.");
+        TAG_LOGI(AAFwkTag::ABILITY, "lifecycle: window notify ams");
         PacMap restoreData;
         auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
             AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
@@ -667,7 +667,7 @@ void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto owner = owner_.lock();
     if (owner && !owner->IsStageBasedModel()) {
-        TAG_LOGW(AAFwkTag::ABILITY, "Not stage.");
+        TAG_LOGW(AAFwkTag::ABILITY, "not stage");
         return;
     }
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::BACKGROUND };
@@ -675,7 +675,7 @@ void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
         "; AbilityImpl::WindowLifeCycleImpl::AfterBackground; the background lifecycle.";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
-    TAG_LOGI(AAFwkTag::ABILITY, "Lifecycle: window after background.");
+    TAG_LOGI(AAFwkTag::ABILITY, "lifecycle: window after background.");
     PacMap restoreData;
     auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
@@ -718,11 +718,11 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
         case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_WINDOW_MODE_OR_SIZE): {
             auto owner = owner_.lock();
             if (owner == nullptr || !owner->IsStageBasedModel()) {
-                TAG_LOGE(AAFwkTag::ABILITY, "Not stage mode ability or abilityImpl is nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITY, "null ability or abilityImpl.");
                 return;
             }
 
-            TAG_LOGD(AAFwkTag::ABILITY, "The ability is stage mode, schedule foreground invalid mode.");
+            TAG_LOGD(AAFwkTag::ABILITY, "stage mode, schedule foreground invalid mode.");
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
                 AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
             break;
@@ -744,7 +744,7 @@ void AbilityImpl::Foreground(const Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImpl::Foreground ability_ or abilityLifecycleCallbacks_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability_ or abilityLifecycleCallbacks_");
         return;
     }
 

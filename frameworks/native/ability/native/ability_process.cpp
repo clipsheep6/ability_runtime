@@ -67,7 +67,7 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
 {
     TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability");
         return ERR_NULL_OBJECT;
     }
 #ifdef SUPPORT_SCREEN
@@ -77,16 +77,16 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
         param.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
     }
-    TAG_LOGI(AAFwkTag::ABILITY, "window mode is %{public}d", windowMode);
+    TAG_LOGI(AAFwkTag::ABILITY, "window mode:%{public}d", windowMode);
 #endif
     ErrCode err = ERR_OK;
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
-            TAG_LOGI(AAFwkTag::ABILITY, "param.setting == nullptr call StartAbilityForResult.");
+            TAG_LOGI(AAFwkTag::ABILITY, "null param.setting call StartAbilityForResult");
             param.want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
             err = ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
-            TAG_LOGI(AAFwkTag::ABILITY, "param.setting != nullptr call StartAbilityForResult.");
+            TAG_LOGI(AAFwkTag::ABILITY, "not null param.setting call StartAbilityForResult");
             err = ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
         }
 
@@ -95,9 +95,9 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         std::map<int, CallbackInfo> map;
         auto it = abilityResultMap_.find(ability);
         if (it == abilityResultMap_.end()) {
-            TAG_LOGI(AAFwkTag::ABILITY, "ability is not in the abilityResultMap_");
+            TAG_LOGI(AAFwkTag::ABILITY, "not in abilityResultMap_");
         } else {
-            TAG_LOGI(AAFwkTag::ABILITY, "ability is in the abilityResultMap_");
+            TAG_LOGI(AAFwkTag::ABILITY, "in abilityResultMap_");
             map = it->second;
         }
         callback.errCode = err;
@@ -105,10 +105,10 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         abilityResultMap_[ability] = map;
     } else {
         if (param.setting == nullptr) {
-            TAG_LOGI(AAFwkTag::ABILITY, "param.setting == nullptr call StartAbility.");
+            TAG_LOGI(AAFwkTag::ABILITY, "null param.settingcall StartAbility.");
             err = ability->StartAbility(param.want);
         } else {
-            TAG_LOGI(AAFwkTag::ABILITY, "param.setting != nullptr call StartAbility.");
+            TAG_LOGI(AAFwkTag::ABILITY, "not null param.setting call StartAbility.");
             err = ability->StartAbility(param.want, *(param.setting));
         }
     }
@@ -124,9 +124,9 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
     std::map<int, CallbackInfo> map;
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        TAG_LOGI(AAFwkTag::ABILITY, "ability is not in the abilityResultMap_");
+        TAG_LOGI(AAFwkTag::ABILITY, "not in the abilityResultMap_");
     } else {
-        TAG_LOGI(AAFwkTag::ABILITY, "ability is in the abilityResultMap_");
+        TAG_LOGI(AAFwkTag::ABILITY, "in the abilityResultMap_");
         map = it->second;
     }
     callback.errCode = errCode;
@@ -142,14 +142,14 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
 
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ability is not in the abilityResultMap");
+        TAG_LOGE(AAFwkTag::ABILITY, "not in the abilityResultMap");
         return;
     }
     std::map<int, CallbackInfo> map = it->second;
 
     auto callback = map.find(requestCode);
     if (callback == map.end()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "requestCode: %{public}d is not in the map", requestCode);
+        TAG_LOGE(AAFwkTag::ABILITY, "requestCode: %{public}d not in map", requestCode);
         return;
     }
     CallbackInfo callbackInfo = callback->second;
@@ -186,7 +186,7 @@ void AbilityProcess::RequestPermissionsFromUser(
 {
     TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability");
         return;
     }
 
@@ -204,7 +204,7 @@ void AbilityProcess::RequestPermissionsFromUser(
     Security::AccessToken::PermissionGrantInfo grantInfo;
     auto ret = AccessTokenKit::GetSelfPermissionsState(permList, grantInfo);
     if (permList.size() != param.permission_list.size()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Returned permList size: %{public}zu.", permList.size());
+        TAG_LOGE(AAFwkTag::ABILITY, "returned permList size: %{public}zu.", permList.size());
         return;
     }
 
@@ -219,7 +219,7 @@ void AbilityProcess::RequestPermissionsFromUser(
 
     auto requestCode = param.requestCode;
     if (ret != TypePermissionOper::DYNAMIC_OPER) {
-        TAG_LOGD(AAFwkTag::ABILITY, "No dynamic popup required.");
+        TAG_LOGD(AAFwkTag::ABILITY, "need not dynamic popup");
         (void)CaullFunc(requestCode, param.permission_list, permissionsState, callbackInfo);
         return;
     }
@@ -227,7 +227,7 @@ void AbilityProcess::RequestPermissionsFromUser(
     auto task = [self = GetInstance(), requestCode, callbackInfo]
         (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) mutable {
         if (!self) {
-            TAG_LOGE(AAFwkTag::ABILITY, "self is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY, "null self");
             return;
         }
         if (!self->CaullFunc(requestCode, permissions, grantResults, callbackInfo)) {

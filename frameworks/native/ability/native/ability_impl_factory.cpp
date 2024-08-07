@@ -31,13 +31,13 @@ AbilityImplFactory::~AbilityImplFactory() {}
 std::shared_ptr<AbilityImpl> AbilityImplFactory::MakeAbilityImplObject(const std::shared_ptr<AbilityInfo> &info)
 {
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImplFactory::MakeAbilityImplObject is error nullptr == info ");
+        TAG_LOGE(AAFwkTag::ABILITY, "null info");
         return nullptr;
     }
 
     std::shared_ptr<AbilityImpl> abilityImpl = nullptr;
     TAG_LOGD(AAFwkTag::ABILITY,
-        "AbilityImplFactory::MakeAbilityImplObject type:%{public}d, isStageBasedModel:%{public}d", info->type,
+        "type:%{public}d, isStageBasedModel:%{public}d", info->type,
         info->isStageBasedModel);
     switch (info->type) {
 #ifdef SUPPORT_GRAPHICS
@@ -56,7 +56,7 @@ std::shared_ptr<AbilityImpl> AbilityImplFactory::MakeAbilityImplObject(const std
             abilityImpl = std::make_shared<DataAbilityImpl>();
             break;
         default:
-            TAG_LOGE(AAFwkTag::ABILITY, "AbilityImplFactory::MakeAbilityImplObject is error");
+            TAG_LOGE(AAFwkTag::ABILITY, "error");
             break;
     }
 

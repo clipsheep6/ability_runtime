@@ -38,7 +38,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITY,
-        "Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
+        "lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
 #ifdef SUPPORT_SCREEN
     if (ability_ != nullptr) {
@@ -49,7 +49,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
             ability_->RequestFocus(want);
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
         }
-        TAG_LOGE(AAFwkTag::ABILITY, "Org lifeCycleState equals to Dst lifeCycleState.");
+        TAG_LOGE(AAFwkTag::ABILITY, "org lifeCycleState equals to Dst lifeCycleState");
         return;
     }
 #endif
@@ -72,16 +72,16 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
 
 void NewAbilityImpl::HandleShareData(const int32_t &uniqueId)
 {
-    TAG_LOGI(AAFwkTag::ABILITY, "handleShareData begin sourceState:%{public}d.", lifecycleState_);
+    TAG_LOGI(AAFwkTag::ABILITY, "begin sourceState:%{public}d", lifecycleState_);
     WantParams wantParam;
     int32_t resultCode = Share(wantParam);
-    TAG_LOGI(AAFwkTag::ABILITY, "wantParam size: %{public}d.", wantParam.Size());
+    TAG_LOGI(AAFwkTag::ABILITY, "wantParam size: %{public}d", wantParam.Size());
     AbilityManagerClient::GetInstance()->ShareDataDone(token_, resultCode, uniqueId, wantParam);
 }
 
 void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
-    TAG_LOGI(AAFwkTag::ABILITY, "Lifecycle: notify ability manager service.");
+    TAG_LOGI(AAFwkTag::ABILITY, "lifecycle: notify ability manager service");
     auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
     if (ret == ERR_OK && state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
         FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
@@ -101,7 +101,7 @@ void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &sta
 bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITY, "NewAbilityImpl::AbilityTransaction begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {

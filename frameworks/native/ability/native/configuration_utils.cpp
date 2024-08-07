@@ -30,9 +30,9 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITY, "Enter");
+    TAG_LOGD(AAFwkTag::ABILITY, "enter");
     if (resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Resource manager is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid Resource manager");
         return;
     }
 
@@ -58,9 +58,9 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
 void ConfigurationUtils::InitDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Init display config.");
+    TAG_LOGD(AAFwkTag::ABILITY, "init display config");
     if (configuration == nullptr || resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "input invalid");
         return;
     }
 
@@ -80,9 +80,9 @@ void ConfigurationUtils::InitDisplayConfig(Rosen::DisplayId displayId, std::shar
 void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager, bool &configChanged)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Update display config.");
+    TAG_LOGD(AAFwkTag::ABILITY, "update display config");
     if (configuration == nullptr || resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "input invalid");
         return;
     }
 
@@ -99,7 +99,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
     if (changeKeyV.empty()) {
-        TAG_LOGD(AAFwkTag::ABILITY, "There's no changed config, return.");
+        TAG_LOGD(AAFwkTag::ABILITY, "no changed config");
         return;
     }
     configuration->Merge(changeKeyV, newConfig);
@@ -108,7 +108,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     UpdateDisplayResConfig(resourceManager, density, direction);
 
     auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-    TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s for all windows.",
+    TAG_LOGI(AAFwkTag::ABILITY, "update display config %{public}s for all windows",
         diffConfiguration->GetName().c_str());
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 }
@@ -116,10 +116,10 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
 bool ConfigurationUtils::GetDisplayConfig(Rosen::DisplayId displayId, float &density,
     std::string &directionStr)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Get display by id %{public}" PRIu64".", displayId);
+    TAG_LOGD(AAFwkTag::ABILITY, "get display by id %{public}" PRIu64"", displayId);
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (display == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Get display %{public}" PRIu64" failed.", displayId);
+        TAG_LOGE(AAFwkTag::ABILITY, "get display %{public}" PRIu64" failed", displayId);
         return false;
     }
 
@@ -127,7 +127,7 @@ bool ConfigurationUtils::GetDisplayConfig(Rosen::DisplayId displayId, float &den
     int32_t width = display->GetWidth();
     int32_t height = display->GetHeight();
     directionStr = GetDirectionStr(height, width);
-    TAG_LOGD(AAFwkTag::ABILITY, "DisplayId: %{public}" PRIu64", density: %{public}f, direction: %{public}s.",
+    TAG_LOGD(AAFwkTag::ABILITY, "displayId: %{public}" PRIu64", density: %{public}f, direction: %{public}s",
         displayId, density, directionStr.c_str());
     return true;
 }
@@ -136,11 +136,11 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
     float &density, std::string &direction)
 {
     // resourceManager has checked in caller function.
-    TAG_LOGD(AAFwkTag::ABILITY, "Update resConfig, density: %{public}f, direction: %{public}s.",
+    TAG_LOGD(AAFwkTag::ABILITY, "update resConfig, density: %{public}f, direction: %{public}s",
         density, direction.c_str());
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Create resConfig failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "create resConfig failed");
         return;
     }
 
@@ -148,7 +148,7 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
     resConfig->SetScreenDensity(density);
     resConfig->SetDirection(ConvertDirection(direction));
     resourceManager->UpdateResConfig(*resConfig);
-    TAG_LOGD(AAFwkTag::ABILITY, "Update resConfig finished, density: %{public}f, direction: %{public}d.",
+    TAG_LOGD(AAFwkTag::ABILITY, "update resConfig finished, density: %{public}f, direction: %{public}d",
         resConfig->GetScreenDensity(), resConfig->GetDirection());
 }
 #endif
