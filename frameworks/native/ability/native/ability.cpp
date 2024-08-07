@@ -119,7 +119,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
             sptr<ReverseContinuationSchedulerPrimary> primary = sptr<ReverseContinuationSchedulerPrimary>(
                 new (std::nothrow) ReverseContinuationSchedulerPrimary(continuationHandler, handler_));
             if (primary == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITY, "Create primary failed");
+                TAG_LOGE(AAFwkTag::ABILITY, "create primary failed");
             } else {
                 continuationHandler_->SetPrimaryStub(primary);
                 continuationHandler_->SetAbilityInfo(abilityInfo_);
@@ -127,7 +127,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         }
 
         // register displayid change callback
-        TAG_LOGD(AAFwkTag::ABILITY, "Start RegisterDisplayListener");
+        TAG_LOGD(AAFwkTag::ABILITY, "start RegisterDisplayListener");
         abilityDisplayListener_ = new AbilityDisplayListener(ability);
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
@@ -161,7 +161,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnStart failed abilityInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, null abilityInfo_");
         return;
     }
 
@@ -174,7 +174,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "AbilityName is %{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "abilityName is %{public}s", abilityInfo_->name.c_str());
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         int32_t displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
@@ -188,7 +188,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return;
     }
     if (!abilityInfo_->isStageBasedModel) {
@@ -198,7 +198,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
 
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
@@ -213,7 +213,7 @@ void Ability::OnStop()
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     auto && window = GetWindow();
     if (window != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Call UnregisterDisplayMoveListener");
+        TAG_LOGD(AAFwkTag::ABILITY, "call UnregisterDisplayMoveListener");
         window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
     }
     // Call JS Func(onWindowStageDestroy) and Release the scene.
@@ -223,12 +223,12 @@ void Ability::OnStop()
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
@@ -265,18 +265,18 @@ void Ability::OnActive()
     bWindowFocus_ = true;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -289,7 +289,7 @@ void Ability::OnActive()
         eventInfo.callerBundleName = setWant_->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         TAG_LOGI(AAFwkTag::ABILITY, "callerBundleName is %{public}s", eventInfo.callerBundleName.c_str());
     } else {
-        TAG_LOGE(AAFwkTag::ABILITY, "setWant_ is nullptr, can not get callerBundleName.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null setWant_, can not get callerBundleName");
     }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
@@ -304,18 +304,18 @@ void Ability::OnInactive()
     bWindowFocus_ = false;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
 
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -331,33 +331,33 @@ void Ability::OnInactive()
 bool Ability::IsRestoredInContinuation() const
 {
     if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityContext_ is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityContext_");
         return false;
     }
 
     if (launchParam_.launchReason != LaunchReason::LAUNCHREASON_CONTINUATION) {
-        TAG_LOGD(AAFwkTag::ABILITY, "launchReason is %{public}d", launchParam_.launchReason);
+        TAG_LOGD(AAFwkTag::ABILITY, "launchReason:%{public}d", launchParam_.launchReason);
         return false;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITY, "Is Restored In Continuation");
+    TAG_LOGD(AAFwkTag::ABILITY, "restored In Continuation");
     return true;
 }
 
 bool Ability::ShouldRecoverState(const Want& want)
 {
     if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
-        TAG_LOGI(AAFwkTag::ABILITY, "AppRecovery not recovery restart");
+        TAG_LOGI(AAFwkTag::ABILITY, "appRecovery not recovery restart");
         return false;
     }
 
     if (abilityContext_ == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITY, "AppRecovery abilityContext_ is null");
+        TAG_LOGW(AAFwkTag::ABILITY, "appRecovery abilityContext_");
         return false;
     }
 
     if (abilityContext_->GetContentStorage() == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITY, "AppRecovery abilityContext_ GetContentStorage is null");
+        TAG_LOGW(AAFwkTag::ABILITY, "appRecovery abilityContext_ GetContentStorage");
         return false;
     }
 
@@ -370,7 +370,7 @@ void Ability::NotifyContinuationResult(const Want& want, bool success)
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    TAG_LOGD(AAFwkTag::ABILITY, "Notify complete continuation.");
+    TAG_LOGD(AAFwkTag::ABILITY, "notify complete continuation");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
@@ -380,13 +380,13 @@ sptr<IRemoteObject> Ability::OnConnect(const Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return nullptr;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return nullptr;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
@@ -404,12 +404,12 @@ ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "start");
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return ERR_NULL_OBJECT;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability type is %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability type %{public}d mismatch.", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "ability type %{public}d mismatch", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, requestCode);
@@ -421,12 +421,12 @@ ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, Abilit
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_");
         return ERR_NULL_OBJECT;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability type is %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability type %{public}d mismatch.", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "ability type %{public}d mismatch", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
@@ -438,12 +438,12 @@ ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStart
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return ERR_NULL_OBJECT;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability type is %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE && abilityInfo_->type != AppExecFwk::AbilityType::SERVICE) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability type %{public}d mismatch.", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "ability type %{public}d mismatch", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
@@ -488,7 +488,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     // Notify ResourceManager
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Create res config failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "create res config failed");
         return;
     }
     auto resourceManager = GetResourceManager();
@@ -498,7 +498,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
         if (!language.empty()) {
             UErrorCode status = U_ZERO_ERROR;
             icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-            TAG_LOGD(AAFwkTag::ABILITY, "get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
+            TAG_LOGD(AAFwkTag::ABILITY, "get Locale::forLanguageTag return[%{public}d]", static_cast<int>(status));
             if (status == U_ZERO_ERROR) {
                 resConfig->SetLocaleInfo(locale);
             }
@@ -512,7 +512,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
         }
         resourceManager->UpdateResConfig(*resConfig);
         TAG_LOGI(AAFwkTag::ABILITY,
-            "Notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{publis}d.",
+            "notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{publis}d",
             resConfig->GetColorMode(), resConfig->GetInputDevice());
     }
 
@@ -548,7 +548,7 @@ void Ability::OnMemoryLevel(int level)
     TAG_LOGD(AAFwkTag::ABILITY, "called");
 #ifdef SUPPORT_SCREEN
     if (scene_ == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "WindowScene is null");
+        TAG_LOGD(AAFwkTag::ABILITY, "windowScene");
         return;
     }
     scene_->NotifyMemoryLevel(level);
@@ -570,7 +570,7 @@ std::shared_ptr<OHOSApplication> Ability::GetApplication()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (application_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "application_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null application_");
         return nullptr;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "end");
@@ -580,7 +580,7 @@ std::shared_ptr<OHOSApplication> Ability::GetApplication()
 std::string Ability::GetAbilityName()
 {
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return "";
     }
 
@@ -590,7 +590,7 @@ std::string Ability::GetAbilityName()
 std::string Ability::GetModuleName()
 {
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return "";
     }
 
@@ -609,12 +609,12 @@ void Ability::OnBackPressed()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return;
     }
 
     if (abilityInfo_->isLauncherAbility == false) {
-        TAG_LOGD(AAFwkTag::ABILITY, "The ability is not Launcher");
+        TAG_LOGD(AAFwkTag::ABILITY, "not Launcher");
         TerminateAbility();
     }
     TAG_LOGD(AAFwkTag::ABILITY, "end");
@@ -652,10 +652,10 @@ void Ability::SetResult(int resultCode, const Want &resultData)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability type: %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "ability type: %{public}d", abilityInfo_->type);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         AbilityContext::resultWant_ = resultData;
         AbilityContext::resultCode_ = resultCode;
@@ -666,15 +666,15 @@ void Ability::SetResult(int resultCode, const Want &resultData)
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITY, "restart: %{public}s, startId: %{public}d.", restart ? "true" : "false", startId);
+    TAG_LOGI(AAFwkTag::ABILITY, "restart: %{public}s, startId: %{public}d", restart ? "true" : "false", startId);
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
@@ -683,9 +683,8 @@ void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 
 void Ability::Dump(const std::string &extra)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability::Dump called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     // abilityInfo
-    TAG_LOGD(AAFwkTag::ABILITY, "==============AbilityInfo==============");
     if (abilityInfo_ != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: package: %{public}s", abilityInfo_->package.c_str());
         TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: name: %{public}s", abilityInfo_->name.c_str());
@@ -703,33 +702,30 @@ void Ability::Dump(const std::string &extra)
         TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: bundleName: %{public}s", abilityInfo_->bundleName.c_str());
         TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: applicationName: %{public}s", abilityInfo_->applicationName.c_str());
     } else {
-        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "null abilityInfo");
     }
 
     // lifecycle_Event
-    TAG_LOGD(AAFwkTag::ABILITY, "==============lifecycle_Event==============");
     if (lifecycle_ != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITY, "lifecycle_Event: launchMode: %{public}d", lifecycle_->GetLifecycleState());
     } else {
-        TAG_LOGD(AAFwkTag::ABILITY, "lifecycle is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "null lifecycle");
     }
 
     // lifecycle_State
-    TAG_LOGD(AAFwkTag::ABILITY, "==============lifecycle_State==============");
     if (abilityLifecycleExecutor_ != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITY, "lifecycle_State: launchMode: %{public}d", abilityLifecycleExecutor_->GetState());
     } else {
-        TAG_LOGD(AAFwkTag::ABILITY, "abilityLifecycleExecutor is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "null abilityLifecycleExecutor");
     }
 
     // applicationInfo
-    TAG_LOGD(AAFwkTag::ABILITY, "==============applicationInfo==============");
     std::shared_ptr<ApplicationInfo> ApplicationInfoPtr = GetApplicationInfo();
     if (ApplicationInfoPtr != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITY, "applicationInfo: name: %{public}s", ApplicationInfoPtr->name.c_str());
         TAG_LOGD(AAFwkTag::ABILITY, "applicationInfo: bundleName: %{public}s", ApplicationInfoPtr->bundleName.c_str());
     } else {
-        TAG_LOGD(AAFwkTag::ABILITY, "ApplicationInfoPtr is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "null ApplicationInfoPtr");
     }
 }
 
@@ -782,14 +778,14 @@ int Ability::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBuck
             amount++;
         }
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Insert amount: %{public}d", amount);
+    TAG_LOGD(AAFwkTag::ABILITY, "insert amount: %{public}d", amount);
     return amount;
 }
 
 void Ability::ContinueAbilityReversibly(const std::string &deviceId)
 {
     if (!VerifySupportForContinuation()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid continuation");
         return;
     }
     continuationManager_->ContinueAbility(true, deviceId);
@@ -803,7 +799,7 @@ std::string Ability::GetOriginalDeviceId()
 ContinuationState Ability::GetContinuationState()
 {
     if (!VerifySupportForContinuation()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid continuation");
         return ContinuationState::LOCAL_RUNNING;
     }
     return continuationManager_->GetContinuationState();
@@ -824,11 +820,11 @@ void Ability::RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleO
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (observer == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "register ability lifecycle observer failed, observer is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, null observer");
         return;
     }
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "register ability lifecycle observer failed, lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, null lifecycle_");
         return;
     }
     lifecycle_->AddObserver(observer);
@@ -838,11 +834,11 @@ void Ability::UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycl
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (observer == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "unregister ability lifecycle observer failed, observer is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, null observer");
         return;
     }
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "unregister ability lifecycle observer failed, lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, null lifecycle_");
         return;
     }
     lifecycle_->RemoveObserver(observer);
@@ -853,7 +849,7 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
     TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED;
     }
 
@@ -881,12 +877,12 @@ int32_t Ability::OnContinue(WantParams &wantParams)
 void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
     if (deviceId.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Continue ability failed. deviceId is empty");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed. deviceId is empty");
         return;
     }
 
     if (!VerifySupportForContinuation()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid continuation");
         return;
     }
     continuationManager_->ContinueAbilityWithStack(deviceId, versionCode);
@@ -895,12 +891,12 @@ void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t ver
 void Ability::ContinueAbility(const std::string &deviceId)
 {
     if (deviceId.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Continue ability failed. deviceId is empty");
+        TAG_LOGE(AAFwkTag::ABILITY, "failed. deviceId is empty");
         return;
     }
 
     if (!VerifySupportForContinuation()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid continuation");
         return;
     }
     continuationManager_->ContinueAbility(false, deviceId);
@@ -928,9 +924,9 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
 
 void Ability::OnCompleteContinuation(int result)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Change continuation state to initial");
+    TAG_LOGD(AAFwkTag::ABILITY, "initial");
     if (continuationManager_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Continuation manager is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null Continuation manager");
         return;
     }
 
@@ -943,7 +939,7 @@ void Ability::OnRemoteTerminated()
 void Ability::DispatchLifecycleOnForeground(const Want &want)
 {
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityLifecycleExecutor_");
         return;
     }
     if (abilityInfo_ != nullptr && abilityInfo_->isStageBasedModel) {
@@ -952,7 +948,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
     }
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null lifecycle_");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_FOREGROUND, want);
@@ -961,7 +957,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
 bool Ability::VerifySupportForContinuation()
 {
     if (continuationManager_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Continuation manager is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null Continuation manager");
         return false;
     }
     return true;
@@ -970,7 +966,7 @@ bool Ability::VerifySupportForContinuation()
 void Ability::HandleCreateAsContinuation(const Want &want)
 {
     if (!IsFlagExists(Want::FLAG_ABILITY_CONTINUATION, want.GetFlags())) {
-        TAG_LOGD(AAFwkTag::ABILITY, "This's not continuated ability");
+        TAG_LOGD(AAFwkTag::ABILITY, "not continuated ability");
         return;
     }
 
@@ -978,7 +974,7 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     bool reversible = false;
     reversible = IsFlagExists(Want::FLAG_ABILITY_CONTINUATION_REVERSIBLE, want.GetFlags());
     if (!VerifySupportForContinuation()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid continuation");
         return;
     }
     bool success = continuationManager_->RestoreData(
@@ -990,14 +986,14 @@ void Ability::HandleCreateAsContinuation(const Want &want)
             new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
 
         if (reverseContinuationSchedulerReplica_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "Create reverseContinuationSchedulerReplica failed");
+            TAG_LOGE(AAFwkTag::ABILITY, "reverseContinuationSchedulerReplica failed");
             return;
         }
     }
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    TAG_LOGD(AAFwkTag::ABILITY, "Notify complete continuation.");
+    TAG_LOGD(AAFwkTag::ABILITY, "notify complete continuation");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
@@ -1027,11 +1023,11 @@ int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Failed to get bundleMgrHelper.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get bundleMgrHelper failed");
         return ERR_NULL_OBJECT;
     }
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "The ability info is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null ability info");
         return ERR_INVALID_VALUE;
     }
     Want want;
@@ -1082,7 +1078,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> Ability::ExecuteBatch(
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo");
         return results;
     }
     if (abilityInfo_->type != AppExecFwk::AbilityType::DATA) {
@@ -1090,11 +1086,11 @@ std::vector<std::shared_ptr<DataAbilityResult>> Ability::ExecuteBatch(
         return results;
     }
     size_t len = operations.size();
-    TAG_LOGD(AAFwkTag::ABILITY, "operation is nullptr, len %{public}zu", len);
+    TAG_LOGD(AAFwkTag::ABILITY, "null operation, len %{public}zu", len);
     for (size_t i = 0; i < len; i++) {
         std::shared_ptr<DataAbilityOperation> operation = operations[i];
         if (operation == nullptr) {
-            TAG_LOGD(AAFwkTag::ABILITY, "operation is nullptr, create DataAbilityResult");
+            TAG_LOGD(AAFwkTag::ABILITY, "null operation, create DataAbilityResult");
             results.push_back(std::make_shared<DataAbilityResult>(0));
             continue;
         }
@@ -1108,16 +1104,16 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
 {
     TAG_LOGD(AAFwkTag::ABILITY, "exec start, index=%{public}d", index);
     if (abilityInfo_->type != AppExecFwk::AbilityType::DATA) {
-        TAG_LOGE(AAFwkTag::ABILITY, "exec data ability type failed, current type: %{public}d", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, current type: %{public}d", abilityInfo_->type);
         return;
     }
     if (index < 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "exec operation result index should not below zero, current index: %{public}d",
+        TAG_LOGE(AAFwkTag::ABILITY, "should not below zero, current index: %{public}d",
             index);
         return;
     }
     if (operation == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITY, "exec operation is nullptr, create DataAbilityResult");
+        TAG_LOGW(AAFwkTag::ABILITY, "null exec operation, create DataAbilityResult");
         results.push_back(std::make_shared<DataAbilityResult>(0));
         return;
     }
@@ -1139,7 +1135,7 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
         std::vector<std::string> columns;
         auto queryResult = Query(*(operation->GetUri().get()), columns, *predicates);
         if (queryResult == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "exec Query retval is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY, "null exec Query retval");
             results.push_back(std::make_shared<DataAbilityResult>(0));
             return;
         }
@@ -1162,7 +1158,7 @@ std::shared_ptr<NativeRdb::DataAbilityPredicates> Ability::ParsePredictionArgsRe
     int numRefs)
 {
     if (operation == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "intput is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null intput");
         return nullptr;
     }
 
@@ -1175,7 +1171,7 @@ std::shared_ptr<NativeRdb::DataAbilityPredicates> Ability::ParsePredictionArgsRe
     strPredicatesList.clear();
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates = operation->GetDataAbilityPredicates();
     if (predicates == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "operation->GetDataAbilityPredicates is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "operation->GetDataAbilityPredicates");
     } else {
         TAG_LOGD(AAFwkTag::ABILITY, "operation->GetDataAbilityPredicates isn`t nullptr");
         strPredicatesList = predicates->GetWhereArgs();
@@ -1211,7 +1207,7 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
     int numRefs)
 {
     if (operation == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "intput is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null intput");
         return nullptr;
     }
     if (operation->GetValuesBucketReferences() == nullptr) {
@@ -1229,7 +1225,7 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
 
     for (auto itermap : valuesMapReferences) {
         std::string key = itermap.first;
-        TAG_LOGD(AAFwkTag::ABILITY, "key is %{public}s", key.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "key:%{public}s", key.c_str());
         NativeRdb::ValueObject obj;
         if (!operation->GetValuesBucketReferences()->GetObject(key, obj)) {
             TAG_LOGE(AAFwkTag::ABILITY, "operation->GetValuesBucketReferences()->GetObject error");
@@ -1267,7 +1263,7 @@ void Ability::ParseIntValue(const NativeRdb::ValueObject &obj, const std::string
 {
     int val = 0;
     if (obj.GetInt(val) != 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetInt() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "valueObject->GetInt() error");
         return;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutInt(%{public}s, %{public}d)", key.c_str(), val);
@@ -1279,7 +1275,7 @@ void Ability::ParseDoubleValue(const NativeRdb::ValueObject &obj, const std::str
 {
     double val = 0.0;
     if (obj.GetDouble(val) != 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetDouble() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "valueObject->GetDouble() error");
         return;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutDouble(%{public}s, %{public}f)", key.c_str(), val);
@@ -1291,7 +1287,7 @@ void Ability::ParseStringValue(const NativeRdb::ValueObject &obj, const std::str
 {
     std::string val = "";
     if (obj.GetString(val) != 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetString() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "valueObject->GetString() error");
         return;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutString(%{public}s, %{public}s)", key.c_str(), val.c_str());
@@ -1303,7 +1299,7 @@ void Ability::ParseBlobValue(const NativeRdb::ValueObject &obj, const std::strin
 {
     std::vector<uint8_t> val;
     if (obj.GetBlob(val) != 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetBlob() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "valueObject->GetBlob() error");
         return;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutBlob(%{public}s, %{public}zu)", key.c_str(), val.size());
@@ -1315,7 +1311,7 @@ void Ability::ParseBoolValue(const NativeRdb::ValueObject &obj, const std::strin
 {
     bool val = false;
     if (obj.GetBool(val) != 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetBool() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "valueObject->GetBool() error");
         return;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutBool(%{public}s, %{public}s)", key.c_str(), val ? "true" : "false");
@@ -1326,19 +1322,19 @@ int Ability::ChangeRef2Value(std::vector<std::shared_ptr<DataAbilityResult>> &re
 {
     int retval = -1;
     if (index >= numRefs) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::ChangeRef2Value index >= numRefs");
+        TAG_LOGE(AAFwkTag::ABILITY, "index >= numRefs");
         return retval;
     }
 
     if (index >= static_cast<int>(results.size())) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::ChangeRef2Value index:%{public}d >= results.size():%{public}zu",
+        TAG_LOGE(AAFwkTag::ABILITY, "index:%{public}d >= results.size():%{public}zu",
             index, results.size());
         return retval;
     }
 
     std::shared_ptr<DataAbilityResult> refResult = results[index];
     if (refResult == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::ChangeRef2Value No.%{public}d refResult is null", index);
+        TAG_LOGE(AAFwkTag::ABILITY, "No.%{public}d refResult", index);
         return retval;
     }
 
@@ -1355,49 +1351,49 @@ bool Ability::CheckAssertQueryResult(std::shared_ptr<NativeRdb::AbsSharedResultS
     std::shared_ptr<NativeRdb::ValuesBucket> &&valuesBucket)
 {
     if (queryResult == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult intput queryResult is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "intput queryResult");
         return true;
     }
 
     if (valuesBucket == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult intput valuesBucket is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "intput valuesBucket");
         return true;
     }
 
     std::map<std::string, NativeRdb::ValueObject> valuesMap;
     valuesBucket->GetAll(valuesMap);
     if (valuesMap.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult valuesMap is empty");
+        TAG_LOGE(AAFwkTag::ABILITY, "valuesMap is empty");
         return true;
     }
     int count = 0;
     if (queryResult->GetRowCount(count) != 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult GetRowCount is 0");
+        TAG_LOGE(AAFwkTag::ABILITY, "getRowCount is 0");
         return true;
     }
 
     for (auto iterMap : valuesMap) {
         std::string strObject;
         if (iterMap.second.GetString(strObject) != 0) {
-            TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult GetString strObject is error");
+            TAG_LOGE(AAFwkTag::ABILITY, "getString strObject is error");
             continue;
         }
         if (strObject.empty()) {
-            TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult strObject is empty");
+            TAG_LOGE(AAFwkTag::ABILITY, "strObject is empty");
             continue;
         }
         for (int i = 0; i < count; ++i) {
             std::string strName;
             if (queryResult->GetString(i, strName) != 0) {
-                TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult GetString strName is error");
+                TAG_LOGE(AAFwkTag::ABILITY, "getString strName is error");
                 continue;
             }
             if (strName.empty()) {
-                TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult strName is empty");
+                TAG_LOGE(AAFwkTag::ABILITY, "strName is empty");
                 continue;
             }
             if (strName == strObject) {
-                TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult strName same to strObject");
+                TAG_LOGE(AAFwkTag::ABILITY, "strName same to strObject");
                 continue;
             }
 
@@ -1490,7 +1486,7 @@ void Ability::OnForeground(const Want &want)
     if (abilityInfo_ != nullptr) {
         eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     } else {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr, can not get bundleType.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_, can not get bundleType");
     }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONFOREGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
@@ -1501,27 +1497,27 @@ void Ability::OnBackground()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return;
     }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         if (abilityInfo_->isStageBasedModel) {
             if (scene_ != nullptr) {
-                TAG_LOGD(AAFwkTag::ABILITY, "GoBackground sceneFlag:%{public}d.", sceneFlag_);
+                TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag:%{public}d", sceneFlag_);
                 scene_->GoBackground(sceneFlag_);
             }
         } else {
             if (abilityWindow_ == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnBackground error. abilityWindow_ == nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITY, "error. abilityWindow_ == nullptr");
                 return;
             }
-            TAG_LOGD(AAFwkTag::ABILITY, "OnPostAbilityBackground sceneFlag:%{public}d.", sceneFlag_);
+            TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag:%{public}d", sceneFlag_);
             abilityWindow_->OnPostAbilityBackground(sceneFlag_);
         }
     }
 
     if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnBackground error. abilityLifecycleExecutor_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "error. abilityLifecycleExecutor_ == nullptr");
         return;
     }
 
@@ -1532,7 +1528,7 @@ void Ability::OnBackground()
     }
 
     if (lifecycle_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnBackground error. lifecycle_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "error. lifecycle_ == nullptr");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
@@ -1560,28 +1556,28 @@ bool Ability::OnPrepareTerminate()
 
 void Ability::OnKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnKeyDown called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnKeyUp called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     auto code = keyEvent->GetKeyCode();
     if (code == MMI::KeyEvent::KEYCODE_BACK) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnKey Back key pressed.");
+        TAG_LOGD(AAFwkTag::ABILITY, "back key pressed");
         OnBackPressed();
     }
 }
 
 void Ability::OnPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnTouchEvent called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null Ability window");
         return;
     }
     abilityWindow_->SetSessionToken(sessionToken_);
@@ -1591,7 +1587,7 @@ void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 const sptr<Rosen::Window> Ability::GetWindow()
 {
     if (abilityWindow_ == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Ability window is nullptr.");
+        TAG_LOGD(AAFwkTag::ABILITY, "null Ability window");
         return nullptr;
     }
     return abilityWindow_->GetWindow();
@@ -1605,7 +1601,7 @@ std::shared_ptr<Rosen::WindowScene> Ability::GetScene()
 bool Ability::HasWindowFocus()
 {
     if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::HasWindowFocus abilityInfo_ == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
         return false;
     }
 
@@ -1618,19 +1614,19 @@ bool Ability::HasWindowFocus()
 
 void Ability::SetShowOnLockScreen(bool showOnLockScreen)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "SetShowOnLockScreen come, showOnLockScreen is %{public}d", showOnLockScreen);
+    TAG_LOGD(AAFwkTag::ABILITY, "showOnLockScreen: %{public}d", showOnLockScreen);
     showOnLockScreen_ = showOnLockScreen;
     sptr<Rosen::Window> window = nullptr;
     if (abilityWindow_ == nullptr || (window = abilityWindow_->GetWindow()) == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "SetShowOnLockScreen come, window is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "window");
         return;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "SetShowOnLockScreen come, addWindowFlag, showOnLockScreen is %{public}d",
+    TAG_LOGD(AAFwkTag::ABILITY, "addWindowFlag, showOnLockScreen: %{public}d",
         showOnLockScreen);
     if (showOnLockScreen) {
         window->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
         if (abilityInfo_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "Ability::SetShowOnLockScreen abilityInfo_ == nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY, "null abilityInfo_");
             return;
         }
         AAFwk::EventInfo eventInfo;
@@ -1710,12 +1706,12 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 {
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     if (option == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::GetWindowOption option is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null option");
         return nullptr;
     }
     auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
         AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-    TAG_LOGD(AAFwkTag::ABILITY, "Ability::GetWindowOption window mode is %{public}d.", windowMode);
+    TAG_LOGD(AAFwkTag::ABILITY, "window mode: %{public}d", windowMode);
     option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
     bool showOnLockScreen = false;
     if (abilityInfo_) {
@@ -1727,13 +1723,13 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
         }
     }
     if (showOnLockScreen_ || showOnLockScreen) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Ability::GetWindowOption come, add window flag WINDOW_FLAG_SHOW_WHEN_LOCKED.");
+        TAG_LOGD(AAFwkTag::ABILITY, "add window flag WINDOW_FLAG_SHOW_WHEN_LOCKED");
         option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
     }
 
     if (want.GetElement().GetBundleName() == LAUNCHER_BUNDLE_NAME &&
         want.GetElement().GetAbilityName() == LAUNCHER_ABILITY_NAME) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Set window type for launcher");
+        TAG_LOGD(AAFwkTag::ABILITY, "set window type for launcher");
         option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_DESKTOP);
     }
     return option;
@@ -1742,17 +1738,17 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 void Ability::DoOnForeground(const Want& want)
 {
     if (abilityWindow_ == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Ability window is nullptr.");
+        TAG_LOGD(AAFwkTag::ABILITY, "null Ability window");
         return;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag: %{public}d.", sceneFlag_);
+    TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag: %{public}d", sceneFlag_);
     auto window = abilityWindow_->GetWindow();
     if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
         auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
             AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        TAG_LOGD(AAFwkTag::ABILITY, "set window mode = %{public}d.", windowMode);
+        TAG_LOGD(AAFwkTag::ABILITY, "set window mode = %{public}d", windowMode);
     }
     abilityWindow_->OnPostAbilityForeground(sceneFlag_);
     TAG_LOGD(AAFwkTag::ABILITY, "end");
@@ -1776,24 +1772,24 @@ ErrCode Ability::SetMissionLabel(const std::string &label)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        TAG_LOGE(AAFwkTag::ABILITY, "invalid ability info.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid ability info");
         return -1;
     }
 
     // stage mode
     if (abilityInfo_->isStageBasedModel) {
         if (scene_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed");
             return -1;
         }
         auto window = scene_->GetMainWindow();
         if (window == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed");
             return -1;
         }
 
         if (window->SetAPPWindowLabel(label) != OHOS::Rosen::WMError::WM_OK) {
-            TAG_LOGE(AAFwkTag::ABILITY, "SetAPPWindowLabel failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "failed");
             return -1;
         }
         return ERR_OK;
@@ -1801,7 +1797,7 @@ ErrCode Ability::SetMissionLabel(const std::string &label)
 
     // fa mode
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityWindow is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityWindow");
         return -1;
     }
     return abilityWindow_->SetMissionLabel(label);
@@ -1811,24 +1807,24 @@ ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &ic
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        TAG_LOGE(AAFwkTag::ABILITY, "invalid ability info, can not set mission icon.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid ability info, can not set mission icon");
         return -1;
     }
 
     // stage mode
     if (abilityInfo_->isStageBasedModel) {
         if (scene_ == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed, can not set mission icon.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed, can not set mission icon");
             return -1;
         }
         auto window = scene_->GetMainWindow();
         if (window == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed, can not set mission icon.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed, can not set mission icon");
             return -1;
         }
 
         if (window->SetAPPWindowIcon(icon) != OHOS::Rosen::WMError::WM_OK) {
-            TAG_LOGE(AAFwkTag::ABILITY, "SetAPPWindowIcon failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "failed");
             return -1;
         }
         return ERR_OK;
@@ -1836,7 +1832,7 @@ ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &ic
 
     // fa mode
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityWindow is nullptr, can not set mission icon.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityWindow, can not set mission icon");
         return -1;
     }
     return abilityWindow_->SetMissionIcon(icon);
@@ -1846,12 +1842,12 @@ void Ability::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t
 {
     TAG_LOGD(AAFwkTag::ABILITY, "call");
     if (scene_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed");
         return;
     }
     auto window = scene_->GetMainWindow();
     if (window == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed");
         return;
     }
     left = window->GetRect().posX_;
@@ -1866,12 +1862,12 @@ Ace::UIContent* Ability::GetUIContent()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "call");
     if (scene_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed");
         return nullptr;
     }
     auto window = scene_->GetMainWindow();
     if (window == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "get window failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window failed");
         return nullptr;
     }
     return window->GetUIContent();
@@ -1894,7 +1890,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
     // Get display
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (!display) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Get display by displayId %{public}" PRIu64" failed.", displayId);
+        TAG_LOGE(AAFwkTag::ABILITY, "get display by displayId %{public}" PRIu64" failed", displayId);
         return;
     }
 
@@ -1910,7 +1906,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            TAG_LOGI(AAFwkTag::ABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d",
+            TAG_LOGI(AAFwkTag::ABILITY, "notify ResourceManager, Density: %{public}f, Direction: %{public}d",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
@@ -1921,13 +1917,13 @@ void Ability::OnChange(Rosen::DisplayId displayId)
     newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
     if (application_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "application_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null application_");
         return;
     }
 
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
-        TAG_LOGE(AAFwkTag::ABILITY, "configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null configuration");
         return;
     }
 
@@ -1942,7 +1938,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
         handler_->PostTask(task, "Ability:OnChange");
 
         auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-        TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s for all windows.",
+        TAG_LOGI(AAFwkTag::ABILITY, "update display config %{public}s for all windows",
             diffConfiguration->GetName().c_str());
         Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     }
@@ -1952,11 +1948,11 @@ void Ability::OnChange(Rosen::DisplayId displayId)
 
 void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 {
-    TAG_LOGI(AAFwkTag::ABILITY, "from displayId %{public}" PRIu64" to %{public}" PRIu64".", from, to);
+    TAG_LOGI(AAFwkTag::ABILITY, "from displayId %{public}" PRIu64" to %{public}" PRIu64"", from, to);
 
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(to);
     if (!display) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Get display by displayId %{public}" PRIu64" failed.", to);
+        TAG_LOGE(AAFwkTag::ABILITY, "get display by displayId %{public}" PRIu64" failed", to);
         return;
     }
 
@@ -1972,7 +1968,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            TAG_LOGI(AAFwkTag::ABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
+            TAG_LOGI(AAFwkTag::ABILITY, "notify ResourceManager, Density: %{public}f, Direction: %{public}d",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
@@ -1983,14 +1979,14 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
     if (application_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "application_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null application_");
         return;
     }
 
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
-        TAG_LOGE(AAFwkTag::ABILITY, "configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null configuration");
         return;
     }
 
@@ -2016,21 +2012,21 @@ void Ability::RequestFocus(const Want &want)
         auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
             AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        TAG_LOGD(AAFwkTag::ABILITY, "set window mode = %{public}d.", windowMode);
+        TAG_LOGD(AAFwkTag::ABILITY, "set window mode = %{public}d", windowMode);
     }
     abilityWindow_->OnPostAbilityForeground(sceneFlag_);
 }
 
 void Ability::SetWakeUpScreen(bool wakeUp)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "FA mode::SetWakeUpScreen wakeUp:%{public}d.", wakeUp);
+    TAG_LOGD(AAFwkTag::ABILITY, "wakeUp:%{public}d", wakeUp);
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "SetWakeUpScreen error. abilityWindow_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "error. abilityWindow_ == nullptr");
         return;
     }
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "window nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window nullptr");
         return;
     }
     window->SetTurnScreenOn(wakeUp);
@@ -2038,14 +2034,14 @@ void Ability::SetWakeUpScreen(bool wakeUp)
 
 void Ability::SetDisplayOrientation(int orientation)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "FA mode, orientation: %{public}d", orientation);
+    TAG_LOGD(AAFwkTag::ABILITY, "fa mode, orientation: %{public}d", orientation);
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null Ability window");
         return;
     }
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null window");
         return;
     }
     if (orientation == static_cast<int>(DisplayOrientation::FOLLOWRECENT)) {
@@ -2057,13 +2053,13 @@ void Ability::SetDisplayOrientation(int orientation)
         }
     }
     if (orientation == static_cast<int>(DisplayOrientation::LANDSCAPE)) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Set LANDSCAPE");
+        TAG_LOGD(AAFwkTag::ABILITY, "set LANDSCAPE");
         window->SetRequestedOrientation(Rosen::Orientation::HORIZONTAL);
     } else if (orientation == static_cast<int>(DisplayOrientation::PORTRAIT)) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Set PORTRAIT");
+        TAG_LOGD(AAFwkTag::ABILITY, "set PORTRAIT");
         window->SetRequestedOrientation(Rosen::Orientation::VERTICAL);
     } else {
-        TAG_LOGD(AAFwkTag::ABILITY, "Set UNSPECIFIED");
+        TAG_LOGD(AAFwkTag::ABILITY, "set UNSPECIFIED");
         window->SetRequestedOrientation(Rosen::Orientation::UNSPECIFIED);
     }
 }
@@ -2072,25 +2068,25 @@ int Ability::GetDisplayOrientation()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "error. null abilityWindow_");
         return -1;
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "FA mode");
+    TAG_LOGD(AAFwkTag::ABILITY, "fa mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null window");
         return -1;
     }
     auto orientation = window->GetRequestedOrientation();
     if (orientation == Rosen::Orientation::HORIZONTAL) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Get window orientation: LANDSCAPE");
+        TAG_LOGD(AAFwkTag::ABILITY, "get window orientation: LANDSCAPE");
         return static_cast<int>(DisplayOrientation::LANDSCAPE);
     }
     if (orientation == Rosen::Orientation::VERTICAL) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Get window orientation: PORTRAIT");
+        TAG_LOGD(AAFwkTag::ABILITY, "get window orientation: PORTRAIT");
         return static_cast<int>(DisplayOrientation::PORTRAIT);
     }
-    TAG_LOGD(AAFwkTag::ABILITY, "Get window orientation: UNSPECIFIED");
+    TAG_LOGD(AAFwkTag::ABILITY, "get window orientation: UNSPECIFIED");
     return 0;
 }
 
@@ -2104,7 +2100,7 @@ int Ability::CreateModalUIExtension(const Want &want)
     TAG_LOGD(AAFwkTag::ABILITY, "call");
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilitycontext is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilitycontext");
         return ERR_INVALID_VALUE;
     }
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
@@ -2120,7 +2116,7 @@ void Ability::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
     SetSessionToken(sessionToken);
     if (abilityWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Ability window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null Ability window");
         return;
     }
     abilityWindow_->SetSessionToken(sessionToken);
@@ -2134,10 +2130,10 @@ void Ability::InitFAWindow(const Want &want, int32_t displayId)
     }
 
     if (abilityWindow_ != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "Get window from abilityWindow.");
+        TAG_LOGD(AAFwkTag::ABILITY, "get window from abilityWindow");
         auto window = abilityWindow_->GetWindow();
         if (window) {
-            TAG_LOGD(AAFwkTag::ABILITY, "Call RegisterDisplayMoveListener, windowId: %{public}d",
+            TAG_LOGD(AAFwkTag::ABILITY, "call RegisterDisplayMoveListener, windowId: %{public}d",
                 window->GetWindowId());
             abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
             window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
@@ -2149,7 +2145,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
 {
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (!display) {
-        TAG_LOGI(AAFwkTag::ABILITY, "The display is invliad.");
+        TAG_LOGI(AAFwkTag::ABILITY, "invalid display");
         return true;
     }
     float density = display->GetVirtualPixelRatio();
@@ -2169,7 +2165,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Create resource config failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "create resource config failed");
         return false;
     }
     auto resourceManager = GetResourceManager();
@@ -2178,7 +2174,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
         resConfig->SetScreenDensity(density);
         resConfig->SetDirection(ConvertDirection(height, width));
         resourceManager->UpdateResConfig(*resConfig);
-        TAG_LOGD(AAFwkTag::ABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
+        TAG_LOGD(AAFwkTag::ABILITY, "notify ResourceManager, Density: %{public}f, Direction: %{public}d",
             resConfig->GetScreenDensity(), resConfig->GetDirection());
     }
     return true;
@@ -2189,7 +2185,7 @@ void Ability::EraseUIExtension(int32_t sessionId)
     TAG_LOGD(AAFwkTag::ABILITY, "call");
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "abilityContext is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "null abilityContext");
         return;
     }
     abilityContextImpl->EraseUIExtension(sessionId);

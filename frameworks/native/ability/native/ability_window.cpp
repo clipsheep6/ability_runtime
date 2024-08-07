@@ -173,13 +173,13 @@ ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMa
     TAG_LOGD(AAFwkTag::ABILITY, "called");
     auto window = GetWindow();
     if (!window) {
-        TAG_LOGE(AAFwkTag::ABILITY, "get window failed, will not set mission icon.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window failed, not set mission icon.");
         return -1;
     }
 
     auto ret = window->SetAPPWindowIcon(icon);
     if (ret != OHOS::Rosen::WMError::WM_OK) {
-        TAG_LOGE(AAFwkTag::ABILITY, "SetAPPWindowIcon failed, errCode:%{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITY, "failed, errCode:%{public}d.", ret);
         return -1;
     }
 
