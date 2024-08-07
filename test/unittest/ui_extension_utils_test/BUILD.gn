@@ -23,7 +23,7 @@ ohos_unittest("ui_extension_utils_test") {
 
   sources = [ "ui_extension_utils_test.cpp" ]
 
-  deps = []
+  deps = [ "${ability_runtime_services_path}/common:ui_extension_utils" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
@@ -35,5 +35,8 @@ ohos_unittest("ui_extension_utils_test") {
 group("unittest") {
   testonly = true
 
-  deps = [ ":ui_extension_utils_test" ]
+  deps = [
+    ":ui_extension_utils_test",
+    "${ability_runtime_services_path}/common:ui_extension_utils",
+  ]
 }
