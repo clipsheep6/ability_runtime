@@ -823,7 +823,7 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
         requestCode, isPendingWantCaller, userId, isStartAsCaller, specifyToken, isForegroundToRestartApp, isImplicit);
 }
 
-void AbilityManagerService::SetReserveInfo(const std::string &linkString)
+void AbilityManagerService::SetReserveInfo(const std::string &linkString, AbilityRequest& abilityRequest)
 {
     if (!linkString.size()) {
         return;
@@ -832,11 +832,11 @@ void AbilityManagerService::SetReserveInfo(const std::string &linkString)
     std::string reservedBundleName = "";
 #ifdef SUPPORT_SCREEN
     if (DeepLinkReserveConfig::GetInstance().isLinkReserved(linkString, reservedBundleName)) {
-        implicitStartProcessor_->SetUriReservedFlag(true);
-        implicitStartProcessor_->SetUriReservedBundle(reservedBundleName);
+        abilityRequest.uriReservedFlag = true;
+        abilityRequest.reservedBundleName = reservedBundleName;
     } else {
-        implicitStartProcessor_->SetUriReservedFlag(false);
-        implicitStartProcessor_->SetUriReservedBundle(reservedBundleName);
+        abilityRequest.uriReservedFlag = false;
+        abilityRequest.reservedBundleName = reservedBundleName;
     }
 #endif // SUPPORT_SCREEN
 }
@@ -1035,7 +1035,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             TAG_LOGD(AAFwkTag::ABILITYMGR, "start as caller, skip UpdateCallerInfo!");
         }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
-        SetReserveInfo(want.GetUriString());
+        SetReserveInfo(want.GetUriString(), abilityRequest);
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
     }
     if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
