@@ -238,7 +238,11 @@ bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
         TAG_LOGE(AAFwkTag::APPMGR, "WaitSaveState [%{public}s] write bool failed.", waitSaveState ? "true" : "false");
         return false;
     }
+    return MarshallingInner(parcel);
+}
 
+bool AppFaultDataBySA::MarshallingInner(Parcel &parcel) const
+{
     if (!parcel.WriteBool(notifyApp)) {
         TAG_LOGE(AAFwkTag::APPMGR, "NotifyApp [%{public}s] write bool failed.", notifyApp ? "true" : "false");
         return false;
