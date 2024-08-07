@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -236,6 +236,22 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_1000, TestSize.Level
     resulftSetTest = connectServerManager.GetLayoutInspectorCallback();
     EXPECT_TRUE(resulftSetTest != nullptr);
     TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_1000 is end");
+}
+
+/*
+ * @tc.number    : ConnectServerManagerTest_1100
+ * @tc.name      : ConnectServerManager
+ * @tc.desc      : Test Function ConnectServerManager::SetRecordCallback
+ */
+HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_1100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_1100 is start");
+    ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
+    auto startRecordFunc = []() {};
+    auto stopRecordFunc = []() {};
+    bool result = connectServerManager.SetRecordCallback(startRecordFunc, stopRecordFunc);
+    EXPECT_TRUE(result);
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_1100 is end");
 }
 } // namespace AAFwk
 } // namespace OHOS
