@@ -62,6 +62,11 @@ public:
     static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
     static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
     static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
+    static napi_value RequestModalUIExtension(napi_env env, napi_callback_info info);
+    static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
+    static napi_value ShowAbility(napi_env env, napi_callback_info info);
+    static napi_value HideAbility(napi_env env, napi_callback_info info);
+    static napi_value SetRestoreEnabled(napi_env env, napi_callback_info info);
 
 private:
     static void WrapJsUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> uiAbiContext,
@@ -92,6 +97,11 @@ private:
     napi_value OnSetMissionContinueState(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
     napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRequestModalUIExtension(napi_env env, NapiCallbackInfo& info);
+    napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
+    napi_value OnShowAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnHideAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetRestoreEnabled(napi_env env, NapiCallbackInfo& info);
 
 #ifdef SUPPORT_GRAPHICS
 public:

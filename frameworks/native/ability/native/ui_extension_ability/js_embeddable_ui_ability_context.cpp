@@ -180,6 +180,31 @@ napi_value JsEmbeddableUIAbilityContext::MoveAbilityToBackground(napi_env env, n
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnMoveAbilityToBackground);
 }
 
+napi_value JsEmbeddableUIAbilityContext::RequestModalUIExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnRequestModalUIExtension);
+}
+
+napi_value JsEmbeddableUIAbilityContext::OpenAtomicService(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnOpenAtomicService);
+}
+
+napi_value JsEmbeddableUIAbilityContext::ShowAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnShowAbility);
+}
+
+napi_value JsEmbeddableUIAbilityContext::HideAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnHideAbility);
+}
+
+napi_value JsEmbeddableUIAbilityContext::SetRestoreEnabled(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnSetRestoreEnabled);
+}
+
 napi_value JsEmbeddableUIAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
     if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
@@ -444,6 +469,61 @@ napi_value JsEmbeddableUIAbilityContext::OnMoveAbilityToBackground(napi_env env,
     return jsAbilityContext_->OnMoveAbilityToBackground(env, info);
 }
 
+napi_value JsEmbeddableUIAbilityContext::OnRequestModalUIExtension(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "OnRequestModalUIExtension in half screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnRequestModalUIExtension(env, info);
+}
+
+napi_value JsEmbeddableUIAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "OnOpenAtomicService in half screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnOpenAtomicService(env, info);
+}
+
+napi_value JsEmbeddableUIAbilityContext::OnShowAbility(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "OnShowAbility in half screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnShowAbility(env, info);
+}
+
+napi_value JsEmbeddableUIAbilityContext::OnHideAbility(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "OnHideAbility in half screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnHideAbility(env, info);
+}
+
+napi_value JsEmbeddableUIAbilityContext::OnSetRestoreEnabled(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "OnSetRestoreEnabled in half screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnSetRestoreEnabled(env, info);
+}
+
 #ifdef SUPPORT_GRAPHICS
 napi_value JsEmbeddableUIAbilityContext::SetMissionLabel(napi_env env, napi_callback_info info)
 {
@@ -565,6 +645,12 @@ napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi
     BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);
     BindNativeFunction(env, objValue, "setMissionContinueState", moduleName, SetMissionContinueState);
     BindNativeFunction(env, objValue, "startAbilityByType", moduleName, StartAbilityByType);
+    BindNativeFunction(env, objValue, "requestModalUIExtension", moduleName, RequestModalUIExtension);
+    BindNativeFunction(env, objValue, "openAtomicService", moduleName, OpenAtomicService);
+    BindNativeFunction(env, objValue, "showAbility", moduleName, ShowAbility);
+    BindNativeFunction(env, objValue, "hideAbility", moduleName, HideAbility);
+    BindNativeFunction(env, objValue, "setRestoreEnabled", moduleName, SetRestoreEnabled);
+
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, objValue, "setMissionLabel", moduleName, SetMissionLabel);
     BindNativeFunction(env, objValue, "setMissionIcon", moduleName, SetMissionIcon);
