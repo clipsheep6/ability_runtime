@@ -33,7 +33,7 @@ void UserCallbackProxy::SendRequestCommon(int userId, int errcode, IUserCallback
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option(MessageOption::TF_SYNC);
 
     TAG_LOGI(AAFwkTag::ABILITYMGR,
         "UserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d", cmd, userId, errcode);
