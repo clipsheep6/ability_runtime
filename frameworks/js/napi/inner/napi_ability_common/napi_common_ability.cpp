@@ -554,7 +554,7 @@ void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
 bool UnwrapParamGetDisplayOrientationWrap(napi_env env, size_t argc, napi_value *argv,
     AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called, argc=%{public}zu", argc);
+    TAG_LOGI(AAFwkTag::JSNAPI, "argc=%{public}zu", argc);
     const size_t argcMax = 1;
     if (argc > argcMax || argc < argcMax - 1) {
         TAG_LOGE(AAFwkTag::JSNAPI, "invalid argc");
