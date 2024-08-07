@@ -48,12 +48,14 @@ constexpr char EVENT_STACK[] = "STACK";
 constexpr char BINDER_INFO[] = "BINDER_INFO";
 constexpr char APP_RUNNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
 constexpr char FREEZE_MEMORY[] = "FREEZE_MEMORY";
+constexpr char MAIN_STACK[] = "MAIN_STACK";
 constexpr int MAX_LAYER = 8;
 constexpr int FREEZEMAP_SIZE_MAX = 20;
 constexpr int FREEZE_TIME_LIMIT = 60000;
 static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
 static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
 const std::string LOG_FILE_PATH = "data/log/eventlog";
+const std::string DUMP_STACK_FAILED = "Failed to dump stacktrace";
 }
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
 ffrt::mutex AppfreezeManager::singletonMutex_;
@@ -61,6 +63,7 @@ ffrt::mutex AppfreezeManager::freezeMutex_;
 ffrt::mutex AppfreezeManager::catchStackMutex_;
 std::map<int, std::string> AppfreezeManager::catchStackMap_;
 ffrt::mutex AppfreezeManager::freezeFilterMutex_;
+ffrt::mutex AppfreezeManager::stackContentMutex_;
 
 AppfreezeManager::AppfreezeManager()
 {
@@ -165,15 +168,18 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
     std::string catcherStack = "";
     std::string catchJsonStack = "";
     std::string fullStackPath = "";
+    std::lock_guard<ffrt::mutex> lock(stackContentMutex_);
     if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_HALF_TIMEOUT
         || faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT) {
         catcherStack += CatcherStacktrace(appInfo.pid);
         fullStackPath = WriteToFile(fileName, catcherStack);
         faultNotifyData.errorObject.stack = fullStackPath;
+        stackContent_ = CatcherStackContent(appInfo.pid, catcherStack);
     } else {
         catchJsonStack += CatchJsonStacktrace(appInfo.pid, faultData.errorObject.name);
         fullStackPath = WriteToFile(fileName, catchJsonStack);
         faultNotifyData.errorObject.stack = fullStackPath;
+        stackContent_ = CatchJsonStackContent(appInfo.pid, catchJsonStack);
     }
     if (faultNotifyData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
         AcquireStack(faultNotifyData, appInfo, memoryContent);
@@ -288,13 +294,14 @@ int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManag
             EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
             faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
             APP_RUNNING_UNIQUE_ID, appRunningUniqueId, EVENT_INPUT_ID, faultData.eventId,
-            FREEZE_MEMORY, memoryContent);
+            FREEZE_MEMORY, memoryContent, MAIN_STACK, stackContent_);
     } else {
         ret = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
             OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
             EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
             faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
-            APP_RUNNING_UNIQUE_ID, appRunningUniqueId, FREEZE_MEMORY, memoryContent);
+            APP_RUNNING_UNIQUE_ID, appRunningUniqueId, FREEZE_MEMORY, memoryContent,
+            MAIN_STACK, stackContent_);
     }
     TAG_LOGI(AAFwkTag::APPDFR,
         "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, appRunningUniqueId:%{public}s"
@@ -429,6 +436,44 @@ void AppfreezeManager::FindStackByPid(std::string& ret, int pid, const std::stri
     } else {
         ret = "Failed to dump stacktrace for " + std::to_string(pid) + "\n" + msg;
     }
+}
+
+std::string AppfreezeManager::CatcherStackContent(int pid, const std::string& stack)
+{
+    if (stack.find(DUMP_STACK_FAILED) != std::string::npos) {
+        return "";
+    }
+    std::string stackContent = "";
+    std::vector<std::string> vec;
+    OHOS::SplitStr(stack, "\n", vec);
+    std::string tidStr = "Tid:";
+    std::string pidStr = std::to_string(pid);
+    bool firstTid = false;
+    for(const std::string& str : vec) {
+        if (str.find(tidStr) != std::string::npos) {
+            if (str.find(pidStr) != std::string::npos) {
+                firstTid = true;
+            } else {
+                break;
+            }
+        } else if (firstTid) {
+            stackContent += str + "\n";
+        }
+    }
+    return stackContent;
+}
+std::string AppfreezeManager::CatchJsonStackContent(int pid, const std::string& stack)
+{
+    if (stack.find(DUMP_STACK_FAILED) != std::string::npos) {
+        return "";
+    }
+    std::string jsonStackContent = "";
+    std::string pidStr = std::to_string(pid);
+    auto index = stack.find(tidStr);
+    if (index != std::string::npos) {
+        jsonStackContent = stack.substr(0, index) + pidStr + "}";
+    }
+    return jsonStackContent;
 }
 
 std::string AppfreezeManager::CatchJsonStacktrace(int pid, const std::string& faultType) const

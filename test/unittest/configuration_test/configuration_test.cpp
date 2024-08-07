@@ -86,6 +86,7 @@ void ConfigurationTest::InitResourceManager(std::shared_ptr<Global::Resource::Re
 HWTEST_F(ConfigurationTest, AddItem_001, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     int displayId = 1001;
     std::string val{ "中文" };
     EXPECT_EQ(0, config.GetItemSize());
@@ -108,6 +109,7 @@ HWTEST_F(ConfigurationTest, AddItem_001, TestSize.Level1)
 HWTEST_F(ConfigurationTest, AddItem_002, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     std::string val{ "中文" };
     EXPECT_EQ(0, config.GetItemSize());
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, val);
@@ -129,6 +131,7 @@ HWTEST_F(ConfigurationTest, AddItem_002, TestSize.Level1)
 HWTEST_F(ConfigurationTest, AddItem_003, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     std::string val{ "中文" };
     std::string key{ "test_key" };
     EXPECT_EQ(0, config.GetItemSize());
@@ -147,6 +150,7 @@ HWTEST_F(ConfigurationTest, AddItem_003, TestSize.Level1)
 HWTEST_F(ConfigurationTest, GetItem_001, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     int displayId = 1001;
     std::string val{ "中文" };
     config.AddItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, val);
@@ -177,6 +181,7 @@ HWTEST_F(ConfigurationTest, GetItem_001, TestSize.Level1)
 HWTEST_F(ConfigurationTest, GetItem_002, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     std::string val{ "中文" };
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, val);
 
@@ -206,6 +211,7 @@ HWTEST_F(ConfigurationTest, GetItem_002, TestSize.Level1)
 HWTEST_F(ConfigurationTest, GetItem_003, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     std::string non{ "" };
     auto item = config.GetItem("test_kay");
     EXPECT_EQ(item, non);
@@ -221,6 +227,7 @@ HWTEST_F(ConfigurationTest, GetItem_003, TestSize.Level1)
 HWTEST_F(ConfigurationTest, RemoveItem_001, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     int displayId = 1001;
     std::string val{ "中文" };
     config.AddItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, val);
@@ -255,6 +262,7 @@ HWTEST_F(ConfigurationTest, RemoveItem_001, TestSize.Level1)
 HWTEST_F(ConfigurationTest, RemoveItem_002, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     std::string val{ "中文" };
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, val);
 
@@ -287,6 +295,7 @@ HWTEST_F(ConfigurationTest, RemoveItem_002, TestSize.Level1)
 HWTEST_F(ConfigurationTest, GetItemSize_001, TestSize.Level1)
 {
     AppExecFwk::Configuration config;
+    config.RemoveItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE);
     int displayId = 1001;
     std::string val{ "中文" };
     EXPECT_EQ(0, config.GetItemSize());

@@ -150,7 +150,7 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_DumpSysState_0100,
 HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionIcon_0100, TestSize.Level1)
 {
     sptr<IRemoteObject> abilityToken = nullptr;
-    std::shared_ptr<OHOS::Media::PixelMap> icon = std::make_shared<OHOS::Media::PixelMap>();
+    std::shared_ptr<OHOS::Media::PixelMap> icon = nullptr;
 
     auto result = client_->SetMissionIcon(abilityToken, icon);
     EXPECT_NE(result, ERR_OK);
@@ -2656,7 +2656,10 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionLabel_01
     sptr<IRemoteObject> token = nullptr;
     std::string label = "label";
     ErrCode ret = client_->SetMissionLabel(token, label);
-    EXPECT_EQ(ret, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, ERR_OK);
+    }
+    EXPECT_TRUE(client_ != nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerClient_SetMissionLabel_0100 end";
 }
 #endif

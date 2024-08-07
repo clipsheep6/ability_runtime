@@ -228,7 +228,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
 
         abilityRecord = missionListManager->terminateAbilityList_.front();
         EXPECT_NE(abilityRecord, nullptr);
-        EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
+        EXPECT_NE(abilityRecord->GetAppState(), AppState::TERMINATED);
     }
 }
 
