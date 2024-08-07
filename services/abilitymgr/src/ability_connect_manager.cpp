@@ -1475,6 +1475,7 @@ void AbilityConnectManager::HandleRestartResidentTask(const AbilityRequest &abil
 
 void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t messageId)
 {
+    CHECK_POINTER(abilityRecord);
     int connectRecordId = 0;
     if (messageId == AbilityConnectManager::CONNECT_TIMEOUT_MSG) {
         auto connectRecord = abilityRecord->GetConnectingRecord();
