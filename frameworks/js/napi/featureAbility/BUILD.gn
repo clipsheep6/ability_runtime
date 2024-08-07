@@ -85,6 +85,10 @@ ohos_shared_library("featureability") {
       "relational_store:rdb_data_share_adapter",
     ]
   }
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 
   relative_install_dir = "module/ability"
 

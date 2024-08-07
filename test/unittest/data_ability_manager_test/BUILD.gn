@@ -91,6 +91,11 @@ ohos_unittest("data_ability_manager_test") {
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
   }
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

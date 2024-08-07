@@ -83,6 +83,10 @@ ohos_fuzztest("StartOtherappinterceptorFuzzTest") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 ###############################################################################

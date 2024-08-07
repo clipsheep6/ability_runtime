@@ -85,6 +85,10 @@ ohos_fuzztest("ScreenUnlockInterceptorFuzzTest") {
     "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
   ]
+
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 ###############################################################################

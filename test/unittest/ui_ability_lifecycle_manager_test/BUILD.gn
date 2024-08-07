@@ -97,6 +97,10 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
       "window_manager:scene_session",
     ]
   }
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

@@ -47,6 +47,10 @@ ohos_shared_library("dialogrequest_napi") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 
   relative_install_dir = "module/app/ability"
 

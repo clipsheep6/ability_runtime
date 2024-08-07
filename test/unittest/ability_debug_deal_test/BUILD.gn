@@ -47,6 +47,11 @@ ohos_unittest("ability_debug_deal_test") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

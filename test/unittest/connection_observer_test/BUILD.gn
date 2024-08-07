@@ -52,6 +52,10 @@ ohos_unittest("connection_observer_test") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

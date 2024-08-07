@@ -93,6 +93,11 @@ ohos_shared_library("wantagent_innerkits") {
     cflags = [ "-DCONFIG_DUAL_FRAMEWORK" ]
   }
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
+
   innerapi_tags = [
     "platformsdk",
     "sasdk",

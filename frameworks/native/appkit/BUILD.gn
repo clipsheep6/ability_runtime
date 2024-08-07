@@ -253,6 +253,11 @@ ohos_shared_library("appkit_native") {
     defines += [ "APP_NO_RESPONSE_DIALOG" ]
   }
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
+
   innerapi_tags = [ "platformsdk" ]
   version_script = "libappkit_native.map"
   subsystem_name = "ability"

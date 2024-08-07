@@ -42,6 +42,11 @@ ohos_shared_library("quickfixmanager_napi") {
     "napi:ace_napi",
   ]
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
+
   relative_install_dir = "module/app/ability"
   subsystem_name = "ability"
   part_name = "ability_runtime"

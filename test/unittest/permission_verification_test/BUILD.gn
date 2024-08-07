@@ -30,6 +30,10 @@ ohos_unittest("permission_verification_test") {
     "ability_base:want",
     "ipc:ipc_core",
   ]
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

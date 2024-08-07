@@ -61,6 +61,10 @@ ohos_fuzztest("AbilityStubGetDlpConnectionInfosFuzzTest") {
       "window_manager:libwm",
     ]
   }
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 ###############################################################################

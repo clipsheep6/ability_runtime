@@ -58,6 +58,11 @@ ohos_shared_library("missionmanager") {
     ]
   }
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
+
   relative_install_dir = "module/app/ability"
 
   subsystem_name = "ability"

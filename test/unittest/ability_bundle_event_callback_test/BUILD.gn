@@ -68,6 +68,11 @@ ohos_unittest("ability_bundle_event_callback_test") {
     "window_manager:libwsutils",
     "window_manager:sms",
   ]
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

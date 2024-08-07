@@ -86,7 +86,6 @@ ohos_unittest("ams_mgr_scheduler_test") {
   cflags_cc = []
   if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
-    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
   }
 }
 

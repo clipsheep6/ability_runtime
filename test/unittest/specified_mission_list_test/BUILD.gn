@@ -84,6 +84,10 @@ ohos_unittest("specified_mission_list_test") {
       "window_manager:scene_session",
     ]
   }
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

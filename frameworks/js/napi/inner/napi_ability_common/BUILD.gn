@@ -74,6 +74,10 @@ ohos_shared_library("napi_ability_common") {
       "window_manager:libdm",
     ]
   }
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

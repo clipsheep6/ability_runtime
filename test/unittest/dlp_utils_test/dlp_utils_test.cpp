@@ -15,7 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#ifdef WITH_DLP
 #include "dlp_utils.h"
+#endif // WITH_DLP
 
 using namespace testing;
 using namespace testing::ext;

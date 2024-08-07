@@ -97,6 +97,10 @@ ohos_unittest("ability_record_test") {
   if (ability_runtime_graphics) {
     external_deps += [ "image_framework:image_native" ]
   }
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 ohos_unittest("ability_record_test_call") {
@@ -180,7 +184,6 @@ ohos_unittest("ability_record_test_call") {
   cflags_cc = []
   if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
-    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
   }
 }
 

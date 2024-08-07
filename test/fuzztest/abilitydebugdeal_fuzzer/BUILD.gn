@@ -72,6 +72,11 @@ ohos_fuzztest("AbilityDebugDealFuzzTest") {
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
   }
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 ###############################################################################

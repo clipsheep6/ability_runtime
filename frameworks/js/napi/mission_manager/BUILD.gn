@@ -57,6 +57,11 @@ ohos_shared_library("missionmanager_napi") {
     ]
   }
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
+
   relative_install_dir = "module/application"
 
   subsystem_name = "ability"

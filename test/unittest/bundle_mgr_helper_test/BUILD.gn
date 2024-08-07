@@ -39,6 +39,10 @@ ohos_unittest("bundle_mgr_helper_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
   ]
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 group("unittest") {

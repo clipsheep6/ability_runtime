@@ -288,6 +288,11 @@ ohos_shared_library("abilitykit_native") {
     external_deps += [ "relational_store:native_rdb" ]
   }
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
+
   public_external_deps = [
     "ability_base:session_info",
     "accessibility:accessibility_common",
@@ -571,6 +576,11 @@ ohos_shared_library("uiabilitykit_native") {
     "napi:ace_napi",
     "node:node_header_notice",
   ]
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 
   if (cj_frontend) {
     sources += [
