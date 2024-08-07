@@ -173,4 +173,3 @@ aa force-stop com.ohos.app
 [form_fwk](https://gitee.com/openharmony/ability_form_fwk)
 
 [idl_tool](https://gitee.com/openharmony/ability_idl_tool)
-1111
