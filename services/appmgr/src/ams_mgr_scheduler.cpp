@@ -122,6 +122,7 @@ void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const
     std::function<void()> updateAbilityStateFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, state] () {
         amsMgrServiceInner->UpdateAbilityState(token, state);
     };
+    TAG_LOGD(AAFwkTag::APPMGR, "Submit task.");
     amsHandler_->SubmitTask(updateAbilityStateFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_UPDATE_ABILITY_STATE,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
