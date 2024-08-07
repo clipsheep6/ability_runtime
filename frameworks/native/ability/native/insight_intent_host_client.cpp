@@ -26,7 +26,7 @@ sptr<InsightIntentHostClient> InsightIntentHostClient::GetInstance()
     std::call_once(singletonFlag_, []() {
         instance_ = new (std::nothrow) InsightIntentHostClient();
         if (instance_ == nullptr) {
-            TAG_LOGE(AAFwkTag::INTENT, "failed to create InsightIntentHostClient.");
+            TAG_LOGE(AAFwkTag::INTENT, "create instance failed");
         }
     });
     return instance_;
@@ -61,7 +61,7 @@ void InsightIntentHostClient::OnExecuteDone(uint64_t key, int32_t resultCode,
         std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
         auto iter = callbackMap_.find(key);
         if (iter == callbackMap_.end()) {
-            TAG_LOGI(AAFwkTag::INTENT, "InsightIntent execute callback not found");
+            TAG_LOGI(AAFwkTag::INTENT, "callback not found");
         } else {
             callback = iter->second;
             callbackMap_.erase(key);

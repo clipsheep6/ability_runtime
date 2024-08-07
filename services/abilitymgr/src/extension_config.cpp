@@ -100,7 +100,7 @@ bool ExtensionConfig::IsExtensionStartServiceEnable(std::string extensionTypeNam
 void ExtensionConfig::LoadExtensionConfig(const nlohmann::json &object)
 {
     if (!object.contains(EXTENSION_CONFIG_NAME) || !object.at(EXTENSION_CONFIG_NAME).is_array()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Extension config not existed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Extension config not exist");
         return;
     }
 
@@ -120,7 +120,7 @@ void ExtensionConfig::LoadExtensionAutoDisconnectTime(const nlohmann::json &obje
 {
     if (!object.contains(EXTENSION_AUTO_DISCONNECT_TIME) ||
         !object.at(EXTENSION_AUTO_DISCONNECT_TIME).is_number()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auto disconnect time config not existed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auto disconnect time config not exist");
         return;
     }
     int32_t extensionAutoDisconnectTime = object.at(EXTENSION_AUTO_DISCONNECT_TIME).get<int32_t>();
@@ -179,7 +179,7 @@ void ExtensionConfig::LoadExtensionServiceBlockedList(const nlohmann::json &obje
 bool ExtensionConfig::ReadFileInfoJson(const std::string &filePath, nlohmann::json &jsonBuf)
 {
     if (access(filePath.c_str(), F_OK) != 0) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s, not existed", filePath.c_str());
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s not exist", filePath.c_str());
         return false;
     }
 
@@ -189,14 +189,14 @@ bool ExtensionConfig::ReadFileInfoJson(const std::string &filePath, nlohmann::js
     in.open(filePath, std::ios_base::in);
     if (!in.is_open()) {
         strerror_r(errno, errBuf, sizeof(errBuf));
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file cannot be open due to  %{public}s", errBuf);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "open file failed:%{public}s", errBuf);
         return false;
     }
 
     in.seekg(0, std::ios::end);
     int64_t size = in.tellg();
     if (size <= 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is an empty file");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "empty file");
         in.close();
         return false;
     }

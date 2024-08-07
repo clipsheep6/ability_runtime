@@ -151,7 +151,7 @@ bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& 
 
     auto pixelMap = GetPixelMap(missionId, isLowResolution);
     if (!pixelMap) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: GetPixelMap failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null pixelMap");
         return false;
     }
     missionSnapshot.snapshot = std::move(pixelMap);
@@ -320,7 +320,7 @@ std::shared_ptr<Media::PixelMap> MissionDataStorage::GetSnapshot(int missionId, 
 {
     auto pixelMapPtr = GetPixelMap(missionId, isLowResolution);
     if (!pixelMapPtr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: GetPixelMap failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null pixelMapPtr");
         return nullptr;
     }
     return std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());

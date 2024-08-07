@@ -243,12 +243,12 @@ bool CacheProcessManager::ReuseCachedProcess(const std::shared_ptr<AppRunningRec
 bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     if (appRecord == nullptr) {
-        TAG_LOGI(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "null appRecord");
         return false;
     }
     auto appInfo = appRecord->GetApplicationInfo();
     if (appInfo == nullptr) {
-        TAG_LOGD(AAFwkTag::APPMGR, "appinfo nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "null appinfo");
         return false;
     }
     auto actualVer = appInfo->apiTargetVersion % API_VERSION_MOD;
@@ -281,7 +281,7 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
 bool CacheProcessManager::IsAppSupportProcessCacheInnerFirst(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     if (appRecord == nullptr) {
-        TAG_LOGI(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "null appRecord");
         return false;
     }
     if (appRecord->GetBundleName() == AAFwk::AppUtils::GetInstance().GetShellAssistantBundleName()) {
@@ -331,7 +331,7 @@ bool CacheProcessManager::IsAppShouldCache(const std::shared_ptr<AppRunningRecor
 bool CacheProcessManager::IsAppAbilitiesEmpty(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     if (appRecord == nullptr) {
-        TAG_LOGI(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
+        TAG_LOGI(AAFwkTag::APPMGR, "null appRecord");
         return false;
     }
     auto allModuleRecord = appRecord->GetAllModuleRecord();

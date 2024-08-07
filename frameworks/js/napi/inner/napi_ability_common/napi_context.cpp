@@ -1772,7 +1772,7 @@ napi_value WrapProcessName(napi_env env, const ProcessNameCB *processNameCB)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "called");
     if (processNameCB == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, Invalid param(processNameCB == nullptr)", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "null processNameCB");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -2149,8 +2149,7 @@ void GetOrCreateLocalDirExecuteCB(napi_env env, void *data)
     }
 
     getOrCreateLocalDirCB->rootDir = getOrCreateLocalDirCB->cbBase.ability->GetAbilityContext()->GetBaseDir();
-    TAG_LOGI(AAFwkTag::JSNAPI, "GetDir rootDir:%{public}s",
-             getOrCreateLocalDirCB->rootDir.c_str());
+    TAG_LOGI(AAFwkTag::JSNAPI, "GetDir rootDir:%{public}s", getOrCreateLocalDirCB->rootDir.c_str());
     if (!OHOS::FileExists(getOrCreateLocalDirCB->rootDir)) {
         TAG_LOGI(AAFwkTag::JSNAPI, "dir not exits, create dir");
         OHOS::ForceCreateDirectory(getOrCreateLocalDirCB->rootDir);
@@ -2510,13 +2509,11 @@ napi_value GetDatabaseDirWrap(napi_env env, napi_callback_info info, DatabaseDir
     // if dataDirWithModuleName is not exits, do nothing and return.
     if (!OHOS::FileExists(dataDirWithModuleName)) {
         getDatabaseDirCB->dataBaseDir = "";
-        TAG_LOGI(AAFwkTag::JSNAPI, "dirWithModuleName not exits:%{public}s",
-            dataDirWithModuleName.c_str());
+        TAG_LOGI(AAFwkTag::JSNAPI, "dirWithModuleName not exits:%{public}s", dataDirWithModuleName.c_str());
     } else {
         getDatabaseDirCB->dataBaseDir = dataDirWithModuleName + NAPI_CONTEXT_FILE_SEPARATOR + abilityName +
                                         NAPI_CONTEXT_FILE_SEPARATOR + NAPI_CONTEXT_DATABASE;
-        TAG_LOGI(AAFwkTag::JSNAPI, "GetDir dataBaseDir:%{public}s",
-                 getDatabaseDirCB->dataBaseDir.c_str());
+        TAG_LOGI(AAFwkTag::JSNAPI, "GetDir dataBaseDir:%{public}s", getDatabaseDirCB->dataBaseDir.c_str());
         if (!OHOS::FileExists(getDatabaseDirCB->dataBaseDir)) {
             TAG_LOGE(AAFwkTag::JSNAPI, "dir not exits, create dir");
             OHOS::ForceCreateDirectory(getDatabaseDirCB->dataBaseDir);
@@ -2763,7 +2760,7 @@ napi_value NAPI_SetWakeUpScreen(napi_env env, napi_callback_info info)
             delete setWakeUpScreenCB;
             setWakeUpScreenCB = nullptr;
         }
-        TAG_LOGE(AAFwkTag::JSNAPI, "setWakeUpScreenCB run failed, delete resource");
+        TAG_LOGE(AAFwkTag::JSNAPI, "setWakeUpScreenCB failed");
         ret = WrapVoidToJS(env);
     }
     TAG_LOGI(AAFwkTag::JSNAPI, "end");
@@ -3596,7 +3593,7 @@ napi_value NapiJsContext::OnGetOrCreateLocalDir(napi_env env, napi_callback_info
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr || dir == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the ability context is nullptr");
+            TAG_LOGE(AAFwkTag::JSNAPI, "the ability context is nullptr");
             return;
         }
         dir->name = context->GetBaseDir();

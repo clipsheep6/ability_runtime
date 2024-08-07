@@ -91,7 +91,7 @@ void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk
 ErrCode FormExtensionContext::ConnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {
-    TAG_LOGI(AAFwkTag::APPKIT, "Connect ability begin, ability:%{public}s.",
+    TAG_LOGI(AAFwkTag::APPKIT, "Connect:%{public}s",
         want.GetElement().GetAbilityName().c_str());
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);

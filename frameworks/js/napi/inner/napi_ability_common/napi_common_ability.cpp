@@ -127,7 +127,6 @@ napi_value NAPI_GetFilesDirCommon(napi_env env, napi_callback_info info, Ability
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -196,7 +195,6 @@ napi_value NAPI_GetOrCreateDistributedDirCommon(napi_env env, napi_callback_info
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -264,7 +262,6 @@ napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, Ability
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -321,7 +318,7 @@ napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info,
     TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "create callbackInfo failed");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null asyncCallbackInfo");
         return WrapVoidToJS(env);
     }
 
@@ -332,7 +329,6 @@ napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info,
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -433,7 +429,6 @@ napi_value NAPI_IsUpdatingConfigurationsCommon(napi_env env, napi_callback_info 
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -442,7 +437,7 @@ napi_value NAPI_PrintDrawnCompletedCommon(napi_env env, napi_callback_info info,
     TAG_LOGI(AAFwkTag::JSNAPI, "called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "create callbackInfo failed");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null asyncCallbackInfo");
         return WrapVoidToJS(env);
     }
 
@@ -453,7 +448,6 @@ napi_value NAPI_PrintDrawnCompletedCommon(napi_env env, napi_callback_info info,
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -484,7 +478,6 @@ napi_value NAPI_GetAppTypeCommon(napi_env env, napi_callback_info info, AbilityT
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -500,7 +493,7 @@ napi_value GetDisplayOrientationWrap(napi_env env, napi_callback_info info, Asyn
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapParamGetDisplayOrientationWrap(env, argc, args, asyncCallbackInfo)) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "unwrapParamGetDisplayOrientationWrap fail");
+        TAG_LOGE(AAFwkTag::JSNAPI, "unwrap failed");
         return nullptr;
     }
 
@@ -554,7 +547,7 @@ void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
 bool UnwrapParamGetDisplayOrientationWrap(napi_env env, size_t argc, napi_value *argv,
     AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    TAG_LOGI(AAFwkTag::JSNAPI, "called, argc=%{public}zu", argc);
+    TAG_LOGI(AAFwkTag::JSNAPI, "argc=%{public}zu", argc);
     const size_t argcMax = 1;
     if (argc > argcMax || argc < argcMax - 1) {
         TAG_LOGE(AAFwkTag::JSNAPI, "invalid argc");
@@ -563,7 +556,7 @@ bool UnwrapParamGetDisplayOrientationWrap(napi_env env, size_t argc, napi_value 
 
     if (argc == argcMax) {
         if (!CreateAsyncCallback(env, argv[PARAM0], asyncCallbackInfo)) {
-            TAG_LOGI(AAFwkTag::JSNAPI, "args[PARAM0] invalid");
+            TAG_LOGI(AAFwkTag::JSNAPI, "invalid argv[PARAM0]");
             return false;
         }
     }
@@ -620,7 +613,6 @@ napi_value NAPI_GetAbilityInfoCommon(napi_env env, napi_callback_info info, Abil
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -651,7 +643,6 @@ napi_value NAPI_GetHapModuleInfoCommon(napi_env env, napi_callback_info info, Ab
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -682,7 +673,6 @@ napi_value NAPI_GetAppVersionInfoCommon(napi_env env, napi_callback_info info, A
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -763,7 +753,7 @@ void GetContextAsyncExecuteCB(napi_env, void *data)
         asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
         return;
     }
-    TAG_LOGI(AAFwkTag::JSNAPI, "execute end");
+    TAG_LOGI(AAFwkTag::JSNAPI, "end");
 }
 
 napi_value GetContextAsync(
@@ -813,7 +803,7 @@ napi_value GetContextAsync(
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
-    TAG_LOGI(AAFwkTag::JSNAPI, "asyncCallback end");
+    TAG_LOGI(AAFwkTag::JSNAPI, "end");
     return result;
 }
 
@@ -821,7 +811,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "promise");
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "null param");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null asyncCallbackInfo");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -856,7 +846,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
-    TAG_LOGI(AAFwkTag::JSNAPI, "promise end");
+    TAG_LOGI(AAFwkTag::JSNAPI, "end");
     return promise;
 }
 
@@ -885,7 +875,6 @@ napi_value GetContextWrap(napi_env env, napi_callback_info, AsyncCallbackInfo *a
 
     napi_value result = nullptr;
     napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result);
-
     return result;
 }
 
@@ -978,7 +967,6 @@ napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, Abil
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1007,7 +995,6 @@ napi_value NAPI_StopAbilityCommon(napi_env env, napi_callback_info info, Ability
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1036,7 +1023,6 @@ napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info 
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1069,7 +1055,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     napi_status status = OHOS::AbilityRuntime::IsStageContext(env, args[0], stageMode);
     if (status == napi_ok) {
         uriIndex = PARAM1;
-        TAG_LOGI(AAFwkTag::JSNAPI, "argv[0] is a context, Stage Model: %{public}d", stageMode);
+        TAG_LOGI(AAFwkTag::JSNAPI, "stageModel: %{public}d", stageMode);
     }
 
     if (!stageMode) {
@@ -1089,7 +1075,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[uriIndex], &valuetype));
     if (valuetype != napi_string) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type");
+        TAG_LOGE(AAFwkTag::JSNAPI, "not napi_string");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -1139,7 +1125,7 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
         }
         ret = WrapVoidToJS(env);
     }
-    TAG_LOGI(AAFwkTag::JSNAPI, "finish");
+    TAG_LOGI(AAFwkTag::JSNAPI, "end");
     return ret;
 }
 
@@ -1162,7 +1148,6 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
         }
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 }  // namespace AppExecFwk

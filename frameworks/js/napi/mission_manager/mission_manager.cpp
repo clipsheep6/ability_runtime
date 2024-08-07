@@ -49,7 +49,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "JsMissionManager::Finalizer is called");
+        TAG_LOGI(AAFwkTag::MISSION, "Finalizer called");
         std::unique_ptr<JsMissionManager>(static_cast<JsMissionManager*>(data));
     }
 
@@ -111,7 +111,7 @@ public:
 private:
     napi_value OnRegisterMissionListener(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < 1) {
             TAG_LOGE(AAFwkTag::MISSION, "Params not match");
             ThrowTooFewParametersError(env);
@@ -143,7 +143,7 @@ private:
 
     napi_value OnUnregisterMissionListener(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < 1) {
             TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
@@ -188,7 +188,7 @@ private:
 
     napi_value OnGetMissionInfos(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) { // at least 2 parameters.
             TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
@@ -228,7 +228,7 @@ private:
 
     napi_value OnGetMissionInfo(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
             TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
@@ -352,7 +352,7 @@ private:
 
     napi_value OnLockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Not enough params");
             ThrowTooFewParametersError(env);
@@ -385,7 +385,7 @@ private:
 
     napi_value OnUnlockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Not enough params");
             ThrowTooFewParametersError(env);
@@ -418,7 +418,7 @@ private:
 
     napi_value OnClearMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Not enough params");
             ThrowTooFewParametersError(env);
@@ -451,7 +451,7 @@ private:
 
     napi_value OnClearAllMissions(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         NapiAsyncTask::CompleteCallback complete =
             [](napi_env env, NapiAsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->CleanAllMissions();
@@ -472,7 +472,7 @@ private:
 
     napi_value OnMoveMissionToFront(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Not enough params");
             ThrowTooFewParametersError(env);
@@ -517,7 +517,7 @@ private:
 
 napi_value JsMissionManagerInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "JsMissionManagerInit is called");
+    TAG_LOGI(AAFwkTag::MISSION, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGI(AAFwkTag::MISSION, "Invalid input parameters");
         return nullptr;

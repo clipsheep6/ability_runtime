@@ -123,7 +123,7 @@ void AbilityEventHandler::ProcessForegroundTimeOut(const EventWrap &event)
 
 void AbilityEventHandler::ProcessShareDataTimeOut(int64_t uniqueId)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "ShareData timeout.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "timeout");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleShareDataTimeOut(uniqueId);

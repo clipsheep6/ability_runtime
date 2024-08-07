@@ -371,7 +371,7 @@ void MissionList::DumpStateByRecordId(
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState %{public}s", __func__);
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState");
                     abilityRecord->DumpAbilityState(info, isClient, params);
                     return;
                 }
@@ -393,7 +393,7 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
 
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
-                TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState %{public}s", __func__);
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "call DumpAbilityState");
                 std::vector<std::string> params;
                 abilityRecord->DumpAbilityState(info, isClient, params);
             }
@@ -410,7 +410,7 @@ int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call BlockAbilityByRecordId %{public}s", __func__);
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "call BlockAbilityByRecordId");
                     return abilityRecord->BlockAbility();
                 }
             }

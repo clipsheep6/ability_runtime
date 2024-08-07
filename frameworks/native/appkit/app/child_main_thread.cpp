@@ -39,7 +39,7 @@ ChildMainThread::~ChildMainThread()
 
 void ChildMainThread::Start(const std::map<std::string, int32_t> &fds)
 {
-    TAG_LOGI(AAFwkTag::APPKIT, "ChildMainThread start");
+    TAG_LOGI(AAFwkTag::APPKIT, "start");
     ChildProcessInfo processInfo;
     auto ret = GetChildProcessInfo(processInfo);
     if (ret != ERR_OK) {

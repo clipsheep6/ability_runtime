@@ -33,7 +33,7 @@ bool IAbilityStageMonitor::Match(const std::shared_ptr<DelegatorAbilityStageProp
     }
 
     TAG_LOGI(AAFwkTag::DELEGATOR,
-        "Matched : abilityStage module name : %{public}s, srcEntrance : %{public}s, isNotify : %{public}s",
+        "Matched: abilityStage moduleName: %{public}s, srcEntrance: %{public}s, isNotify: %{public}s",
         moduleName_.c_str(), srcEntrance_.c_str(), (isNotify ? "true" : "false"));
 
     if (isNotify) {

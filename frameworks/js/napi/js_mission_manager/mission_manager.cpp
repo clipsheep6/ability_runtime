@@ -316,7 +316,7 @@ private:
 
     napi_value OnGetMissionInfos(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
             TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
@@ -356,7 +356,7 @@ private:
 
     napi_value OnGetMissionInfo(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
             TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
@@ -408,7 +408,7 @@ private:
 
     napi_value GetMissionSnapShot(napi_env env, size_t argc, napi_value* argv, bool isLowResolution)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         std::string deviceId;
         int32_t missionId = -1;
         if (!CheckMissionSnapShotParams(env, argc, argv, deviceId, missionId)) {
@@ -481,7 +481,7 @@ private:
 
     napi_value OnLockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Not enough params");
             ThrowTooFewParametersError(env);
@@ -514,7 +514,7 @@ private:
 
     napi_value OnUnlockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Not enough params");
             ThrowTooFewParametersError(env);
@@ -547,7 +547,7 @@ private:
 
     napi_value OnClearMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Not enough params");
             ThrowTooFewParametersError(env);
@@ -580,7 +580,7 @@ private:
 
     napi_value OnClearAllMissions(napi_env env, const size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         NapiAsyncTask::CompleteCallback complete =
             [](napi_env env, NapiAsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->CleanAllMissions();
@@ -601,7 +601,7 @@ private:
 
     napi_value OnMoveMissionToFront(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Not enough params");
             ThrowTooFewParametersError(env);
@@ -642,7 +642,7 @@ private:
 
     napi_value OnMoveMissionsToForeground(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         std::vector<int32_t> missionIds;
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Not enough params");
@@ -700,7 +700,7 @@ private:
 
     napi_value OnMoveMissionsToBackground(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         std::vector<int32_t> missionIds;
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground Not enough params");

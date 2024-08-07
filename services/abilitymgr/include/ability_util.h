@@ -174,7 +174,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 [[maybe_unused]] static bool ParseJumpInterceptorWant(Want &targetWant, const std::string callerPkg)
 {
     if (callerPkg.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s error, get empty callerPkg.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "empty callerPkg");
         return false;
     }
     targetWant.SetParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG, callerPkg);
@@ -185,7 +185,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string &targetPkg)
 {
     if (!targetWant.HasParameter(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s error, the interceptor parameter invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "interceptor parameter invalid");
         return false;
     }
     callerPkg = targetWant.GetStringParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG);
@@ -219,7 +219,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 {
     const std::unordered_set<std::string> whiteListDlpSet = { BUNDLE_NAME_SELECTOR_DIALOG };
     if (whiteListDlpSet.find(want.GetBundle()) != whiteListDlpSet.end()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, enter special app", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "enter special app");
         return false;
     }
 

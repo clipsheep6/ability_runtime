@@ -30,20 +30,20 @@ AbilityManager &AbilityManager::GetInstance()
 
 void AbilityManager::StartAbility(const Want &want, int requestCode = -1)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "%s failed, error : %d", __func__, error);
+        TAG_LOGE(AAFwkTag::APPKIT, "startAbility failed: %{public}d", error);
     }
 }
 
 int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
     if (appMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "%s, appMgr_ is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::APPKIT, "null appMgr_");
         return ERR_NULL_OBJECT;
     }
 
@@ -53,12 +53,12 @@ int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
     std::vector<RunningProcessInfo> info;
     if (appMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "%s, appMgr_ is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::APPKIT, "null appMgr_");
         return info;
     }
 
@@ -68,10 +68,10 @@ std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 
 int AbilityManager::KillProcessesByBundleName(const std::string &bundleName, const bool clearPageStack)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->KillProcess(bundleName, clearPageStack);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "%s failed, error : %d", __func__, error);
+        TAG_LOGE(AAFwkTag::APPKIT, "killProcess failed: %{public}d", error);
         return error;
     }
     return ERR_OK;

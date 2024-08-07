@@ -148,7 +148,6 @@ napi_value GetAppTypeAsync(napi_env env, napi_value *args, const size_t argCallb
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appTypeCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-
     return result;
 }
 
@@ -183,7 +182,6 @@ napi_value GetAppTypePromise(napi_env env, AppTypeCB *appTypeCB)
             static_cast<void *>(appTypeCB),
             &appTypeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appTypeCB->cbBase.asyncWork, napi_qos_user_initiated));
-
     return promise;
 }
 
@@ -211,7 +209,7 @@ napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appT
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Wrong arguments count");
+        TAG_LOGE(AAFwkTag::JSNAPI, "invalid argc");
         return nullptr;
     }
 
@@ -220,7 +218,6 @@ napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appT
     } else {
         ret = GetAppTypePromise(env, appTypeCB);
     }
-
     return ret;
 }
 
@@ -355,7 +352,6 @@ napi_value GetAbilityInfoAsync(napi_env env, napi_value *args, const size_t argC
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-
     return result;
 }
 
@@ -390,7 +386,6 @@ napi_value GetAbilityInfoPromise(napi_env env, AbilityInfoCB *abilityInfoCB)
             static_cast<void *>(abilityInfoCB),
             &abilityInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
-
     return promise;
 }
 
@@ -406,7 +401,7 @@ napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfo
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "asyncCallback");
     if (abilityInfoCB == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "nullabilityInfoCB");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null abilityInfoCB");
         return nullptr;
     }
 
@@ -427,7 +422,6 @@ napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfo
     } else {
         ret = GetAbilityInfoPromise(env, abilityInfoCB);
     }
-
     return ret;
 }
 
@@ -545,7 +539,6 @@ napi_value GetHapModuleInfoAsync(
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, hapModuleInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-
     return result;
 }
 
@@ -580,7 +573,6 @@ napi_value GetHapModuleInfoPromise(napi_env env, HapModuleInfoCB *hapModuleInfoC
             static_cast<void *>(hapModuleInfoCB),
             &hapModuleInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, hapModuleInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
-
     return promise;
 }
 
@@ -609,7 +601,6 @@ napi_value GetHapModuleInfoWrap(napi_env env, napi_callback_info info, HapModule
     } else {
         ret = GetHapModuleInfoPromise(env, hapModuleInfoCB);
     }
-
     return ret;
 }
 
@@ -724,7 +715,6 @@ napi_value GetAppVersionInfoAsync(
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appVersionInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-
     return result;
 }
 
@@ -755,7 +745,6 @@ napi_value GetAppVersionInfoPromise(napi_env env, AppVersionInfoCB *appVersionIn
                  GetAppVersionInfoPromiseCompleteCB, static_cast<void *>(appVersionInfoCB),
                  &appVersionInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appVersionInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
-
     return promise;
 }
 
@@ -775,7 +764,7 @@ napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersi
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "fail argument count");
+        TAG_LOGE(AAFwkTag::JSNAPI, "invalid argc");
         return nullptr;
     }
 
@@ -784,7 +773,6 @@ napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersi
     } else {
         ret = GetAppVersionInfoPromise(env, appVersionInfoCB);
     }
-
     return ret;
 }
 
@@ -866,7 +854,6 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
-
     return result;
 }
 
@@ -909,7 +896,6 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
-
     return promise;
 }
 
@@ -946,7 +932,6 @@ napi_value GetWantWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo 
     } else {
         ret = GetWantPromise(env, asyncCallbackInfo);
     }
-
     return ret;
 }
 
@@ -1073,7 +1058,6 @@ napi_value GetAbilityNameAsync(napi_env env, napi_value *args, const size_t argC
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-
     return result;
 }
 
@@ -1108,7 +1092,6 @@ napi_value GetAbilityNamePromise(napi_env env, AbilityNameCB *abilityNameCB)
             static_cast<void *>(abilityNameCB),
             &abilityNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityNameCB->cbBase.asyncWork, napi_qos_user_initiated));
-
     return promise;
 }
 
@@ -1145,7 +1128,6 @@ napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityName
     } else {
         ret = GetAbilityNamePromise(env, abilityNameCB);
     }
-
     return ret;
 }
 
@@ -1190,7 +1172,7 @@ napi_value StopAbilityWrap(napi_env env, napi_callback_info info, AsyncJSCallbac
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapParamStopAbilityWrap(env, argc, args, asyncCallbackInfo)) {
-        TAG_LOGI(AAFwkTag::JSNAPI, "Invoke UnwrapParamStopAbility fail");
+        TAG_LOGI(AAFwkTag::JSNAPI, "unwrapParamStopAbility fail");
         return nullptr;
     }
 
@@ -1231,7 +1213,7 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
     }
     const std::shared_ptr<AbilityInfo> info = asyncCallbackInfo->ability->GetAbilityInfo();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "ability info is null");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null info");
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
@@ -1420,7 +1402,6 @@ napi_value CancelBackgroundRunningAsync(
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     napi_value result = nullptr;
     napi_get_null(env, &result);
-
     return result;
 }
 
@@ -1428,7 +1409,7 @@ napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *async
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "promise");
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "null param");
+        TAG_LOGE(AAFwkTag::JSNAPI, "null asyncCallbackInfo");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1448,7 +1429,6 @@ napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *async
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-
     return promise;
 }
 

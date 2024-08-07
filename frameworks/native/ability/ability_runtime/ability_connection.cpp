@@ -78,7 +78,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         bool ret = ConnectionManager::GetInstance().RemoveConnection(connection);
         if (ret) {
             ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-            TAG_LOGI(AAFwkTag::CONNECTION, "The service connection is not disconnected.");
+            TAG_LOGI(AAFwkTag::CONNECTION, "remove conn failed");
         }
         resultCode = DIED + 1;
     }

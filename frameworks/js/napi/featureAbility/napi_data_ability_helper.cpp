@@ -112,7 +112,7 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
         if (stageMode) {
             auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[0]);
             if (context == nullptr) {
-                TAG_LOGE(AAFwkTag::FA, "Failed to get native context instance");
+                TAG_LOGE(AAFwkTag::FA, "null context");
                 return nullptr;
             }
             std::string strUri = NapiValueToStringUtf8(env, argv[PARAM1]);
@@ -121,7 +121,7 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
         } else {
             auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
             if (ability == nullptr) {
-                TAG_LOGE(AAFwkTag::FA, "Failed to get native context instance");
+                TAG_LOGE(AAFwkTag::FA, "null ability");
                 return nullptr;
             }
             std::string strUri = NapiValueToStringUtf8(env, argv[PARAM1]);
@@ -639,13 +639,13 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
     if (valuetype == napi_string) {
         std::string type = NapiValueToStringUtf8(env, args[PARAM0]);
         if (type == "dataChange") {
-            TAG_LOGI(AAFwkTag::FA, "Wrong type=%{public}s", type.c_str());
+            TAG_LOGI(AAFwkTag::FA, "type:%{public}s", type.c_str());
         } else {
-            TAG_LOGE(AAFwkTag::FA, "Wrong argument type %{public}s", type.c_str());
+            TAG_LOGE(AAFwkTag::FA, "invalid type:%{public}s", type.c_str());
             offCB->result = INVALID_PARAMETER;
         }
     } else {
-        TAG_LOGE(AAFwkTag::FA, "wrong argument type");
+        TAG_LOGE(AAFwkTag::FA, "not napi_string");
         offCB->result = INVALID_PARAMETER;
     }
 
@@ -655,16 +655,16 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
         NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
         if (valuetype == napi_string) {
             offCB->uri = NapiValueToStringUtf8(env, args[PARAM1]);
-            TAG_LOGI(AAFwkTag::FA, "uri=%{public}s", offCB->uri.c_str());
+            TAG_LOGI(AAFwkTag::FA, "uri:%{public}s", offCB->uri.c_str());
         } else {
-            TAG_LOGE(AAFwkTag::FA, "Wrong argument type");
+            TAG_LOGE(AAFwkTag::FA, "not napi_string");
             offCB->result = INVALID_PARAMETER;
         }
         NAPI_CALL(env, napi_typeof(env, args[PARAM2], &valuetype));
         if (valuetype == napi_function) {
             NAPI_CALL(env, napi_create_reference(env, args[PARAM2], 1, &offCB->cbBase.cbInfo.callback));
         } else {
-            TAG_LOGE(AAFwkTag::FA, "Wrong argument type");
+            TAG_LOGE(AAFwkTag::FA, "not napi_function");
             offCB->result = INVALID_PARAMETER;
         }
     } else {
@@ -876,7 +876,6 @@ napi_value GetFileTypesWrap(napi_env env, napi_callback_info info, DAHelperGetFi
     } else {
         ret = GetFileTypesPromise(env, getfiletypesCB);
     }
-
     return ret;
 }
 
@@ -900,7 +899,6 @@ napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info)
         normalizeuriCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -933,7 +931,6 @@ napi_value NormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperNorma
     } else {
         ret = NormalizeUriPromise(env, normalizeuriCB);
     }
-
     return ret;
 }
 
@@ -957,7 +954,6 @@ napi_value NAPI_DenormalizeUri(napi_env env, napi_callback_info info)
         denormalizeuriCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -990,7 +986,6 @@ napi_value DenormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperDen
     } else {
         ret = DenormalizeUriPromise(env, denormalizeuriCB);
     }
-
     return ret;
 }
 
@@ -1028,7 +1023,6 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
         deleteCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1071,7 +1065,6 @@ napi_value DeleteWrap(napi_env env, napi_callback_info info, DAHelperDeleteCB *d
     } else {
         ret = DeletePromise(env, deleteCB);
     }
-
     return ret;
 }
 
@@ -1099,7 +1092,6 @@ napi_value NAPI_Update(napi_env env, napi_callback_info info)
         updateCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1144,7 +1136,6 @@ napi_value UpdateWrap(napi_env env, napi_callback_info info, DAHelperUpdateCB *u
     } else {
         ret = UpdatePromise(env, updateCB);
     }
-
     return ret;
 }
 void SetPacMapObject(AppExecFwk::PacMap &pacMap, const napi_env &env, std::string keyStr, napi_value value)
@@ -1276,7 +1267,6 @@ napi_value NAPI_Call(napi_env env, napi_callback_info info)
         callCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1308,7 +1298,6 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
         openFileCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1355,7 +1344,6 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, DAHelperOpenFileC
     } else {
         ret = OpenFilePromise(env, openFileCB);
     }
-
     return ret;
 }
 
@@ -1387,7 +1375,6 @@ napi_value NAPI_BatchInsert(napi_env env, napi_callback_info info)
         BatchInsertCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1407,7 +1394,7 @@ bool UnwrapArrayObjectFromJS(napi_env env, napi_value param, std::vector<NativeR
     std::string strValue = "";
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        TAG_LOGI(AAFwkTag::FA, "IsArrayForNapiValue:false");
+        TAG_LOGI(AAFwkTag::FA, "not array");
         return false;
     }
 
@@ -1425,7 +1412,6 @@ bool UnwrapArrayObjectFromJS(napi_env env, napi_value param, std::vector<NativeR
 
         value.push_back(valueBucket);
     }
-
     return true;
 }
 
@@ -1468,7 +1454,6 @@ napi_value BatchInsertWrap(napi_env env, napi_callback_info info, DAHelperBatchI
     } else {
         ret = BatchInsertPromise(env, batchInsertCB);
     }
-
     return ret;
 }
 
@@ -1553,7 +1538,7 @@ napi_value NAPI_ExecuteBatch(napi_env env, napi_callback_info info)
     TAG_LOGI(AAFwkTag::FA, "start");
     DAHelperExecuteBatchCB *executeBatchCB = new (std::nothrow) DAHelperExecuteBatchCB;
     if (executeBatchCB == nullptr) {
-        TAG_LOGE(AAFwkTag::FA, "invalid executeBatchCB");
+        TAG_LOGE(AAFwkTag::FA, "null executeBatchCB");
         return WrapVoidToJS(env);
     }
     executeBatchCB->cbBase.cbInfo.env = env;
@@ -1568,7 +1553,6 @@ napi_value NAPI_ExecuteBatch(napi_env env, napi_callback_info info)
         executeBatchCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-
     return ret;
 }
 
@@ -1581,7 +1565,7 @@ bool UnwrapArrayOperationFromJS(
     std::string strValue = "";
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        TAG_LOGE(AAFwkTag::FA, "Wrong argument type");
+        TAG_LOGE(AAFwkTag::FA, "not array");
         return false;
     }
     TAG_LOGI(AAFwkTag::FA, "param size:%{public}d", arraySize);
@@ -1622,7 +1606,7 @@ napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecu
         executeBatchCB->uri = NapiValueToStringUtf8(env, args[PARAM0]);
         TAG_LOGI(AAFwkTag::FA, "uri=%{public}s", executeBatchCB->uri.c_str());
     } else {
-        TAG_LOGE(AAFwkTag::FA, "Wrong argument type");
+        TAG_LOGE(AAFwkTag::FA, "not napi_string");
     }
 
     std::vector<std::shared_ptr<DataAbilityOperation>> operations;
@@ -1636,7 +1620,6 @@ napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecu
     } else {
         ret = ExecuteBatchPromise(env, executeBatchCB);
     }
-
     return ret;
 }
 

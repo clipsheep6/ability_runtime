@@ -154,12 +154,12 @@ int32_t ServiceRouterMgrProxy::ConnectUIExtensionAbility(const Want &want, const
         }
     }
     if (!data.WriteInt32(userId)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s, userId write failed.", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "userId write failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     int32_t error = SendRequest(ServiceRouterMgrProxy::Message::CONNECT_UI_EXTENSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s, Send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "send request failed: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();

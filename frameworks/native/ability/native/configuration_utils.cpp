@@ -32,7 +32,7 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "Enter");
     if (resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Resource manager is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "null resourceMgr");
         return;
     }
 
@@ -58,9 +58,9 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
 void ConfigurationUtils::InitDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Init display config.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Init");
     if (configuration == nullptr || resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid");
         return;
     }
 
@@ -80,9 +80,9 @@ void ConfigurationUtils::InitDisplayConfig(Rosen::DisplayId displayId, std::shar
 void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager, bool &configChanged)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "Update display config.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Update");
     if (configuration == nullptr || resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid");
         return;
     }
 
@@ -99,7 +99,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
     if (changeKeyV.empty()) {
-        TAG_LOGD(AAFwkTag::ABILITY, "There's no changed config, return.");
+        TAG_LOGD(AAFwkTag::ABILITY, "no changed config");
         return;
     }
     configuration->Merge(changeKeyV, newConfig);
@@ -108,7 +108,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     UpdateDisplayResConfig(resourceManager, density, direction);
 
     auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-    TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s for all windows.",
+    TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s",
         diffConfiguration->GetName().c_str());
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 }

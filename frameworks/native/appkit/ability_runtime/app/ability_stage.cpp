@@ -68,12 +68,12 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
 {
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "token is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null token");
         return;
     }
 
     if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null abilityRecord");
         return;
     }
 
@@ -83,7 +83,7 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
 void AbilityStage::RemoveAbility(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "token is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null token");
         return;
     }
     abilityRecords_.erase(token);

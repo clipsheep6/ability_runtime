@@ -306,7 +306,7 @@ int DataObsMgrService::Dump(int fd, const std::vector<std::u16string>& args)
     Dump(args, result);
     int ret = dprintf(fd, "%s\n", result.c_str());
     if (ret < 0) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "%{public}s, dprintf error.", __func__);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "dprintf error");
         return DATAOBS_HIDUMP_ERROR;
     }
     return SUCCESS;

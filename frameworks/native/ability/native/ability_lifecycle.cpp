@@ -20,16 +20,16 @@ namespace OHOS {
 namespace AppExecFwk {
 LifeCycle::Event LifeCycle::GetLifecycleState()
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::GetLifecycleState: called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return state_;
 }
 
 void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::AddObserver: called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     if (observer == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "LifeCycle::AddObserver: observer is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "null observer");
         return;
     }
 
@@ -38,9 +38,9 @@ void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 
 void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &want)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::DispatchLifecycle: event:%{public}d", event);
+    TAG_LOGD(AAFwkTag::ABILITY, "event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_FOREGROUND) && (event != LifeCycle::Event::ON_START)) {
-        TAG_LOGE(AAFwkTag::ABILITY, "event value error: event is %{public}d", event);
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid event: %{public}d", event);
         return;
     }
 
@@ -74,10 +74,10 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &wan
 
 void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::DispatchLifecycle: event:%{public}d", event);
+    TAG_LOGD(AAFwkTag::ABILITY, "event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_ACTIVE) && (event != LifeCycle::Event::ON_BACKGROUND) &&
         (event != LifeCycle::Event::ON_INACTIVE) && (event != LifeCycle::Event::ON_STOP)) {
-        TAG_LOGE(AAFwkTag::ABILITY, "event value error: event is %{public}d", event);
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid event: %{public}d", event);
         return;
     }
 
@@ -123,10 +123,10 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 
 void LifeCycle::RemoveObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::RemoveObserver: called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     if (observer == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "LifeCycle::RemoveObserver: observer is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "null observer");
         return;
     }
 

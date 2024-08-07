@@ -470,7 +470,7 @@ void DataAbilityRecord::Dump(std::vector<std::string> &info) const
 
 void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "'%{public}s':", __func__);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     auto object = remote.promote();
     DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleDataAbilityCallerDied(GetDiedCallerPid(object));
 

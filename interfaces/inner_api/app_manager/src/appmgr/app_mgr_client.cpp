@@ -84,11 +84,11 @@ private:
         auto me = shared_from_this();
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AppMgrDeathRecipient(me));
         if (deathRecipient_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "%{public}s :Failed to create AppMgrDeathRecipient!", __func__);
+            TAG_LOGE(AAFwkTag::APPMGR, "null deathRecipient_");
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
         }
         if ((remote_->IsProxyObject()) && (!remote_->AddDeathRecipient(deathRecipient_))) {
-            TAG_LOGE(AAFwkTag::APPMGR, "%{public}s :Add death recipient to AppMgrService failed.", __func__);
+            TAG_LOGE(AAFwkTag::APPMGR, "add death recipient failed");
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
         }
 
@@ -815,13 +815,13 @@ int AppMgrClient::StartRenderProcess(const std::string &renderParam,
 void AppMgrClient::AttachRenderProcess(const sptr<IRenderScheduler> &renderScheduler)
 {
     if (!renderScheduler) {
-        TAG_LOGI(AAFwkTag::APPMGR, "renderScheduler is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "null renderScheduler");
         return;
     }
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
-        TAG_LOGI(AAFwkTag::APPMGR, "AttachRenderProcess");
+        TAG_LOGI(AAFwkTag::APPMGR, "null service");
         service->AttachRenderProcess(renderScheduler->AsObject());
     }
 }
@@ -843,7 +843,7 @@ sptr<IRemoteObject> AppMgrClient::GetRemoteObject()
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrClient::BlockAppService()
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");

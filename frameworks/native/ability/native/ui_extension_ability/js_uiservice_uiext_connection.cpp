@@ -108,7 +108,7 @@ JSUIServiceUIExtConnection::JSUIServiceUIExtConnection(napi_env env) : JSUIExten
 
 JSUIServiceUIExtConnection::~JSUIServiceUIExtConnection()
 {
-    TAG_LOGI(AAFwkTag::UISERVC_EXT, "~JSUIServiceUIExtConnection");
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "destructor");
     serviceHostStub_ = nullptr;
     napiAsyncTask_.reset();
     ReleaseNativeReference(serviceProxyObject_.release());
@@ -118,7 +118,7 @@ void JSUIServiceUIExtConnection::HandleOnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     if (napiAsyncTask_ != nullptr) {
-        TAG_LOGI(AAFwkTag::UISERVC_EXT, "HandleOnAbilityConnectDone, CreateJsUIServiceProxy");
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "CreateJsUIServiceProxy");
         sptr<UIExtensionServiceHostStubImpl> hostStub = GetServiceHostStub();
         sptr<IRemoteObject> hostProxy = nullptr;
         if (hostStub != nullptr) {
@@ -131,7 +131,7 @@ void JSUIServiceUIExtConnection::HandleOnAbilityConnectDone(
 
         ResolveDuplicatedPendingTask(env_, proxy);
     } else {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "HandleOnAbilityConnectDone, napiAsyncTask_ null");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "napiAsyncTask_ null");
     }
     napiAsyncTask_.reset();
 }

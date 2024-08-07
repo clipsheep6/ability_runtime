@@ -181,10 +181,10 @@ static bool ParseBusinessAbilityInfo(napi_env env, napi_value args, BusinessAbil
 
 void QueryBusinessAbilityInfosExec(napi_env env, void *data)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "QueryServiceInfosExec start");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "called");
     AbilityInfosCallbackInfo *asyncCallbackInfo = reinterpret_cast<AbilityInfosCallbackInfo*>(data);
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null asyncCallbackInfo");
         return;
     }
     asyncCallbackInfo->err = InnerQueryBusinessAbilityInfos(asyncCallbackInfo);
@@ -192,10 +192,10 @@ void QueryBusinessAbilityInfosExec(napi_env env, void *data)
 
 void QueryBusinessAbilityInfosComplete(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "QueryBusinessAbilityInfosComplete start");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "called");
     AbilityInfosCallbackInfo *asyncCallbackInfo = reinterpret_cast<AbilityInfosCallbackInfo*>(data);
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "asyncCallbackInfo is null in %{public}s", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null asyncCallbackInfo");
         return;
     }
     napi_value result[2] = {0};
@@ -224,7 +224,7 @@ void QueryBusinessAbilityInfosComplete(napi_env env, napi_status status, void *d
 
 napi_value QueryBusinessAbilityInfos(napi_env env, napi_callback_info info)
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "NAPI_QueryBusinessAbilityInfos start");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "called");
     NapiArg args(env, info);
     if (!args.Init(ARGS_SIZE_ONE, ARGS_SIZE_TWO)) {
         BusinessError::ThrowTooFewParametersError(env, ERROR_PARAM_CHECK_ERROR);

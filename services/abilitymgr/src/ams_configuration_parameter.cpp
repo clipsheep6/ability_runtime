@@ -117,7 +117,7 @@ const std::map<std::string, std::string>& AmsConfigurationParameter::GetPickerMa
 
 void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &filePath)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     if (filePath.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is not existed due to empty file path.");
         return;
@@ -176,7 +176,7 @@ void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &f
 
 int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     int ret[2] = {0};
     if (filePath.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is not existed due to empty file path.");

@@ -29,24 +29,23 @@ void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<N
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!jsContext || !config) {
-        TAG_LOGE(AAFwkTag::APPKIT, "jsContext or config is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null jsContext or config");
         return;
     }
 
     napi_value object = jsContext->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "object is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "not napi_object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (!method) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::APPKIT, "get onUpdateConfiguration failed");
         return;
     }
 
-    TAG_LOGD(AAFwkTag::APPKIT, "call onUpdateConfiguration");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_call_function(env, object, method, 1, argv, nullptr);
 }

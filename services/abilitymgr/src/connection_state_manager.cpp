@@ -521,7 +521,7 @@ void ConnectionStateManager::InitAppStateObserver()
 
     sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppMgr();
     if (!appManager) {
-        TAG_LOGW(AAFwkTag::CONNECTION, "%{public}s app manager nullptr! retry:%{public}d", __func__, retry_);
+        TAG_LOGW(AAFwkTag::CONNECTION, "null appmgr retry:%{public}d", retry_);
         if (retry_ < MAX_RETRY && handler_) {
             auto initConnectionStateManagerTask = [weak = weak_from_this()]() {
                 auto self = weak.lock();
@@ -542,7 +542,7 @@ void ConnectionStateManager::InitAppStateObserver()
     });
     int32_t err = appManager->RegisterApplicationStateObserver(appStateObserver_);
     if (err != 0) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "%{public}s register to appmanager failed. err:%{public}d", __func__, err);
+        TAG_LOGE(AAFwkTag::CONNECTION, "register observer failed:%{public}d", err);
         appStateObserver_ = nullptr;
         return;
     }

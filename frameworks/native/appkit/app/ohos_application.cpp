@@ -273,7 +273,7 @@ void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<
 void OHOSApplication::OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
 
@@ -294,7 +294,7 @@ void OHOSApplication::OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbi
 void OHOSApplication::OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
 
@@ -315,7 +315,7 @@ void OHOSApplication::OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UI
 void OHOSApplication::OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
 
@@ -336,7 +336,7 @@ void OHOSApplication::OnAbilityBackground(const std::shared_ptr<AbilityRuntime::
 void OHOSApplication::OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
 
@@ -357,7 +357,7 @@ void OHOSApplication::OnAbilityForeground(const std::shared_ptr<AbilityRuntime::
 void OHOSApplication::OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
 
@@ -378,7 +378,7 @@ void OHOSApplication::OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAb
 void OHOSApplication::OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "null ability");
         return;
     }
 

@@ -58,7 +58,7 @@ bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
     TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM LoadBundleInfo");
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGI(AAFwkTag::SER_ROUTER, "The bundleMgrHelper is nullptr.");
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "null bundleMgrHelper");
         return false;
     }
     BundleInfo bundleInfo;

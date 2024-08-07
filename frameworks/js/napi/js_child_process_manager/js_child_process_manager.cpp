@@ -44,7 +44,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        TAG_LOGI(AAFwkTag::PROCESSMGR, "%{public}s::Finalizer is called", PROCESS_MANAGER_NAME);
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "%{public}s::Finalizer called", PROCESS_MANAGER_NAME);
         std::unique_ptr<JsChildProcessManager>(static_cast<JsChildProcessManager*>(data));
     }
 

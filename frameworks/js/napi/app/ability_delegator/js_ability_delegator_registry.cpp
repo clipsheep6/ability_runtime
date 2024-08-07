@@ -77,7 +77,7 @@ private:
         std::shared_ptr<AppExecFwk::AbilityDelegatorArgs> abilityDelegatorArgs =
             AppExecFwk::AbilityDelegatorRegistry::GetArguments();
         if (!abilityDelegatorArgs) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "get delegator args object failed");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "get delegator args failed");
             return CreateJsNull(env);
         }
         return CreateJsAbilityDelegatorArguments(env, abilityDelegatorArgs);

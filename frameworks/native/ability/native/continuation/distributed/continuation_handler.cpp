@@ -324,7 +324,7 @@ void ContinuationHandler::NotifyReverseResult(int reverseResult)
         std::shared_ptr<Ability> ability = nullptr;
         ability = ability_.lock();
         if (ability == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTINUATION, "ability is nullptr");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "null ability");
             return;
         }
         ability->TerminateAbility();

@@ -1784,7 +1784,7 @@ void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> 
     CHECK_POINTER(abilityRecord);
     std::lock_guard guard(managerLock_);
     if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, ability is not terminating.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability not terminating");
         return;
     }
     abilityRecord->RemoveAbilityDeathRecipient();
@@ -1792,7 +1792,7 @@ void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> 
     // notify AppMS terminate
     if (abilityRecord->TerminateAbility() != ERR_OK) {
         // Don't return here
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppMS fail to terminate ability.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "terminate ability failed");
     }
 
     auto&& preAbilityRecord = abilityRecord->GetPreAbilityRecord();
@@ -2133,7 +2133,7 @@ void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null ability");
         return;
     }
 
@@ -2901,13 +2901,13 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
     FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (!abilityToken) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s ability token is nullptr.", __func__);
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "null ability token");
         return;
     }
 
     auto abilityRecord = GetAbilityRecordByToken(abilityToken);
     if (!abilityRecord) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s get AbilityRecord by token failed.", __func__);
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "null abilityRecord");
         return;
     }
 
@@ -2964,13 +2964,13 @@ Closure MissionListManager::GetCancelStartingWindowTask(const std::shared_ptr<Ab
 {
     auto windowHandler = AbilityManagerService::GetPubInstance()->GetWMSHandler();
     if (!windowHandler) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, Get WMS handler failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null windowHandler");
         return nullptr;
     }
 
     return [windowHandler, abilityRecord] {
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow()) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "call CancelStartingWindow");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
         }
@@ -3213,7 +3213,7 @@ int MissionListManager::ResolveLocked(const AbilityRequest &abilityRequest)
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
     if (!abilityRequest.IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, resolve ability_name:", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "call type not request");
         return RESOLVE_CALL_ABILITY_INNER_ERR;
     }
 
@@ -3871,7 +3871,7 @@ int MissionListManager::BlockAbility(int32_t abilityRecordId)
     int ret = -1;
     for (const auto &missionList : currentMissionLists_) {
         if (missionList && missionList != launcherList_) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "missionList begin to call BlockAbilityByRecordId %{public}s", __func__);
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "call BlockAbilityByRecordId");
             if (missionList->BlockAbilityByRecordId(abilityRecordId) == ERR_OK) {
                 TAG_LOGI(AAFwkTag::ABILITYMGR, "missionList call BlockAbilityByRecordId success");
                 ret = ERR_OK;
@@ -3880,7 +3880,7 @@ int MissionListManager::BlockAbility(int32_t abilityRecordId)
     }
 
     if (defaultStandardList_) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "defaultStandardList begin to call BlockAbilityByRecordId %{public}s", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call BlockAbilityByRecordId");
         if (defaultStandardList_->BlockAbilityByRecordId(abilityRecordId) == ERR_OK) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "defaultStandardList call BlockAbilityByRecordId success");
             ret = ERR_OK;
@@ -3888,7 +3888,7 @@ int MissionListManager::BlockAbility(int32_t abilityRecordId)
     }
 
     if (defaultSingleList_) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "defaultSingleList begin to call BlockAbilityByRecordId %{public}s", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call BlockAbilityByRecordId");
         if (defaultSingleList_->BlockAbilityByRecordId(abilityRecordId) == ERR_OK) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "defaultSingleList_ call BlockAbilityByRecordId success");
             ret = ERR_OK;
@@ -3896,7 +3896,7 @@ int MissionListManager::BlockAbility(int32_t abilityRecordId)
     }
 
     if (launcherList_) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "launcherList begin to call BlockAbilityByRecordId %{public}s", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call BlockAbilityByRecordId");
         if (launcherList_->BlockAbilityByRecordId(abilityRecordId) == ERR_OK) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "launcherList_ call BlockAbilityByRecordId success");
             ret = ERR_OK;

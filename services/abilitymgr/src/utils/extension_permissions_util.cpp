@@ -27,7 +27,7 @@ bool ExtensionPermissionsUtil::CheckSAPermission(const AppExecFwk::ExtensionAbil
     if (!PermissionVerification::GetInstance()->IsSACall()) {
         return true;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "CheckSAPermission, extensionType: %{public}d.", extensionType);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "extensionType: %{public}d", extensionType);
     if (extensionType == AppExecFwk::ExtensionAbilityType::FORM) {
         checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
             "ohos.permission.CONNECT_FORM_EXTENSION");

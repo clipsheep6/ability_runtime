@@ -27,7 +27,7 @@ RenderSchedulerHost::~RenderSchedulerHost() {}
 int RenderSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "RenderSchedulerHost::OnReceived, code = %{public}u, flags= %{public}d.", code,
+    TAG_LOGI(AAFwkTag::APPMGR, "code=%{public}u, flags=%{public}d.", code,
         option.GetFlags());
     std::u16string descriptor = RenderSchedulerHost::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
@@ -40,7 +40,7 @@ int RenderSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
         return HandleNotifyBrowserFd(data, reply);
     }
 
-    TAG_LOGI(AAFwkTag::APPMGR, "RenderSchedulerHost::OnRemoteRequest end");
+    TAG_LOGI(AAFwkTag::APPMGR, "end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

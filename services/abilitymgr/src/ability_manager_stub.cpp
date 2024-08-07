@@ -1548,7 +1548,7 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, want is nullptr!", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null want");
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -1571,7 +1571,7 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, want is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null want");
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -1956,26 +1956,26 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
 
 int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "amsStub %{public}s called!", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     ContinueMissionInfo continueMissionInfo;
     continueMissionInfo.srcDeviceId = data.ReadString();
     continueMissionInfo.dstDeviceId = data.ReadString();
     continueMissionInfo.bundleName = data.ReadString();
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
     if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueMissionInner callback readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
     if (wantParams == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueMissionInner wantParams readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     continueMissionInfo.wantParams = *wantParams;
     continueMissionInfo.srcBundleName = data.ReadString();
     continueMissionInfo.continueType = data.ReadString();
     int32_t result = ContinueMission(continueMissionInfo, callback);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueMissionInner result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     return result;
 }
 
@@ -1986,7 +1986,7 @@ int AbilityManagerStub::ContinueAbilityInner(MessageParcel &data, MessageParcel 
     uint32_t versionCode = data.ReadUint32();
     AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility");
     int32_t result = ContinueAbility(deviceId, missionId, versionCode);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueAbilityInner result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     return result;
 }
 
@@ -2018,7 +2018,7 @@ int AbilityManagerStub::NotifyCompleteContinuationInner(MessageParcel &data, Mes
     bool isSuccess = data.ReadBool();
 
     NotifyCompleteContinuation(devId, sessionId, isSuccess);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifyCompleteContinuationInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end");
     return NO_ERROR;
 }
 
@@ -2037,7 +2037,7 @@ int AbilityManagerStub::LockMissionForCleanupInner(MessageParcel &data, MessageP
     int32_t id = data.ReadInt32();
     int result = LockMissionForCleanup(id);
     if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: lock mission failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "lock mission failed");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2049,7 +2049,7 @@ int AbilityManagerStub::UnlockMissionForCleanupInner(MessageParcel &data, Messag
     int32_t id = data.ReadInt32();
     int result = UnlockMissionForCleanup(id);
     if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: unlock mission failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "unlock mission failed");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2067,7 +2067,7 @@ int AbilityManagerStub::RegisterMissionListenerInner(MessageParcel &data, Messag
 {
     sptr<IMissionListener> listener = iface_cast<IMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "stub register mission listener, listener is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null listener");
         return ERR_INVALID_VALUE;
     }
 
@@ -2080,7 +2080,7 @@ int AbilityManagerStub::UnRegisterMissionListenerInner(MessageParcel &data, Mess
 {
     sptr<IMissionListener> listener = iface_cast<IMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "stub unregister mission listener, listener is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null listener");
         return ERR_INVALID_VALUE;
     }
 
@@ -2212,9 +2212,9 @@ int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, Messa
 
     data.ReadInt32Vector(&missionIds);
     int32_t errCode = MoveMissionsToBackground(missionIds, result);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called. resultSize: %{public}zu", __func__, result.size());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "resultSize: %{public}zu", result.size());
     if (!reply.WriteInt32Vector(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s is called. WriteInt32Vector Failed", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteInt32(errCode)) {
@@ -2225,7 +2225,7 @@ int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, Messa
 
 int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerStub::StartAbilityByCallInner begin.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
@@ -2249,7 +2249,7 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
     reply.WriteInt32(result);
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerStub::StartAbilityByCallInner end.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "end");
 
     return NO_ERROR;
 }
@@ -2417,18 +2417,16 @@ int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, 
 {
     std::string deviceId = data.ReadString();
     if (deviceId.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteMissionListenerInner deviceId empty!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId empty");
         return INVALID_PARAMETERS_ERR;
     }
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteMissionListenerInner listener"
-            "readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     int32_t result = RegisterMissionListener(deviceId, listener);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteMissionListenerInner result = %{public}d",
-        result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     return result;
 }
 
@@ -2436,17 +2434,16 @@ int AbilityManagerStub::RegisterRemoteOnListenerInner(MessageParcel &data, Messa
 {
     std::string type = data.ReadString();
     if (type.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOnListenerInner type empty!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type empty");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOnListenerInner listener"
-            "readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     int32_t result = RegisterOnListener(type, listener);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOnListenerInner result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     return result;
 }
 
@@ -2454,17 +2451,16 @@ int AbilityManagerStub::RegisterRemoteOffListenerInner(MessageParcel &data, Mess
 {
     std::string type = data.ReadString();
     if (type.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOffListenerInner type empty!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type empty");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOffListenerInner listener"
-            "readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     int32_t result = RegisterOffListener(type, listener);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOffListenerInner result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     return result;
 }
 
@@ -2472,18 +2468,16 @@ int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data
 {
     std::string deviceId = data.ReadString();
     if (deviceId.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: UnRegisterRemoteMissionListenerInner deviceId empty!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId empty");
         return INVALID_PARAMETERS_ERR;
     }
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: UnRegisterRemoteMissionListenerInner listener"
-            "readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     int32_t result = UnRegisterMissionListener(deviceId, listener);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: UnRegisterRemoteMissionListenerInner result = %{public}d",
-        result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     return result;
 }
 
@@ -2524,15 +2518,14 @@ int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessagePa
     sptr<AppExecFwk::IAbilityController> controller =
         iface_cast<AppExecFwk::IAbilityController>(data.ReadRemoteObject());
     if (controller == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: setAbilityControllerInner controller"
-            "readParcelable failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "controller readParcelable failed");
         return ERR_NULL_OBJECT;
     }
     bool imAStabilityTest = data.ReadBool();
     int32_t result = SetAbilityController(controller, imAStabilityTest);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: setAbilityControllerInner result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "setAbilityControllerInner failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "setAbilityControllerInner failed");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2541,7 +2534,7 @@ int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessagePa
 int AbilityManagerStub::IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply)
 {
     bool result = IsRunningInStabilityTest();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: IsRunningInStabilityTest result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result=%{public}d", result);
     if (!reply.WriteBool(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "IsRunningInStabilityTest failed.");
         return ERR_INVALID_VALUE;
@@ -3066,7 +3059,7 @@ int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &
 {
     sptr<IWindowManagerServiceHandler> handler = iface_cast<IWindowManagerServiceHandler>(data.ReadRemoteObject());
     if (handler == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s read WMS handler failed!", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null handler");
         return ERR_NULL_OBJECT;
     }
     bool animationEnabled = data.ReadBool();
@@ -3078,7 +3071,7 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
     if (abilityToken == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s read abilityToken failed!", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityToken");
         return ERR_NULL_OBJECT;
     }
     CompleteFirstFrameDrawing(abilityToken);

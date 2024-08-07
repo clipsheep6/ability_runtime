@@ -485,7 +485,7 @@ bool JsFormExtension::ConvertFromDataProxies(napi_env env, napi_value jsValue,
     std::vector<FormDataProxy> &formDataProxies)
 {
     if (jsValue == nullptr) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "%{public}s, jsValue is nullptr not array", __func__);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "null jsValue");
         return false;
     }
 
@@ -507,7 +507,7 @@ bool JsFormExtension::ConvertFromDataProxies(napi_env env, napi_value jsValue,
 bool JsFormExtension::ConvertFormDataProxy(napi_env env, napi_value jsValue, FormDataProxy &formDataProxy)
 {
     if (!CheckTypeForNapiValue(env, jsValue, napi_object)) {
-        TAG_LOGE(AAFwkTag::FORM_EXT, "%{public}s, jsValue is nullptr not object", __func__);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "null jsValue");
         return false;
     }
 

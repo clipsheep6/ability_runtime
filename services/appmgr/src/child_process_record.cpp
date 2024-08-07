@@ -176,7 +176,7 @@ void ChildProcessRecord::MakeProcessName(const std::shared_ptr<AppRunningRecord>
         processName_.append(filename);
     }
     processName_.append(std::to_string(childProcessCount_));
-    TAG_LOGD(AAFwkTag::APPMGR, "MakeSpawnForkProcessName processName is %{public}s", processName_.c_str());
+    TAG_LOGD(AAFwkTag::APPMGR, "processName: %{public}s", processName_.c_str());
 }
 
 bool ChildProcessRecord::isStartWithDebug()

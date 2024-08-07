@@ -39,10 +39,9 @@ AbilityPostEventTimeout::~AbilityPostEventTimeout()
 
 void AbilityPostEventTimeout::TimingBegin(int64_t delaytime)
 {
-    TAG_LOGI(AAFwkTag::ABILITY, "AbilityPostEventTimeout::TimingBegin() call %{public}s", task_.c_str());
+    TAG_LOGI(AAFwkTag::ABILITY, "call %{public}s", task_.c_str());
     if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityPostEventTimeout::TimingBegin %{public}s handler_ is nullptr",
-            task_.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY, "%{public}s null handler_", task_.c_str());
         return;
     }
 
@@ -52,7 +51,7 @@ void AbilityPostEventTimeout::TimingBegin(int64_t delaytime)
 void AbilityPostEventTimeout::TimeEnd()
 {
     if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityPostEventTimeout::TimeEnd %{public}s handler_ is nullptr", task_.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY, "%{public}s null handler_", task_.c_str());
         return;
     }
 
@@ -65,20 +64,19 @@ void AbilityPostEventTimeout::TimeEnd()
 
 void AbilityPostEventTimeout::TimeOutProc()
 {
-    TAG_LOGI(AAFwkTag::ABILITY, "AbilityPostEventTimeout::TimeOutProc() call %{public}s", task_.c_str());
+    TAG_LOGI(AAFwkTag::ABILITY, "call %{public}s", task_.c_str());
     if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "AbilityPostEventTimeout::TimeEnd %{public}s handler_ is nullptr", task_.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY, "%{public}s null handler_", task_.c_str());
         return;
     }
 
     std::lock_guard<std::mutex> lck(mtx_);
     if (!taskExec_) {
         taskExec_ = true;
-        TAG_LOGW(AAFwkTag::ABILITY, "TimeOutProc %{public}s Event TimeOut", task_.c_str());
+        TAG_LOGW(AAFwkTag::ABILITY, "%{public}s Event TimeOut", task_.c_str());
         handler_->RemoveTask(task_);
     } else {
-        TAG_LOGW(AAFwkTag::ABILITY, "AbilityPostEventTimeout::TimeOutProc Exec Failed, The Event is %{public}s",
-            task_.c_str());
+        TAG_LOGW(AAFwkTag::ABILITY, "event %{public}s exec failed", task_.c_str());
     }
 }
 }  // namespace AppExecFwk

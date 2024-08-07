@@ -87,8 +87,7 @@ private:
             napi_valuetype paramType;
             napi_typeof(env, argv[i], &paramType);
             if (paramType != napi_number) {
-                TAG_LOGE(
-                    AAFwkTag::RECOVERY, "argv[%{public}s] not number", std::to_string(i).c_str());
+                TAG_LOGE(AAFwkTag::RECOVERY, "argv[%{public}s] not number", std::to_string(i).c_str());
                 return result;
             }
             int32_t tmp = 0;

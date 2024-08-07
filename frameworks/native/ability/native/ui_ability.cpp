@@ -974,7 +974,7 @@ void UIAbility::UpdateConfiguration(Rosen::DisplayId to, float density, int32_t 
         auto task = [abilityWptr = weak_from_this(), configuration = *configuration]() {
             auto ability = abilityWptr.lock();
             if (ability == nullptr) {
-                TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr.");
+                TAG_LOGE(AAFwkTag::UIABILITY, "null ability");
                 return;
             }
             ability->OnConfigurationUpdated(configuration);
@@ -1100,7 +1100,7 @@ void UIAbility::OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &
         auto task = [abilityWptr = weak_from_this(), configuration = *configuration]() {
             auto ability = abilityWptr.lock();
             if (ability == nullptr) {
-                TAG_LOGE(AAFwkTag::UIABILITY, "ability is nullptr.");
+                TAG_LOGE(AAFwkTag::UIABILITY, "null ability");
                 return;
             }
             ability->OnConfigurationUpdated(configuration);

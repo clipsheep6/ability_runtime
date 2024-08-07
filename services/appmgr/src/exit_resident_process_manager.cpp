@@ -102,7 +102,7 @@ void ExitResidentProcessManager::QueryExitBundleInfos(const std::vector<std::str
     }
     auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "null bundleMgrHelper");
         return;
     }
     for (const std::string& bundleName:exitBundleNames) {

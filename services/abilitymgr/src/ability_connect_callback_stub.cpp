@@ -32,7 +32,7 @@ bool AbilityConnectionProxy::WriteInterfaceToken(MessageParcel &data)
 void AbilityConnectionProxy::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "OnAbilityConnectDone resultCode: %{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "resultCode: %{public}d", resultCode);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -137,15 +137,15 @@ int AbilityConnectionStub::OnRemoteRequest(
                 return ERR_INVALID_VALUE;
             }
             auto resultCode = data.ReadInt32();
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "ON_ABILITY_CONNECT_DONE");
             OnAbilityConnectDone(*element, remoteObject, resultCode);
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub ON_ABILITY_CONNECT_DONE end");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "ON_ABILITY_CONNECT_DONE end");
             return NO_ERROR;
         }
         case IAbilityConnection::ON_ABILITY_DISCONNECT_DONE: {
             auto resultCode = data.ReadInt32();
             OnAbilityDisconnectDone(*element, resultCode);
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityConnectionStub ON_ABILITY_DISCONNECT_DONE");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "ON_ABILITY_DISCONNECT_DONE");
             return NO_ERROR;
         }
         case IAbilityConnection::ON_REMOTE_STATE_CHANGED: {
@@ -154,7 +154,7 @@ int AbilityConnectionStub::OnRemoteRequest(
             return NO_ERROR;
         }
         default: {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityConnectionStub default");
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "default");
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
         }
     }

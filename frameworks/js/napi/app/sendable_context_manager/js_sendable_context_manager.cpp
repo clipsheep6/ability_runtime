@@ -62,13 +62,13 @@ napi_value CreateSendableContextObject(napi_env env, std::shared_ptr<Context> co
     // Sendable context has no property for now.
     status = napi_create_sendable_object_with_properties(env, 0, nullptr, &objValue);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Create sendable context failed with %{public}d.", status);
+        TAG_LOGE(AAFwkTag::CONTEXT, "Create sendableContext failed: %{public}d", status);
         return nullptr;
     }
 
     status = napi_wrap_sendable(env, objValue, jsContext.release(), JsContext::Finalizer, nullptr);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Wrap sendable failed with %{public}d.", status);
+        TAG_LOGE(AAFwkTag::CONTEXT, "Wrap sendable failed: %{public}d", status);
         return nullptr;
     }
 
@@ -92,7 +92,7 @@ napi_value CreateJsBaseContextFromSendable(napi_env env, void* wrapped)
 
     auto contextPtr = Context::ConvertTo<Context>(context);
     if (contextPtr == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to context failed");
         return nullptr;
     }
 
@@ -100,7 +100,7 @@ napi_value CreateJsBaseContextFromSendable(napi_env env, void* wrapped)
     auto value = CreateJsBaseContext(env, contextPtr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Load context module failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load context module failed");
         return nullptr;
     }
 
@@ -118,13 +118,13 @@ napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
     auto weakContext = sendableContext->context_;
     std::shared_ptr<Context> context = weakContext.lock();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Context invalid.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
 
     auto applicationContext = Context::ConvertTo<ApplicationContext>(context);
     if (applicationContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to application context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to appContext failed");
         return nullptr;
     }
 
@@ -132,7 +132,7 @@ napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
     auto value = JsApplicationContextUtils::CreateJsApplicationContext(env);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Load application context module failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load appContext module failed");
         return nullptr;
     }
 
@@ -150,13 +150,13 @@ napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
     auto weakContext = sendableContext->context_;
     std::shared_ptr<Context> context = weakContext.lock();
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Context invalid.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null context");
         return nullptr;
     }
 
     auto abilitystageContext = Context::ConvertTo<AbilityStageContext>(context);
     if (abilitystageContext == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to ability stage context failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to abilityStageContext failed");
         return nullptr;
     }
 
@@ -164,7 +164,7 @@ napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
     auto value = CreateJsAbilityStageContext(env, abilitystageContext);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &value, 1);
     if (systemModule == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Load ability stage context module failed.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load ability stage context module failed");
         return nullptr;
     }
 
@@ -257,7 +257,7 @@ private:
         bool stageMode = false;
         napi_status status = IsStageContext(env, info.argv[0], stageMode);
         if (status != napi_ok || !stageMode) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "Context isn't stageMode, status is %{public}d.", status);
+            TAG_LOGE(AAFwkTag::CONTEXT, "not stageMode: %{public}d", status);
             ThrowInvalidParamError(env, "Parse param context failed, must be a context of stageMode.");
             return CreateJsUndefined(env);
         }
@@ -271,7 +271,7 @@ private:
 
         auto contextPtr = Context::ConvertTo<Context>(context);
         if (contextPtr == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "Convert to context failed.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "Convert to context failed");
             ThrowInvalidParamError(env, "Parse param context failed, must be a context.");
             return CreateJsUndefined(env);
         }
@@ -284,7 +284,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::CONTEXT, "Convert to context.");
         if (info.argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
@@ -313,7 +313,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::CONTEXT, "Convert to application context.");
         if (info.argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
@@ -342,7 +342,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::CONTEXT, "Convert to ability stage context.");
         if (info.argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
@@ -371,7 +371,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::CONTEXT, "Convert to uiability context.");
         if (info.argc != ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
             ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }

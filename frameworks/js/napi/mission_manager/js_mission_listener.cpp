@@ -79,7 +79,7 @@ bool JsMissionListener::IsEmpty()
 
 void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t missionId)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "methodName = %{public}s", methodName.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "methodName= %{public}s", methodName.c_str());
     if (env_ == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "env_ null");
         return;

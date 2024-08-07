@@ -268,7 +268,7 @@ private:
             }
             auto ret = amsClient->NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(userStatus));
             if (ret != ERR_OK) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "notify assert ret failed, ret: %{public}d", ret);
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "notify assertRet failed: %{public}d", ret);
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
                 return;
             }
@@ -579,14 +579,14 @@ private:
 
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleName) || bundleName.empty()) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "parse bundleName failed, not string");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName not string");
             ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
         bool enableState = false;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], enableState)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "parse enable failed, not boolean");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "enable not boolean");
             ThrowInvalidParamError(env, "Parse param enable failed, must be a boolean.");
             return CreateJsUndefined(env);
         }
@@ -604,7 +604,7 @@ private:
 
         NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
             if (*innerErrorCode != ERR_OK) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "set resident process result failed, error: %{public}d",
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "set resident process result failed: %{public}d",
                     *innerErrorCode);
                 task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
                 return;

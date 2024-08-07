@@ -127,24 +127,23 @@ void GenerateCallerCallBack(std::shared_ptr<StartAbilityByCallParameters> calls,
     std::shared_ptr<CallerCallBack> callerCallBack)
 {
     if (calls == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "calls is nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null calls");
         return;
     }
     if (callerCallBack == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "callerCallBack is nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null callerCallBack");
         return;
     }
     auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
-        TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityByCall callBackDone mutexlock");
+        TAG_LOGD(AAFwkTag::CONTEXT, "callBackDone called");
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
-        TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityByCall callBackDone remoteCallee assignment");
         calldata->remoteCallee = obj;
         calldata->condition.notify_all();
-        TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityByCall callBackDone is called end");
+        TAG_LOGD(AAFwkTag::CONTEXT, "callBackDone end");
     };
 
     auto releaseListen = [](const std::string &str) {
-        TAG_LOGI(AAFwkTag::CONTEXT, "OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
+        TAG_LOGI(AAFwkTag::CONTEXT, "releaseListen called %{public}s", str.c_str());
     };
 
     callerCallBack->SetCallBack(callBackDone);
@@ -154,36 +153,36 @@ void GenerateCallerCallBack(std::shared_ptr<StartAbilityByCallParameters> calls,
 void StartAbilityByCallExecuteDone(std::shared_ptr<StartAbilityByCallParameters> calldata)
 {
     if (calldata == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "calldata is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null calldata");
         return;
     }
     std::unique_lock<std::mutex> lock(calldata->mutexlock);
     if (calldata->remoteCallee != nullptr) {
-        TAG_LOGI(AAFwkTag::CONTEXT, "OnStartAbilityByCall callExecute callee isn`t nullptr");
+        TAG_LOGI(AAFwkTag::CONTEXT, "remoteCallee not null");
         return;
     }
 
     if (calldata->condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall callExecute waiting callee timeout");
+        TAG_LOGE(AAFwkTag::CONTEXT, "callExecute waiting callee timeout");
         calldata->err = -1;
     }
-    TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityByCall callExecute end");
+    TAG_LOGD(AAFwkTag::CONTEXT, "end");
 }
 
 void StartAbilityByCallComplete(napi_env env, NapiAsyncTask& task, std::weak_ptr<AbilityContext> abilityContext,
     std::shared_ptr<StartAbilityByCallParameters> calldata, std::shared_ptr<CallerCallBack> callerCallBack)
 {
     if (calldata == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "calldata is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null calldata");
         return;
     }
     if (calldata->err != 0) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
+        TAG_LOGE(AAFwkTag::CONTEXT, "callComplete err: %{public}d", calldata->err);
         task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
         TAG_LOGD(AAFwkTag::CONTEXT, "clear failed call of startup is called");
         auto context = abilityContext.lock();
         if (context == nullptr || callerCallBack == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "clear failed call of startup input param is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "null input params");
             return;
         }
         context->ClearFailedCallConnection(callerCallBack);
@@ -191,22 +190,22 @@ void StartAbilityByCallComplete(napi_env env, NapiAsyncTask& task, std::weak_ptr
     }
     auto context = abilityContext.lock();
     if (context == nullptr || callerCallBack == nullptr || calldata->remoteCallee == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall callComplete params error %{public}s is nullptr",
+        TAG_LOGE(AAFwkTag::CONTEXT, "null param %{public}s:",
             context == nullptr ? "context" : (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
         task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-        TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityByCall callComplete end");
+        TAG_LOGD(AAFwkTag::CONTEXT, "callComplete end");
         return;
     }
     auto releaseCallAbilityFunc = [abilityContext] (const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
         auto contextForRelease = abilityContext.lock();
         if (contextForRelease == nullptr) {
-            TAG_LOGE(AAFwkTag::CONTEXT, "releaseCallAbilityFunction, context is nullptr");
+            TAG_LOGE(AAFwkTag::CONTEXT, "null context");
             return -1;
         }
         return contextForRelease->ReleaseCall(callback);
     };
     task.Resolve(env, CreateJsCallerComplex(env, releaseCallAbilityFunc, calldata->remoteCallee, callerCallBack));
-    TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbilityByCall callComplete end");
+    TAG_LOGD(AAFwkTag::CONTEXT, "end");
 }
 }
 
@@ -384,10 +383,10 @@ napi_value JsAbilityContext::DisconnectUIServiceExtension(napi_env env, napi_cal
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
-    TAG_LOGD(AAFwkTag::CONTEXT, "clear failed call of startup is called");
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
     auto context = abilityContext.lock();
     if (context == nullptr || callback == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "clear failed call of startup input param is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "null input param");
         return;
     }
 
@@ -400,7 +399,7 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     if (info.argc == ARGC_ZERO) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Not enough arguments");
+        TAG_LOGE(AAFwkTag::CONTEXT, "invalid argc");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }

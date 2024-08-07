@@ -36,10 +36,10 @@ void UIAbilityImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (token == nullptr || application == nullptr || handler == nullptr ||
         record == nullptr || ability == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Token or application or handler or record is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null params");
         return;
     }
     token_ = record->GetToken();
@@ -52,15 +52,15 @@ void UIAbilityImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
     ability_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
-    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "end");
 }
 
 void UIAbilityImpl::Start(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_ or abilityLifecycleCallbacks_");
         return;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -81,7 +81,7 @@ void UIAbilityImpl::Stop()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
 
@@ -94,7 +94,7 @@ void UIAbilityImpl::Stop(bool &isAsyncCallback)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         isAsyncCallback = false;
         return;
     }
@@ -145,7 +145,7 @@ int32_t UIAbilityImpl::Share(AAFwk::WantParams &wantParam)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return ERR_INVALID_VALUE;
     }
     return ability_->OnShare(wantParam);
@@ -241,7 +241,7 @@ bool UIAbilityImpl::PrepareTerminateAbility()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return false;
     }
     bool ret = ability_->OnPrepareTerminate();
@@ -253,7 +253,7 @@ void UIAbilityImpl::SendResult(int requestCode, int resultCode, const AAFwk::Wan
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
 
@@ -265,7 +265,7 @@ void UIAbilityImpl::NewWant(const AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
     ability_->SetWant(want);
@@ -279,7 +279,7 @@ void UIAbilityImpl::NewWant(const AAFwk::Want &want)
 void UIAbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
     ability_->SetLifeCycleStateInfo(info);
@@ -294,7 +294,7 @@ bool UIAbilityImpl::CheckAndRestore()
     }
 
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return false;
     }
     ability_->OnRestoreAbilityState(restoreData_);
@@ -319,7 +319,7 @@ void UIAbilityImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
 
@@ -332,7 +332,7 @@ void UIAbilityImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
 void UIAbilityImpl::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
     ability_->ContinueAbilityWithStack(deviceId, versionCode);
@@ -341,7 +341,7 @@ void UIAbilityImpl::ContinueAbility(const std::string &deviceId, uint32_t versio
 void UIAbilityImpl::NotifyContinuationResult(int32_t result)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
     ability_->OnCompleteContinuation(result);
@@ -350,7 +350,7 @@ void UIAbilityImpl::NotifyContinuationResult(int32_t result)
 void UIAbilityImpl::NotifyMemoryLevel(int32_t level)
 {
     if (ability_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "ability_ is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
     ability_->OnMemoryLevel(level);
@@ -360,7 +360,7 @@ void UIAbilityImpl::UpdateSilentForeground(const AAFwk::LifeCycleStateInfo &targ
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
     if (ability_ == nullptr) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "ability_ is null");
+        TAG_LOGD(AAFwkTag::UIABILITY, "null ability_");
         return;
     }
     if (ability_->CheckIsSilentForeground() && targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {

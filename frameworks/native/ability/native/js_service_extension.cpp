@@ -53,7 +53,7 @@ namespace {
 sptr<IRemoteObject> GetNativeRemoteObject(napi_env env, napi_value obj)
 {
     if (env == nullptr || obj == nullptr) {
-        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "null obj");
         return nullptr;
     }
     napi_valuetype type;

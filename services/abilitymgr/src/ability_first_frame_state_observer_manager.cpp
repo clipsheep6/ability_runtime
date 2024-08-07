@@ -114,7 +114,7 @@ void AbilityFirstFrameStateObserverSet::RemoveObserverDeathRecipient(const sptr<
 void AbilityFirstFrameStateObserverSet::OnAbilityFirstFrameState(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "The param abilityRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null abilityRecord");
         return;
     }
     const AppExecFwk::AbilityInfo abilityInfo = abilityRecord->GetAbilityInfo();
@@ -162,7 +162,7 @@ int32_t AbilityFirstFrameStateObserverManager::RegisterAbilityFirstFrameStateObs
     }
     // verify permissions.
     if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "permission denied");
         return ERR_PERMISSION_DENIED;
     }
     if (targetBundleName.empty()) {
@@ -182,7 +182,7 @@ int32_t AbilityFirstFrameStateObserverManager::UnregisterAbilityFirstFrameStateO
     }
     // verify permissions.
     if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "permission denied");
         return ERR_PERMISSION_DENIED;
     }
     if (stateObserverSetForBundleName_->RemoveAbilityFirstFrameStateObserver(observer) == ERR_OK) {

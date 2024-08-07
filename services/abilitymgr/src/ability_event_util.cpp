@@ -22,7 +22,7 @@ namespace AAFwk {
 
 void AbilityEventUtil::HandleModuleInfoUpdated(const std::string &bundleName, const int uid)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleModuleInfoUpdated start.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start");
     DelayedSingleton<AppScheduler>::GetInstance()->UpdateApplicationInfoInstalled(bundleName, uid);
 }
 

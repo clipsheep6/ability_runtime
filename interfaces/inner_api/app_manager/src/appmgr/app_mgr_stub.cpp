@@ -797,10 +797,10 @@ int32_t AppMgrStub::HandleGetAbilityRecordsByProcessID(MessageParcel &data, Mess
 
 int32_t AppMgrStub::HandlePreStartNWebSpawnProcess(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "HandlePreNWebSpawnProcess");
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     int32_t result = PreStartNWebSpawnProcess();
     if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "write result error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write result error");
         return ERR_INVALID_VALUE;
     }
     return result;
@@ -935,7 +935,7 @@ int32_t AppMgrStub::HandleUnregisterConfigurationObserver(MessageParcel &data, M
 #ifdef ABILITY_COMMAND_FOR_TEST
 int32_t AppMgrStub::HandleBlockAppServiceDone(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     int32_t result = BlockAppService();
     reply.WriteInt32(result);
     return result;

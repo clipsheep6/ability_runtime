@@ -187,7 +187,7 @@ void JsFreeInstallObserver::CallCallback(napi_ref callback, napi_value abilityRe
 void JsFreeInstallObserver::CallPromise(napi_deferred deferred, int32_t resultCode)
 {
     if (deferred == nullptr) {
-        TAG_LOGE(AAFwkTag::FREE_INSTALL, "deferred is nullptr");
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "null deferred");
         return;
     }
     if (resultCode == ERR_OK) {
@@ -202,7 +202,7 @@ void JsFreeInstallObserver::CallPromise(napi_deferred deferred, int32_t resultCo
 void JsFreeInstallObserver::CallPromise(napi_deferred deferred, napi_value abilityResult)
 {
     if (deferred == nullptr) {
-        TAG_LOGE(AAFwkTag::FREE_INSTALL, "deferred is nullptr");
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "null deferred");
         return;
     }
     napi_resolve_deferred(env_, deferred, abilityResult);

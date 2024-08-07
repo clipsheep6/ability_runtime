@@ -29,12 +29,12 @@ const std::string PARAM_GLOBAL_ADVANCED_MODE_STATE = "ohos.boot.advsecmode.state
 }
 AdvancedSecurityModeManager::AdvancedSecurityModeManager()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "ASMM constructor");
+    TAG_LOGD(AAFwkTag::APPMGR, "constructor");
 }
 
 AdvancedSecurityModeManager::~AdvancedSecurityModeManager()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "ASMM deconstructor");
+    TAG_LOGD(AAFwkTag::APPMGR, "deconstructor");
 }
 
 void AdvancedSecurityModeManager::Init()
@@ -42,13 +42,13 @@ void AdvancedSecurityModeManager::Init()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     int32_t state = OHOS::system::GetIntParameter<int32_t>(PARAM_GLOBAL_ADVANCED_MODE_STATE, 0);
     isAdvSecModeEnabled_ = state > 0;
-    TAG_LOGI(AAFwkTag::APPMGR, "ASMM Init isAdvSecModeEnabled:%{public}d.", isAdvSecModeEnabled_);
+    TAG_LOGI(AAFwkTag::APPMGR, "isAdvSecModeEnabled:%{public}d.", isAdvSecModeEnabled_);
 }
 
 bool AdvancedSecurityModeManager::IsJITEnabled()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "ASMM IsJITEnabled %{public}d", !isAdvSecModeEnabled_);
+    TAG_LOGD(AAFwkTag::APPMGR, "IsJITEnabled %{public}d", !isAdvSecModeEnabled_);
     return !isAdvSecModeEnabled_;
 }
 }  // namespace AppExecFwk

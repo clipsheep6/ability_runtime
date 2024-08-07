@@ -797,7 +797,7 @@ int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityReques
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
     if (!abilityRequest.IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, resolve ability_name:", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "call type not request");
         return RESOLVE_CALL_ABILITY_INNER_ERR;
     }
 
@@ -1018,7 +1018,7 @@ void UIAbilityLifecycleManager::NotifyAbilityToken(const sptr<IRemoteObject> &to
 void UIAbilityLifecycleManager::PrintTimeOutLog(std::shared_ptr<AbilityRecord> ability, uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null ability");
         return;
     }
     AppExecFwk::RunningProcessInfo processInfo = {};
@@ -1248,7 +1248,7 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
 
     if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, %{public}s, ability is not terminating.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability not terminating");
         return;
     }
     abilityRecord->RemoveAbilityDeathRecipient();
