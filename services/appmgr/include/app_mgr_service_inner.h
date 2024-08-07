@@ -1481,6 +1481,8 @@ private:
     void CheckCleanAbilityByUserRequest(const std::shared_ptr<AppRunningRecord> &appRecord,
         const std::shared_ptr<AbilityRunningRecord> &abilityRecord, const AbilityState state);
     void GetPidsByAccessTokenId(const uint32_t accessTokenId, std::vector<pid_t> &pids);
+    void MakeIsolateSandBoxProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const HapModuleInfo &hapModuleInfo, std::string &processName) const;
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;

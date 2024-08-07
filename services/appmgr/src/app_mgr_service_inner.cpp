@@ -658,6 +658,8 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
     if (!abilityInfo->process.empty()) {
         TAG_LOGD(AAFwkTag::APPMGR, "Process not null");
         processName = abilityInfo->process;
+        // extension's process is bundleName:extensionType, generated at installation time
+        MakeIsolateSandBoxProcessName(abilityInfo, hapModuleInfo, processName);
         return;
     }
     MakeProcessName(appInfo, hapModuleInfo, processName);
@@ -7345,6 +7347,23 @@ bool AppMgrServiceInner::IsProcessContainsOnlyUIAbility(const pid_t pid)
         }
     }
     return true;
+}
+
+void AppMgrServiceInner::MakeIsolateSandBoxProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+    const HapModuleInfo &hapModuleInfo, std::string &processName) const
+{
+    auto type = abilityInfo->type;
+    auto extensionType = abilityInfo->extensionAbilityType;
+    if (type != AppExecFwk::AbilityType::EXTENSION ||
+        extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE ||
+        extensionType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+        return;
+    }
+    for (auto extensionInfo: hapModuleInfo.extensionInfos) {
+        if (extensionInfo.name == abilityInfo->name && extensionInfo.needCreateSandbox) {
+            processName = (processName + ":" + abilityInfo->name);
+        }
+    }
 }
 } // namespace AppExecFwk
 }  // namespace OHOS
