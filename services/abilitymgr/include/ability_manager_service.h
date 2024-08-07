@@ -455,7 +455,7 @@ public:
      */
     virtual int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override;
-    
+
     /**
      * BackToCallerAbilityWithResult, return to the caller ability.
      *
@@ -826,7 +826,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) override;
+    virtual int KillProcess(const std::string &bundleName, const bool clearpagestack = false) override;
 
     /**
      * Uninstall app

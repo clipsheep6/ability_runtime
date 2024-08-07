@@ -439,7 +439,7 @@ public:
      */
     virtual int TerminateAbility(
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
-    
+
     /**
      * BackToCallerAbilityWithResult, return to the caller ability.
      *
@@ -733,7 +733,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) = 0;
+    virtual int KillProcess(const std::string &bundleName, const bool clearpagestack = false) = 0;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
