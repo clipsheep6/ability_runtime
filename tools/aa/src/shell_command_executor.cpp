@@ -90,6 +90,7 @@ bool ShellCommandExecutor::DoWork()
         TAG_LOGI(AAFwkTag::AA_TOOL, "DoWork async task begin, cmd : \"%{public}s\"", cmd_.data());
 
         FILE* file = popen(cmd_.c_str(), "r");
+        HILOG_INFO("DoWork async task 93 line, cmd : \"%{public}s\"", cmd_.data());
         if (!file) {
             TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to call popen, cmd : \"%{public}s\"", cmd_.data());
 
@@ -101,23 +102,30 @@ bool ShellCommandExecutor::DoWork()
             TAG_LOGI(AAFwkTag::AA_TOOL, "DoWork async task end, cmd : \"%{public}s\"", cmd_.data());
             return;
         }
-
+        HILOG_INFO("DoWork async task 105 line, cmd : \"%{public}s\"", cmd_.data());
         char commandResult[1024] = { '\0' };
         while ((fgets(commandResult, sizeof(commandResult), file)) != nullptr) {
             {
+                HILOG_INFO("DoWork async task 109 line");
                 std::lock_guard<std::mutex> copyLock(mtxCopy_);
+                HILOG_INFO("DoWork async task 111 line");
                 cmdResult_.stdResult.append(commandResult);
+                HILOG_INFO("DoWork async task 113 line");
+                
             }
+            HILOG_INFO("DoWork async task 116 line");
             std::cout << commandResult;
+            HILOG_INFO("DoWork async task 118 line");
         }
-
+        HILOG_INFO("DoWork async task 120 line");
         cmdResult_.exitCode = pclose(file);
         file = nullptr;
-
+        HILOG_INFO("DoWork async task 123 line");
         {
             std::unique_lock<std::mutex> workLock(mtxWork_);
             isDone_ = true;
         }
+        HILOG_INFO("DoWork async task 128 line");
         cvWork_.notify_one();
         TAG_LOGI(AAFwkTag::AA_TOOL, "DoWork async task end, cmd : \"%{public}s\"", cmd_.data());
     });
