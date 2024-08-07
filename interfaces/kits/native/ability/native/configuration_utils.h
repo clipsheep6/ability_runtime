@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -67,10 +67,35 @@ public:
     void UpdateDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
         std::shared_ptr<ResourceManager> resourceManager, bool &configChanged);
 
+    /**
+     * @brief Init display configuration to resource manager.
+     *
+     * @param configuration Configuration from sessioninfo
+     * @param contextConfig Context configuration need to add display config
+     * @param resourceManager Resource manager instance need to add display config
+     */
+    void InitDisplayConfig(const std::shared_ptr<Configuration> configuration,
+        std::shared_ptr<Configuration> contextConfig, std::shared_ptr<ResourceManager> resourceManager);
+
+    /**
+     * @brief Update display configuration to context configuration and resource manager.
+     *
+     * @param configuration Context configuration need to update display config
+     * @param resourceManager Resource manager instance need to update display config
+     * @param displayId display Id
+     * @param density display density
+     * @param orientation display orientation
+     * @return Returns true on update success, false on update failure.
+     */
+    bool UpdateDisplayConfig(std::shared_ptr<Configuration> configuration,
+        std::shared_ptr<ResourceManager> resourceManager, Rosen::DisplayId displayId, float density,
+        Rosen::DisplayOrientation orientation);
+
 private:
     bool GetDisplayConfig(Rosen::DisplayId displayId, float &density, std::string &directionStr);
     void UpdateDisplayResConfig(std::shared_ptr<ResourceManager> resourceManager, float &density,
         std::string &direction);
+    std::string ConvertDirection(Rosen::DisplayOrientation orientation);
 #endif
 };
 } // namespace AbilityRuntime

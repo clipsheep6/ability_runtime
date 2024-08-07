@@ -204,5 +204,10 @@ bool Extension::OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::
     TAG_LOGD(AAFwkTag::EXT, "call.");
     return true;
 }
+
+void Extension::SetConfiguration(const AppExecFwk::Configuration &configuration)
+{
+    TAG_LOGD(AAFwkTag::EXT, "call");
+}
 }
 }

@@ -17,6 +17,7 @@
 #include "context.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -56,7 +57,14 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     auto abilityInfo = record->GetAbilityInfo();
     context->SetAbilityInfo(abilityInfo);
     context->InitHapModuleInfo(abilityInfo);
-    context->SetConfiguration(appContext->GetConfiguration());
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
+        auto appConfig = appContext->GetConfiguration();
+        std::shared_ptr<AppExecFwk::Configuration> contextConfig =
+            std::make_shared<AppExecFwk::Configuration>(*appConfig);
+        context->SetConfiguration(contextConfig);
+    } else {
+        context->SetConfiguration(appContext->GetConfiguration());
+    }
     if (abilityInfo->applicationInfo.multiProjects) {
         std::shared_ptr<Context> moduleContext = context->CreateModuleContext(abilityInfo->moduleName);
         if (moduleContext != nullptr) {
@@ -110,6 +118,18 @@ template<class C>
 void ExtensionBase<C>::SetExtensionCommon(const std::shared_ptr<ExtensionCommon> &common)
 {
     extensionCommon_ = common;
+}
+
+template<class C>
+void ExtensionBase<C>::SetConfiguration(const AppExecFwk::Configuration &configuration)
+{
+    configuration_ = std::make_shared<AppExecFwk::Configuration>(configuration);
+}
+
+template<class C>
+std::shared_ptr<AppExecFwk::Configuration> ExtensionBase<C>::GetConfiguration() const
+{
+    return configuration_;
 }
 }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -314,6 +314,8 @@ public:
         const InsightIntentExecuteResult &result));
     MOCK_METHOD5(StartAbilityWithSpecifyTokenId, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint32_t specifyTokenId, int32_t userId, int requestCode));
+    MOCK_METHOD2(GetUIExtensionConfigurationByToken,
+        int32_t(const sptr<IRemoteObject> &token, AppExecFwk::Configuration &config));
 
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life
     Want want_;

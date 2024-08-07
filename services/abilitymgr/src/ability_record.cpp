@@ -1179,6 +1179,21 @@ void AbilityRecord::SetColdStartFlag(bool isColdStart)
 {
     coldStart_ = isColdStart;
 }
+
+void AbilityRecord::SetConfiguration(const AppExecFwk::Configuration &configuration)
+{
+    std::vector<std::string> changeKeyV;
+    configuration_.CompareDifferent(changeKeyV, configuration);
+    if (changeKeyV.empty()) {
+        return;
+    }
+    configuration_.Merge(changeKeyV, configuration);
+}
+
+AppExecFwk::Configuration AbilityRecord::GetConfiguration() const
+{
+    return configuration_;
+}
 #endif
 
 void AbilityRecord::BackgroundAbility(const Closure &task)

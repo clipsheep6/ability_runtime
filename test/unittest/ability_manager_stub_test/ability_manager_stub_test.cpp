@@ -3742,5 +3742,18 @@ HWTEST_F(AbilityManagerStubTest, ChangeUIAbilityVisibilityBySCB_0100, TestSize.L
 
     TAG_LOGI(AAFwkTag::TEST, "end");
 }
+
+/**
+ * @tc.name: AbilityManagerStub_GetUIExtensionConfigurationByToken_0100
+ * @tc.desc: Test the state of GetUIExtensionConfigurationByToken.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetUIExtensionConfigurationByToken_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->GetUIExtensionConfigurationByTokenInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
 } // namespace AAFwk
 } // namespace OHOS

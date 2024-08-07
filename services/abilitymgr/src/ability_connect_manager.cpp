@@ -261,6 +261,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         SetLastExitReason(abilityRequest, targetService);
         if (IsUIExtensionAbility(targetService)) {
             targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
+            if (abilityRequest.sessionInfo != nullptr && abilityRequest.sessionInfo->configuration != nullptr) {
+                targetService->SetConfiguration(*(abilityRequest.sessionInfo->configuration));
+            }
         }
         targetService->GrantUriPermissionForServiceExtension();
         LoadAbility(targetService);

@@ -150,6 +150,8 @@ public:
         const InsightIntentExecuteResult &result));
     MOCK_METHOD5(StartAbilityWithSpecifyTokenId, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint32_t specifyTokenId, int32_t userId, int requestCode));
+    MOCK_METHOD2(GetUIExtensionConfigurationByToken,
+        int32_t(const sptr<IRemoteObject> &token, AppExecFwk::Configuration &config));
 
 private:
     bool DumpStateCalled_ = false;

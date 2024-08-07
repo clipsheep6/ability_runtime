@@ -261,6 +261,13 @@ public:
 
     virtual bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result);
 
+    /**
+     * @brief Set configuration when uiextension initialization.
+     *
+     * @param configuration The configuration from sessioninfo.
+     */
+    virtual void SetConfiguration(const AppExecFwk::Configuration &configuration);
+
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
 protected:
     std::shared_ptr<AppExecFwk::AbilityHandler> handler_ = nullptr;

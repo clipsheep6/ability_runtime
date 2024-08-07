@@ -1781,6 +1781,16 @@ public:
 
     int32_t TerminateMission(int32_t missionId) override;
 
+    /**
+     * @brief Get ui extension configuration by ability token.
+     *
+     * @param token ability token.
+     * @param config output ui extension configuration.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetUIExtensionConfigurationByToken(const sptr<IRemoteObject> &token,
+        AppExecFwk::Configuration &config) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;

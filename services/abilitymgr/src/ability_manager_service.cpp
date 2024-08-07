@@ -11817,5 +11817,17 @@ int32_t AbilityManagerService::TerminateMission(int32_t missionId)
 
     return missionListManager->ClearMission(missionId);
 }
+
+int32_t AbilityManagerService::GetUIExtensionConfigurationByToken(const sptr<IRemoteObject> &token,
+    AppExecFwk::Configuration &config)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityRecord is null");
+        return ERR_INVALID_VALUE;
+    }
+    config = abilityRecord->GetConfiguration();
+    return ERR_OK;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

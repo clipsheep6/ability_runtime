@@ -113,6 +113,54 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 }
 
+void ConfigurationUtils::InitDisplayConfig(const std::shared_ptr<Configuration> configuration,
+    std::shared_ptr<Configuration> contextConfig, std::shared_ptr<ResourceManager> resourceManager)
+{
+    TAG_LOGD(AAFwkTag::ABILITY, "Init display config");
+    if (contextConfig == nullptr || configuration == nullptr || resourceManager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid");
+        return;
+    }
+    auto displayIdStr = configuration->GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID);
+    if (displayIdStr.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITY, "DisplayId is empty");
+        return;
+    }
+    auto displayId = static_cast<uint64_t>(std::stoi(displayIdStr));
+    auto densityStr = configuration->GetItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI);
+    auto directionStr = configuration->GetItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION);
+    float density = static_cast<float>(std::stof(densityStr));
+    contextConfig->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, densityStr);
+    contextConfig->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, directionStr);
+    contextConfig->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, displayIdStr);
+    UpdateDisplayResConfig(resourceManager, density, directionStr);
+}
+
+bool ConfigurationUtils::UpdateDisplayConfig(std::shared_ptr<Configuration> configuration,
+    std::shared_ptr<ResourceManager> resourceManager, Rosen::DisplayId displayId, float density,
+    Rosen::DisplayOrientation orientation)
+{
+    TAG_LOGD(AAFwkTag::ABILITY, "Update display config");
+    if (configuration == nullptr || resourceManager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid");
+        return false;
+    }
+    auto direction = ConvertDirection(orientation);
+    Configuration newConfig;
+    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, direction);
+
+    std::vector<std::string> changeKeyV;
+    configuration->CompareDifferent(changeKeyV, newConfig);
+    if (changeKeyV.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITY, "There's no changed config");
+        return false;
+    }
+    configuration->Merge(changeKeyV, newConfig);
+    UpdateDisplayResConfig(resourceManager, density, direction);
+    return true;
+}
+
 bool ConfigurationUtils::GetDisplayConfig(Rosen::DisplayId displayId, float &density,
     std::string &directionStr)
 {
@@ -146,11 +194,30 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
 
     resourceManager->GetResConfig(*resConfig);
     resConfig->SetScreenDensity(density);
-    resConfig->SetDirection(ConvertDirection(direction));
+    resConfig->SetDirection(AppExecFwk::ConvertDirection(direction));
     resourceManager->UpdateResConfig(*resConfig);
     TAG_LOGD(AAFwkTag::ABILITY, "Update resConfig finished, density: %{public}f, direction: %{public}d.",
         resConfig->GetScreenDensity(), resConfig->GetDirection());
 }
-#endif
+
+std::string ConfigurationUtils::ConvertDirection(Rosen::DisplayOrientation orientation)
+{
+    std::string direction = "no_direction";
+    switch (orientation) {
+        case Rosen::DisplayOrientation::PORTRAIT:
+        case Rosen::DisplayOrientation::PORTRAIT_INVERTED:
+            direction = "vertical";
+            break;
+        case Rosen::DisplayOrientation::LANDSCAPE:
+        case Rosen::DisplayOrientation::LANDSCAPE_INVERTED:
+            direction = "horizontal";
+            break;
+        default:
+            TAG_LOGD(AAFwkTag::ABILITY, "DisplayOrientation value is %{public}d", orientation);
+            break;
+    }
+    return direction;
+}
+#endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime
 } // namespace OHOS

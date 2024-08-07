@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -89,9 +89,15 @@ public:
     virtual void OnMemoryLevel(int level) override;
 
     void SetExtensionCommon(const std::shared_ptr<ExtensionCommon> &common);
+
+    void SetConfiguration(const AppExecFwk::Configuration &configuration) override;
+
+    std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const;
+
 private:
     std::shared_ptr<C> context_ = nullptr;
     std::shared_ptr<ExtensionCommon> extensionCommon_ = nullptr;
+    std::shared_ptr<AppExecFwk::Configuration> configuration_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

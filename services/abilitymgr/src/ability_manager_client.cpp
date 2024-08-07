@@ -1997,5 +1997,13 @@ ErrCode AbilityManagerClient::TerminateMission(int32_t missionId)
     }
     return ret;
 }
+
+ErrCode AbilityManagerClient::GetUIExtensionConfigurationByToken(const sptr<IRemoteObject> &token,
+    AppExecFwk::Configuration &config)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->GetUIExtensionConfigurationByToken(token, config);
+}
 } // namespace AAFwk
 } // namespace OHOS

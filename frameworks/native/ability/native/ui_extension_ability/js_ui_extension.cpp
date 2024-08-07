@@ -173,6 +173,8 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
+    handler_ = handler;
+    RegisterDisplayInfoChangedListener();
 }
 
 void JsUIExtension::CreateJSContext(napi_env env, napi_value &contextObj,
@@ -241,12 +243,10 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     Extension::OnStart(want);
     auto context = GetContext();
 #ifdef SUPPORT_GRAPHICS
-    if (context != nullptr) {
-        int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
-        displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
-        TAG_LOGD(AAFwkTag::UI_EXT, "displayId %{public}d", displayId);
+    auto configuration = GetConfiguration();
+    if (context != nullptr && configuration != nullptr) {
         auto configUtils = std::make_shared<ConfigurationUtils>();
-        configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
+        configUtils->InitDisplayConfig(configuration, context->GetConfiguration(), context->GetResourceManager());
     }
 #endif // SUPPORT_GRAPHICS
 
@@ -279,6 +279,9 @@ void JsUIExtension::OnStop()
     TAG_LOGD(AAFwkTag::UI_EXT, "begin");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
+#ifdef SUPPORT_GRAPHICS
+    UnregisterDisplayInfoChangedListener();
+#endif // SUPPORT_GRAPHICS
     OnStopCallBack();
     TAG_LOGD(AAFwkTag::UI_EXT, "end");
 }
@@ -294,6 +297,9 @@ void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbac
     UIExtension::OnStop();
     HandleScope handleScope(jsRuntime_);
     napi_value result = CallObjectMethod("onDestroy", nullptr, 0, true);
+#ifdef SUPPORT_GRAPHICS
+    UnregisterDisplayInfoChangedListener();
+#endif // SUPPORT_GRAPHICS
     if (!CheckPromise(result)) {
         OnStopCallBack();
         isAsyncCallback = false;
@@ -923,9 +929,6 @@ void JsUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& conf
     Extension::OnConfigurationUpdated(configuration);
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
 
-    HandleScope handleScope(jsRuntime_);
-    napi_env env = jsRuntime_.GetNapiEnv();
-
     // Notify extension context
     auto context = GetContext();
     if (context == nullptr) {
@@ -936,15 +939,7 @@ void JsUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& conf
     auto configUtils = std::make_shared<ConfigurationUtils>();
     configUtils->UpdateGlobalConfig(configuration, context->GetResourceManager());
 
-    auto fullConfig = context->GetConfiguration();
-    if (!fullConfig) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "configuration is nullptr");
-        return;
-    }
-    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
-
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
-    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+    ConfigurationUpdated();
 }
 
 void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
@@ -1015,5 +1010,95 @@ void JsUIExtension::OnAbilityResult(int requestCode, int resultCode, const Want 
     abilityResultListeners_->OnAbilityResult(requestCode, resultCode, resultData);
     TAG_LOGD(AAFwkTag::UI_EXT, "end");
 }
+
+void JsUIExtension::ConfigurationUpdated()
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "begin");
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = jsRuntime_.GetNapiEnv();
+
+    // Notify extension context
+    auto context = GetContext();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get context");
+        return;
+    }
+
+    auto fullConfig = context->GetConfiguration();
+    if (fullConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Configuration is nullptr");
+        return;
+    }
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
+
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
+    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+}
+
+#ifdef SUPPORT_GRAPHICS
+void JsUIExtension::OnDisplayInfoChange(
+    const sptr<IRemoteObject> &token, Rosen::DisplayId displayId, float density, Rosen::DisplayOrientation orientation)
+{
+    TAG_LOGI(AAFwkTag::UI_EXT, "displayId: %{public}" PRIu64 "", displayId);
+    auto context = GetContext();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Context is invalid");
+        return;
+    }
+
+    auto contextConfig = context->GetConfiguration();
+    if (contextConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Configuration is invalid");
+        return;
+    }
+
+    TAG_LOGD(AAFwkTag::UI_EXT, "Config dump: %{public}s", contextConfig->GetName().c_str());
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    auto result =
+        configUtils->UpdateDisplayConfig(contextConfig, context->GetResourceManager(), displayId, density, orientation);
+    TAG_LOGD(AAFwkTag::UI_EXT, "Config dump after update: %{public}s", contextConfig->GetName().c_str());
+    if (result) {
+        auto jsUiExtension = std::static_pointer_cast<JsUIExtension>(shared_from_this());
+        auto task = [jsUiExtension]() {
+            if (jsUiExtension) {
+                jsUiExtension->ConfigurationUpdated();
+            }
+        };
+        if (handler_ != nullptr) {
+            handler_->PostTask(task, "JsUIExtension:OnChange");
+        }
+    }
+}
+
+void JsUIExtension::RegisterDisplayInfoChangedListener()
+{
+    // register displayid change callback
+    auto jsUiExtension = std::static_pointer_cast<JsUIExtension>(shared_from_this());
+    jsUiExtensionAbilityDisplayListener_ = sptr<JsUIExtensionAbilityDisplayListener>::MakeSptr(jsUiExtension);
+    if (jsUiExtensionAbilityDisplayListener_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "jsUiExtensionAbilityDisplayListener is nullptr");
+        return;
+    }
+    auto context = GetContext();
+    if (context == nullptr || context->GetToken() == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Param is invalid");
+        return;
+    }
+    TAG_LOGI(AAFwkTag::UI_EXT, "RegisterDisplayInfoChangedListener");
+    Rosen::WindowManager::GetInstance().RegisterDisplayInfoChangedListener(
+        context->GetToken(), jsUiExtensionAbilityDisplayListener_);
+}
+
+void JsUIExtension::UnregisterDisplayInfoChangedListener()
+{
+    auto context = GetContext();
+    if (context == nullptr || context->GetToken() == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Param is invalid");
+        return;
+    }
+    Rosen::WindowManager::GetInstance().UnregisterDisplayInfoChangedListener(
+        context->GetToken(), jsUiExtensionAbilityDisplayListener_);
+}
+#endif // SUPPORT_GRAPHICS
 }
 }
