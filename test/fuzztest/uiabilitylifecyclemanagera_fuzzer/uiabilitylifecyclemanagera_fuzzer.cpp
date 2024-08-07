@@ -108,8 +108,9 @@ bool DoSomethingInterestingWithMyAPI(const char *data, size_t size)
     uIAbilityLifecycleManager->SignRestartAppFlag(strParam);
     AbilityRequest abilityRequest;
     sptr<SessionInfo> sessionInfo;
+    uint32_t sceneFlag = GetU32Data(data);
     bool boolParam = *data % ENABLE;
-    uIAbilityLifecycleManager->StartUIAbility(abilityRequest, sessionInfo, boolParam);
+    uIAbilityLifecycleManager->StartUIAbility(abilityRequest, sessionInfo, sceneFlag, boolParam);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     int intParam = static_cast<int>(GetU32Data(data));
     AppExecFwk::PacMap saveData;
@@ -122,7 +123,7 @@ bool DoSomethingInterestingWithMyAPI(const char *data, size_t size)
     std::shared_ptr<AbilityRecord> abilityRecord;
     uIAbilityLifecycleManager->NotifySCBToMinimizeUIAbility(abilityRecord, token);
     std::shared_ptr<AbilityRecord> abilityRecord1;
-    uIAbilityLifecycleManager->MinimizeUIAbility(abilityRecord1, boolParam);
+    uIAbilityLifecycleManager->MinimizeUIAbility(abilityRecord1, boolParam, sceneFlag);
     sptr<SessionInfo> sessionInfo1;
     uIAbilityLifecycleManager->GetUIAbilityRecordBySessionInfo(sessionInfo1);
     Want *want;

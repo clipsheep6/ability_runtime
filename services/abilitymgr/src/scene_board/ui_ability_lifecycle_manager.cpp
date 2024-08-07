@@ -72,7 +72,7 @@ auto g_deleteLifecycleEventTask = [](const sptr<Token> &token, FreezeUtil::Timeo
 UIAbilityLifecycleManager::UIAbilityLifecycleManager(int32_t userId): userId_(userId) {}
 
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo,
-    bool &isColdStart)
+    uint32_t sceneFlag, bool &isColdStart)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -125,7 +125,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     UpdateAbilityRecordLaunchReason(abilityRequest, uiAbilityRecord);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
     AddCallerRecord(abilityRequest, sessionInfo, uiAbilityRecord);
-    uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
+    uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId, sceneFlag);
     CheckSpecified(abilityRequest, uiAbilityRecord);
     SendKeyEvent(abilityRequest);
     return ERR_OK;
@@ -276,7 +276,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
         }
         std::string element = abilityRecord->GetElementName().GetURI();
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability is %{public}s, start to foreground.", element.c_str());
-        abilityRecord->ForegroundAbility();
+        abilityRecord->ForegroundAbility(abilityRecord->lifeCycleStateInfo_.sceneFlagBak);
     }
 }
 
@@ -744,7 +744,8 @@ int32_t UIAbilityLifecycleManager::NotifySCBToMinimizeUIAbility(const std::share
     return static_cast<int32_t>(ret);
 }
 
-int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser)
+int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser,
+    uint32_t sceneFlag)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -755,6 +756,7 @@ int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRe
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityInfoName:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetMinimizeReason(fromUser);
+    abilityRecord->SetSceneFlag(sceneFlag);
     if (abilityRecord->GetPendingState() != AbilityState::INITIAL) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND or BACKGROUND, dropped.");
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
@@ -767,6 +769,7 @@ int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRe
     }
     abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     MoveToBackground(abilityRecord);
+    abilityRecord->SetSceneFlag(0);
     return ERR_OK;
 }
 

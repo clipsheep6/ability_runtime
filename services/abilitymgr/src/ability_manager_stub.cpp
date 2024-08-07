@@ -1033,7 +1033,8 @@ int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, Message
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     bool fromUser = data.ReadBool();
-    int32_t result = MinimizeUIAbilityBySCB(sessionInfo, fromUser);
+    uint32_t sceneFlag = data.ReadUint32();
+    int32_t result = MinimizeUIAbilityBySCB(sessionInfo, fromUser, sceneFlag);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -2260,8 +2261,9 @@ int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessagePar
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
+    uint32_t sceneFlag = data.ReadUint32();
     bool isColdStart = false;
-    int32_t result = StartUIAbilityBySCB(sessionInfo, isColdStart);
+    int32_t result = StartUIAbilityBySCB(sessionInfo, isColdStart, sceneFlag);
     reply.WriteBool(isColdStart);
     reply.WriteInt32(result);
     return NO_ERROR;
