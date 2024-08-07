@@ -834,27 +834,7 @@ bool JsRuntime::Initialize(const Options& options)
 bool JsRuntime::CreateJsEnv(const Options& options)
 {
     panda::RuntimeOption pandaOption;
-    int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
-    std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
-    std::string memConfigProperty = OHOS::system::GetParameter("persist.ark.mem_config_property", "");
-    size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
-    size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
-    pandaOption.SetArkProperties(arkProperties);
-    pandaOption.SetArkBundleName(bundleName);
-    pandaOption.SetMemConfigProperty(memConfigProperty);
-    pandaOption.SetGcThreadNum(gcThreadNum);
-    pandaOption.SetLongPauseTime(longPauseTime);
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "ark properties=%{public}d bundlename=%{public}s",
-        arkProperties, bundleName.c_str());
-    pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
-    pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
-    pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::FOLLOW);
-    pandaOption.SetLogBufPrint(PrintVmLog);
-
-    bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
-    std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
-    pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
-    pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+    InitJsOption(pandaOption);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify CreateJsEnv, jitEnabled: %{public}d", options.jitEnabled);
     pandaOption.SetEnableJIT(options.jitEnabled);
 
@@ -883,6 +863,37 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     }
 
     return true;
+}
+
+void JsRuntime::InitJsOption(panda::RuntimeOption& pandaOption)
+{
+    int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
+    std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
+    std::string memConfigProperty = OHOS::system::GetParameter("persist.ark.mem_config_property", "");
+    size_t heapDefaultSize = OHOS::system::GetUintParameter<size_t>("persist.ark.heap.defaultsize", 0);
+    size_t heapSharedSize = OHOS::system::GetUintParameter<size_t>("persist.ark.heap.sharedsize", 0);
+    size_t heapWorkerSize = OHOS::system::GetUintParameter<size_t>("persist.ark.heap.workersize", 0);
+    size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
+    size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
+    pandaOption.SetArkProperties(arkProperties);
+    pandaOption.SetArkBundleName(bundleName);
+    pandaOption.SetMemConfigProperty(memConfigProperty);
+    pandaOption.SetHeapDefaultSize(heapDefaultSize);
+    pandaOption.SetHeapSharedSize(heapSharedSize);
+    pandaOption.SetHeapWorkerSize(heapWorkerSize);
+    pandaOption.SetGcThreadNum(gcThreadNum);
+    pandaOption.SetLongPauseTime(longPauseTime);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ark properties=%{public}d bundlename=%{public}s",
+        arkProperties, bundleName.c_str());
+    pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
+    pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
+    pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::FOLLOW);
+    pandaOption.SetLogBufPrint(PrintVmLog);
+
+    bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+    std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
+    pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
+    pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
 }
 
 void JsRuntime::PreloadAce(const Options& options)
