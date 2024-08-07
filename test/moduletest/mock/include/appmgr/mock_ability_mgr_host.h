@@ -142,7 +142,7 @@ public:
         return 0;
     }
 
-    virtual int KillProcess(const std::string& bundleName, const bool clearPageStack = true) override
+    virtual int KillProcess(const std::string& bundleName, const bool clearpagestack = false) override
     {
         return 0;
     }
