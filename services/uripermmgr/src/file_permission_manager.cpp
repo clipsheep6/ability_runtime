@@ -65,7 +65,7 @@ std::vector<bool> FilePermissionManager::CheckUriPersistentPermission(std::vecto
     uint32_t callerTokenId, uint32_t flag, std::vector<PolicyInfo> &pathPolicies)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR,
-        "CheckUriPersistentPermission called, size of uri is %{public}zu", uriVec.size());
+        "call, uri size:%{public}zu", uriVec.size());
     std::vector<bool> resultCodes(uriVec.size(), false);
     pathPolicies.clear();
     if (CheckPermission(callerTokenId, PermissionConstants::PERMISSION_FILE_ACCESS_MANAGER)) {

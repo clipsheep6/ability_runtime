@@ -24,27 +24,27 @@ void UriPermissionLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     if (systemAbilityId != URI_PERMISSION_MGR_SERVICE_ID) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "abilityId:%{public}d mismatch", systemAbilityId);
         return;
     }
 
     if (remoteObject == nullptr) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Object is nullptr.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Object null");
         return;
     }
 
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Load system ability %{public}d succeed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "abilityId:%{public}d succeed", systemAbilityId);
     UriPermissionManagerClient::GetInstance().OnLoadSystemAbilitySuccess(remoteObject);
 }
 
 void UriPermissionLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     if (systemAbilityId != URI_PERMISSION_MGR_SERVICE_ID) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "abilityId:%{public}d mismatch", systemAbilityId);
         return;
     }
 
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Load system ability %{public}d failed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "abilityId:%{public}d failed", systemAbilityId);
     UriPermissionManagerClient::GetInstance().OnLoadSystemAbilityFail();
 }
 }  // namespace AAFwk

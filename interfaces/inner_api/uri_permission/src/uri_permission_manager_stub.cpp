@@ -27,7 +27,7 @@ int UriPermissionManagerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != IUriPermissionManager::GetDescriptor()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "InterfaceToken not equal IUriPermissionManager's descriptor.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "InterfaceToken invalid");
         return ERR_INVALID_VALUE;
     }
     ErrCode errCode = ERR_OK;
@@ -82,7 +82,7 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (!uri) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "read uri failed");
         return ERR_DEAD_OBJECT;
     }
     auto flag = data.ReadUint32();
@@ -99,14 +99,14 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data,
 {
     auto size = data.ReadUint32();
     if (size == 0 || size > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec empty or exceed maxSize %{public}d", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
     }
     std::vector<Uri> uriVec;
     for (uint32_t i = 0; i < size; i++) {
         std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
         if (!uri) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "read uri failed");
             return ERR_DEAD_OBJECT;
         }
         uriVec.emplace_back(*uri);
@@ -125,14 +125,14 @@ int32_t UriPermissionManagerStub::HandleGrantUriPermissionPrivileged(MessageParc
 {
     auto size = data.ReadUint32();
     if (size == 0 || size > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec empty or exceed maxSize %{public}d", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
     }
     std::vector<Uri> uriVec;
     for (uint32_t i = 0; i < size; i++) {
         std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
         if (!uri) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "read uri failed");
             return ERR_DEAD_OBJECT;
         }
         uriVec.emplace_back(*uri);
@@ -149,7 +149,7 @@ int UriPermissionManagerStub::HandleRevokeUriPermissionManually(MessageParcel &d
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (!uri) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "read uri failed");
         return ERR_DEAD_OBJECT;
     }
     auto bundleName = data.ReadString();
@@ -163,7 +163,7 @@ int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, Mes
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (!uri) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "read uri failed");
         return ERR_DEAD_OBJECT;
     }
     auto flag = data.ReadUint32();
@@ -177,7 +177,7 @@ int32_t UriPermissionManagerStub::HandleCheckUriAuthorization(MessageParcel &dat
 {
     auto size = data.ReadUint32();
     if (size == 0 || size > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec empty or exceed maxSize %{public}d", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
     }
     std::vector<std::string> uriVec;
@@ -189,12 +189,12 @@ int32_t UriPermissionManagerStub::HandleCheckUriAuthorization(MessageParcel &dat
     auto tokenId = data.ReadUint32();
     auto result = CheckUriAuthorization(uriVec, flag, tokenId);
     if (!reply.WriteUint32(result.size())) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write size of uriVec failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uriVec size failed");
         return ERR_DEAD_OBJECT;
     }
     for (auto res: result) {
         if (!reply.WriteBool(res)) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write res failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write res failed");
             return ERR_DEAD_OBJECT;
         }
     }

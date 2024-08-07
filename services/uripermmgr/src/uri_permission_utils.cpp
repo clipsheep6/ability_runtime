@@ -53,7 +53,7 @@ bool UPMSUtils::SendShareUnPrivilegeUriEvent(uint32_t callerTokenId, uint32_t ta
     AAFwk::EventInfo eventInfo;
     eventInfo.callerBundleName = callerBundleName;
     eventInfo.bundleName = targetBundleName;
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Send SHARE_UNPRIVILEGED_FILE_URI Event.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Send SHARE_UNPRIVILEGED_FILE_URI Event");
     AAFwk::EventReport::SendGrantUriPermissionEvent(AAFwk::EventName::SHARE_UNPRIVILEGED_FILE_URI, eventInfo);
     return true;
 }
@@ -71,7 +71,7 @@ bool UPMSUtils::SendSystemAppGrantUriPermissionEvent(uint32_t callerTokenId, uin
             EventReport::SendGrantUriPermissionEvent(EventName::GRANT_URI_PERMISSION, eventInfo);
         }
     }
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Send GRANT_URI_PERMISSION Event.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Send GRANT_URI_PERMISSION Event");
     return true;
 }
 
@@ -80,20 +80,20 @@ bool UPMSUtils::CheckAndCreateEventInfo(uint32_t callerTokenId, uint32_t targetT
 {
     std::string callerBundleName;
     if (!GetBundleNameByTokenId(callerTokenId, callerBundleName)) {
-        TAG_LOGD(AAFwkTag::URIPERMMGR, "get caller bundle name failed.");
+        TAG_LOGD(AAFwkTag::URIPERMMGR, "get callerBundleName failed");
         return false;
     }
     if (!CheckIsSystemAppByBundleName(callerBundleName)) {
-        TAG_LOGD(AAFwkTag::URIPERMMGR, "caller is not system.");
+        TAG_LOGD(AAFwkTag::URIPERMMGR, "caller not system");
         return false;
     }
     std::string targetBundleName;
     if (!GetBundleNameByTokenId(targetTokenId, targetBundleName)) {
-        TAG_LOGD(AAFwkTag::URIPERMMGR, "get target bundle name failed.");
+        TAG_LOGD(AAFwkTag::URIPERMMGR, "get targetBundleName failed");
         return false;
     }
     if (CheckIsSystemAppByBundleName(targetBundleName)) {
-        TAG_LOGD(AAFwkTag::URIPERMMGR, "target is system app.");
+        TAG_LOGD(AAFwkTag::URIPERMMGR, "target is systemApp");
         return false;
     }
     eventInfo.callerBundleName = callerBundleName;
@@ -107,11 +107,11 @@ int32_t UPMSUtils::GetCurrentAccountId()
     auto ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
         QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "QueryActiveOsAccountIds error.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "QueryActiveOsAccountIds error");
         return DEFAULT_USER_ID;
     }
     if (osActiveAccountIds.empty()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "the QueryActiveOsAccountIds is empty, no accounts.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "QueryActiveOsAccountIds empty");
         return DEFAULT_USER_ID;
     }
     return osActiveAccountIds.front();
@@ -129,10 +129,10 @@ bool UPMSUtils::IsFoundationCall()
     Security::AccessToken::NativeTokenInfo nativeInfo;
     auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, callerTokenId is %{public}u.", callerTokenId);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, callerTokenId:%{public}u", callerTokenId);
         return false;
     }
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Caller process name : %{public}s", nativeInfo.processName.c_str());
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Caller processName:%{public}s", nativeInfo.processName.c_str());
     return nativeInfo.processName == FOUNDATION_PROCESS_NAME;
 }
 
@@ -154,17 +154,17 @@ bool UPMSUtils::CheckIsSystemAppByBundleName(std::string &bundleName)
 {
     auto bundleMgrHelper = ConnectManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGW(AAFwkTag::URIPERMMGR, "The bundleMgrHelper is nullptr.");
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "bundleMgrHelper null");
         return false;
     }
     AppExecFwk::ApplicationInfo appInfo;
     if (!IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(bundleName,
         AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetCurrentAccountId(), appInfo))) {
-        TAG_LOGW(AAFwkTag::URIPERMMGR, "Get application info failed.");
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "GetApplicationInfo failed");
         return false;
     }
     auto isSystemApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(appInfo.accessTokenIdEx);
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, isSystemApp = %{public}d", bundleName.c_str(),
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "BundleName:%{public}s, isSystemApp:%{public}d", bundleName.c_str(),
         static_cast<int32_t>(isSystemApp));
     return isSystemApp;
 }
@@ -185,7 +185,7 @@ bool UPMSUtils::GetBundleNameByTokenId(uint32_t tokenId, std::string &bundleName
         Security::AccessToken::HapTokenInfo hapInfo;
         auto ret = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo);
         if (ret != Security::AccessToken::AccessTokenKitRet::RET_SUCCESS) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetHapTokenInfo failed, ret is %{public}d.", ret);
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetHapTokenInfo failed, ret:%{public}d", ret);
             return false;
         }
         bundleName = hapInfo.bundleName;
@@ -202,7 +202,7 @@ std::string UPMSUtils::GetCallerNameByTokenId(uint32_t tokenId)
         Security::AccessToken::NativeTokenInfo nativeInfo;
         auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, nativeInfo);
         if (result != ERR_OK) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, tokenId is %{public}u.", tokenId);
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, tokenId:%{public}u", tokenId);
             return "";
         }
         return nativeInfo.processName;
@@ -212,7 +212,7 @@ std::string UPMSUtils::GetCallerNameByTokenId(uint32_t tokenId)
         Security::AccessToken::HapTokenInfo hapInfo;
         auto ret = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo);
         if (ret != Security::AccessToken::AccessTokenKitRet::RET_SUCCESS) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetHapTokenInfo failed, ret is %{public}d.", ret);
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetHapTokenInfo failed, ret:%{public}d", ret);
             return "";
         }
         return hapInfo.bundleName;
@@ -222,10 +222,10 @@ std::string UPMSUtils::GetCallerNameByTokenId(uint32_t tokenId)
 
 int32_t UPMSUtils::GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d.", bundleName.c_str(), appIndex);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "BundleName:%{public}s, appIndex:%{public}d", bundleName.c_str(), appIndex);
     auto bms = ConnectManagerHelper();
     if (bms == nullptr) {
-        TAG_LOGW(AAFwkTag::URIPERMMGR, "The bundleMgrHelper is nullptr.");
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "The bundleMgrHelper null");
         return GET_BUNDLE_MANAGER_SERVICE_FAILED;
     }
     AppExecFwk::BundleInfo bundleInfo;
@@ -233,7 +233,7 @@ int32_t UPMSUtils::GetTokenIdByBundleName(const std::string &bundleName, int32_t
     if (appIndex == 0) {
         auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
         if (!IN_PROCESS_CALL(bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId))) {
-            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get bundle info.");
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed GetBundleInfo");
             return GET_BUNDLE_INFO_FAILED;
         }
         tokenId = bundleInfo.applicationInfo.accessTokenId;
@@ -242,14 +242,14 @@ int32_t UPMSUtils::GetTokenIdByBundleName(const std::string &bundleName, int32_t
     if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
         if (IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId)) != ERR_OK) {
-            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get clone bundle info.");
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed GetCloneBundleInfo");
             return GET_BUNDLE_INFO_FAILED;
         }
         tokenId = bundleInfo.applicationInfo.accessTokenId;
         return ERR_OK;
     }
     if (IN_PROCESS_CALL(bms->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo) != ERR_OK)) {
-        TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get sandbox bundle info.");
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed GetSandboxBundleInfo");
         return GET_BUNDLE_INFO_FAILED;
     }
     tokenId = bundleInfo.applicationInfo.accessTokenId;

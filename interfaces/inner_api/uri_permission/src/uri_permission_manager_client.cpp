@@ -37,7 +37,7 @@ UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName :%{public}s", targetBundleName.c_str());
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName:%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
@@ -48,10 +48,10 @@ int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int 
 int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(),
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName:%{public}s, uriVecSize:%{public}zu", targetBundleName.c_str(),
         uriVec.size());
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec empty or exceed maxSize %{public}d", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
     }
     auto uriPermMgr = ConnectUriPermService();
@@ -64,10 +64,10 @@ int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVe
 int32_t UriPermissionManagerClient::GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
     const std::string &targetBundleName, int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName: %{public}s, uriVec size: %{public}zu",
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName:%{public}s, uriVecSize:%{public}zu",
         targetBundleName.c_str(), uriVec.size());
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec empty or exceed maxSize %{public}d", MAX_URI_COUNT);
         return ERR_URI_LIST_OUT_OF_RANGE;
     }
     auto uriPermMgr = ConnectUriPermService();
@@ -80,7 +80,7 @@ int32_t UriPermissionManagerClient::GrantUriPermissionPrivileged(const std::vect
 
 void UriPermissionManagerClient::RevokeUriPermission(const uint32_t tokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeUriPermission(tokenId, abilityId);
@@ -89,7 +89,7 @@ void UriPermissionManagerClient::RevokeUriPermission(const uint32_t tokenId, int
 
 int UriPermissionManagerClient::RevokeAllUriPermissions(const uint32_t tokenId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeAllUriPermissions(tokenId);
@@ -100,7 +100,7 @@ int UriPermissionManagerClient::RevokeAllUriPermissions(const uint32_t tokenId)
 int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
     int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeUriPermissionManually(uri, bundleName, appIndex);
@@ -121,10 +121,10 @@ std::vector<bool> UriPermissionManagerClient::CheckUriAuthorization(const std::v
     uint32_t flag, uint32_t tokenId)
 {
     uint32_t size = uriVec.size();
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "flag: %{public}u, tokenId: %{public}u", flag, tokenId);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "flag:%{public}u, tokenId:%{public}u", flag, tokenId);
     std::vector<bool> errorRes(size, false);
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec empty or exceed maxSize %{public}d", MAX_URI_COUNT);
         return errorRes;
     }
     auto uriPermMgr = ConnectUriPermService();
@@ -136,16 +136,16 @@ std::vector<bool> UriPermissionManagerClient::CheckUriAuthorization(const std::v
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     auto uriPermMgr = GetUriPermMgr();
     if (uriPermMgr == nullptr) {
         if (!LoadUriPermService()) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Load uri permission manager service failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "LoadUriPermService failed");
             return nullptr;
         }
         uriPermMgr = GetUriPermMgr();
         if (uriPermMgr == nullptr || uriPermMgr->AsObject() == nullptr) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Failed to get uri permission manager.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetUriPermMgr failed");
             return nullptr;
         }
         const auto& onClearProxyCallback = [] {
@@ -154,28 +154,28 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
         sptr<UpmsDeathRecipient> recipient(new UpmsDeathRecipient(onClearProxyCallback));
         uriPermMgr->AsObject()->AddDeathRecipient(recipient);
     }
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "End UriPermissionManagerClient::ConnectUriPermService.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "End");
     return uriPermMgr;
 }
 
 bool UriPermissionManagerClient::LoadUriPermService()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Failed to get SystemAbilityManager.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "GetSystemAbilityManager failed");
         return false;
     }
 
     sptr<UriPermissionLoadCallback> loadCallback = new (std::nothrow) UriPermissionLoadCallback();
     if (loadCallback == nullptr) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Create load callback failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Create loadCallback failed");
         return false;
     }
 
     auto ret = systemAbilityMgr->LoadSystemAbility(URI_PERMISSION_MGR_SERVICE_ID, loadCallback);
     if (ret != 0) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Load system ability %{public}d failed with %{public}d.",
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "LoadSystemAbility %{public}d failed:%{public}d",
             URI_PERMISSION_MGR_SERVICE_ID, ret);
         return false;
     }
@@ -187,7 +187,7 @@ bool UriPermissionManagerClient::LoadUriPermService()
                 return saLoadFinished_;
             });
         if (!waitStatus) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Wait for load sa timeout.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Wait for load sa timeout");
             return false;
         }
     }
@@ -202,14 +202,14 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::GetUriPermMgr()
 
 void UriPermissionManagerClient::SetUriPermMgr(const sptr<IRemoteObject> &remoteObject)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     std::lock_guard<std::mutex> lock(mutex_);
     uriPermMgr_ = iface_cast<IUriPermissionManager>(remoteObject);
 }
 
 void UriPermissionManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     SetUriPermMgr(remoteObject);
     std::unique_lock<std::mutex> lock(saLoadMutex_);
     saLoadFinished_ = true;
@@ -218,7 +218,7 @@ void UriPermissionManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteOb
 
 void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     SetUriPermMgr(nullptr);
     std::unique_lock<std::mutex> lock(saLoadMutex_);
     saLoadFinished_ = true;
@@ -227,7 +227,7 @@ void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 
 void UriPermissionManagerClient::ClearProxy()
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     {
         std::lock_guard<std::mutex> lock(mutex_);
         uriPermMgr_ = nullptr;
@@ -238,7 +238,7 @@ void UriPermissionManagerClient::ClearProxy()
 
 void UriPermissionManagerClient::UpmsDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote)
 {
-    TAG_LOGE(AAFwkTag::URIPERMMGR, "upms stub died.");
+    TAG_LOGE(AAFwkTag::URIPERMMGR, "call");
     proxy_();
 }
 }  // namespace AAFwk

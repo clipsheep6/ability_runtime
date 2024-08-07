@@ -37,26 +37,26 @@ UriPermissionManagerService::~UriPermissionManagerService()
 
 void UriPermissionManagerService::OnStart()
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "UriPermissionManagerService start is triggered.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "start");
     if (!Init()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "init failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "init failed");
         return;
     }
 
     if (!registerToService_) {
         auto systemAabilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (!systemAabilityMgr || systemAabilityMgr->AddSystemAbility(URI_PERMISSION_MGR_SERVICE_ID, impl_) != 0) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "fail to register to system ability manager");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "register to systemAbilityMgr failed");
             return;
         }
-        TAG_LOGI(AAFwkTag::URIPERMMGR, "register to system ability manager success");
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "register to systemAbilityMgr success");
         registerToService_ = true;
     }
 }
 
 void UriPermissionManagerService::OnStop()
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "called");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "call");
     SelfClean();
 }
 
@@ -68,7 +68,7 @@ bool UriPermissionManagerService::IsServiceReady() const
 bool UriPermissionManagerService::Init()
 {
     if (ready_) {
-        TAG_LOGW(AAFwkTag::URIPERMMGR, "init more than one time.");
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "repeat init");
         return true;
     }
 
