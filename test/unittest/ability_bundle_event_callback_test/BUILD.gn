@@ -64,6 +64,7 @@ ohos_unittest("ability_bundle_event_callback_test") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "init:libbeget_proxy",
+    "init:libbegetutil",
     "kv_store:distributeddata_inner",
     "window_manager:libwsutils",
     "window_manager:sms",

@@ -81,7 +81,7 @@ bool AbilityPermissionUtil::IsDominateScreen(const Want &want, bool isPendingWan
             CHECK_POINTER_RETURN_BOOL(bms);
             int32_t callerUid = IPCSkeleton::GetCallingUid();
             std::string callerBundleName;
-            if (!IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName))) {
+            if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName)) != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get caller bundle name.");
                 return false;
             }
