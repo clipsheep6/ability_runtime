@@ -26,7 +26,7 @@ bool AppStateData::Marshalling(Parcel &parcel) const
         && parcel.WriteInt32(pid) && parcel.WriteUint32(accessTokenId) && parcel.WriteBool(isFocused)
         && parcel.WriteInt32(static_cast<int32_t>(extensionType)) && parcel.WriteInt32Vector(renderPids)
         && parcel.WriteString(callerBundleName) && parcel.WriteBool(isSplitScreenMode)
-        && parcel.WriteBool(isFloatingWindowMode));
+        && parcel.WriteBool(isFloatingWindowMode) && parcel.WriteInt32(appIndex));
 }
 
 bool AppStateData::ReadFromParcel(Parcel &parcel)
@@ -42,6 +42,7 @@ bool AppStateData::ReadFromParcel(Parcel &parcel)
     callerBundleName = parcel.ReadString();
     isSplitScreenMode = parcel.ReadBool();
     isFloatingWindowMode = parcel.ReadBool();
+    appIndex = parcel.ReadInt32();
 
     return true;
 }
