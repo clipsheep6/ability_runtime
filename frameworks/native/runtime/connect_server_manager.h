@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,6 +55,9 @@ public:
     DebuggerPostTask GetDebuggerPostTask(int32_t tid);
     void SetSwitchCallback(int32_t instanceId);
     void SetProfilerCallBack();
+    bool SetRecordCallback(const std::function<void(void)> &startRecordFunc,
+        const std::function<void(void)> &stopRecordFunc);
+    void SetRecordResults(const std::string &jsonArrayStr);
 
 private:
     ConnectServerManager() = default;
