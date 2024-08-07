@@ -557,8 +557,7 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
-        !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
+    if (!appRecord->IsKeepAliveApp() || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) {
         appRecord->SetTerminating();
     }
 
