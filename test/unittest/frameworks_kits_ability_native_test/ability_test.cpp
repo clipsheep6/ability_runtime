@@ -2057,8 +2057,10 @@ HWTEST_F(AbilityBaseTest, AbilityBackgroundRunning_0100, TestSize.Level1)
     ability->StartBackgroundRunning(wantAgent);
 
     int id = 0;
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     NotificationRequest notificationRequest;
     ability->KeepBackgroundRunning(id, notificationRequest);
+    #endif
 
     ability->CancelBackgroundRunning();
 

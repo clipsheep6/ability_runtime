@@ -26,8 +26,12 @@ config("wantagent_innerkits_public_config") {
     "${ability_runtime_native_path}/ability/native/*",
     "${ability_runtime_test_path}/fuzztest/*",
     "${device_usage_statistics_path}/*",
-    "${distributed_notification_service_path}/*",
   ]
+
+  if (pb_distributed_notification_part_enabled) {
+    visibility += [ "${distributed_notification_service_path}/*" ]
+    defines = [ "PB_DISTRIBUTED_NOTIFICATION_ENABLE" ]
+  }
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",

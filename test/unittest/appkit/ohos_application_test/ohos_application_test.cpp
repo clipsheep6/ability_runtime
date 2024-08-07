@@ -161,12 +161,14 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_010
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0100 start.";
     ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info = nullptr;
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(info, token);
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, record);
     ohosApplication_->DumpApplication();
     EXPECT_TRUE(record != nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0100 end.";
 }
 
@@ -179,6 +181,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_020
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0200 start.";
     ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     std::shared_ptr<AbilityLocalRecord> record =  std::make_shared<AbilityLocalRecord>(info, token);
@@ -186,6 +189,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_020
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, record);
     ohosApplication_->DumpApplication();
     EXPECT_TRUE(record != nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0200 end.";
 }
 
@@ -649,6 +653,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
     Configuration config;
     ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
     ohosApplication_->configuration_ = std::make_shared<Configuration>();
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info =  nullptr;
     std::shared_ptr<AbilityLocalRecord> abilityRecord =  std::make_shared<AbilityLocalRecord>(info, token);
@@ -658,6 +663,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
     ohosApplication_->OnConfigurationUpdated(config);
     EXPECT_TRUE(!ohosApplication_->abilityRecordMgr_->abilityRecords_.empty());
     EXPECT_TRUE(abilityRecord != nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0200 end.";
 }
 
@@ -769,6 +775,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100,
     ohosApplication_->OnMemoryLevel(level);
     ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
     std::shared_ptr<AbilityInfo> info = nullptr;
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     EXPECT_TRUE(abilityRecord != nullptr);
@@ -777,6 +784,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100,
     abilityRecord->SetAbilityThread(abilityThread);
     ohosApplication_->OnMemoryLevel(level);
     EXPECT_FALSE(ohosApplication_->abilityRecordMgr_->abilityRecords_.empty());
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100 end.";
 }
 
@@ -885,6 +893,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_020
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300 start.";
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info = nullptr;
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
@@ -892,6 +901,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_030
     auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
     bool isAsyncCallback = false;
     ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300 end.";
 }
 
@@ -905,6 +915,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_040
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400 start.";
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     info->applicationInfo.multiProjects = true;
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     auto want = std::make_shared<AAFwk::Want>();
@@ -913,6 +924,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_040
     bool isAsyncCallback = false;
     ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400 end.";
 }
 
@@ -924,6 +936,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_040
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500 start.";
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info = nullptr;
     std::string moduleName = "entry";
@@ -936,6 +949,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_050
     ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
     EXPECT_TRUE(abilityStages != nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500 end.";
 }
 
@@ -947,6 +961,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_050
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600 start.";
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token;
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     info->moduleName = "entry";
@@ -956,6 +971,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_060
     ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(token == nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600 end.";
 }
 
@@ -967,6 +983,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_060
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700 start.";
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
@@ -975,6 +992,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_070
     bool isAsyncCallback = false;
     ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(token != nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700 end.";
 }
 
@@ -1086,8 +1104,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0100 start.";
     std::shared_ptr<AbilityInfo> abilityInfo = nullptr;
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     ohosApplication_->CleanAbilityStage(token, abilityInfo);
+    #endif
     EXPECT_TRUE(abilityInfo == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0100 end.";
 }
@@ -1101,9 +1121,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0200 start.";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = nullptr;
     ohosApplication_->CleanAbilityStage(token, abilityInfo);
     EXPECT_TRUE(token == nullptr);
+    #endif
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0200 end.";
 }
 
@@ -1119,10 +1141,12 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0
     EXPECT_TRUE(ohosApplication_->abilityStages_.empty());
     abilityInfo->moduleName = "entry";
     std::shared_ptr<AbilityRuntime::AbilityStage> abilityStage = std::make_shared<AbilityRuntime::AbilityStage>();
+    #ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     ohosApplication_->abilityStages_.emplace(abilityInfo->moduleName, abilityStage);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
     ohosApplication_->CleanAbilityStage(token, abilityInfo);
+    #endif
     EXPECT_TRUE(ohosApplication_->abilityStages_.empty());
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0300 end.";
 }

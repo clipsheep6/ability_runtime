@@ -736,8 +736,10 @@ void Ability::Dump(const std::string &extra)
 void Ability::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {}
 
+#ifdef PB_DISTRIBUTED_NOTIFICATION_ENABLE
 void Ability::KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest)
 {}
+#endif
 
 void Ability::CancelBackgroundRunning()
 {}
