@@ -142,7 +142,7 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
 
 void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, const char *propName)
 {
-    TAG_LOGD(AAFwkTag::WANT, "start");
+    TAG_LOGD(AAFwkTag::WANT, "called");
     napi_value prop = nullptr;
     napi_create_string_utf8(env, objName, NAPI_AUTO_LENGTH, &prop);
     napi_set_named_property(env, dstObj, propName, prop);
@@ -150,7 +150,7 @@ void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, cons
 
 void SetNamedProperty(napi_env env, napi_value dstObj, const int32_t objValue, const char *propName)
 {
-    TAG_LOGD(AAFwkTag::WANT, "start");
+    TAG_LOGD(AAFwkTag::WANT, "called");
     napi_value prop = nullptr;
     napi_create_int32(env, objValue, &prop);
     napi_set_named_property(env, dstObj, propName, prop);
