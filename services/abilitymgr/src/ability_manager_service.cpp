@@ -2590,32 +2590,34 @@ int AbilityManagerService::RequestModalUIExtensionInner(Want want)
     sptr<IRemoteObject> token = nullptr;
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    // Gets the record corresponding to the current focus appliaction
-    auto record = Token::GetAbilityRecordByToken(token);
-    if (!record) {
+      TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr.");
+    } else {
+      // Gets the record corresponding to the current focus appliaction
+      auto record = Token::GetAbilityRecordByToken(token);
+      if (!record) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Record is nullptr.");
         return ERR_INVALID_VALUE;
-    }
+      }
 
-    // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
-    EventInfo focusInfo;
-    focusInfo.bundleName = record->GetAbilityInfo().bundleName;
+      // Gets the abilityName, bundleName, modulename corresponding to the
+      // current focus appliaction
+      EventInfo focusInfo;
+      focusInfo.bundleName = record->GetAbilityInfo().bundleName;
 
-    // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
-    EventInfo callerInfo;
-    callerInfo.bundleName = want.GetParams().GetStringParam("bundleName");
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "focusbundlname: %{public}s, callerbundlname: %{public}s.",
-        focusInfo.bundleName.c_str(), callerInfo.bundleName.c_str());
+      // Gets the abilityName, bundleName, modulename corresponding to the
+      // caller appliaction
+      EventInfo callerInfo;
+      callerInfo.bundleName = want.GetParams().GetStringParam("bundleName");
+      TAG_LOGI(AAFwkTag::ABILITYMGR,
+               "focusbundlname: %{public}s, callerbundlname: %{public}s.",
+               focusInfo.bundleName.c_str(), callerInfo.bundleName.c_str());
 
-    // Compare
-    if (record->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE &&
-        focusInfo.bundleName == callerInfo.bundleName) {
+      // Compare
+      if (record->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE &&
+          focusInfo.bundleName == callerInfo.bundleName) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "CreateModalUIExtension is called!");
         return record->CreateModalUIExtension(want);
+      }
     }
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Window Modal System Create UIExtension is called!");
