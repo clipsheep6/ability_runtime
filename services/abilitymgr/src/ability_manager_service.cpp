@@ -20,6 +20,7 @@
 #include "ability_manager_radar.h"
 #include "ability_resident_process_rdb.h"
 #include "accesstoken_kit.h"
+#include "ability_manager_xcollie.h"
 #ifdef APP_DOMAIN_VERIFY_ENABLED
 #include "ag_convert_callback_impl.h"
 #include "app_domain_verify_mgr_client.h"
@@ -4484,6 +4485,7 @@ int AbilityManagerService::GetPendingWantUserId(const sptr<IWantSender> &target)
 std::string AbilityManagerService::GetPendingWantBundleName(const sptr<IWantSender> &target)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Get pending want bundle name.");
+    AbilityManagerXCollie abilityManagerXCollie("AbilityManagerService::GetPendingWantBundleName");
     auto pendingWantManager = GetCurrentPendingWantManager();
     CHECK_POINTER_AND_RETURN(pendingWantManager, "");
     CHECK_POINTER_AND_RETURN(target, "");
@@ -4505,6 +4507,7 @@ int AbilityManagerService::GetPendingWantCode(const sptr<IWantSender> &target)
 int AbilityManagerService::GetPendingWantType(const sptr<IWantSender> &target)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s:begin.", __func__);
+    AbilityManagerXCollie abilityManagerXCollie("AbilityManagerService::GetPendingWantType");
     auto pendingWantManager = GetCurrentPendingWantManager();
     CHECK_POINTER_AND_RETURN(pendingWantManager, -1);
     if (target == nullptr) {
@@ -4540,6 +4543,7 @@ int AbilityManagerService::GetPendingRequestWant(const sptr<IWantSender> &target
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get pending request want.");
+    AbilityManagerXCollie abilityManagerXCollie("AbilityManagerService::GetPendingRequestWant");
     auto pendingWantManager = GetCurrentPendingWantManager();
     CHECK_POINTER_AND_RETURN(pendingWantManager, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(target, ERR_INVALID_VALUE);
