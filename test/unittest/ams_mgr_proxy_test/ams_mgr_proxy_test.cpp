@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -140,6 +140,89 @@ HWTEST_F(AmsMgrProxyTest, DetachAppDebug_0100, TestSize.Level1)
     EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
     result = amsMgrProxy_->DetachAppDebug(EMPTY_BUNDLE_NAME);
     EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: SetAppWaitingDebug_0100
+ * @tc.desc: Set app waiting debug by bundleName, check empty bundle name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, SetAppWaitingDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->SetAppWaitingDebug(STRING_BUNDLE_NAME, false);
+    EXPECT_EQ(result, NO_ERROR);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    result = amsMgrProxy_->SetAppWaitingDebug(EMPTY_BUNDLE_NAME, false);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: CancelAppWaitingDebug_0100
+ * @tc.desc: Cancel app waiting debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, CancelAppWaitingDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->CancelAppWaitingDebug();
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: GetWaitingDebugApp_0100
+ * @tc.desc: Get waiting debug app info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, GetWaitingDebugApp_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    std::vector<std::string> debugInfoList;
+    auto result = amsMgrProxy_->GetWaitingDebugApp(debugInfoList);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: IsWaitingDebugAppp_0100
+ * @tc.desc: Determine if it is a waiting app, check empty bundle name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, IsWaitingDebugApp_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->IsWaitingDebugApp(STRING_BUNDLE_NAME);
+    EXPECT_EQ(result, false);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    result = amsMgrProxy_->IsWaitingDebugApp(EMPTY_BUNDLE_NAME);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.name: ClearNonPersistWaitingDebugFlag_0100
+ * @tc.desc: Clear non persist waiting debug flag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, ClearNonPersistWaitingDebugFlag_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    amsMgrProxy_->ClearNonPersistWaitingDebugFlag();
 }
 
 /**
