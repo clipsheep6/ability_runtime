@@ -55,7 +55,7 @@ AAFwk::UserStatus AssertFaultTaskThread::RequestAssertResult(const std::string &
             return;
         }
         assertResult = assertFaultTask->HandleAssertCallback(exprStr);
-    });
+        }, "AssertFaultTaskThread::RequestAssertResult");
     return assertResult;
 }
 

@@ -68,7 +68,7 @@ public:
 
     void PostTask(const std::function<void()>& task, const std::string& name = "", int64_t delayTime = 0);
 
-    void PostSyncTask(const std::function<void()>& task, const std::string& name = "");
+    void PostSyncTask(const std::function<void()>& task, const std::string& name);
 
     void RemoveTask(const std::string& name);
 

@@ -75,7 +75,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOnInner(MessageParcel &data, Messa
             return;
         }
         autoStartUpCallBackStub->OnAutoStartupOn(*info);
-    });
+        }, "AutoStartupCallBackStub::OnAutoStartupOnInner");
 
     return NO_ERROR;
 }
@@ -98,7 +98,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOffInner(MessageParcel &data, Mess
             return;
         }
         autoStartUpCallBackStub->OnAutoStartupOff(*info);
-    });
+        }, "AutoStartupCallBackStub::OnAutoStartupOffInner");
 
     return NO_ERROR;
 }

@@ -60,7 +60,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
         formJsInfo, want, callerToken]() {
         client->AcquireFormExtensionProviderInfo(formJsInfo, want, callerToken);
     };
-    mainHandler->PostSyncTask(acquireProviderInfoFunc);
+    mainHandler->PostSyncTask(acquireProviderInfoFunc, "FormExtensionProviderClient::AcquireProviderFormInfo");
     return ERR_OK;
 }
 
@@ -133,7 +133,7 @@ int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Wa
         formId, want, callerToken]() {
         client->NotifyFormExtensionDelete(formId, want, callerToken);
     };
-    mainHandler->PostSyncTask(notifyFormExtensionDeleteFunc);
+    mainHandler->PostSyncTask(notifyFormExtensionDeleteFunc, "FormExtensionProviderClient::NotifyFormDelete");
     return ERR_OK;
 }
 
@@ -176,7 +176,7 @@ int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &f
         formIds, want, callerToken]() {
         client->NotifyFormExtensionsDelete(formIds, want, callerToken);
     };
-    mainHandler->PostSyncTask(notifyFormExtensionsDeleteFunc);
+    mainHandler->PostSyncTask(notifyFormExtensionsDeleteFunc, "FormExtensionProviderClient::NotifyFormsDelete");
     return ERR_OK;
 }
 
@@ -214,7 +214,7 @@ int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Wa
         formId, want, callerToken]() {
         client->NotifyFormExtensionUpdate(formId, want, callerToken);
     };
-    mainHandler->PostSyncTask(notifyFormExtensionUpdateFunc);
+    mainHandler->PostSyncTask(notifyFormExtensionUpdateFunc, "FormExtensionProviderClient::NotifyFormUpdate");
     return ERR_OK;
 }
 
@@ -252,7 +252,7 @@ int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds
         formIds, formVisibleType, want, callerToken]() {
         client->EventNotifyExtension(formIds, formVisibleType, want, callerToken);
     };
-    mainHandler->PostSyncTask(eventNotifyExtensionFunc);
+    mainHandler->PostSyncTask(eventNotifyExtensionFunc, "FormExtensionProviderClient::EventNotify");
     return ERR_OK;
 }
 
@@ -292,7 +292,8 @@ int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, co
         formId, want, callerToken]() {
         client->NotifyFormExtensionCastTempForm(formId, want, callerToken);
     };
-    mainHandler->PostSyncTask(notifyFormExtensionCastTempFormFunc);
+    mainHandler->PostSyncTask(notifyFormExtensionCastTempFormFunc,
+        "FormExtensionProviderClient::NotifyFormCastTempForm");
     return ERR_OK;
 }
 
@@ -328,7 +329,7 @@ int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::
         formId, message, want, callerToken]() {
         client->FireFormExtensionEvent(formId, message, want, callerToken);
     };
-    mainHandler->PostSyncTask(fireFormExtensionEventFunc);
+    mainHandler->PostSyncTask(fireFormExtensionEventFunc, "FormExtensionProviderClient::FireFormEvent");
     return ERR_OK;
 }
 
@@ -366,7 +367,7 @@ int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::st
         wantArg, provider, want, callerToken]() {
         client->NotifyFormExtensionAcquireState(wantArg, provider, want, callerToken);
     };
-    mainHandler->PostSyncTask(notifyFormExtensionAcquireStateFunc);
+    mainHandler->PostSyncTask(notifyFormExtensionAcquireStateFunc, "FormExtensionProviderClient::AcquireState");
     return ERR_OK;
 }
 
@@ -478,7 +479,7 @@ int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const 
     auto taskProc = [client = sptr<FormExtensionProviderClient>(this), formId, &wantParams, &result]() {
         result = client->AcquireFormExtensionProviderShareFormInfo(formId, wantParams);
     };
-    mainHandler->PostSyncTask(taskProc);
+    mainHandler->PostSyncTask(taskProc, "FormExtensionProviderClient::AcquireShareFormData");
     formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode, result);
 
     return ERR_OK;
@@ -519,7 +520,7 @@ int32_t FormExtensionProviderClient::AcquireFormData(int64_t formId, const sptr<
     auto taskProc = [client = wptr<FormExtensionProviderClient>(this), formId, &wantParams, &result]() {
         result = client->FormExtensionProviderAcquireFormData(formId, wantParams);
     };
-    mainHandler->PostSyncTask(taskProc);
+    mainHandler->PostSyncTask(taskProc, "FormExtensionProviderClient::AcquireFormData");
     formCall->OnAcquireDataResult(wantParams, requestCode);
 
     return ERR_OK;
